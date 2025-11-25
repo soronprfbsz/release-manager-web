@@ -53,8 +53,8 @@ export function StandardReleasePage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <Breadcrumb
           items={[
-            { label: '릴리즈 버전 관리' },
-            { label: '표준 릴리즈' },
+            { label: '버전 관리' },
+            { label: 'Standard' },
           ]}
         />
         <Button onClick={() => refetchTree()} variant="outline" size="icon" title="새로고침">

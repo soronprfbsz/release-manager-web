@@ -35,6 +35,14 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/shared/ui/dialog'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import {
   DropdownMenu,
@@ -207,23 +215,31 @@ export function CustomerListPage() {
         </div>
       </div>
 
-      {/* 필터 영역 */}
+      {/* 고객사 목록 */}
       <Card>
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 flex-1">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="고객사명 검색..."
-                className="flex-1"
-              />
-            </div>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              고객사 목록
+              {customerList.length > 0 && (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  ({customerList.length})
+                </span>
+              )}
+            </CardTitle>
             <div className="flex items-center gap-2">
-              <Label className="text-sm text-muted-foreground">상태:</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  placeholder="검색..."
+                  className="pl-8 h-8 w-[180px] text-sm"
+                />
+              </div>
               <Select value={filterActive} onValueChange={setFilterActive}>
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="h-8 w-[90px] text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -234,23 +250,6 @@ export function CustomerListPage() {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* 고객사 목록 */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              고객사 목록
-            </div>
-            {customerList.length > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
-                총 {customerList.length}개
-              </span>
-            )}
-          </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -349,73 +348,83 @@ export function CustomerListPage() {
         </CardContent>
       </Card>
 
-      {/* 생성/수정 모달 */}
-      <Dialog open={modalMode !== null} onOpenChange={(open) => !open && closeModal()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      {/* 생성/수정 슬라이드 패널 */}
+      <Sheet open={modalMode !== null} onOpenChange={(open) => !open && closeModal()}>
+        <SheetContent className="w-[400px] sm:max-w-[400px]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
               {modalMode === 'create' ? '고객사 등록' : '고객사 수정'}
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               {modalMode === 'create'
                 ? '새 고객사 정보를 입력하세요.'
                 : '고객사 정보를 수정하세요.'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>고객사 코드 *</Label>
-              <Input
-                value={formData.customerCode}
-                onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
-                placeholder="예: CUSTOMER_A"
-                disabled={modalMode === 'edit'}
-              />
-              {modalMode === 'edit' && (
-                <p className="text-xs text-muted-foreground">고객사 코드는 수정할 수 없습니다.</p>
-              )}
+            </SheetDescription>
+          </SheetHeader>
+
+          <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label>고객사 코드 *</Label>
+                <Input
+                  value={formData.customerCode}
+                  onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
+                  placeholder="예: CUSTOMER_A"
+                  disabled={modalMode === 'edit'}
+                />
+                {modalMode === 'edit' && (
+                  <p className="text-xs text-muted-foreground">고객사 코드는 수정할 수 없습니다.</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>고객사명 *</Label>
+                <Input
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                  placeholder="예: A회사"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>설명 (선택)</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="고객사에 대한 설명을 입력하세요"
+                  className="min-h-[80px]"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Label>활성 상태</Label>
+                <Switch
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {formData.isActive ? '활성' : '비활성'}
+                </span>
+              </div>
+
+              {/* 버튼 */}
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline" onClick={closeModal} className="flex-1">
+                  취소
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  className="flex-1"
+                >
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  {modalMode === 'create' ? '등록' : '수정'}
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>고객사명 *</Label>
-              <Input
-                value={formData.customerName}
-                onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                placeholder="예: A회사"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>설명</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="고객사에 대한 설명을 입력하세요"
-                className="min-h-[80px]"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Label>활성 상태</Label>
-              <Switch
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>
-              취소
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {(createMutation.isPending || updateMutation.isPending) && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              )}
-              {modalMode === 'create' ? '등록' : '수정'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
 
       {/* 삭제 확인 모달 */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>

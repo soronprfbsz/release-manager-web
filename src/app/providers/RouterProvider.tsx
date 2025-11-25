@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider as ReactRouterProvider, Navigate } from 'react-router-dom'
 import { ROUTES } from '@/shared/config/constants'
 import { ProtectedRoute } from './ProtectedRoute'
 import { MainLayout } from '../layouts/MainLayout'
@@ -7,8 +7,8 @@ import { SignUpPage } from '@/pages/auth/signup'
 import { HomePage } from '@/pages/home'
 import { StandardReleasePage } from '@/pages/releases/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
-import { PatchGeneratePage } from '@/pages/patches/generate'
-import { PatchHistoryPage } from '@/pages/patches/history'
+import { StandardPatchPage } from '@/pages/patches/standard'
+import { CustomPatchPage } from '@/pages/patches/custom'
 import { CustomerListPage } from '@/pages/customers'
 
 const router = createBrowserRouter([
@@ -51,34 +51,37 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.PATCHES.GENERATE,
+    path: ROUTES.PATCHES.STANDARD,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <PatchGeneratePage />
+          <StandardPatchPage />
         </MainLayout>
       </ProtectedRoute>
     ),
+  },
+  {
+    path: ROUTES.PATCHES.CUSTOM,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <CustomPatchPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  // 레거시 라우트 리다이렉트
+  {
+    path: ROUTES.PATCHES.GENERATE,
+    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
   },
   {
     path: ROUTES.PATCHES.HISTORY,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <PatchHistoryPage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
+    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
   },
   {
     path: ROUTES.PATCHES.DOWNLOAD,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <PatchHistoryPage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
+    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
   },
   {
     path: ROUTES.CUSTOMERS.LIST,

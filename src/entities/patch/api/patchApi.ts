@@ -18,7 +18,7 @@ export const patchApi = {
     return response.data
   },
 
-  /** 누적 패치 생성 */
+  /** 패치 생성 */
   generate: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
     const response = await apiClient.post<CumulativePatch>('/api/patch-histories/generate', request)
     return response.data

@@ -16,7 +16,7 @@ test.describe('로그인 페이지', () => {
       await expect(page.getByText('Release Manager', { exact: true })).toBeVisible()
 
       // 설명 텍스트 확인
-      await expect(page.getByText('릴리즈 버전 관리 시스템에 로그인하세요')).toBeVisible()
+      await expect(page.getByText('버전 관리 시스템에 로그인하세요')).toBeVisible()
 
       // 이메일 입력 필드 확인
       await expect(page.locator('#email')).toBeVisible()

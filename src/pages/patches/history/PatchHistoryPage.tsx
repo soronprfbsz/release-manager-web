@@ -85,7 +85,7 @@ export function PatchHistoryPage() {
       <div className="flex items-center justify-between h-9">
         <Breadcrumb
           items={[
-            { label: '패치본 관리' },
+            { label: '패치 관리' },
             { label: '패치 조회/다운로드' },
           ]}
         />
@@ -189,7 +189,7 @@ export function PatchHistoryPage() {
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Layers className="h-12 w-12 mb-3 opacity-50" />
               <p className="text-sm">생성된 패치가 없습니다.</p>
-              <p className="text-sm">누적 패치 생성 메뉴에서 패치를 생성해보세요.</p>
+              <p className="text-sm">패치 생성 메뉴에서 패치를 생성해보세요.</p>
             </div>
           )}
         </CardContent>

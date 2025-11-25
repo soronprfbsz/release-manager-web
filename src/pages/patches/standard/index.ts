@@ -1,0 +1,2 @@
+export { StandardPatchPage } from './StandardPatchPage'
+

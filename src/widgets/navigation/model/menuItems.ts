@@ -8,28 +8,28 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
   {
-    label: '릴리즈 버전 관리',
+    label: '버전 관리',
     children: [
       {
-        label: '표준 릴리즈',
+        label: 'Standard',
         path: ROUTES.RELEASES.STANDARD,
       },
       {
-        label: '커스텀 릴리즈',
+        label: 'Custom',
         path: ROUTES.RELEASES.CUSTOM,
       },
     ],
   },
   {
-    label: '패치본 관리',
+    label: '패치 관리',
     children: [
       {
-        label: '누적 패치 생성',
-        path: ROUTES.PATCHES.GENERATE,
+        label: '표준 패치본',
+        path: ROUTES.PATCHES.STANDARD,
       },
       {
-        label: '패치 조회/다운로드',
-        path: ROUTES.PATCHES.HISTORY,
+        label: '커스텀 패치본',
+        path: ROUTES.PATCHES.CUSTOM,
       },
     ],
   },

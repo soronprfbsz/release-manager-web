@@ -20,7 +20,7 @@ import { patchApi, type CumulativePatch } from '@/entities/patch'
 const features = [
   {
     icon: Package,
-    title: '표준 릴리즈',
+    title: 'Standard',
     description: '표준 릴리즈 버전을 트리 구조로 관리하고 파일을 다운로드합니다.',
     href: ROUTES.RELEASES.STANDARD,
     color: 'text-blue-500',
@@ -28,7 +28,7 @@ const features = [
   },
   {
     icon: GitBranch,
-    title: '커스텀 릴리즈',
+    title: 'Custom',
     description: '고객별 맞춤 릴리즈 버전을 관리하고 파일을 다운로드합니다.',
     href: ROUTES.RELEASES.CUSTOM,
     color: 'text-purple-500',
@@ -36,7 +36,7 @@ const features = [
   },
   {
     icon: Layers,
-    title: '누적 패치 생성',
+    title: '패치 생성',
     description: '버전 간 누적 패치를 생성하고 이력을 관리합니다.',
     href: ROUTES.PATCHES.GENERATE,
     color: 'text-green-500',
@@ -246,8 +246,8 @@ export function HomePage() {
             <div>
               <h3 className="font-semibold mb-2">사용 가이드</h3>
               <div className="text-sm text-muted-foreground space-y-1">
-                <p>1. <strong>릴리즈 버전 관리</strong>에서 표준/커스텀 버전의 SQL 파일을 확인하고 다운로드합니다.</p>
-                <p>2. <strong>패치본 관리</strong>에서 버전 간 누적 패치를 생성하여 배포합니다.</p>
+                <p>1. <strong>버전 관리</strong>에서 표준/커스텀 버전의 SQL 파일을 확인하고 다운로드합니다.</p>
+                <p>2. <strong>패치 관리</strong>에서 버전 간 누적 패치를 생성하여 배포합니다.</p>
                 <p>3. <strong>스크립트 관리</strong>에서 백업/복구용 스크립트를 다운로드합니다.</p>
               </div>
             </div>

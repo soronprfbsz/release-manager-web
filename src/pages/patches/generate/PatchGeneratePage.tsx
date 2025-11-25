@@ -134,8 +134,8 @@ export function PatchGeneratePage() {
       <div className="flex items-center justify-between h-9">
         <Breadcrumb
           items={[
-            { label: '패치본 관리' },
-            { label: '누적 패치 생성' },
+            { label: '패치 관리' },
+            { label: '패치 생성' },
           ]}
         />
       </div>
@@ -146,7 +146,7 @@ export function PatchGeneratePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Layers className="h-5 w-5" />
-              누적 패치 생성
+              패치 생성
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -164,7 +164,7 @@ export function PatchGeneratePage() {
                   className="flex-1"
                 >
                   <Package className="h-4 w-4 mr-2" />
-                  표준 릴리즈
+                  Standard
                 </Button>
                 <Button
                   variant={releaseType === 'CUSTOM' ? 'default' : 'outline'}
@@ -178,7 +178,7 @@ export function PatchGeneratePage() {
                   title="추후 지원 예정"
                 >
                   <GitBranch className="h-4 w-4 mr-2" />
-                  커스텀 릴리즈
+                  Custom
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -292,7 +292,7 @@ export function PatchGeneratePage() {
               ) : (
                 <>
                   <Layers className="h-4 w-4 mr-2" />
-                  누적 패치 생성
+                  패치 생성
                 </>
               )}
             </Button>

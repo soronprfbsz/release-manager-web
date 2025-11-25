@@ -1,0 +1,2 @@
+export { CustomPatchPage } from './CustomPatchPage'
+

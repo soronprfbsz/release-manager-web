@@ -42,7 +42,7 @@ export function LoginForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Release Manager</CardTitle>
         <CardDescription className="text-center">
-          릴리즈 버전 관리 시스템에 로그인하세요
+          버전 관리 시스템에 로그인하세요
         </CardDescription>
       </CardHeader>
       <CardContent>
