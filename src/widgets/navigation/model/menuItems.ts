@@ -8,7 +8,7 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
   {
-    label: '릴리즈 관리',
+    label: '릴리즈 버전 관리',
     children: [
       {
         label: '표준 릴리즈',

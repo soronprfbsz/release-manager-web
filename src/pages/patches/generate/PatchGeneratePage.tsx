@@ -4,13 +4,21 @@ import { Layers, ArrowRight, Loader2, Package, GitBranch } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
+import { Input } from '@/shared/ui/input'
+import { Textarea } from '@/shared/ui/textarea'
 import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useAuth } from '@/app/providers/AuthProvider'
-import { releaseApi } from '@/shared/api/releaseApi'
-import { patchApi } from '@/shared/api/patchApi'
-import { customerApi } from '@/shared/api/customerApi'
-import type { CumulativePatchGenerateRequest, VersionNode } from '@/shared/api/types'
+import { releaseApi, type VersionNode } from '@/entities/release'
+import { patchApi, type CumulativePatchGenerateRequest } from '@/entities/patch'
+import { customerApi } from '@/entities/customer'
 
 type ReleaseType = 'STANDARD' | 'CUSTOM'
 
@@ -40,9 +48,10 @@ export function PatchGeneratePage() {
   const queryClient = useQueryClient()
 
   const [releaseType, setReleaseType] = useState<ReleaseType>('STANDARD')
-  const [customerCode, setCustomerCode] = useState('')
   const [fromVersion, setFromVersion] = useState('')
   const [toVersion, setToVersion] = useState('')
+  const [customerCode, setCustomerCode] = useState('')
+  const [assignedEngineer, setAssignedEngineer] = useState('')
   const [description, setDescription] = useState('')
 
   const { data: treeData, isLoading: isTreeLoading } = useQuery({
@@ -53,22 +62,23 @@ export function PatchGeneratePage() {
 
   const { data: customers } = useQuery({
     queryKey: ['customers-active'],
-    queryFn: () => customerApi.getCustomers(true),
+    queryFn: () => customerApi.getList(true),
   })
 
   const versions = getVersionsFromTree(treeData)
 
   const generateMutation = useMutation({
-    mutationFn: (request: CumulativePatchGenerateRequest) => patchApi.generateCumulativePatch(request),
+    mutationFn: (request: CumulativePatchGenerateRequest) => patchApi.generate(request),
     onSuccess: (data) => {
       toast({
         title: '패치 생성 완료',
         description: `${data.patchName} 패치가 생성되었습니다.`,
       })
       queryClient.invalidateQueries({ queryKey: ['cumulative-patches'] })
-      setCustomerCode('')
       setFromVersion('')
       setToVersion('')
+      setCustomerCode('')
+      setAssignedEngineer('')
       setDescription('')
     },
     onError: (error: Error) => {
@@ -105,15 +115,23 @@ export function PatchGeneratePage() {
       fromVersion,
       toVersion,
       generatedBy: user?.email || '',
+      assignedEngineer: assignedEngineer || undefined,
       description: description || undefined,
     }
 
     generateMutation.mutate(request)
   }
 
+  const handleFromVersionChange = (value: string) => {
+    setFromVersion(value)
+    if (toVersion && value >= toVersion) {
+      setToVersion('')
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-9">
         <Breadcrumb
           items={[
             { label: '패치본 관리' },
@@ -134,7 +152,7 @@ export function PatchGeneratePage() {
           <CardContent className="space-y-5">
             {/* 릴리즈 타입 */}
             <div className="space-y-2">
-              <Label>릴리즈 타입</Label>
+              <Label>릴리즈 타입 *</Label>
               <div className="flex gap-2">
                 <Button
                   variant={releaseType === 'STANDARD' ? 'default' : 'outline'}
@@ -168,58 +186,39 @@ export function PatchGeneratePage() {
               </p>
             </div>
 
-            {/* 고객사 (선택) */}
-            <div className="space-y-2">
-              <Label>고객사 (선택)</Label>
-              <select
-                value={customerCode}
-                onChange={(e) => setCustomerCode(e.target.value)}
-                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">선택 안함 (전체 고객사용)</option>
-                {customers?.map((c) => (
-                  <option key={c.customerId} value={c.customerCode}>
-                    {c.customerName} ({c.customerCode})
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">
-                * 특정 고객사를 위한 패치인 경우 선택하세요.
-              </p>
-            </div>
-
             {/* 버전 선택 */}
             <div className="space-y-2">
-              <Label>버전 범위</Label>
+              <Label>버전 범위 *</Label>
               <div className="flex items-center gap-3">
-                <select
+                <Select
                   value={fromVersion}
-                  onChange={(e) => {
-                    setFromVersion(e.target.value)
-                    if (toVersion && e.target.value >= toVersion) {
-                      setToVersion('')
-                    }
-                  }}
-                  className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onValueChange={handleFromVersionChange}
                   disabled={isTreeLoading || versions.length === 0}
                 >
-                  <option value="">시작 버전 선택</option>
-                  {versions.map((v) => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="시작 버전 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {versions.map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <select
+                <Select
                   value={toVersion}
-                  onChange={(e) => setToVersion(e.target.value)}
-                  className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onValueChange={setToVersion}
                   disabled={isTreeLoading || versions.length === 0 || !fromVersion}
                 >
-                  <option value="">종료 버전 선택</option>
-                  {versions.filter(v => fromVersion && v > fromVersion).map((v) => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="종료 버전 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {versions.filter(v => fromVersion && v > fromVersion).map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               {isTreeLoading && (
                 <p className="text-sm text-muted-foreground">버전 목록을 불러오는 중...</p>
@@ -229,14 +228,45 @@ export function PatchGeneratePage() {
               )}
             </div>
 
+            {/* 고객사 */}
+            <div className="space-y-2">
+              <Label>고객사</Label>
+              <Select
+                value={customerCode || '__none__'}
+                onValueChange={(value) => setCustomerCode(value === '__none__' ? '' : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="선택 안함" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">선택 안함</SelectItem>
+                  {customers?.map((c) => (
+                    <SelectItem key={c.customerId} value={c.customerCode}>
+                      {c.customerName} ({c.customerCode})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 담당 엔지니어 */}
+            <div className="space-y-2">
+              <Label>담당 엔지니어</Label>
+              <Input
+                value={assignedEngineer}
+                onChange={(e) => setAssignedEngineer(e.target.value)}
+                placeholder="패치 담당 엔지니어 이름을 입력하세요"
+              />
+            </div>
+
             {/* 설명 */}
             <div className="space-y-2">
-              <Label>설명 (선택)</Label>
-              <textarea
+              <Label>설명</Label>
+              <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="패치에 대한 설명을 입력하세요 (예: 특정 버그 수정, 기능 추가 등)"
-                className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                className="min-h-[80px]"
               />
             </div>
 
@@ -304,6 +334,12 @@ export function PatchGeneratePage() {
                     <span className="text-sm text-muted-foreground">생성자</span>
                     <span className="text-sm font-medium">{user?.email}</span>
                   </div>
+                  {assignedEngineer && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">담당 엔지니어</span>
+                      <span className="text-sm font-medium">{assignedEngineer}</span>
+                    </div>
+                  )}
                   {description && (
                     <div className="pt-2 border-t">
                       <span className="text-sm text-muted-foreground block mb-1">설명</span>

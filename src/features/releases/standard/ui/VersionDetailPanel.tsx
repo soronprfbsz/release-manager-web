@@ -6,8 +6,7 @@ import { Button } from '@/shared/ui/button'
 import { Separator } from '@/shared/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { releaseApi } from '@/shared/api/releaseApi'
-import type { VersionNode, ReleaseVersionDetail, ReleaseFileSimple } from '@/shared/api/types'
+import { releaseApi, type VersionNode, type ReleaseVersionDetail, type ReleaseFileSimple } from '@/entities/release'
 
 interface VersionDetailPanelProps {
   version: VersionNode | null

@@ -7,31 +7,54 @@ import {
   Edit2,
   Trash2,
   RefreshCw,
-  X,
-  Loader2
+  Loader2,
+  MoreHorizontal,
+  Power,
+  PowerOff
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
 import { Label } from '@/shared/ui/label'
+import { Input } from '@/shared/ui/input'
+import { Textarea } from '@/shared/ui/textarea'
 import { Breadcrumb } from '@/shared/ui/breadcrumb'
 import { Switch } from '@/shared/ui/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/shared/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { customerApi } from '@/shared/api/customerApi'
-import type { Customer, CustomerCreateRequest, CustomerUpdateRequest } from '@/shared/api/types'
+import { customerApi, type Customer, type CustomerCreateRequest, type CustomerUpdateRequest } from '@/entities/customer'
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
   if (isNaN(date.getTime())) return '-'
-  return date.toLocaleString('ko-KR', {
+  return date.toLocaleDateString('ko-KR', {
     year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+    month: '2-digit',
+    day: '2-digit',
+  }).replace(/\. /g, '-').replace('.', '')
 }
 
 type ModalMode = 'create' | 'edit' | null
@@ -41,7 +64,7 @@ export function CustomerListPage() {
   const queryClient = useQueryClient()
 
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterActive, setFilterActive] = useState<boolean | undefined>(undefined)
+  const [filterActive, setFilterActive] = useState<string>('all')
   const [modalMode, setModalMode] = useState<ModalMode>(null)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
@@ -56,11 +79,14 @@ export function CustomerListPage() {
 
   const { data: customers, isLoading, refetch } = useQuery({
     queryKey: ['customers', filterActive, searchKeyword],
-    queryFn: () => customerApi.getCustomers(filterActive, searchKeyword || undefined),
+    queryFn: () => {
+      const isActiveFilter = filterActive === 'all' ? undefined : filterActive === 'true'
+      return customerApi.getList(isActiveFilter, searchKeyword || undefined)
+    },
   })
 
   const createMutation = useMutation({
-    mutationFn: (request: CustomerCreateRequest) => customerApi.createCustomer(request),
+    mutationFn: (request: CustomerCreateRequest) => customerApi.create(request),
     onSuccess: () => {
       toast({ title: '고객사 생성 완료', description: '새 고객사가 등록되었습니다.' })
       queryClient.invalidateQueries({ queryKey: ['customers'] })
@@ -73,7 +99,7 @@ export function CustomerListPage() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, request }: { id: number; request: CustomerUpdateRequest }) =>
-      customerApi.updateCustomer(id, request),
+      customerApi.update(id, request),
     onSuccess: () => {
       toast({ title: '수정 완료', description: '고객사 정보가 수정되었습니다.' })
       queryClient.invalidateQueries({ queryKey: ['customers'] })
@@ -85,7 +111,7 @@ export function CustomerListPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => customerApi.deleteCustomer(id),
+    mutationFn: (id: number) => customerApi.delete(id),
     onSuccess: () => {
       toast({ title: '삭제 완료', description: '고객사가 삭제되었습니다.' })
       queryClient.invalidateQueries({ queryKey: ['customers'] })
@@ -98,7 +124,7 @@ export function CustomerListPage() {
 
   const statusMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      customerApi.updateCustomerStatus(id, isActive),
+      customerApi.updateStatus(id, isActive),
     onSuccess: () => {
       toast({ title: '상태 변경 완료', description: '활성화 상태가 변경되었습니다.' })
       queryClient.invalidateQueries({ queryKey: ['customers'] })
@@ -168,12 +194,11 @@ export function CustomerListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-9">
         <Breadcrumb items={[{ label: '고객사 관리' }]} />
         <div className="flex items-center gap-2">
-          <Button onClick={() => refetch()} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            새로고침
+          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+            <RefreshCw className="h-4 w-4" />
           </Button>
           <Button onClick={openCreateModal} size="sm">
             <Plus className="h-4 w-4 mr-2" />
@@ -188,28 +213,25 @@ export function CustomerListPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 flex-1">
               <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
+              <Input
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 placeholder="고객사명 검색..."
-                className="flex-1 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                className="flex-1"
               />
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-sm text-muted-foreground">상태:</Label>
-              <select
-                value={filterActive === undefined ? 'all' : String(filterActive)}
-                onChange={(e) => {
-                  const val = e.target.value
-                  setFilterActive(val === 'all' ? undefined : val === 'true')
-                }}
-                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
-              >
-                <option value="all">전체</option>
-                <option value="true">활성</option>
-                <option value="false">비활성</option>
-              </select>
+              <Select value={filterActive} onValueChange={setFilterActive}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  <SelectItem value="true">활성</SelectItem>
+                  <SelectItem value="false">비활성</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -238,30 +260,30 @@ export function CustomerListPage() {
           ) : customerList.length > 0 ? (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-20 text-center">ID</TableHead>
-                  <TableHead className="w-36">고객사 코드</TableHead>
+                <TableRow className="h-10">
+                  <TableHead className="w-16 text-center">ID</TableHead>
+                  <TableHead className="w-32">고객사 코드</TableHead>
                   <TableHead>고객사명</TableHead>
                   <TableHead>설명</TableHead>
-                  <TableHead className="w-24 text-center">상태</TableHead>
-                  <TableHead className="w-44">등록일</TableHead>
-                  <TableHead className="w-32 text-center">관리</TableHead>
+                  <TableHead className="w-20 text-center">상태</TableHead>
+                  <TableHead className="w-28">등록일</TableHead>
+                  <TableHead className="w-12 text-center"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {customerList.map((customer) => (
-                  <TableRow key={customer.customerId}>
-                    <TableCell className="text-center text-muted-foreground">
+                  <TableRow key={customer.customerId} className="h-10">
+                    <TableCell className="text-center text-muted-foreground py-2">
                       {customer.customerId}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-2">
                       <span className="font-mono text-sm">{customer.customerCode}</span>
                     </TableCell>
-                    <TableCell className="font-medium">{customer.customerName}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                    <TableCell className="font-medium py-2">{customer.customerName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground max-w-xs truncate py-2">
                       {customer.description || '-'}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center py-2">
                       <Badge
                         variant="outline"
                         className={
@@ -273,32 +295,45 @@ export function CustomerListPage() {
                         {customer.isActive ? '활성' : '비활성'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-muted-foreground py-2 whitespace-nowrap">
                       {formatDateTime(customer.createdAt)}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-1">
-                        <Switch
-                          checked={customer.isActive}
-                          onCheckedChange={() => handleToggleStatus(customer)}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditModal(customer)}
-                          title="수정"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteConfirmId(customer.customerId)}
-                          title="삭제"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
+                    <TableCell className="py-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">메뉴 열기</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditModal(customer)}>
+                            <Edit2 className="mr-2 h-4 w-4" />
+                            수정
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
+                            {customer.isActive ? (
+                              <>
+                                <PowerOff className="mr-2 h-4 w-4" />
+                                비활성화
+                              </>
+                            ) : (
+                              <>
+                                <Power className="mr-2 h-4 w-4" />
+                                활성화
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setDeleteConfirmId(customer.customerId)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            삭제
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -315,107 +350,98 @@ export function CustomerListPage() {
       </Card>
 
       {/* 생성/수정 모달 */}
-      {modalMode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">
-                {modalMode === 'create' ? '고객사 등록' : '고객사 수정'}
-              </h2>
-              <Button variant="ghost" size="icon" onClick={closeModal}>
-                <X className="h-4 w-4" />
-              </Button>
+      <Dialog open={modalMode !== null} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {modalMode === 'create' ? '고객사 등록' : '고객사 수정'}
+            </DialogTitle>
+            <DialogDescription>
+              {modalMode === 'create'
+                ? '새 고객사 정보를 입력하세요.'
+                : '고객사 정보를 수정하세요.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>고객사 코드 *</Label>
+              <Input
+                value={formData.customerCode}
+                onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
+                placeholder="예: CUSTOMER_A"
+                disabled={modalMode === 'edit'}
+              />
+              {modalMode === 'edit' && (
+                <p className="text-xs text-muted-foreground">고객사 코드는 수정할 수 없습니다.</p>
+              )}
             </div>
-            <div className="p-4 space-y-4">
-              <div className="space-y-2">
-                <Label>고객사 코드 *</Label>
-                <input
-                  type="text"
-                  value={formData.customerCode}
-                  onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
-                  placeholder="예: CUSTOMER_A"
-                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  disabled={modalMode === 'edit'}
-                />
-                {modalMode === 'edit' && (
-                  <p className="text-xs text-muted-foreground">고객사 코드는 수정할 수 없습니다.</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>고객사명 *</Label>
-                <input
-                  type="text"
-                  value={formData.customerName}
-                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                  placeholder="예: A회사"
-                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>설명</Label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="고객사에 대한 설명을 입력하세요"
-                  className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Label>활성 상태</Label>
-                <Switch
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>고객사명 *</Label>
+              <Input
+                value={formData.customerName}
+                onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                placeholder="예: A회사"
+              />
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={closeModal}>
-                취소
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={createMutation.isPending || updateMutation.isPending}
-              >
-                {(createMutation.isPending || updateMutation.isPending) && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                )}
-                {modalMode === 'create' ? '등록' : '수정'}
-              </Button>
+            <div className="space-y-2">
+              <Label>설명</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="고객사에 대한 설명을 입력하세요"
+                className="min-h-[80px]"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Label>활성 상태</Label>
+              <Switch
+                checked={formData.isActive}
+                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+              />
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={closeModal}>
+              취소
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              {(createMutation.isPending || updateMutation.isPending) && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {modalMode === 'create' ? '등록' : '수정'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 삭제 확인 모달 */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-sm mx-4">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold">고객사 삭제</h2>
-            </div>
-            <div className="p-4">
-              <p className="text-sm text-muted-foreground">
-                정말로 이 고객사를 삭제하시겠습니까?
-                <br />
-                이 작업은 되돌릴 수 없습니다.
-              </p>
-            </div>
-            <div className="flex justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
-                취소
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => deleteMutation.mutate(deleteConfirmId)}
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                삭제
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>고객사 삭제</DialogTitle>
+            <DialogDescription>
+              정말로 이 고객사를 삭제하시겠습니까?
+              이 작업은 되돌릴 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

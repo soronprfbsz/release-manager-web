@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
-import { authApi } from '@/shared/api/authApi'
-import { apiClient } from '@/shared/api/client'
-import type { AccountInfo, SignUpRequest } from '@/shared/api/types'
+import { sessionApi, type AccountInfo, type SignUpRequest } from '@/entities/session'
+import { apiClient } from '@/shared/api'
 
 interface AuthContextType {
   user: AccountInfo | null
@@ -27,7 +26,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   })
   const [isLoading, setIsLoading] = useState(true)
 
-  // 초기 로드 시 토큰 유효성 확인
   useEffect(() => {
     const initAuth = async () => {
       const token = apiClient.getAccessToken()
@@ -35,13 +33,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (token && savedUser) {
         try {
-          // 토큰 갱신 시도로 유효성 확인
-          const response = await authApi.refresh()
+          const response = await sessionApi.refresh()
           apiClient.setAccessToken(response.data.accessToken)
           setUser(response.data.accountInfo)
           localStorage.setItem(USER_KEY, JSON.stringify(response.data.accountInfo))
         } catch {
-          // 토큰이 유효하지 않으면 초기화
           apiClient.clearAccessToken()
           localStorage.removeItem(USER_KEY)
           setUser(null)
@@ -54,7 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const response = await authApi.signIn({ email, password })
+    const response = await sessionApi.signIn({ email, password })
     const { accessToken, accountInfo } = response.data
 
     apiClient.setAccessToken(accessToken)
@@ -63,12 +59,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const signup = useCallback(async (data: SignUpRequest) => {
-    await authApi.signUp(data)
+    await sessionApi.signUp(data)
   }, [])
 
   const logout = useCallback(async () => {
     try {
-      await authApi.logout()
+      await sessionApi.logout()
     } catch {
       // 로그아웃 API 실패해도 로컬 상태는 초기화
     } finally {

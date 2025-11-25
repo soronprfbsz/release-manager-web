@@ -7,8 +7,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Breadcrumb } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { patchApi } from '@/shared/api/patchApi'
-import type { CumulativePatch } from '@/shared/api/types'
+import { patchApi, type CumulativePatch } from '@/entities/patch'
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -57,13 +56,13 @@ export function PatchHistoryPage() {
 
   const { data: patches, isLoading, refetch } = useQuery({
     queryKey: ['cumulative-patches'],
-    queryFn: patchApi.getCumulativePatches,
+    queryFn: patchApi.getList,
   })
 
   const handleDownload = async (patch: CumulativePatch) => {
     setDownloadingId(patch.cumulativePatchId)
     try {
-      await patchApi.downloadPatch(patch.cumulativePatchId, `${patch.patchName}.zip`)
+      await patchApi.download(patch.cumulativePatchId, `${patch.patchName}.zip`)
       toast({
         title: '다운로드 완료',
         description: `${patch.patchName} 파일이 다운로드되었습니다.`,
@@ -83,16 +82,15 @@ export function PatchHistoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-9">
         <Breadcrumb
           items={[
             { label: '패치본 관리' },
             { label: '패치 조회/다운로드' },
           ]}
         />
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          새로고침
+        <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+          <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
 
@@ -119,14 +117,14 @@ export function PatchHistoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-20 text-center">ID</TableHead>
-                  <TableHead>버전 범위</TableHead>
-                  <TableHead className="w-28 text-center">릴리즈</TableHead>
-                  <TableHead>패치명</TableHead>
+                  <TableHead className="w-16 text-center">ID</TableHead>
+                  <TableHead className="w-48">패치명</TableHead>
+                  <TableHead className="w-48">버전 범위</TableHead>
+                  <TableHead className="w-24 text-center">릴리즈</TableHead>
                   <TableHead className="w-24 text-center">상태</TableHead>
                   <TableHead className="w-32">생성자</TableHead>
-                  <TableHead className="w-44">생성일시</TableHead>
-                  <TableHead className="w-24 text-center">다운로드</TableHead>
+                  <TableHead className="w-56">생성일시</TableHead>
+                  <TableHead className="w-20 text-center">다운로드</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -134,6 +132,12 @@ export function PatchHistoryPage() {
                   <TableRow key={patch.cumulativePatchId}>
                     <TableCell className="text-center text-muted-foreground">
                       {patch.cumulativePatchId}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-mono text-sm">{patch.patchName}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -146,12 +150,6 @@ export function PatchHistoryPage() {
                       <Badge variant="secondary">
                         {patch.releaseType === 'STANDARD' ? '표준' : patch.customerCode || '커스텀'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{patch.patchName}</span>
-                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       {getStatusBadge(patch.status)}

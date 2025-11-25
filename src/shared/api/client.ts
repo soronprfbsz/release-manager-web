@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { API_BASE_URL } from '@/shared/config/constants'
 import type { ApiResponse, ApiError } from './types'
-import { authApi } from './authApi'
+import { sessionApi } from '@/entities/session'
 
 const ACCESS_TOKEN_KEY = 'accessToken'
 
@@ -20,7 +20,7 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true, // Cookie 전송을 위해 필요
+      withCredentials: true,
     })
 
     this.setupInterceptors()
@@ -58,10 +58,8 @@ class ApiClient {
       async (error: AxiosError<ApiError>) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
 
-        // 401 에러이고, 재시도하지 않은 요청일 경우
         if (error.response?.status === 401 && !originalRequest._retry) {
           if (this.isRefreshing) {
-            // 토큰 갱신 중이면 대기열에 추가
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject })
             })
@@ -80,7 +78,7 @@ class ApiClient {
           this.isRefreshing = true
 
           try {
-            const response = await authApi.refresh()
+            const response = await sessionApi.refresh()
             const { accessToken } = response.data
             this.setAccessToken(accessToken)
             this.processQueue(null, accessToken)
@@ -92,7 +90,6 @@ class ApiClient {
           } catch (refreshError) {
             this.processQueue(refreshError as AxiosError, null)
             this.clearAccessToken()
-            // 로그인 페이지로 리다이렉트
             window.location.href = '/login'
             return Promise.reject(refreshError)
           } finally {

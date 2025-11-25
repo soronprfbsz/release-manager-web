@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { ROUTES } from '@/shared/config/constants'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { AxiosError } from 'axios'
-import type { ApiError } from '@/shared/api/types'
+import type { ApiError } from '@/shared/api'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -42,7 +42,7 @@ export function LoginForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">Release Manager</CardTitle>
         <CardDescription className="text-center">
-          릴리즈 관리 시스템에 로그인하세요
+          릴리즈 버전 관리 시스템에 로그인하세요
         </CardDescription>
       </CardHeader>
       <CardContent>

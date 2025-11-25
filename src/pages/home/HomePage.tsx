@@ -14,9 +14,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { ROUTES } from '@/shared/config/constants'
-import { releaseApi } from '@/shared/api/releaseApi'
-import { patchApi } from '@/shared/api/patchApi'
-import type { VersionNode } from '@/shared/api/types'
+import { releaseApi, type VersionNode } from '@/entities/release'
+import { patchApi, type CumulativePatch } from '@/entities/patch'
 
 const features = [
   {
@@ -85,12 +84,12 @@ export function HomePage() {
 
   const { data: patchData, isLoading: isPatchLoading } = useQuery({
     queryKey: ['cumulative-patches'],
-    queryFn: patchApi.getCumulativePatches,
+    queryFn: patchApi.getList,
   })
 
   const recentVersions = getRecentVersions(standardTree, 5)
   const latestInstall = recentVersions.find(v => v.isInstall)
-  const recentPatches = patchData?.slice(0, 5) || []
+  const recentPatches: CumulativePatch[] = patchData?.slice(0, 5) || []
 
   return (
     <div className="space-y-6">
@@ -247,7 +246,7 @@ export function HomePage() {
             <div>
               <h3 className="font-semibold mb-2">사용 가이드</h3>
               <div className="text-sm text-muted-foreground space-y-1">
-                <p>1. <strong>릴리즈 관리</strong>에서 표준/커스텀 버전의 SQL 파일을 확인하고 다운로드합니다.</p>
+                <p>1. <strong>릴리즈 버전 관리</strong>에서 표준/커스텀 버전의 SQL 파일을 확인하고 다운로드합니다.</p>
                 <p>2. <strong>패치본 관리</strong>에서 버전 간 누적 패치를 생성하여 배포합니다.</p>
                 <p>3. <strong>스크립트 관리</strong>에서 백업/복구용 스크립트를 다운로드합니다.</p>
               </div>

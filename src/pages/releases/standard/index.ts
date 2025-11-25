@@ -1,0 +1,1 @@
+export { StandardReleasePage } from './StandardReleasePage'

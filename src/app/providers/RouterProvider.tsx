@@ -2,22 +2,22 @@ import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'reac
 import { ROUTES } from '@/shared/config/constants'
 import { ProtectedRoute } from './ProtectedRoute'
 import { MainLayout } from '../layouts/MainLayout'
-import { LoginPage } from '@/pages/auth/login/LoginPage'
-import { SignUpPage } from '@/pages/auth/signup/SignUpPage'
-import { HomePage } from '@/pages/HomePage'
-import { StandardReleasePage } from '@/pages/releases/standard/StandardReleasePage'
-import { CustomReleasePage } from '@/pages/releases/custom/CustomReleasePage'
-import { PatchGeneratePage } from '@/pages/patches/generate/PatchGeneratePage'
-import { PatchHistoryPage } from '@/pages/patches/history/PatchHistoryPage'
+import { LoginPage } from '@/pages/auth/login'
+import { SignUpPage } from '@/pages/auth/signup'
+import { HomePage } from '@/pages/home'
+import { StandardReleasePage } from '@/pages/releases/standard'
+import { CustomReleasePage } from '@/pages/releases/custom'
+import { PatchGeneratePage } from '@/pages/patches/generate'
+import { PatchHistoryPage } from '@/pages/patches/history'
 import { CustomerListPage } from '@/pages/customers'
 
 const router = createBrowserRouter([
   {
-    path: '/login',
+    path: ROUTES.AUTH.LOGIN,
     element: <LoginPage />,
   },
   {
-    path: '/signup',
+    path: ROUTES.AUTH.SIGNUP,
     element: <SignUpPage />,
   },
   {

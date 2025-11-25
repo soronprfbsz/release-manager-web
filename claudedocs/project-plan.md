@@ -2,7 +2,7 @@
 
 ## 📋 프로젝트 개요
 
-릴리즈 관리 시스템의 웹 프론트엔드 애플리케이션 구축
+릴리즈 버전 관리 시스템의 웹 프론트엔드 애플리케이션 구축
 
 ### 기술 스택
 - **프레임워크**: React 18+ (최신 버전)
@@ -21,7 +21,7 @@
 
 ### 1. 네비게이션 바 (계층적 메뉴)
 ```
-📁 릴리즈 관리
+📁 릴리즈 버전 관리
   ├─ 표준 릴리즈
   └─ 커스텀 릴리즈
 
@@ -60,7 +60,7 @@ src/
 │  └─ App.tsx
 │
 ├─ pages/                        # 페이지 레이어
-│  ├─ releases/                  # 릴리즈 관리
+│  ├─ releases/                  # 릴리즈 버전 관리
 │  │  ├─ standard/               # 표준 릴리즈
 │  │  └─ custom/                 # 커스텀 릴리즈
 │  ├─ patches/                   # 패치 관리
@@ -164,7 +164,7 @@ src/
 - `PUT /versions/{id}` - 버전 수정
 - `DELETE /versions/{id}` - 버전 삭제
 
-### CumulativePatch API (`/api/cumulative-patches`)
+### CumulativePatch API (`/api/patch-histories`)
 - `POST /generate` - 누적 패치 생성
 - `GET /` - 누적 패치 목록
 - `GET /{id}` - 누적 패치 상세
@@ -288,7 +288,7 @@ interface CumulativePatchDetail {
   - 다운로드 트리거
 
 ### Phase 6: Pages 레이어
-- [ ] 릴리즈 관리 페이지
+- [ ] 릴리즈 버전 관리 페이지
   - 표준 릴리즈
   - 커스텀 릴리즈
 - [ ] 패치 관리 페이지
@@ -335,7 +335,7 @@ interface CumulativePatchDetail {
 ## 🎨 UI/UX 가이드
 
 ### 컬러 스키마
-- Primary: Blue (릴리즈 관리)
+- Primary: Blue (릴리즈 버전 관리)
 - Secondary: Green (패치 관리)
 - Accent: Purple (기타)
 - 테마별 색상 변수 사용

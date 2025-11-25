@@ -12,8 +12,52 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+!.idea/codeStyles/
+!.idea/encodings.xml
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -28,3 +72,26 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+.env.test
+
+# Playwright
+/tests/.auth/
+/playwright-report/
+/test-results/
+/blob-report/
+
+### AI ###
+.claude
+/claudedocs/
+CLAUDE.md
+
+
+### Windows Reserved Names (prevent git errors) ###
+nul
+NUL
+CON
+PRN
+AUX
+com[1-9]
+lpt[1-9]
+

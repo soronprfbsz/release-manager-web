@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-import type { MajorMinorNode, VersionNode } from '@/shared/api/types'
+import type { MajorMinorNode, VersionNode } from '@/entities/release'
 
 interface ReleaseTreeProps {
   majorMinorGroups: MajorMinorNode[]

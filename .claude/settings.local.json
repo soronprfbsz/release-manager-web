@@ -10,7 +10,17 @@
       "Bash(yarn install)",
       "WebFetch(domain:jaebong8it.tistory.com)",
       "Bash(yarn dev)",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm init playwright@latest -- --quiet --yes)",
+      "Bash(npx playwright install chromium)",
+      "Bash(npx playwright test:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(cat:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npx playwright show-report:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,7 +6,7 @@ import { Input } from '@/shared/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { AxiosError } from 'axios'
-import type { ApiError } from '@/shared/api/types'
+import type { ApiError } from '@/shared/api'
 
 export function SignUpForm() {
   const [email, setEmail] = useState('')

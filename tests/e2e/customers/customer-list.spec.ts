@@ -1,0 +1,334 @@
+import { test, expect, generateTestCustomer } from '../../fixtures'
+
+test.describe('고객사 관리 페이지', () => {
+  test.beforeEach(async ({ page }) => {
+    // 고객사 관리 페이지로 이동
+    await page.goto('/customers')
+
+    // 네트워크 요청 완료 대기
+    await page.waitForLoadState('networkidle')
+
+    // 로그인 페이지로 리다이렉트된 경우 로그인 처리 (fallback)
+    if (page.url().includes('/login')) {
+      const testEmail = process.env.TEST_USER_EMAIL
+      const testPassword = process.env.TEST_USER_PASSWORD
+
+      if (!testEmail || !testPassword) {
+        throw new Error(
+          'TEST_USER_EMAIL과 TEST_USER_PASSWORD 환경변수가 필요합니다. .env.test 파일을 확인하세요.'
+        )
+      }
+
+      // 로그인 폼이 로드될 때까지 대기
+      await expect(page.locator('#email')).toBeVisible({ timeout: 10000 })
+      await expect(page.locator('#password')).toBeVisible({ timeout: 5000 })
+
+      // 폼 입력
+      await page.locator('#email').fill(testEmail)
+      await page.locator('#password').fill(testPassword)
+      await page.getByRole('button', { name: '로그인' }).click()
+
+      // 로그인 성공 후 홈페이지 또는 고객사 페이지 대기
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 })
+      await page.waitForLoadState('networkidle')
+
+      // 고객사 페이지가 아니면 이동
+      if (!page.url().includes('/customers')) {
+        await page.goto('/customers')
+        await page.waitForLoadState('networkidle')
+      }
+    }
+
+    // 고객사 목록 카드가 보이는지 확인 (타임아웃 증가)
+    await expect(page.getByText('고객사 목록')).toBeVisible({ timeout: 15000 })
+  })
+
+  test.describe('페이지 로딩', () => {
+    test('고객사 목록 페이지가 정상적으로 로드된다', async ({ page }) => {
+      // Breadcrumb 확인 (breadcrumb 내의 텍스트)
+      await expect(page.locator('nav[aria-label="breadcrumb"]')).toContainText('고객사 관리')
+
+      // 새로고침 버튼 확인 (아이콘 버튼, title 속성으로 식별)
+      await expect(page.locator('button[title="새로고침"]')).toBeVisible()
+
+      // 고객사 등록 버튼 확인
+      await expect(page.getByRole('button', { name: '고객사 등록' })).toBeVisible()
+
+      // 검색 입력 확인
+      await expect(page.getByPlaceholder('고객사명 검색...')).toBeVisible()
+
+      // 상태 필터 확인 (Select trigger)
+      await expect(page.locator('button[role="combobox"]')).toBeVisible()
+    })
+
+    test('고객사 목록 테이블이 표시된다', async ({ page }) => {
+      // 테이블이 있는지 확인
+      const table = page.locator('table')
+
+      // 테이블이 있으면 헤더 확인 (thead 내에서 텍스트 확인)
+      if (await table.isVisible()) {
+        const thead = table.locator('thead')
+        await expect(thead).toContainText('ID')
+        await expect(thead).toContainText('고객사 코드')
+        await expect(thead).toContainText('고객사명')
+        await expect(thead).toContainText('상태')
+        await expect(thead).toContainText('등록일')
+      } else {
+        // 데이터가 없는 경우 빈 상태 메시지 확인
+        await expect(page.getByText('등록된 고객사가 없습니다.')).toBeVisible()
+      }
+    })
+  })
+
+  test.describe('고객사 검색 및 필터', () => {
+    test('고객사명으로 검색할 수 있다', async ({ page }) => {
+      const searchInput = page.getByPlaceholder('고객사명 검색...')
+
+      // 검색어 입력
+      await searchInput.fill('테스트')
+
+      // 검색 결과 로딩 대기 (debounce 고려)
+      await page.waitForTimeout(500)
+
+      // 페이지가 정상적으로 유지되는지 확인
+      await expect(page.getByText('고객사 목록')).toBeVisible()
+    })
+
+    test('상태 필터로 필터링할 수 있다', async ({ page }) => {
+      // Select trigger 클릭
+      const statusFilter = page.locator('button[role="combobox"]')
+      await statusFilter.click()
+
+      // SelectContent 내의 옵션만 선택 (exact: true로 정확히 매치)
+      const selectContent = page.locator('[role="listbox"]')
+      await selectContent.getByRole('option', { name: '활성', exact: true }).click()
+      await page.waitForTimeout(300)
+
+      // 다시 열어서 비활성 선택
+      await statusFilter.click()
+      await selectContent.getByRole('option', { name: '비활성', exact: true }).click()
+      await page.waitForTimeout(300)
+
+      // 전체 보기로 복원
+      await statusFilter.click()
+      await selectContent.getByRole('option', { name: '전체', exact: true }).click()
+
+      // 페이지가 정상적으로 유지되는지 확인
+      await expect(page.getByText('고객사 목록')).toBeVisible()
+    })
+  })
+
+  test.describe('고객사 CRUD', () => {
+    test('새 고객사를 등록할 수 있다', async ({ page }) => {
+      const testCustomer = generateTestCustomer()
+
+      // 고객사 등록 버튼 클릭
+      await page.getByRole('button', { name: '고객사 등록' }).click()
+
+      // 모달이 열릴 때까지 대기
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible({ timeout: 5000 })
+      await expect(page.getByRole('heading', { name: '고객사 등록' })).toBeVisible()
+
+      // 폼 입력 (dialog 내에서 찾기)
+      await dialog.getByPlaceholder('예: CUSTOMER_A').fill(testCustomer.customerCode)
+      await dialog.getByPlaceholder('예: A회사').fill(testCustomer.customerName)
+      await dialog.getByPlaceholder('고객사에 대한 설명을 입력하세요').fill(testCustomer.description || '')
+
+      // 등록 버튼 클릭
+      await dialog.getByRole('button', { name: '등록' }).click()
+
+      // 성공 토스트 확인 (first로 중복 요소 처리)
+      await expect(page.getByText('고객사 생성 완료', { exact: true }).first()).toBeVisible({ timeout: 10000 })
+
+      // 모달이 닫힘
+      await expect(dialog).not.toBeVisible({ timeout: 5000 })
+
+      // 목록에 새 고객사가 표시되는지 확인
+      await expect(page.getByText(testCustomer.customerCode)).toBeVisible({ timeout: 5000 })
+    })
+
+    test('고객사 정보를 수정할 수 있다', async ({ page }) => {
+      // 먼저 테스트용 고객사 생성
+      const testCustomer = generateTestCustomer()
+      await createTestCustomer(page, testCustomer)
+
+      // 액션 드롭다운 열기 (해당 고객사 행에서)
+      const row = page.getByRole('row').filter({ hasText: testCustomer.customerCode })
+      await row.getByRole('button', { name: '메뉴 열기' }).click()
+
+      // 드롭다운에서 수정 클릭
+      await page.getByRole('menuitem', { name: '수정' }).click()
+
+      // 수정 모달 확인
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible({ timeout: 5000 })
+      await expect(page.getByRole('heading', { name: '고객사 수정' })).toBeVisible()
+
+      // 고객사 코드는 수정 불가 확인
+      await expect(dialog.getByPlaceholder('예: CUSTOMER_A')).toBeDisabled()
+
+      // 고객사명 수정
+      const updatedName = `${testCustomer.customerName} (수정됨)`
+      await dialog.getByPlaceholder('예: A회사').clear()
+      await dialog.getByPlaceholder('예: A회사').fill(updatedName)
+
+      // 수정 버튼 클릭
+      await dialog.getByRole('button', { name: '수정' }).click()
+
+      // 성공 토스트 확인 (first로 중복 요소 처리)
+      await expect(page.getByText('수정 완료', { exact: true }).first()).toBeVisible({ timeout: 10000 })
+
+      // 모달이 닫힘
+      await expect(dialog).not.toBeVisible({ timeout: 5000 })
+
+      // 목록에서 수정된 이름 확인
+      await expect(page.getByText(updatedName)).toBeVisible({ timeout: 5000 })
+    })
+
+    test('고객사 활성화 상태를 토글할 수 있다', async ({ page }) => {
+      // 테이블이 있는지 확인
+      const table = page.locator('table')
+
+      if (await table.isVisible()) {
+        // 첫 번째 고객사의 액션 드롭다운 열기
+        const firstRow = page.getByRole('row').nth(1) // 헤더 제외
+        const menuButton = firstRow.getByRole('button', { name: '메뉴 열기' })
+
+        if (await menuButton.isVisible()) {
+          await menuButton.click()
+
+          // 드롭다운에서 활성화/비활성화 클릭
+          const toggleItem = page.getByRole('menuitem', { name: /활성화|비활성화/ })
+          await toggleItem.click()
+
+          // 성공 토스트 확인 (first로 중복 요소 처리)
+          await expect(page.getByText('상태 변경 완료', { exact: true }).first()).toBeVisible({ timeout: 10000 })
+        }
+      }
+    })
+
+    test('고객사를 삭제할 수 있다', async ({ page }) => {
+      // 먼저 테스트용 고객사 생성
+      const testCustomer = generateTestCustomer()
+      await createTestCustomer(page, testCustomer)
+
+      // 액션 드롭다운 열기
+      const row = page.getByRole('row').filter({ hasText: testCustomer.customerCode })
+      await row.getByRole('button', { name: '메뉴 열기' }).click()
+
+      // 드롭다운에서 삭제 클릭
+      await page.getByRole('menuitem', { name: '삭제' }).click()
+
+      // 삭제 확인 모달
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible({ timeout: 5000 })
+      await expect(page.getByRole('heading', { name: '고객사 삭제' })).toBeVisible()
+      await expect(page.getByText('정말로 이 고객사를 삭제하시겠습니까?')).toBeVisible()
+
+      // 삭제 확인
+      await dialog.getByRole('button', { name: '삭제' }).click()
+
+      // 성공 토스트 확인 (first로 중복 요소 처리)
+      await expect(page.getByText('삭제 완료', { exact: true }).first()).toBeVisible({ timeout: 10000 })
+
+      // 목록에서 삭제 확인
+      await expect(page.getByText(testCustomer.customerCode)).not.toBeVisible({ timeout: 5000 })
+    })
+
+    test('삭제를 취소할 수 있다', async ({ page }) => {
+      // 테이블이 있는지 확인
+      const table = page.locator('table')
+
+      if (await table.isVisible()) {
+        // 첫 번째 고객사의 액션 드롭다운 열기
+        const firstRow = page.getByRole('row').nth(1)
+        const menuButton = firstRow.getByRole('button', { name: '메뉴 열기' })
+
+        if (await menuButton.isVisible()) {
+          await menuButton.click()
+
+          // 드롭다운에서 삭제 클릭
+          await page.getByRole('menuitem', { name: '삭제' }).click()
+
+          // 삭제 확인 모달에서 취소
+          const dialog = page.getByRole('dialog')
+          await expect(dialog).toBeVisible({ timeout: 5000 })
+          await dialog.getByRole('button', { name: '취소' }).click()
+
+          // 모달이 닫힘
+          await expect(dialog).not.toBeVisible({ timeout: 5000 })
+        }
+      }
+    })
+  })
+
+  test.describe('폼 유효성 검사', () => {
+    test('필수 필드 없이 등록 시 오류가 표시된다', async ({ page }) => {
+      // 고객사 등록 모달 열기
+      await page.getByRole('button', { name: '고객사 등록' }).click()
+
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible({ timeout: 5000 })
+
+      // 빈 상태로 등록 시도
+      await dialog.getByRole('button', { name: '등록' }).click()
+
+      // 오류 토스트 확인 (first로 중복 요소 처리)
+      await expect(page.getByText('입력 오류', { exact: true }).first()).toBeVisible({ timeout: 5000 })
+    })
+
+    test('등록 모달을 취소할 수 있다', async ({ page }) => {
+      // 고객사 등록 모달 열기
+      await page.getByRole('button', { name: '고객사 등록' }).click()
+
+      const dialog = page.getByRole('dialog')
+      await expect(dialog).toBeVisible({ timeout: 5000 })
+
+      // 일부 데이터 입력
+      await dialog.getByPlaceholder('예: CUSTOMER_A').fill('TEST_CANCEL')
+
+      // 취소 버튼 클릭
+      await dialog.getByRole('button', { name: '취소' }).click()
+
+      // 모달이 닫힘
+      await expect(dialog).not.toBeVisible({ timeout: 5000 })
+    })
+  })
+
+  test.describe('새로고침', () => {
+    test('새로고침 버튼으로 목록을 갱신할 수 있다', async ({ page }) => {
+      // 새로고침 버튼 클릭 (아이콘 버튼)
+      await page.locator('button[title="새로고침"]').click()
+
+      // 로딩 후 목록이 다시 표시됨
+      await expect(page.getByText('고객사 목록')).toBeVisible()
+    })
+  })
+})
+
+/**
+ * 테스트용 고객사 생성 헬퍼 함수
+ */
+async function createTestCustomer(
+  page: import('@playwright/test').Page,
+  customer: { customerCode: string; customerName: string; description?: string }
+) {
+  await page.getByRole('button', { name: '고객사 등록' }).click()
+
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible({ timeout: 5000 })
+
+  await dialog.getByPlaceholder('예: CUSTOMER_A').fill(customer.customerCode)
+  await dialog.getByPlaceholder('예: A회사').fill(customer.customerName)
+  if (customer.description) {
+    await dialog.getByPlaceholder('고객사에 대한 설명을 입력하세요').fill(customer.description)
+  }
+
+  await dialog.getByRole('button', { name: '등록' }).click()
+  await expect(page.getByText('고객사 생성 완료', { exact: true }).first()).toBeVisible({ timeout: 10000 })
+  await expect(dialog).not.toBeVisible({ timeout: 5000 })
+
+  // 목록에 새 고객사가 나타날 때까지 대기
+  await expect(page.getByText(customer.customerCode)).toBeVisible({ timeout: 5000 })
+}
