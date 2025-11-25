@@ -1,0 +1,35 @@
+import { apiClient } from './client'
+import type { ReleaseTreeResponse, ReleaseVersionDetail } from './types'
+
+export const releaseApi = {
+  getStandardTree: async (): Promise<ReleaseTreeResponse> => {
+    const response = await apiClient.get<ReleaseTreeResponse>('/api/v1/releases/standard/tree')
+    return response.data
+  },
+
+  getCustomTree: async (customerCode: string): Promise<ReleaseTreeResponse> => {
+    const response = await apiClient.get<ReleaseTreeResponse>(`/api/v1/releases/custom/${customerCode}/tree`)
+    return response.data
+  },
+
+  getVersionById: async (id: number): Promise<ReleaseVersionDetail> => {
+    const response = await apiClient.get<ReleaseVersionDetail>(`/api/v1/releases/versions/${id}`)
+    return response.data
+  },
+
+  downloadFile: async (fileId: number, fileName: string): Promise<void> => {
+    const response = await apiClient.getAxiosInstance().get(`/api/v1/releases/files/${fileId}/download`, {
+      responseType: 'blob',
+    })
+
+    const blob = new Blob([response.data])
+    const downloadUrl = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(downloadUrl)
+  },
+}
