@@ -5,19 +5,19 @@ export const releaseApi = {
   /** 표준 릴리즈 트리 조회 */
   getStandardTree: async (): Promise<ReleaseTreeResponse> => {
     const response = await apiClient.get<ReleaseTreeResponse>('/api/releases/standard/tree')
-    return response.data
+    return response
   },
 
   /** 커스텀 릴리즈 트리 조회 */
   getCustomTree: async (customerCode: string): Promise<ReleaseTreeResponse> => {
     const response = await apiClient.get<ReleaseTreeResponse>(`/api/releases/custom/${customerCode}/tree`)
-    return response.data
+    return response
   },
 
   /** 버전 상세 조회 */
   getVersionById: async (id: number): Promise<ReleaseVersionDetail> => {
     const response = await apiClient.get<ReleaseVersionDetail>(`/api/releases/versions/${id}`)
-    return response.data
+    return response
   },
 
   /** 릴리즈 파일 다운로드 */

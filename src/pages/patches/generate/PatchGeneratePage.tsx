@@ -72,7 +72,7 @@ export function PatchGeneratePage() {
 
   const { data: customers } = useQuery({
     queryKey: ['customers-active'],
-    queryFn: () => customerApi.getList(true),
+    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
   })
 
   const versions = getVersionsFromTree(treeData)
@@ -120,10 +120,10 @@ export function PatchGeneratePage() {
     }
 
     // customerCode로 customerId 찾기
-    const selectedCustomer = customers?.find(c => c.customerCode === customerCode)
+    const selectedCustomer = customers?.content.find((c) => c.customerCode === customerCode)
 
     const request: CumulativePatchGenerateRequest = {
-      type: releaseType,
+      type: releaseType.toLowerCase() as 'standard' | 'custom',
       customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,
@@ -270,7 +270,7 @@ export function PatchGeneratePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">선택 안함</SelectItem>
-                  {customers?.map((c) => (
+                  {customers?.content.map((c) => (
                     <SelectItem key={c.customerId} value={c.customerCode}>
                       {c.customerName} ({c.customerCode})
                     </SelectItem>
@@ -348,7 +348,7 @@ export function PatchGeneratePage() {
                     <div className="flex justify-between">
                       <TypographyMuted>고객사</TypographyMuted>
                       <TypographySmall>
-                        {customers?.find(c => c.customerCode === customerCode)?.customerName || customerCode}
+                        {customers?.content.find((c) => c.customerCode === customerCode)?.customerName || customerCode}
                       </TypographySmall>
                     </div>
                   )}

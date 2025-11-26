@@ -18,7 +18,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { patchApi, type CumulativePatch } from '@/entities/patch'
-import { PaginationState } from '@tanstack/react-table'
+
+interface PaginationState {
+  pageIndex: number
+  pageSize: number
+}
+
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'

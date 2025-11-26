@@ -22,16 +22,7 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return '-'
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
+
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -106,103 +97,103 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
 
   return (
     <div className="space-y-6">
-        {/* Basic Info */}
+      {/* Basic Info */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Info className="h-4 w-4" />
+            기본 정보
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-4">
+            {detail && (
+              <div className="flex items-center gap-2">
+                <HardDrive className="h-4 w-4 text-muted-foreground" />
+                <TypographyMuted className="text-sm">버전 ID:</TypographyMuted>
+                <TypographySmall>{detail.releaseVersionId}</TypographySmall>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <TypographyMuted className="text-sm">생성자:</TypographyMuted>
+              <TypographySmall>{version.createdBy || '-'}</TypographySmall>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <TypographyMuted className="text-sm">생성일시:</TypographyMuted>
+              <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
+            </div>
+            {detail && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <TypographyMuted className="text-sm">수정일시:</TypographyMuted>
+                <TypographySmall>{formatDateTime(detail.updatedAt)}</TypographySmall>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Patch Notes / Comment */}
+      {version.comment && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              기본 정보
+              <FileText className="h-4 w-4" />
+              패치 노트
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              {detail && (
-                <div className="flex items-center gap-2">
-                  <HardDrive className="h-4 w-4 text-muted-foreground" />
-                  <TypographyMuted className="text-sm">버전 ID:</TypographyMuted>
-                  <TypographySmall>{detail.releaseVersionId}</TypographySmall>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <TypographyMuted className="text-sm">생성자:</TypographyMuted>
-                <TypographySmall>{version.createdBy || '-'}</TypographySmall>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <TypographyMuted className="text-sm">생성일시:</TypographyMuted>
-                <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
-              </div>
-              {detail && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <TypographyMuted className="text-sm">수정일시:</TypographyMuted>
-                  <TypographySmall>{formatDateTime(detail.updatedAt)}</TypographySmall>
-                </div>
-              )}
+          <CardContent>
+            <div className="bg-muted/50 rounded-md p-4 whitespace-pre-wrap text-sm">
+              {version.comment}
             </div>
           </CardContent>
         </Card>
+      )}
 
-        {/* Patch Notes / Comment */}
-        {version.comment && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                패치 노트
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted/50 rounded-md p-4 whitespace-pre-wrap text-sm">
-                {version.comment}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Database Files */}
-        {detail && detail.releaseFiles.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                릴리즈 파일 ({detail.releaseFiles.length}개)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Object.entries(groupedFiles).map(([dbType, files]) => (
-                <div key={dbType}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge
-                      variant="outline"
-                      className={
-                        dbType === 'MARIADB'
-                          ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400'
-                          : dbType === 'CRATEDB'
+      {/* Database Files */}
+      {detail && detail.releaseFiles.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              릴리즈 파일 ({detail.releaseFiles.length}개)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Object.entries(groupedFiles).map(([dbType, files]) => (
+              <div key={dbType}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge
+                    variant="outline"
+                    className={
+                      dbType === 'MARIADB'
+                        ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                        : dbType === 'CRATEDB'
                           ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
                           : ''
-                      }
-                    >
-                      <TypographyInlineCode className="bg-transparent px-0 py-0">{dbType}</TypographyInlineCode>
-                    </Badge>
-                    <TypographyMuted className="text-xs">{files.length}개 파일</TypographyMuted>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16 text-center">순서</TableHead>
-                        <TableHead>파일명</TableHead>
-                        <TableHead className="w-24 text-right">크기</TableHead>
-                        <TableHead className="w-24 text-center">다운로드</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {files
-                        .sort((a, b) => a.executionOrder - b.executionOrder)
-                        .map((file) => (
+                    }
+                  >
+                    <TypographyInlineCode className="bg-transparent px-0 py-0">{dbType}</TypographyInlineCode>
+                  </Badge>
+                  <TypographyMuted className="text-xs">{files.length}개 파일</TypographyMuted>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-16 text-center">순서</TableHead>
+                      <TableHead>파일명</TableHead>
+                      <TableHead className="w-24 text-right">크기</TableHead>
+                      <TableHead className="w-24 text-center">다운로드</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {files
+                      .sort((a, b) => a.executionOrder - b.executionOrder)
+                      .map((file) => (
                         <TableRow key={file.releaseFileId}>
                           <TableCell className="text-center">
                             <TypographyMuted>{file.executionOrder}</TypographyMuted>
@@ -232,57 +223,57 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
                           </TableCell>
                         </TableRow>
                       ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Quick File Overview (from tree data) */}
-        {version.databases.length > 0 && !detail && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                파일 목록
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {version.databases.map((db) => (
-                <div key={db.databaseType}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline">
-                      <TypographyInlineCode className="bg-transparent px-0 py-0">{db.databaseType}</TypographyInlineCode>
-                    </Badge>
-                    <TypographyMuted className="text-xs">{db.files.length}개 파일</TypographyMuted>
-                  </div>
-                  <div className="bg-muted/50 rounded-md p-3 space-y-1">
-                    {db.files.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <File className="h-3 w-3 text-muted-foreground" />
-                        <TypographyInlineCode>{file}</TypographyInlineCode>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* No files message */}
-        {detail && detail.releaseFiles.length === 0 && version.databases.length === 0 && (
-          <Card>
-            <CardContent className="py-8">
-              <div className="flex flex-col items-center justify-center text-muted-foreground">
-                <File className="h-8 w-8 mb-2 opacity-50" />
-                <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
+                  </TableBody>
+                </Table>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick File Overview (from tree data) */}
+      {version.databases.length > 0 && !detail && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              파일 목록
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {version.databases.map((db) => (
+              <div key={db.databaseType}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="outline">
+                    <TypographyInlineCode className="bg-transparent px-0 py-0">{db.databaseType}</TypographyInlineCode>
+                  </Badge>
+                  <TypographyMuted className="text-xs">{db.files.length}개 파일</TypographyMuted>
+                </div>
+                <div className="bg-muted/50 rounded-md p-3 space-y-1">
+                  {db.files.map((file, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <File className="h-3 w-3 text-muted-foreground" />
+                      <TypographyInlineCode>{file}</TypographyInlineCode>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* No files message */}
+      {detail && detail.releaseFiles.length === 0 && version.databases.length === 0 && (
+        <Card>
+          <CardContent className="py-8">
+            <div className="flex flex-col items-center justify-center text-muted-foreground">
+              <File className="h-8 w-8 mb-2 opacity-50" />
+              <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

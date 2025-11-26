@@ -41,7 +41,11 @@ import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
 import { customerApi } from '@/entities/customer'
-import { PaginationState } from '@tanstack/react-table'
+
+interface PaginationState {
+  pageIndex: number
+  pageSize: number
+}
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -177,7 +181,7 @@ export function StandardPatchPage() {
     const selectedCustomer = customers?.content.find(c => c.customerCode === customerCode)
 
     const request: CumulativePatchGenerateRequest = {
-      type: 'STANDARD',
+      type: 'standard',
       customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,

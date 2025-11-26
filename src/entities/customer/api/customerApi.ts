@@ -16,25 +16,25 @@ export const customerApi = {
     const url = queryString ? `/api/customers?${queryString}` : '/api/customers'
 
     const response = await apiClient.get<PageResponse<Customer>>(url)
-    return response.data
+    return response
   },
 
   /** 고객사 상세 조회 */
   getById: async (id: number): Promise<Customer> => {
     const response = await apiClient.get<Customer>(`/api/customers/${id}`)
-    return response.data
+    return response
   },
 
   /** 고객사 생성 */
   create: async (request: CustomerCreateRequest): Promise<Customer> => {
     const response = await apiClient.post<Customer>('/api/customers', request)
-    return response.data
+    return response
   },
 
   /** 고객사 수정 */
   update: async (id: number, request: CustomerUpdateRequest): Promise<Customer> => {
     const response = await apiClient.put<Customer>(`/api/customers/${id}`, request)
-    return response.data
+    return response
   },
 
   /** 고객사 삭제 */

@@ -19,19 +19,19 @@ export const patchApi = {
     const url = queryString ? `/api/patch?${queryString}` : '/api/patch'
 
     const response = await apiClient.get<PageResponse<CumulativePatch>>(url)
-    return response.data
+    return response
   },
 
   /** 패치 상세 조회 */
   getById: async (patchId: number): Promise<CumulativePatchDetail> => {
     const response = await apiClient.get<CumulativePatchDetail>(`/api/patch/${patchId}`)
-    return response.data
+    return response
   },
 
   /** 패치 생성 */
   generate: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
     const response = await apiClient.post<CumulativePatch>('/api/patch/generate', request)
-    return response.data
+    return response
   },
 
   /** 패치 파일 다운로드 */

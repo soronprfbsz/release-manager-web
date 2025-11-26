@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web:
+    image: ${DOCKER_IMAGE:-ts/release-manager-web:latest}
     build:
       context: ..
       dockerfile: docker/Dockerfile

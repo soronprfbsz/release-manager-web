@@ -116,29 +116,29 @@ class ApiClient {
     localStorage.removeItem(ACCESS_TOKEN_KEY)
   }
 
-  async get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.get<ApiResponse<T>>(url, config)
-    return response.data
+    return response.data.data
   }
 
-  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.post<ApiResponse<T>>(url, data, config)
-    return response.data
+    return response.data.data
   }
 
-  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.put<ApiResponse<T>>(url, data, config)
-    return response.data
+    return response.data.data
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.delete<ApiResponse<T>>(url, config)
-    return response.data
+    return response.data.data
   }
 
-  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.patch<ApiResponse<T>>(url, data, config)
-    return response.data
+    return response.data.data
   }
 
   async download(url: string, filename: string): Promise<void> {
@@ -157,14 +157,14 @@ class ApiClient {
     window.URL.revokeObjectURL(downloadUrl)
   }
 
-  async upload<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async upload<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.instance.post<ApiResponse<T>>(url, formData, {
       ...config,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-    return response.data
+    return response.data.data
   }
 
   getAxiosInstance(): AxiosInstance {

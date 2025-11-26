@@ -5,7 +5,7 @@ export const scriptApi = {
   /** 스크립트 타입 목록 조회 */
   getTypes: async (): Promise<ScriptType[]> => {
     const response = await apiClient.get<ScriptType[]>('/api/scripts/types')
-    return response.data
+    return response
   },
 
   /** 스크립트 다운로드 */
