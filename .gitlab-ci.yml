@@ -268,4 +268,3 @@ deploy-job:
   environment:
     name: production
     url: http://${SERVER_HOST}:${SERVER_EXTERNAL_PORT}
-  when: manual
