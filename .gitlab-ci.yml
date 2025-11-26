@@ -1,0 +1,271 @@
+# ========================================
+# GitLab CI/CD Pipeline Configuration
+# Frontend - Release Manager Web
+# ========================================
+
+default:
+  image: docker:24-cli
+
+variables:
+  # Docker 이미지 설정
+  DOCKER_IMAGE_NAME: "ts/${SERVER_NAME}"
+  DOCKER_IMAGE_TAG: "latest"
+
+  # Harbor Registry 설정
+  HARBOR_IMAGE_NAME: "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${SERVER_NAME}"
+
+  # Node 캐시 설정
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+stages:
+  - build
+  - test
+  - docker-build
+  - harbor-push
+  - deploy
+
+# ========================================
+# 빌드 단계
+# ========================================
+build-job:
+  stage: build
+  image: node:20-alpine
+  tags:
+    - 17-runner
+  only:
+    - main
+  cache:
+    key: npm-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .npm/
+      - node_modules/
+    policy: pull-push
+  script:
+    - echo "📦 프로젝트 빌드 시작..."
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+    - echo "✅ 빌드 완료"
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+# ========================================
+# 테스트 단계
+# ========================================
+test:lint:
+  stage: test
+  image: node:20-alpine
+  tags:
+    - 17-runner
+  only:
+    - main
+  cache:
+    key: npm-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .npm/
+      - node_modules/
+    policy: pull
+  script:
+    - echo "🧪 Lint 실행 중..."
+    - npm ci --cache .npm --prefer-offline
+    - npm run lint
+    - echo "✅ Lint 완료"
+  when: manual
+
+test:type-check:
+  stage: test
+  image: node:20-alpine
+  tags:
+    - 17-runner
+  only:
+    - main
+  cache:
+    key: npm-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .npm/
+      - node_modules/
+    policy: pull
+  script:
+    - echo "🧪 타입 체크 실행 중..."
+    - npm ci --cache .npm --prefer-offline
+    - npm run type-check
+    - echo "✅ 타입 체크 완료"
+  when: manual
+
+# ========================================
+# Docker 이미지 빌드 단계
+# ========================================
+docker-build-job:
+  stage: docker-build
+  tags:
+    - 17-runner
+  only:
+    - main
+  dependencies:
+    - build-job
+  variables:
+    DOCKER_BUILDKIT: "1"
+    BUILDKIT_PROGRESS: "plain"
+  before_script:
+    - echo "$HARBOR_PASSWORD" | docker login http://$HARBOR_REGISTRY -u $HARBOR_USERNAME --password-stdin || echo "⚠️  Harbor 로그인 실패"
+  script:
+    - |
+      echo "=== Harbor 이미지 존재 확인 ==="
+      HARBOR_IMAGE_SHA="${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${SERVER_NAME}:${CI_COMMIT_SHORT_SHA}"
+
+      if docker manifest inspect ${HARBOR_IMAGE_SHA} > /dev/null 2>&1; then
+        echo "✓ Harbor에 이미지 존재: ${HARBOR_IMAGE_SHA}"
+        echo "⏭️  빌드 스킵"
+        exit 0
+      fi
+
+      echo "❌ Harbor에 이미지 없음 → 빌드 시작..."
+      docker build \
+        -f docker/Dockerfile.ci \
+        -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
+        --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} \
+        --build-arg VITE_APP_TITLE="${VITE_APP_TITLE:-Release Manager}" \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --cache-from ${DOCKER_IMAGE_NAME}:latest \
+        --progress=plain \
+        --force-rm \
+        .
+
+    - echo "✅ 이미지 빌드 완료: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+    - docker images | grep ${DOCKER_IMAGE_NAME}
+
+# ========================================
+# Harbor Push 단계
+# ========================================
+harbor-push-job:
+  stage: harbor-push
+  tags:
+    - 17-runner
+  only:
+    - main
+  dependencies:
+    - docker-build-job
+  before_script:
+    - echo "🔑 Harbor 로그인 중..."
+    - echo "$HARBOR_PASSWORD" | docker login http://$HARBOR_REGISTRY -u $HARBOR_USERNAME --password-stdin
+  script:
+    - |
+      echo "=== Harbor Push 확인 ==="
+      VERSION=${VERSION:-$CI_COMMIT_SHORT_SHA}
+      echo "📦 사용할 버전: ${VERSION}"
+      LOCAL_IMAGE="${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+
+      if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${LOCAL_IMAGE}$"; then
+        echo "✓ 로컬 이미지 존재 → Harbor에 Push 시작"
+
+        echo "🏷️  이미지 태깅..."
+        docker tag ${LOCAL_IMAGE} ${HARBOR_IMAGE_NAME}:${VERSION}
+        docker tag ${LOCAL_IMAGE} ${HARBOR_IMAGE_NAME}:latest
+
+        echo "⬆️  Harbor에 Push 중..."
+        docker push ${HARBOR_IMAGE_NAME}:${VERSION}
+        docker push ${HARBOR_IMAGE_NAME}:latest
+
+        echo "✅ 이미지가 Harbor에 성공적으로 등록되었습니다!"
+        echo "  - ${HARBOR_IMAGE_NAME}:${VERSION}"
+        echo "  - ${HARBOR_IMAGE_NAME}:latest"
+      else
+        echo "⏭️  로컬 이미지 없음 (빌드 스킵됨) → Push 스킵"
+        echo "ℹ️  docker-build-job이 실행되지 않았거나 이미 Harbor에 이미지가 존재합니다"
+      fi
+  after_script:
+    - docker logout $HARBOR_REGISTRY || true
+  when: manual
+
+# ========================================
+# 배포 단계
+# ========================================
+deploy-job:
+  stage: deploy
+  tags:
+    - 17-runner
+  only:
+    - main
+  dependencies:
+    - docker-build-job
+  before_script:
+    - |
+      echo "=== 필수 도구 설치 중 ==="
+      apk add --no-cache curl 2>/dev/null || apt-get update && apt-get install -y curl 2>/dev/null || yum install -y curl 2>/dev/null || true
+      command -v curl && echo "✓ curl 설치됨" || echo "✗ curl 설치 실패"
+    - |
+      echo "=== Gitlab Variables로 .env 파일 생성 중 ==="
+      env | grep -vE '^(CI=|CI_|GITLAB_|FF_|RUNNER_|DOCKER_|DIND_|PATH=|HOME=|HOSTNAME=|PWD=|OLDPWD=|SHELL=|SHLVL=|USER=|_=|LANG=|LC_|TERM=|DEBIAN_)' > .env
+
+      # Docker 이미지 정보 추가
+      echo "DOCKER_IMAGE=${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" >> .env
+
+      cat .env
+      cp .env docker/.env
+    - |
+      echo "=== Docker 네트워크 확인 ==="
+      docker network ls | grep -q network-ts && echo "✓ network-ts 존재" || (docker network create network-ts && echo "✓ network-ts 생성")
+    - |
+      echo "=== Harbor 로그인 ==="
+      echo "$HARBOR_PASSWORD" | docker login http://$HARBOR_REGISTRY -u $HARBOR_USERNAME --password-stdin || echo "⚠️  Harbor 로그인 실패"
+  script:
+    - |
+      echo "=== Web 이미지 준비 ==="
+      LOCAL_IMAGE="ts/${SERVER_NAME}:latest"
+      HARBOR_IMAGE_LATEST="${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${SERVER_NAME}:latest"
+
+      if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${LOCAL_IMAGE}$"; then
+        echo "✓ 로컬 이미지 사용: ${LOCAL_IMAGE}"
+      elif docker pull ${HARBOR_IMAGE_LATEST} 2>/dev/null; then
+        echo "✓ Harbor에서 latest 이미지 Pull 성공"
+        docker tag ${HARBOR_IMAGE_LATEST} ${LOCAL_IMAGE}
+      else
+        echo "❌ 이미지를 찾을 수 없습니다"
+        echo "   docker-build-job을 먼저 실행하거나 harbor-push-job으로 Harbor에 이미지를 저장하세요"
+        exit 1
+      fi
+
+    - |
+      echo "=== 기존 컨테이너 정리 ==="
+      docker-compose -p release_manager_web -f docker/docker-compose.yml rm -f web || true
+
+    - |
+      echo "=== 웹 애플리케이션 배포 ==="
+      docker stop ${SERVER_NAME} || true
+      docker rm -f ${SERVER_NAME} || true
+      docker-compose -p release_manager_web -f docker/docker-compose.yml up -d web
+      echo "✓ 컨테이너 시작됨"
+      sleep 5
+
+    - |
+      echo "=== 애플리케이션 헬스체크 ==="
+      max_attempts=30
+      attempt=0
+      until curl -sf http://${SERVER_HOST}:${SERVER_EXTERNAL_PORT}/health > /dev/null || [ $attempt -eq $max_attempts ]; do
+        attempt=$((attempt+1))
+        echo "  대기 중... ($attempt/$max_attempts)"
+        sleep 2
+      done
+      if [ $attempt -eq $max_attempts ]; then
+        echo "✗ 애플리케이션 헬스체크 실패"
+        docker logs ${SERVER_NAME}
+        exit 1
+      fi
+      echo "✅ 애플리케이션 준비 완료"
+      echo "=== 배포 성공 ==="
+
+  after_script:
+    - echo "=== 정리 작업 ==="
+    - docker images -f "dangling=true" -f "label=project=${SERVER_NAME}" -q | xargs -r docker rmi -f 2>/dev/null || true
+    - docker image prune -f --filter "label=project=${SERVER_NAME}" --filter "dangling=true" 2>/dev/null || true
+    - echo "✓ Dangling 이미지 정리 완료"
+
+    - echo "=== 배포 상태 ==="
+    - docker ps --filter "name=${SERVER_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+    - docker images --filter "reference=${DOCKER_IMAGE_NAME}" --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}"
+
+  environment:
+    name: production
+    url: http://${SERVER_HOST}:${SERVER_EXTERNAL_PORT}
+  when: manual
