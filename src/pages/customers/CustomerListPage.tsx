@@ -52,7 +52,7 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import {
   DropdownMenu,
@@ -79,6 +79,11 @@ function formatDateTime(dateStr: string | null | undefined): string {
 
 type ModalMode = 'create' | 'edit' | null
 
+interface PaginationState {
+  pageIndex: number
+  pageSize: number
+}
+
 export function CustomerListPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -89,6 +94,7 @@ export function CustomerListPage() {
     pageIndex: 0,
     pageSize: 10,
   })
+  const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [modalMode, setModalMode] = useState<ModalMode>(null)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
@@ -102,7 +108,7 @@ export function CustomerListPage() {
   })
 
   const { data: customerData, isLoading, refetch } = useQuery({
-    queryKey: ['customers', filterActive, searchKeyword, pagination],
+    queryKey: ['customers', filterActive, searchKeyword, pagination, sort],
     queryFn: () => {
       const isActiveFilter = filterActive === 'all' ? undefined : filterActive === 'true'
       return customerApi.getList({
@@ -110,6 +116,7 @@ export function CustomerListPage() {
         keyword: searchKeyword || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
+        sort: sort ? `${sort.key},${sort.direction}` : undefined,
       })
     },
   })
@@ -219,6 +226,17 @@ export function CustomerListPage() {
     statusMutation.mutate({ id: customer.customerId, isActive: !customer.isActive })
   }
 
+  const handleSort = (key: string) => {
+    setSort((current) => {
+      if (current?.key === key) {
+        return current.direction === 'asc'
+          ? { key, direction: 'desc' }
+          : null
+      }
+      return { key, direction: 'asc' }
+    })
+  }
+
   const customerList = customerData?.content || []
 
 
@@ -298,12 +316,39 @@ export function CustomerListPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="h-10">
-                    <TableHead className="w-16 text-center">ID</TableHead>
-                    <TableHead className="w-32">고객사 코드</TableHead>
-                    <TableHead>고객사명</TableHead>
+                    <SortableTableHead
+                      id="customerId"
+                      currentSort={sort}
+                      onSort={handleSort}
+                      className="w-16 text-center"
+                    >
+                      ID
+                    </SortableTableHead>
+                    <SortableTableHead
+                      id="customerCode"
+                      currentSort={sort}
+                      onSort={handleSort}
+                      className="w-32"
+                    >
+                      고객사 코드
+                    </SortableTableHead>
+                    <SortableTableHead
+                      id="customerName"
+                      currentSort={sort}
+                      onSort={handleSort}
+                    >
+                      고객사명
+                    </SortableTableHead>
                     <TableHead>설명</TableHead>
                     <TableHead className="w-20 text-center">상태</TableHead>
-                    <TableHead className="w-28">등록일</TableHead>
+                    <SortableTableHead
+                      id="createdAt"
+                      currentSort={sort}
+                      onSort={handleSort}
+                      className="w-28"
+                    >
+                      등록일
+                    </SortableTableHead>
                     <TableHead className="w-12 text-center"></TableHead>
                   </TableRow>
                 </TableHeader>

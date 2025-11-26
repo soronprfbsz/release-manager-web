@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -34,34 +34,6 @@ function formatDateTime(dateStr: string | null | undefined): string {
 }
 
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'SUCCESS':
-      return (
-        <Badge variant="outline" className="border-green-500 bg-green-500/10 text-green-600 dark:text-green-400">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          성공
-        </Badge>
-      )
-    case 'FAILED':
-      return (
-        <Badge variant="outline" className="border-red-500 bg-red-500/10 text-red-600 dark:text-red-400">
-          <XCircle className="h-3 w-3 mr-1" />
-          실패
-        </Badge>
-      )
-    case 'PENDING':
-      return (
-        <Badge variant="outline" className="border-yellow-500 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
-          <Clock className="h-3 w-3 mr-1" />
-          진행중
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
-}
 
 export function PatchHistoryPage() {
   const { toast } = useToast()
@@ -163,7 +135,6 @@ export function PatchHistoryPage() {
                     <TableHead className="w-48">패치명</TableHead>
                     <TableHead className="w-48">버전 범위</TableHead>
                     <TableHead className="w-24 text-center">릴리즈</TableHead>
-                    <TableHead className="w-24 text-center">상태</TableHead>
                     <TableHead className="w-32">생성자</TableHead>
                     <TableHead className="w-56">생성일시</TableHead>
                     <TableHead className="w-20 text-center">다운로드</TableHead>
@@ -193,9 +164,6 @@ export function PatchHistoryPage() {
                           {patch.releaseType === 'STANDARD' ? '표준' : patch.customerCode || '커스텀'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-center">
-                        {getStatusBadge(patch.status)}
-                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm">
                           <User className="h-3 w-3 text-muted-foreground" />
@@ -213,8 +181,8 @@ export function PatchHistoryPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDownload(patch)}
-                          disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
-                          title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
+                          disabled={downloadingId === patch.patchId}
+                          title="다운로드"
                         >
                           {downloadingId === patch.patchId ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />

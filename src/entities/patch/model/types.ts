@@ -15,7 +15,6 @@ export interface CumulativePatch {
   generatedBy: string
   description: string | null
   patchedBy: string | null
-  status: string
 }
 
 export interface CumulativePatchDetail {
@@ -31,8 +30,6 @@ export interface CumulativePatchDetail {
   generatedBy: string
   description: string | null
   patchedBy: string | null
-  status: string
-  errorMessage: string | null
   createdAt: string
   updatedAt: string
 }

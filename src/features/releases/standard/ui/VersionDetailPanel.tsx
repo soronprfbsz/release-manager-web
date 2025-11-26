@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Calendar, User, FileText, Database, HardDrive, Clock, File, Download } from 'lucide-react'
+import { Calendar, User, FileText, Database, HardDrive, Clock, File, Download, Info } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -109,7 +109,10 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
         {/* Basic Info */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">기본 정보</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              기본 정보
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
