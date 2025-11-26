@@ -132,8 +132,8 @@ docker-build-job:
         --force-rm \
         .
 
-    - echo "✅ 이미지 빌드 완료: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-    - docker images | grep ${DOCKER_IMAGE_NAME}
+      echo "✅ 이미지 빌드 완료: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+      docker images | grep ${DOCKER_IMAGE_NAME}
 
 # ========================================
 # Harbor Push 단계
