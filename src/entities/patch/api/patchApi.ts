@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+import type { PageResponse, PaginationParams } from '@/shared/api/types'
 import type {
   CumulativePatch,
   CumulativePatchDetail,
@@ -6,9 +7,18 @@ import type {
 } from '../model/types'
 
 export const patchApi = {
-  /** 패치 목록 조회 */
-  getList: async (): Promise<CumulativePatch[]> => {
-    const response = await apiClient.get<CumulativePatch[]>('/api/patch')
+  /** 패치 목록 조회 (페이징) */
+  getList: async (params?: PaginationParams & { releaseType?: string }): Promise<PageResponse<CumulativePatch>> => {
+    const queryParams = new URLSearchParams()
+    if (params?.page !== undefined) queryParams.append('page', String(params.page))
+    if (params?.size !== undefined) queryParams.append('size', String(params.size))
+    if (params?.sort) queryParams.append('sort', params.sort)
+    if (params?.releaseType) queryParams.append('releaseType', params.releaseType)
+
+    const queryString = queryParams.toString()
+    const url = queryString ? `/api/patch?${queryString}` : '/api/patch'
+
+    const response = await apiClient.get<PageResponse<CumulativePatch>>(url)
     return response.data
   },
 

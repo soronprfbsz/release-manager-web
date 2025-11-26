@@ -23,6 +23,39 @@ export interface PaginationParams {
   sort?: string
 }
 
+/**
+ * Spring Data JPA Page 응답 형식
+ */
+export interface PageResponse<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  first: boolean
+  last: boolean
+  empty: boolean
+  numberOfElements: number
+  pageable: {
+    pageNumber: number
+    pageSize: number
+    sort: {
+      sorted: boolean
+      empty: boolean
+      unsorted: boolean
+    }
+    offset: number
+    paged: boolean
+    unpaged: boolean
+  }
+  sort: {
+    sorted: boolean
+    empty: boolean
+    unsorted: boolean
+  }
+}
+
+/** @deprecated Use PageResponse instead */
 export interface PaginatedResponse<T> {
   content: T[]
   totalElements: number

@@ -64,6 +64,8 @@ import {
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { customerApi, type Customer, type CustomerCreateRequest, type CustomerUpdateRequest } from '@/entities/customer'
 
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
+
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
@@ -83,6 +85,10 @@ export function CustomerListPage() {
 
   const [searchKeyword, setSearchKeyword] = useState('')
   const [filterActive, setFilterActive] = useState<string>('all')
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
   const [modalMode, setModalMode] = useState<ModalMode>(null)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
@@ -95,11 +101,16 @@ export function CustomerListPage() {
     isActive: true,
   })
 
-  const { data: customers, isLoading, refetch } = useQuery({
-    queryKey: ['customers', filterActive, searchKeyword],
+  const { data: customerData, isLoading, refetch } = useQuery({
+    queryKey: ['customers', filterActive, searchKeyword, pagination],
     queryFn: () => {
       const isActiveFilter = filterActive === 'all' ? undefined : filterActive === 'true'
-      return customerApi.getList(isActiveFilter, searchKeyword || undefined)
+      return customerApi.getList({
+        isActive: isActiveFilter,
+        keyword: searchKeyword || undefined,
+        page: pagination.pageIndex,
+        size: pagination.pageSize,
+      })
     },
   })
 
@@ -208,7 +219,8 @@ export function CustomerListPage() {
     statusMutation.mutate({ id: customer.customerId, isActive: !customer.isActive })
   }
 
-  const customerList = customers || []
+  const customerList = customerData?.content || []
+
 
   return (
     <div className="space-y-6">
@@ -237,8 +249,8 @@ export function CustomerListPage() {
             <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
               <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button onClick={openCreateModal} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={openCreateModal} variant="outline">
+              <Plus className="h-4 w-4" />
               고객사 등록
             </Button>
           </>
@@ -252,11 +264,6 @@ export function CustomerListPage() {
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
               고객사 목록
-              {customerList.length > 0 && (
-                <TypographyMuted className="ml-2">
-                  ({customerList.length})
-                </TypographyMuted>
-              )}
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -287,89 +294,99 @@ export function CustomerListPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : customerList.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow className="h-10">
-                  <TableHead className="w-16 text-center">ID</TableHead>
-                  <TableHead className="w-32">고객사 코드</TableHead>
-                  <TableHead>고객사명</TableHead>
-                  <TableHead>설명</TableHead>
-                  <TableHead className="w-20 text-center">상태</TableHead>
-                  <TableHead className="w-28">등록일</TableHead>
-                  <TableHead className="w-12 text-center"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {customerList.map((customer) => (
-                  <TableRow key={customer.customerId} className="h-10">
-                    <TableCell className="text-center text-muted-foreground py-2">
-                      {customer.customerId}
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
-                    </TableCell>
-                    <TableCell className="font-medium py-2">{customer.customerName}</TableCell>
-                    <TableCell className="py-2">
-                      <TypographyMuted className="max-w-xs truncate">
-                        {customer.description || '-'}
-                      </TypographyMuted>
-                    </TableCell>
-                    <TableCell className="text-center py-2">
-                      <Badge
-                        variant="outline"
-                        className={
-                          customer.isActive
-                            ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
-                            : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
-                        }
-                      >
-                        {customer.isActive ? '활성' : '비활성'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-2 whitespace-nowrap">
-                      <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">메뉴 열기</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditModal(customer)}>
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            수정
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
-                            {customer.isActive ? (
-                              <>
-                                <PowerOff className="mr-2 h-4 w-4" />
-                                비활성화
-                              </>
-                            ) : (
-                              <>
-                                <Power className="mr-2 h-4 w-4" />
-                                활성화
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setDeleteConfirmId(customer.customerId)}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow className="h-10">
+                    <TableHead className="w-16 text-center">ID</TableHead>
+                    <TableHead className="w-32">고객사 코드</TableHead>
+                    <TableHead>고객사명</TableHead>
+                    <TableHead>설명</TableHead>
+                    <TableHead className="w-20 text-center">상태</TableHead>
+                    <TableHead className="w-28">등록일</TableHead>
+                    <TableHead className="w-12 text-center"></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {customerList.map((customer) => (
+                    <TableRow key={customer.customerId} className="h-10">
+                      <TableCell className="text-center text-muted-foreground py-2">
+                        {customer.customerId}
+                      </TableCell>
+                      <TableCell className="py-2">
+                        <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
+                      </TableCell>
+                      <TableCell className="font-medium py-2">{customer.customerName}</TableCell>
+                      <TableCell className="py-2">
+                        <TypographyMuted className="max-w-xs truncate">
+                          {customer.description || '-'}
+                        </TypographyMuted>
+                      </TableCell>
+                      <TableCell className="text-center py-2">
+                        <Badge
+                          variant="outline"
+                          className={
+                            customer.isActive
+                              ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
+                              : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
+                          }
+                        >
+                          {customer.isActive ? '활성' : '비활성'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-2 whitespace-nowrap">
+                        <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
+                      </TableCell>
+                      <TableCell className="py-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">메뉴 열기</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditModal(customer)}>
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
+                              {customer.isActive ? (
+                                <>
+                                  <PowerOff className="mr-2 h-4 w-4" />
+                                  비활성화
+                                </>
+                              ) : (
+                                <>
+                                  <Power className="mr-2 h-4 w-4" />
+                                  활성화
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteConfirmId(customer.customerId)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="pt-4">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={customerData?.totalElements || 0}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Building2 className="h-12 w-12 mb-3 opacity-50" />

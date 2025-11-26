@@ -85,12 +85,12 @@ export function HomePage() {
 
   const { data: patchData, isLoading: isPatchLoading } = useQuery({
     queryKey: ['cumulative-patches'],
-    queryFn: patchApi.getList,
+    queryFn: () => patchApi.getList({ page: 0, size: 5 }),
   })
 
   const recentVersions = getRecentVersions(standardTree, 5)
   const latestInstall = recentVersions.find(v => v.isInstall)
-  const recentPatches: CumulativePatch[] = patchData?.slice(0, 5) || []
+  const recentPatches: CumulativePatch[] = patchData?.content || []
 
   return (
     <div className="space-y-6">

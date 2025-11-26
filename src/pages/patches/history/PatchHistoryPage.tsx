@@ -18,6 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { patchApi, type CumulativePatch } from '@/entities/patch'
+import { PaginationState } from '@tanstack/react-table'
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -31,6 +32,8 @@ function formatDateTime(dateStr: string | null | undefined): string {
     minute: '2-digit',
   })
 }
+
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -63,10 +66,18 @@ function getStatusBadge(status: string) {
 export function PatchHistoryPage() {
   const { toast } = useToast()
   const [downloadingId, setDownloadingId] = useState<number | null>(null)
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
 
-  const { data: patches, isLoading, refetch } = useQuery({
-    queryKey: ['cumulative-patches'],
-    queryFn: patchApi.getList,
+  const { data: patchData, isLoading, refetch } = useQuery({
+    queryKey: ['cumulative-patches', pagination],
+    queryFn: () => patchApi.getList({
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      sort: 'generatedAt,desc'
+    }),
   })
 
   const handleDownload = async (patch: CumulativePatch) => {
@@ -88,7 +99,8 @@ export function PatchHistoryPage() {
     }
   }
 
-  const patchList = patches || []
+  const patchList = patchData?.content || []
+  const totalCount = patchData?.totalElements || 0
 
   return (
     <div className="space-y-6">
@@ -130,9 +142,9 @@ export function PatchHistoryPage() {
               <Layers className="h-5 w-5" />
               생성된 패치 목록
             </div>
-            {patchList.length > 0 && (
+            {totalCount > 0 && (
               <TypographyMuted>
-                총 {patchList.length}개
+                총 {totalCount}개
               </TypographyMuted>
             )}
           </CardTitle>
@@ -143,77 +155,87 @@ export function PatchHistoryPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : patchList.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16 text-center">ID</TableHead>
-                  <TableHead className="w-48">패치명</TableHead>
-                  <TableHead className="w-48">버전 범위</TableHead>
-                  <TableHead className="w-24 text-center">릴리즈</TableHead>
-                  <TableHead className="w-24 text-center">상태</TableHead>
-                  <TableHead className="w-32">생성자</TableHead>
-                  <TableHead className="w-56">생성일시</TableHead>
-                  <TableHead className="w-20 text-center">다운로드</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {patchList.map((patch) => (
-                  <TableRow key={patch.patchId}>
-                    <TableCell className="text-center text-muted-foreground">
-                      {patch.patchId}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                        <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="secondary">
-                        {patch.releaseType === 'STANDARD' ? '표준' : patch.customerCode || '커스텀'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {getStatusBadge(patch.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        {patch.generatedBy}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <TypographyMuted className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDateTime(patch.generatedAt)}
-                      </TypographyMuted>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDownload(patch)}
-                        disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
-                        title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
-                      >
-                        {downloadingId === patch.patchId ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                        ) : (
-                          <Download className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16 text-center">ID</TableHead>
+                    <TableHead className="w-48">패치명</TableHead>
+                    <TableHead className="w-48">버전 범위</TableHead>
+                    <TableHead className="w-24 text-center">릴리즈</TableHead>
+                    <TableHead className="w-24 text-center">상태</TableHead>
+                    <TableHead className="w-32">생성자</TableHead>
+                    <TableHead className="w-56">생성일시</TableHead>
+                    <TableHead className="w-20 text-center">다운로드</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {patchList.map((patch) => (
+                    <TableRow key={patch.patchId}>
+                      <TableCell className="text-center text-muted-foreground">
+                        {patch.patchId}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                          <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary">
+                          {patch.releaseType === 'STANDARD' ? '표준' : patch.customerCode || '커스텀'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {getStatusBadge(patch.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <User className="h-3 w-3 text-muted-foreground" />
+                          {patch.generatedBy}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <TypographyMuted className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDateTime(patch.generatedAt)}
+                        </TypographyMuted>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDownload(patch)}
+                          disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
+                          title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
+                        >
+                          {downloadingId === patch.patchId ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="pt-4">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={totalCount}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Layers className="h-12 w-12 mb-3 opacity-50" />

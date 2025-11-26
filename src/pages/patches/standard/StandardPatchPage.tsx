@@ -42,6 +42,7 @@ import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
 import { customerApi } from '@/entities/customer'
+import { PaginationState } from '@tanstack/react-table'
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -55,6 +56,8 @@ function formatDateTime(dateStr: string | null | undefined): string {
     minute: '2-digit',
   })
 }
+
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -110,6 +113,10 @@ export function StandardPatchPage() {
   // Sheet 상태
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [downloadingId, setDownloadingId] = useState<number | null>(null)
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
 
   // 패치 생성 폼 상태
   const [fromVersion, setFromVersion] = useState('')
@@ -119,9 +126,14 @@ export function StandardPatchPage() {
   const [description, setDescription] = useState('')
 
   // 패치 목록 조회
-  const { data: patches, isLoading, refetch } = useQuery({
-    queryKey: ['cumulative-patches', 'STANDARD'],
-    queryFn: patchApi.getList,
+  const { data: patchesData, isLoading, refetch } = useQuery({
+    queryKey: ['cumulative-patches', 'STANDARD', pagination],
+    queryFn: () => patchApi.getList({
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      releaseType: 'STANDARD',
+      sort: 'generatedAt,desc',
+    }),
   })
 
   // 버전 트리 조회 (패치 생성용)
@@ -134,7 +146,7 @@ export function StandardPatchPage() {
   // 고객사 목록 조회
   const { data: customers } = useQuery({
     queryKey: ['customers-active'],
-    queryFn: () => customerApi.getList(true),
+    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
     enabled: isSheetOpen,
   })
 
@@ -189,7 +201,7 @@ export function StandardPatchPage() {
     }
 
     // customerCode로 customerId 찾기
-    const selectedCustomer = customers?.find(c => c.customerCode === customerCode)
+    const selectedCustomer = customers?.content.find(c => c.customerCode === customerCode)
 
     const request: CumulativePatchGenerateRequest = {
       type: 'STANDARD',
@@ -230,7 +242,7 @@ export function StandardPatchPage() {
     }
   }
 
-  const patchList = patches?.filter(p => p.releaseType === 'STANDARD') || []
+  const patchList = patchesData?.content || []
 
   return (
     <div className="space-y-6">
@@ -263,8 +275,8 @@ export function StandardPatchPage() {
             <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
               <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button onClick={() => setIsSheetOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={() => setIsSheetOpen(true)} variant="outline">
+              <Plus className="h-4 w-4" />
               패치 생성
             </Button>
           </>
@@ -281,7 +293,7 @@ export function StandardPatchPage() {
             </div>
             {patchList.length > 0 && (
               <TypographyMuted>
-                총 {patchList.length}개
+                총 {patchesData?.totalElements || 0}개
               </TypographyMuted>
             )}
           </CardTitle>
@@ -292,71 +304,81 @@ export function StandardPatchPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : patchList.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16 text-center">ID</TableHead>
-                  <TableHead className="w-48">패치명</TableHead>
-                  <TableHead className="w-48">버전 범위</TableHead>
-                  <TableHead className="w-24 text-center">상태</TableHead>
-                  <TableHead className="w-32">생성자</TableHead>
-                  <TableHead className="w-56">생성일시</TableHead>
-                  <TableHead className="w-20 text-center">다운로드</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {patchList.map((patch) => (
-                  <TableRow key={patch.patchId}>
-                    <TableCell className="text-center text-muted-foreground">
-                      {patch.patchId}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                        <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {getStatusBadge(patch.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        {patch.generatedBy}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <TypographyMuted className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDateTime(patch.generatedAt)}
-                      </TypographyMuted>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDownload(patch)}
-                        disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
-                        title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
-                      >
-                        {downloadingId === patch.patchId ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                        ) : (
-                          <Download className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-16 text-center">ID</TableHead>
+                    <TableHead className="w-48">패치명</TableHead>
+                    <TableHead className="w-48">버전 범위</TableHead>
+                    <TableHead className="w-24 text-center">상태</TableHead>
+                    <TableHead className="w-32">생성자</TableHead>
+                    <TableHead className="w-56">생성일시</TableHead>
+                    <TableHead className="w-20 text-center">다운로드</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {patchList.map((patch) => (
+                    <TableRow key={patch.patchId}>
+                      <TableCell className="text-center text-muted-foreground">
+                        {patch.patchId}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                          <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {getStatusBadge(patch.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <User className="h-3 w-3 text-muted-foreground" />
+                          {patch.generatedBy}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <TypographyMuted className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDateTime(patch.generatedAt)}
+                        </TypographyMuted>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDownload(patch)}
+                          disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
+                          title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
+                        >
+                          {downloadingId === patch.patchId ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="pt-4">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={patchesData?.totalElements || 0}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Layers className="h-12 w-12 mb-3 opacity-50" />
@@ -436,7 +458,7 @@ export function StandardPatchPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">선택 안함</SelectItem>
-                    {customers?.map((c) => (
+                    {customers?.content.map((c) => (
                       <SelectItem key={c.customerId} value={c.customerCode}>
                         {c.customerName} ({c.customerCode})
                       </SelectItem>
@@ -513,4 +535,3 @@ export function StandardPatchPage() {
     </div>
   )
 }
-
