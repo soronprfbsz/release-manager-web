@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Calendar, User, FileText, Database, HardDrive, CheckCircle, Clock, File, Download } from 'lucide-react'
+import { Calendar, User, FileText, Database, HardDrive, Clock, File, Download } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Separator } from '@/shared/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { releaseApi, type VersionNode, type ReleaseVersionDetail, type ReleaseFileSimple } from '@/entities/release'
 
@@ -89,7 +89,7 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
         <FileText className="h-12 w-12 mb-2 opacity-50" />
-        <p className="text-sm">버전을 선택하면 상세 정보가 표시됩니다.</p>
+        <TypographyMuted>버전을 선택하면 상세 정보가 표시됩니다.</TypographyMuted>
       </div>
     )
   }
@@ -106,19 +106,6 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
 
   return (
     <div className="space-y-6">
-        {/* Version Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">{version.version}</h2>
-          {version.isInstall && (
-            <Badge variant="default" className="bg-green-500">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              설치본
-            </Badge>
-          )}
-        </div>
-
-        <Separator />
-
         {/* Basic Info */}
         <Card>
           <CardHeader className="pb-3">
@@ -126,31 +113,33 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">생성자:</span>
-                <span className="text-sm font-medium">{version.createdBy || '-'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">생성일:</span>
-                <span className="text-sm font-medium">{formatDate(version.createdAt)}</span>
-              </div>
-            </div>
-            {detail && (
-              <div className="grid grid-cols-2 gap-4">
+              {detail && (
                 <div className="flex items-center gap-2">
                   <HardDrive className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">버전 ID:</span>
-                  <span className="text-sm font-medium">{detail.releaseVersionId}</span>
+                  <TypographyMuted className="text-sm">버전 ID:</TypographyMuted>
+                  <TypographySmall>{detail.releaseVersionId}</TypographySmall>
                 </div>
+              )}
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <TypographyMuted className="text-sm">생성자:</TypographyMuted>
+                <TypographySmall>{version.createdBy || '-'}</TypographySmall>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <TypographyMuted className="text-sm">생성일시:</TypographyMuted>
+                <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
+              </div>
+              {detail && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">수정일:</span>
-                  <span className="text-sm font-medium">{formatDateTime(detail.updatedAt)}</span>
+                  <TypographyMuted className="text-sm">수정일시:</TypographyMuted>
+                  <TypographySmall>{formatDateTime(detail.updatedAt)}</TypographySmall>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -186,17 +175,17 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
                   <div className="flex items-center gap-2 mb-2">
                     <Badge
                       variant="outline"
-                      className={`font-mono ${
+                      className={
                         dbType === 'MARIADB'
                           ? 'border-sky-500 bg-sky-500/10 text-sky-600 dark:text-sky-400'
                           : dbType === 'CRATEDB'
                           ? 'border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400'
                           : ''
-                      }`}
+                      }
                     >
-                      {dbType}
+                      <TypographyInlineCode className="bg-transparent px-0 py-0">{dbType}</TypographyInlineCode>
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{files.length}개 파일</span>
+                    <TypographyMuted className="text-xs">{files.length}개 파일</TypographyMuted>
                   </div>
                   <Table>
                     <TableHeader>
@@ -212,17 +201,17 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
                         .sort((a, b) => a.executionOrder - b.executionOrder)
                         .map((file) => (
                         <TableRow key={file.releaseFileId}>
-                          <TableCell className="text-center text-sm text-muted-foreground">
-                            {file.executionOrder}
+                          <TableCell className="text-center">
+                            <TypographyMuted>{file.executionOrder}</TypographyMuted>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <File className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-mono text-sm">{file.fileName}</span>
+                              <TypographyInlineCode className="bg-transparent">{file.fileName}</TypographyInlineCode>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right text-sm text-muted-foreground">
-                            {formatFileSize(file.fileSize)}
+                          <TableCell className="text-right">
+                            <TypographyMuted>{formatFileSize(file.fileSize)}</TypographyMuted>
                           </TableCell>
                           <TableCell className="text-center">
                             <Button
@@ -261,16 +250,16 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
               {version.databases.map((db) => (
                 <div key={db.databaseType}>
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className="font-mono">
-                      {db.databaseType}
+                    <Badge variant="outline">
+                      <TypographyInlineCode className="bg-transparent px-0 py-0">{db.databaseType}</TypographyInlineCode>
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{db.files.length}개 파일</span>
+                    <TypographyMuted className="text-xs">{db.files.length}개 파일</TypographyMuted>
                   </div>
                   <div className="bg-muted/50 rounded-md p-3 space-y-1">
                     {db.files.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
+                      <div key={index} className="flex items-center gap-2">
                         <File className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-mono">{file}</span>
+                        <TypographyInlineCode>{file}</TypographyInlineCode>
                       </div>
                     ))}
                   </div>
@@ -286,7 +275,7 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
             <CardContent className="py-8">
               <div className="flex flex-col items-center justify-center text-muted-foreground">
                 <File className="h-8 w-8 mb-2 opacity-50" />
-                <p className="text-sm">등록된 릴리즈 파일이 없습니다.</p>
+                <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
               </div>
             </CardContent>
           </Card>

@@ -4,12 +4,16 @@ test.describe('고객사 관리 페이지', () => {
   test.beforeEach(async ({ page }) => {
     // 고객사 관리 페이지로 이동
     await page.goto('/customers')
-
-    // 네트워크 요청 완료 대기
     await page.waitForLoadState('networkidle')
 
-    // 로그인 페이지로 리다이렉트된 경우 로그인 처리 (fallback)
-    if (page.url().includes('/login')) {
+    // 로그인 버튼 또는 고객사 등록 버튼 중 하나가 보일 때까지 대기
+    const loginButton = page.getByRole('button', { name: '로그인' })
+    const customerButton = page.getByRole('button', { name: '고객사 등록' })
+
+    await expect(loginButton.or(customerButton)).toBeVisible({ timeout: 5000 })
+
+    // 로그인 페이지인 경우 로그인 처리
+    if (await loginButton.isVisible().catch(() => false)) {
       const testEmail = process.env.TEST_USER_EMAIL
       const testPassword = process.env.TEST_USER_PASSWORD
 
@@ -19,28 +23,21 @@ test.describe('고객사 관리 페이지', () => {
         )
       }
 
-      // 로그인 폼이 로드될 때까지 대기
-      await expect(page.locator('#email')).toBeVisible({ timeout: 10000 })
-      await expect(page.locator('#password')).toBeVisible({ timeout: 5000 })
+      await page.getByRole('textbox', { name: '이메일' }).fill(testEmail)
+      await page.getByRole('textbox', { name: '비밀번호' }).fill(testPassword)
+      await loginButton.click()
 
-      // 폼 입력
-      await page.locator('#email').fill(testEmail)
-      await page.locator('#password').fill(testPassword)
-      await page.getByRole('button', { name: '로그인' }).click()
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 5000 })
 
-      // 로그인 성공 후 홈페이지 또는 고객사 페이지 대기
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15000 })
-      await page.waitForLoadState('networkidle')
-
-      // 고객사 페이지가 아니면 이동
+      // 로그인 후 고객사 페이지가 아니면 이동
       if (!page.url().includes('/customers')) {
         await page.goto('/customers')
         await page.waitForLoadState('networkidle')
       }
     }
 
-    // 고객사 목록 카드가 보이는지 확인 (타임아웃 증가)
-    await expect(page.getByText('고객사 목록')).toBeVisible({ timeout: 15000 })
+    // 고객사 페이지 로드 확인 - 페이지 컨텐츠가 표시될 때까지 대기
+    await expect(page.getByText('고객사 목록')).toBeVisible({ timeout: 5000 })
   })
 
   test.describe('페이지 로딩', () => {
@@ -55,7 +52,7 @@ test.describe('고객사 관리 페이지', () => {
       await expect(page.getByRole('button', { name: '고객사 등록' })).toBeVisible()
 
       // 검색 입력 확인
-      await expect(page.getByPlaceholder('고객사명 검색...')).toBeVisible()
+      await expect(page.getByPlaceholder('검색...')).toBeVisible()
 
       // 상태 필터 확인 (Select trigger)
       await expect(page.locator('button[role="combobox"]')).toBeVisible()
@@ -82,7 +79,7 @@ test.describe('고객사 관리 페이지', () => {
 
   test.describe('고객사 검색 및 필터', () => {
     test('고객사명으로 검색할 수 있다', async ({ page }) => {
-      const searchInput = page.getByPlaceholder('고객사명 검색...')
+      const searchInput = page.getByPlaceholder('검색...')
 
       // 검색어 입력
       await searchInput.fill('테스트')
@@ -95,22 +92,29 @@ test.describe('고객사 관리 페이지', () => {
     })
 
     test('상태 필터로 필터링할 수 있다', async ({ page }) => {
+      // 페이지 로드 대기
+      await expect(page.getByText('고객사 목록')).toBeVisible()
+
       // Select trigger 클릭
       const statusFilter = page.locator('button[role="combobox"]')
+      await expect(statusFilter).toBeVisible()
       await statusFilter.click()
 
       // SelectContent 내의 옵션만 선택 (exact: true로 정확히 매치)
       const selectContent = page.locator('[role="listbox"]')
+      await expect(selectContent).toBeVisible()
       await selectContent.getByRole('option', { name: '활성', exact: true }).click()
-      await page.waitForTimeout(300)
 
-      // 다시 열어서 비활성 선택
+      // 드롭다운 닫힘 대기 후 다시 열기
+      await expect(selectContent).not.toBeVisible()
       await statusFilter.click()
+      await expect(selectContent).toBeVisible()
       await selectContent.getByRole('option', { name: '비활성', exact: true }).click()
-      await page.waitForTimeout(300)
 
       // 전체 보기로 복원
+      await expect(selectContent).not.toBeVisible()
       await statusFilter.click()
+      await expect(selectContent).toBeVisible()
       await selectContent.getByRole('option', { name: '전체', exact: true }).click()
 
       // 페이지가 정상적으로 유지되는지 확인
@@ -119,16 +123,19 @@ test.describe('고객사 관리 페이지', () => {
   })
 
   test.describe('고객사 CRUD', () => {
+    // CRUD 테스트는 API 호출이 많아 타임아웃 증가
+    test.describe.configure({ timeout: 30000 })
+
     test('새 고객사를 등록할 수 있다', async ({ page }) => {
       const testCustomer = generateTestCustomer()
 
       // 고객사 등록 버튼 클릭
       await page.getByRole('button', { name: '고객사 등록' }).click()
 
-      // 모달이 열릴 때까지 대기
+      // Sheet 패널이 열릴 때까지 대기
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(page.getByRole('heading', { name: '고객사 등록' })).toBeVisible()
+      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
 
       // 폼 입력 (dialog 내에서 찾기)
       await dialog.getByPlaceholder('예: CUSTOMER_A').fill(testCustomer.customerCode)
@@ -153,6 +160,9 @@ test.describe('고객사 관리 페이지', () => {
       const testCustomer = generateTestCustomer()
       await createTestCustomer(page, testCustomer)
 
+      // Toast 알림이 사라질 때까지 대기
+      await page.waitForTimeout(2000)
+
       // 액션 드롭다운 열기 (해당 고객사 행에서)
       const row = page.getByRole('row').filter({ hasText: testCustomer.customerCode })
       await row.getByRole('button', { name: '메뉴 열기' }).click()
@@ -160,10 +170,10 @@ test.describe('고객사 관리 페이지', () => {
       // 드롭다운에서 수정 클릭
       await page.getByRole('menuitem', { name: '수정' }).click()
 
-      // 수정 모달 확인
+      // 수정 Sheet 패널 확인
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(page.getByRole('heading', { name: '고객사 수정' })).toBeVisible()
+      await expect(dialog.getByText('고객사 수정', { exact: true })).toBeVisible()
 
       // 고객사 코드는 수정 불가 확인
       await expect(dialog.getByPlaceholder('예: CUSTOMER_A')).toBeDisabled()
@@ -213,6 +223,9 @@ test.describe('고객사 관리 페이지', () => {
       const testCustomer = generateTestCustomer()
       await createTestCustomer(page, testCustomer)
 
+      // Toast 알림이 사라질 때까지 대기
+      await page.waitForTimeout(2000)
+
       // 액션 드롭다운 열기
       const row = page.getByRole('row').filter({ hasText: testCustomer.customerCode })
       await row.getByRole('button', { name: '메뉴 열기' }).click()
@@ -223,8 +236,8 @@ test.describe('고객사 관리 페이지', () => {
       // 삭제 확인 모달
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(page.getByRole('heading', { name: '고객사 삭제' })).toBeVisible()
-      await expect(page.getByText('정말로 이 고객사를 삭제하시겠습니까?')).toBeVisible()
+      await expect(dialog.getByText('고객사 삭제', { exact: true })).toBeVisible()
+      await expect(dialog.getByText('정말로 이 고객사를 삭제하시겠습니까?')).toBeVisible()
 
       // 삭제 확인
       await dialog.getByRole('button', { name: '삭제' }).click()
@@ -264,12 +277,15 @@ test.describe('고객사 관리 페이지', () => {
   })
 
   test.describe('폼 유효성 검사', () => {
+    test.describe.configure({ timeout: 15000 })
+
     test('필수 필드 없이 등록 시 오류가 표시된다', async ({ page }) => {
-      // 고객사 등록 모달 열기
+      // 고객사 등록 Sheet 열기
       await page.getByRole('button', { name: '고객사 등록' }).click()
 
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
+      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
 
       // 빈 상태로 등록 시도
       await dialog.getByRole('button', { name: '등록' }).click()
@@ -278,12 +294,13 @@ test.describe('고객사 관리 페이지', () => {
       await expect(page.getByText('입력 오류', { exact: true }).first()).toBeVisible({ timeout: 5000 })
     })
 
-    test('등록 모달을 취소할 수 있다', async ({ page }) => {
-      // 고객사 등록 모달 열기
+    test('등록 Sheet를 취소할 수 있다', async ({ page }) => {
+      // 고객사 등록 Sheet 열기
       await page.getByRole('button', { name: '고객사 등록' }).click()
 
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
+      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
 
       // 일부 데이터 입력
       await dialog.getByPlaceholder('예: CUSTOMER_A').fill('TEST_CANCEL')
@@ -291,7 +308,7 @@ test.describe('고객사 관리 페이지', () => {
       // 취소 버튼 클릭
       await dialog.getByRole('button', { name: '취소' }).click()
 
-      // 모달이 닫힘
+      // Sheet이 닫힘
       await expect(dialog).not.toBeVisible({ timeout: 5000 })
     })
   })
@@ -318,6 +335,7 @@ async function createTestCustomer(
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible({ timeout: 5000 })
+  await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
 
   await dialog.getByPlaceholder('예: CUSTOMER_A').fill(customer.customerCode)
   await dialog.getByPlaceholder('예: A회사').fill(customer.customerName)

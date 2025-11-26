@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { MajorMinorNode, VersionNode } from '@/entities/release'
@@ -11,13 +11,16 @@ interface ReleaseTreeProps {
 
 export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersion }: ReleaseTreeProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // 첫 번째 그룹은 기본 펼침
-    const initial = new Set<string>()
-    if (majorMinorGroups.length > 0) {
-      initial.add(majorMinorGroups[0].majorMinor)
-    }
-    return initial
+    // 모든 그룹 기본 펼침
+    return new Set(majorMinorGroups.map(g => g.majorMinor))
   })
+
+  // 데이터가 비동기로 로드될 때 모든 그룹 펼침
+  useEffect(() => {
+    if (majorMinorGroups.length > 0) {
+      setExpandedGroups(new Set(majorMinorGroups.map(g => g.majorMinor)))
+    }
+  }, [majorMinorGroups])
 
   const toggleGroup = (majorMinor: string) => {
     setExpandedGroups((prev) => {

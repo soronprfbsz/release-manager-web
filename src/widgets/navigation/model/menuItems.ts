@@ -24,11 +24,11 @@ export const menuItems: MenuItem[] = [
     label: '패치 관리',
     children: [
       {
-        label: '표준 패치본',
+        label: 'Standard',
         path: ROUTES.PATCHES.STANDARD,
       },
       {
-        label: '커스텀 패치본',
+        label: 'Custom',
         path: ROUTES.PATCHES.CUSTOM,
       },
     ],
@@ -38,16 +38,7 @@ export const menuItems: MenuItem[] = [
     path: ROUTES.CUSTOMERS.LIST,
   },
   {
-    label: '기타',
-    children: [
-      {
-        label: '백업 스크립트',
-        path: ROUTES.SCRIPTS.BACKUP,
-      },
-      {
-        label: '복구 스크립트',
-        path: ROUTES.SCRIPTS.RESTORE,
-      },
-    ],
+    label: '다운로드',
+    path: ROUTES.DOWNLOADS.SCRIPTS,
   },
 ]

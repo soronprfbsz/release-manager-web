@@ -10,6 +10,7 @@ import { CustomReleasePage } from '@/pages/releases/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { CustomerListPage } from '@/pages/customers'
+import { ScriptDownloadPage } from '@/pages/downloads/scripts'
 
 const router = createBrowserRouter([
   {
@@ -94,30 +95,23 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.SCRIPTS.BACKUP,
+    path: ROUTES.DOWNLOADS.SCRIPTS,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <div>
-            <h1 className="text-3xl font-bold mb-6">백업 스크립트</h1>
-            <p className="text-muted-foreground">백업 스크립트 다운로드 페이지입니다.</p>
-          </div>
+          <ScriptDownloadPage />
         </MainLayout>
       </ProtectedRoute>
     ),
   },
+  // 레거시 스크립트 라우트 리다이렉트
   {
-    path: ROUTES.SCRIPTS.RESTORE,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <div>
-            <h1 className="text-3xl font-bold mb-6">복구 스크립트</h1>
-            <p className="text-muted-foreground">복구 스크립트 다운로드 페이지입니다.</p>
-          </div>
-        </MainLayout>
-      </ProtectedRoute>
-    ),
+    path: '/scripts/backup',
+    element: <Navigate to={ROUTES.DOWNLOADS.SCRIPTS} replace />,
+  },
+  {
+    path: '/scripts/restore',
+    element: <Navigate to={ROUTES.DOWNLOADS.SCRIPTS} replace />,
   },
 ])
 

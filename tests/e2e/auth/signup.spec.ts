@@ -49,7 +49,7 @@ test.describe('회원가입 페이지', () => {
       await expect(page.getByRole('link', { name: '로그인' })).toBeVisible()
     })
 
-    test('placeholder가 올바르게 표시된다', async ({ page }) => {
+    test('placeholder가 정상적으로 표시된다', async ({ page }) => {
       await expect(page.getByPlaceholder('홍길동')).toBeVisible()
       await expect(page.getByPlaceholder('your@email.com')).toBeVisible()
       await expect(page.getByPlaceholder('8자 이상 입력')).toBeVisible()
@@ -188,7 +188,7 @@ test.describe('회원가입 페이지', () => {
   })
 
   test.describe('회원가입 기능', () => {
-    test('올바른 정보로 회원가입하면 성공 토스트가 표시되고 로그인 페이지로 이동한다', async ({ page }) => {
+    test('유효한 정보로 회원가입하면 성공 토스트가 표시되고 로그인 페이지로 이동한다', async ({ page }) => {
       const testEmail = generateTestEmail()
 
       // 모든 필드 입력

@@ -1,26 +1,51 @@
+import { Link } from 'react-router-dom'
 import { GitBranch, Construction } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import { PageHeader } from '@/shared/ui/page-header'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
 
 export function CustomPatchPage() {
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between h-9">
-        <Breadcrumb
-          items={[
-            { label: '패치 관리' },
-            { label: '커스텀 패치본' },
-          ]}
-        />
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>패치 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Custom</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<GitBranch className="h-5 w-5 text-primary" />}
+        title="Custom 패치"
+        description="고객사별 커스텀 패치를 생성하고 관리합니다."
+      />
 
       {/* 준비 중 안내 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <GitBranch className="h-5 w-5" />
-            커스텀 패치본
+            Custom
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -38,4 +63,3 @@ export function CustomPatchPage() {
     </div>
   )
 }
-

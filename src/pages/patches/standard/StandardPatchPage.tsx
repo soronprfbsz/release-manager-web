@@ -1,17 +1,27 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
-  Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText, 
-  CheckCircle, XCircle, Clock, Plus, Package, Loader2 
+import {
+  Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText,
+  CheckCircle, XCircle, Clock, Plus, Package, Loader2
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
+import { PageHeader } from '@/shared/ui/page-header'
 import { Badge } from '@/shared/ui/badge'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import { Link } from 'react-router-dom'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import {
   Select,
   SelectContent,
@@ -178,13 +188,16 @@ export function StandardPatchPage() {
       return
     }
 
+    // customerCode로 customerId 찾기
+    const selectedCustomer = customers?.find(c => c.customerCode === customerCode)
+
     const request: CumulativePatchGenerateRequest = {
       type: 'STANDARD',
-      customerCode: customerCode || undefined,
+      customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,
       generatedBy: user?.email || '',
-      assignedEngineer: assignedEngineer || undefined,
+      patchedBy: assignedEngineer || undefined,
       description: description || undefined,
     }
 
@@ -199,9 +212,9 @@ export function StandardPatchPage() {
   }
 
   const handleDownload = async (patch: CumulativePatch) => {
-    setDownloadingId(patch.cumulativePatchId)
+    setDownloadingId(patch.patchId)
     try {
-      await patchApi.download(patch.cumulativePatchId, `${patch.patchName}.zip`)
+      await patchApi.download(patch.patchId, `${patch.patchName}.zip`)
       toast({
         title: '다운로드 완료',
         description: `${patch.patchName} 파일이 다운로드되었습니다.`,
@@ -221,24 +234,42 @@ export function StandardPatchPage() {
 
   return (
     <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between h-9">
-        <Breadcrumb
-          items={[
-            { label: '패치 관리' },
-            { label: '표준 패치본' },
-          ]}
-        />
-        <div className="flex items-center gap-2">
-          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => setIsSheetOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            패치 생성
-          </Button>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>패치 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Standard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<Package className="h-5 w-5 text-primary" />}
+        title="Standard 패치"
+        description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
+        actions={
+          <>
+            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => setIsSheetOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              패치 생성
+            </Button>
+          </>
+        }
+      />
 
       {/* 패치 목록 */}
       <Card>
@@ -249,9 +280,9 @@ export function StandardPatchPage() {
               표준 패치 목록
             </div>
             {patchList.length > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
+              <TypographyMuted>
                 총 {patchList.length}개
-              </span>
+              </TypographyMuted>
             )}
           </CardTitle>
         </CardHeader>
@@ -275,21 +306,21 @@ export function StandardPatchPage() {
               </TableHeader>
               <TableBody>
                 {patchList.map((patch) => (
-                  <TableRow key={patch.cumulativePatchId}>
+                  <TableRow key={patch.patchId}>
                     <TableCell className="text-center text-muted-foreground">
-                      {patch.cumulativePatchId}
+                      {patch.patchId}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{patch.patchName}</span>
+                        <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm">{patch.fromVersion}</span>
+                        <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
                         <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-mono text-sm font-medium">{patch.toVersion}</span>
+                        <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -302,20 +333,20 @@ export function StandardPatchPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <TypographyMuted className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {formatDateTime(patch.generatedAt)}
-                      </div>
+                      </TypographyMuted>
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDownload(patch)}
-                        disabled={downloadingId === patch.cumulativePatchId || patch.status !== 'SUCCESS'}
+                        disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
                         title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
                       >
-                        {downloadingId === patch.cumulativePatchId ? (
+                        {downloadingId === patch.patchId ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
                         ) : (
                           <Download className="h-4 w-4" />
@@ -329,8 +360,8 @@ export function StandardPatchPage() {
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Layers className="h-12 w-12 mb-3 opacity-50" />
-              <p className="text-sm">생성된 표준 패치가 없습니다.</p>
-              <p className="text-sm">"패치 생성" 버튼을 눌러 새 패치를 생성해보세요.</p>
+              <TypographyMuted>생성된 표준 패치가 없습니다.</TypographyMuted>
+              <TypographyMuted>"패치 생성" 버튼을 눌러 새 패치를 생성해보세요.</TypographyMuted>
             </div>
           )}
         </CardContent>
@@ -386,10 +417,10 @@ export function StandardPatchPage() {
                   </Select>
                 </div>
                 {isTreeLoading && (
-                  <p className="text-sm text-muted-foreground">버전 목록을 불러오는 중...</p>
+                  <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
                 )}
                 {!isTreeLoading && versions.length === 0 && (
-                  <p className="text-sm text-muted-foreground">등록된 버전이 없습니다.</p>
+                  <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
                 )}
               </div>
 

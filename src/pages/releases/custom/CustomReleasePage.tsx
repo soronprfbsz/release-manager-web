@@ -1,8 +1,65 @@
+import { Link } from 'react-router-dom'
+import { GitBranch, Construction } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { PageHeader } from '@/shared/ui/page-header'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
+
 export function CustomReleasePage() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Custom</h1>
-      <p className="text-muted-foreground">Custom 버전 관리 페이지입니다.</p>
+    <div className="space-y-6">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>버전 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Custom</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<GitBranch className="h-5 w-5 text-primary" />}
+        title="Custom 버전 관리"
+        description="고객사별 커스텀 릴리즈 버전 정보를  생성하고 관리합니다."
+      />
+
+      {/* 준비 중 안내 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GitBranch className="h-5 w-5" />
+            Custom
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+            <Construction className="h-16 w-16 mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">준비 중입니다</h3>
+            <p className="text-sm text-center max-w-md">
+              커스텀 릴리즈 버전 관리 기능은 현재 개발 중입니다.
+              <br />
+              고객사별 맞춤 버전 관리가 곧 지원될 예정입니다.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

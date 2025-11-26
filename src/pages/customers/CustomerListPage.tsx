@@ -14,11 +14,20 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
+import { PageHeader } from '@/shared/ui/page-header'
 import { Badge } from '@/shared/ui/badge'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import { Link } from 'react-router-dom'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
 import { Switch } from '@/shared/ui/switch'
 import {
   Select,
@@ -44,6 +53,7 @@ import {
 } from '@/shared/ui/sheet'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -202,18 +212,38 @@ export function CustomerListPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between h-9">
-        <Breadcrumb items={[{ label: '고객사 관리' }]} />
-        <div className="flex items-center gap-2">
-          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button onClick={openCreateModal} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            고객사 등록
-          </Button>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>고객사 관리</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<Building2 className="h-5 w-5 text-primary" />}
+        title="고객사 관리"
+        description="고객사 정보를 등록하고 관리합니다."
+        actions={
+          <>
+            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button onClick={openCreateModal} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              고객사 등록
+            </Button>
+          </>
+        }
+      />
 
       {/* 고객사 목록 */}
       <Card>
@@ -223,9 +253,9 @@ export function CustomerListPage() {
               <Building2 className="h-5 w-5" />
               고객사 목록
               {customerList.length > 0 && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
+                <TypographyMuted className="ml-2">
                   ({customerList.length})
-                </span>
+                </TypographyMuted>
               )}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -276,11 +306,13 @@ export function CustomerListPage() {
                       {customer.customerId}
                     </TableCell>
                     <TableCell className="py-2">
-                      <span className="font-mono text-sm">{customer.customerCode}</span>
+                      <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
                     </TableCell>
                     <TableCell className="font-medium py-2">{customer.customerName}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground max-w-xs truncate py-2">
-                      {customer.description || '-'}
+                    <TableCell className="py-2">
+                      <TypographyMuted className="max-w-xs truncate">
+                        {customer.description || '-'}
+                      </TypographyMuted>
                     </TableCell>
                     <TableCell className="text-center py-2">
                       <Badge
@@ -294,8 +326,8 @@ export function CustomerListPage() {
                         {customer.isActive ? '활성' : '비활성'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground py-2 whitespace-nowrap">
-                      {formatDateTime(customer.createdAt)}
+                    <TableCell className="py-2 whitespace-nowrap">
+                      <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
                     </TableCell>
                     <TableCell className="py-2">
                       <DropdownMenu>
@@ -341,8 +373,8 @@ export function CustomerListPage() {
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Building2 className="h-12 w-12 mb-3 opacity-50" />
-              <p className="text-sm">등록된 고객사가 없습니다.</p>
-              <p className="text-sm">고객사 등록 버튼을 눌러 새 고객사를 추가하세요.</p>
+              <TypographyMuted>등록된 고객사가 없습니다.</TypographyMuted>
+              <TypographyMuted>고객사 등록 버튼을 눌러 새 고객사를 추가하세요.</TypographyMuted>
             </div>
           )}
         </CardContent>
@@ -374,7 +406,7 @@ export function CustomerListPage() {
                   disabled={modalMode === 'edit'}
                 />
                 {modalMode === 'edit' && (
-                  <p className="text-xs text-muted-foreground">고객사 코드는 수정할 수 없습니다.</p>
+                  <TypographyMuted className="text-xs">고객사 코드는 수정할 수 없습니다.</TypographyMuted>
                 )}
               </div>
               <div className="space-y-2">
@@ -400,9 +432,9 @@ export function CustomerListPage() {
                   checked={formData.isActive}
                   onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                 />
-                <span className="text-sm text-muted-foreground">
+                <TypographyMuted>
                   {formData.isActive ? '활성' : '비활성'}
-                </span>
+                </TypographyMuted>
               </div>
 
               {/* 버튼 */}

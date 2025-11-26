@@ -79,6 +79,7 @@ local.properties
 /playwright-report/
 /test-results/
 /blob-report/
+.playwright-mcp
 
 ### AI ###
 .claude

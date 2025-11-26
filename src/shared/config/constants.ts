@@ -19,9 +19,8 @@ export const ROUTES = {
     HISTORY: '/patches/history',
     DOWNLOAD: '/patches/download',
   },
-  SCRIPTS: {
-    BACKUP: '/scripts/backup',
-    RESTORE: '/scripts/restore',
+  DOWNLOADS: {
+    SCRIPTS: '/downloads/scripts',
   },
   CUSTOMERS: {
     LIST: '/customers',

@@ -9,7 +9,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <NavigationBar />
-      <main className="px-6 py-6">
+      <main className="px-14 py-6">
         {children}
       </main>
     </div>

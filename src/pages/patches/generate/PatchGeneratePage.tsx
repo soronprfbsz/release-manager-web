@@ -2,11 +2,20 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Layers, ArrowRight, Loader2, Package, GitBranch } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
-import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import { Link } from 'react-router-dom'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
 import {
   Select,
   SelectContent,
@@ -14,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
+import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
@@ -109,13 +119,16 @@ export function PatchGeneratePage() {
       return
     }
 
+    // customerCode로 customerId 찾기
+    const selectedCustomer = customers?.find(c => c.customerCode === customerCode)
+
     const request: CumulativePatchGenerateRequest = {
       type: releaseType,
-      customerCode: customerCode || undefined,
+      customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,
       generatedBy: user?.email || '',
-      assignedEngineer: assignedEngineer || undefined,
+      patchedBy: assignedEngineer || undefined,
       description: description || undefined,
     }
 
@@ -131,14 +144,31 @@ export function PatchGeneratePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between h-9">
-        <Breadcrumb
-          items={[
-            { label: '패치 관리' },
-            { label: '패치 생성' },
-          ]}
-        />
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>패치 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>패치 생성</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<Layers className="h-5 w-5 text-primary" />}
+        title="패치 생성"
+        description="버전 범위를 선택하여 누적 패치 파일을 생성합니다."
+      />
 
       <div className="grid grid-cols-2 gap-6">
         {/* 패치 생성 폼 */}
@@ -181,9 +211,9 @@ export function PatchGeneratePage() {
                   Custom
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <TypographyMuted className="text-xs">
                 * 커스텀 릴리즈는 추후 지원 예정입니다.
-              </p>
+              </TypographyMuted>
             </div>
 
             {/* 버전 선택 */}
@@ -221,10 +251,10 @@ export function PatchGeneratePage() {
                 </Select>
               </div>
               {isTreeLoading && (
-                <p className="text-sm text-muted-foreground">버전 목록을 불러오는 중...</p>
+                <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
               )}
               {!isTreeLoading && versions.length === 0 && (
-                <p className="text-sm text-muted-foreground">등록된 버전이 없습니다.</p>
+                <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
               )}
             </div>
 
@@ -272,9 +302,9 @@ export function PatchGeneratePage() {
 
             {/* 안내 문구 */}
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">
+              <TypographyMuted>
                 선택한 버전 범위 내의 모든 변경사항(MariaDB, CrateDB)이 하나의 패치 파일로 생성됩니다.
-              </p>
+              </TypographyMuted>
             </div>
 
             {/* 생성 버튼 */}
@@ -309,41 +339,41 @@ export function PatchGeneratePage() {
               <div className="space-y-4">
                 <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">릴리즈 타입</span>
-                    <span className="text-sm font-medium">
+                    <TypographyMuted>릴리즈 타입</TypographyMuted>
+                    <TypographySmall>
                       {releaseType === 'STANDARD' ? '표준' : '커스텀'}
-                    </span>
+                    </TypographySmall>
                   </div>
                   {customerCode && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">고객사</span>
-                      <span className="text-sm font-medium">
+                      <TypographyMuted>고객사</TypographyMuted>
+                      <TypographySmall>
                         {customers?.find(c => c.customerCode === customerCode)?.customerName || customerCode}
-                      </span>
+                      </TypographySmall>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">시작 버전</span>
-                    <span className="text-sm font-mono font-medium">{fromVersion}</span>
+                    <TypographyMuted>시작 버전</TypographyMuted>
+                    <TypographyInlineCode>{fromVersion}</TypographyInlineCode>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">종료 버전</span>
-                    <span className="text-sm font-mono font-medium">{toVersion}</span>
+                    <TypographyMuted>종료 버전</TypographyMuted>
+                    <TypographyInlineCode>{toVersion}</TypographyInlineCode>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">생성자</span>
-                    <span className="text-sm font-medium">{user?.email}</span>
+                    <TypographyMuted>생성자</TypographyMuted>
+                    <TypographySmall>{user?.email}</TypographySmall>
                   </div>
                   {assignedEngineer && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">담당 엔지니어</span>
-                      <span className="text-sm font-medium">{assignedEngineer}</span>
+                      <TypographyMuted>담당 엔지니어</TypographyMuted>
+                      <TypographySmall>{assignedEngineer}</TypographySmall>
                     </div>
                   )}
                   {description && (
                     <div className="pt-2 border-t">
-                      <span className="text-sm text-muted-foreground block mb-1">설명</span>
-                      <span className="text-sm">{description}</span>
+                      <TypographyMuted className="block mb-1">설명</TypographyMuted>
+                      <TypographySmall>{description}</TypographySmall>
                     </div>
                   )}
                 </div>
@@ -357,8 +387,8 @@ export function PatchGeneratePage() {
             ) : (
               <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
                 <Layers className="h-12 w-12 mb-3 opacity-50" />
-                <p className="text-sm">시작 버전과 종료 버전을 선택하면</p>
-                <p className="text-sm">생성 정보가 표시됩니다.</p>
+                <TypographyMuted>시작 버전과 종료 버전을 선택하면</TypographyMuted>
+                <TypographyMuted>생성 정보가 표시됩니다.</TypographyMuted>
               </div>
             )}
           </CardContent>

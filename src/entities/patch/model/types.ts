@@ -1,41 +1,49 @@
 /**
  * Patch Entity Types
- * 누적 패치 도메인 타입 정의
+ * 패치 도메인 타입 정의
  */
 
 export interface CumulativePatch {
-  cumulativePatchId: number
+  patchId: number
   releaseType: string
   customerCode: string | null
+  customerName: string | null
   fromVersion: string
   toVersion: string
   patchName: string
   generatedAt: string
   generatedBy: string
+  description: string | null
+  patchedBy: string | null
   status: string
 }
 
 export interface CumulativePatchDetail {
-  cumulativePatchId: number
+  patchId: number
   releaseType: string
   customerCode: string | null
-  databaseType: string
+  customerName: string | null
   fromVersion: string
   toVersion: string
-  fileName: string
-  fileSize: number
-  checksum: string
-  createdBy: string
+  patchName: string
+  outputPath: string
+  generatedAt: string
+  generatedBy: string
+  description: string | null
+  patchedBy: string | null
+  status: string
+  errorMessage: string | null
   createdAt: string
-  includedVersions: string[]
+  updatedAt: string
 }
 
 export interface CumulativePatchGenerateRequest {
-  type: 'STANDARD' | 'CUSTOM'
-  customerCode?: string
+  type: string
+  customerId?: number
   fromVersion: string
   toVersion: string
   generatedBy: string
-  assignedEngineer?: string
+  patchedBy?: string
   description?: string
+  patchName?: string
 }

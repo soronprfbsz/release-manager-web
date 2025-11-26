@@ -3,9 +3,19 @@ import { useQuery } from '@tanstack/react-query'
 import { Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
+import { PageHeader } from '@/shared/ui/page-header'
 import { Badge } from '@/shared/ui/badge'
-import { Breadcrumb } from '@/shared/ui/breadcrumb'
+import { Link } from 'react-router-dom'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { patchApi, type CumulativePatch } from '@/entities/patch'
 
@@ -60,9 +70,9 @@ export function PatchHistoryPage() {
   })
 
   const handleDownload = async (patch: CumulativePatch) => {
-    setDownloadingId(patch.cumulativePatchId)
+    setDownloadingId(patch.patchId)
     try {
-      await patchApi.download(patch.cumulativePatchId, `${patch.patchName}.zip`)
+      await patchApi.download(patch.patchId, `${patch.patchName}.zip`)
       toast({
         title: '다운로드 완료',
         description: `${patch.patchName} 파일이 다운로드되었습니다.`,
@@ -82,17 +92,36 @@ export function PatchHistoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between h-9">
-        <Breadcrumb
-          items={[
-            { label: '패치 관리' },
-            { label: '패치 조회/다운로드' },
-          ]}
-        />
-        <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-          <RefreshCw className="h-4 w-4" />
-        </Button>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span>패치 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>패치 조회/다운로드</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Page Header */}
+      <PageHeader
+        icon={<Layers className="h-5 w-5 text-primary" />}
+        title="패치 조회/다운로드"
+        description="생성된 모든 패치 이력을 조회하고 다운로드할 수 있습니다."
+        actions={
+          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        }
+      />
 
       <Card>
         <CardHeader className="pb-3">
@@ -102,9 +131,9 @@ export function PatchHistoryPage() {
               생성된 패치 목록
             </div>
             {patchList.length > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
+              <TypographyMuted>
                 총 {patchList.length}개
-              </span>
+              </TypographyMuted>
             )}
           </CardTitle>
         </CardHeader>
@@ -129,21 +158,21 @@ export function PatchHistoryPage() {
               </TableHeader>
               <TableBody>
                 {patchList.map((patch) => (
-                  <TableRow key={patch.cumulativePatchId}>
+                  <TableRow key={patch.patchId}>
                     <TableCell className="text-center text-muted-foreground">
-                      {patch.cumulativePatchId}
+                      {patch.patchId}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{patch.patchName}</span>
+                        <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm">{patch.fromVersion}</span>
+                        <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
                         <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-mono text-sm font-medium">{patch.toVersion}</span>
+                        <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -161,20 +190,20 @@ export function PatchHistoryPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <TypographyMuted className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {formatDateTime(patch.generatedAt)}
-                      </div>
+                      </TypographyMuted>
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDownload(patch)}
-                        disabled={downloadingId === patch.cumulativePatchId || patch.status !== 'SUCCESS'}
+                        disabled={downloadingId === patch.patchId || patch.status !== 'SUCCESS'}
                         title={patch.status !== 'SUCCESS' ? '성공한 패치만 다운로드 가능합니다' : '다운로드'}
                       >
-                        {downloadingId === patch.cumulativePatchId ? (
+                        {downloadingId === patch.patchId ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
                         ) : (
                           <Download className="h-4 w-4" />
@@ -188,8 +217,8 @@ export function PatchHistoryPage() {
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Layers className="h-12 w-12 mb-3 opacity-50" />
-              <p className="text-sm">생성된 패치가 없습니다.</p>
-              <p className="text-sm">패치 생성 메뉴에서 패치를 생성해보세요.</p>
+              <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
+              <TypographyMuted>패치 생성 메뉴에서 패치를 생성해보세요.</TypographyMuted>
             </div>
           )}
         </CardContent>
