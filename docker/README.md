@@ -39,18 +39,21 @@ release-manager-web/
 ## 사용 방법
 
 ### 로컬 개발
-```bash
-# docker 디렉토리로 이동
-cd docker
 
-# Docker Compose로 실행
-docker-compose up -d
+**프로젝트 루트에서 실행하세요.**
+
+```bash
+# 시작
+docker compose -f docker/docker-compose.yml --env-file .env up -d
+
+# 로그
+docker compose -f docker/docker-compose.yml logs -f web
 
 # 접속
 http://localhost:3000
 
 # 중지
-docker-compose down
+docker compose -f docker/docker-compose.yml down
 ```
 
 ### 프로덕션 빌드
@@ -119,4 +122,29 @@ location /api {
 ```yaml
 environment:
   - VITE_API_URL=http://api.example.com
+```
+
+## 🐛 문제 해결
+
+### 환경 변수 경고
+
+**증상**: 환경 변수 관련 경고 또는 오류
+
+**해결**: `--env-file .env` 옵션 추가
+```bash
+# ✅ 올바름
+docker compose -f docker/docker-compose.yml --env-file .env up -d
+
+# ❌ 오류 (env-file 없음)
+docker compose -f docker/docker-compose.yml up -d
+```
+
+### 컨테이너 시작 실패
+
+```bash
+# 로그 확인
+docker compose -f docker/docker-compose.yml logs --tail 100 web
+
+# 강제 재생성
+docker compose -f docker/docker-compose.yml --env-file .env up -d --force-recreate
 ```
