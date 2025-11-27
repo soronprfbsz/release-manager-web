@@ -1,17 +1,22 @@
 import { apiClient } from '@/shared/api/client'
 import type { ScriptType } from '../model/types'
 
+const ENDPOINTS = {
+  types: '/api/scripts/types',
+  download: '/api/scripts/download',
+} as const
+
 export const scriptApi = {
   /** 스크립트 타입 목록 조회 */
   getTypes: async (): Promise<ScriptType[]> => {
-    const response = await apiClient.get<ScriptType[]>('/api/scripts/types')
+    const response = await apiClient.get<ScriptType[]>(ENDPOINTS.types)
     return response
   },
 
   /** 스크립트 다운로드 */
   download: async (code: string, defaultFileName: string): Promise<void> => {
     const response = await apiClient.getAxiosInstance().get(
-      `/api/scripts/download?type=${encodeURIComponent(code)}`,
+      `${ENDPOINTS.download}?type=${encodeURIComponent(code)}`,
       { responseType: 'blob' }
     )
 

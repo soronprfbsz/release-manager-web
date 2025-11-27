@@ -53,28 +53,25 @@ export function DataTablePagination({
 
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
-        총 {totalElements}개
+      <div className="flex items-center space-x-2">
+        <p className="text-sm font-medium">페이지 당 항목 수</p>
+        <Select
+          value={`${pageSize}`}
+          onValueChange={handlePageSizeChange}
+        >
+          <SelectTrigger className="h-8 w-[70px]">
+            <SelectValue placeholder={pageSize} />
+          </SelectTrigger>
+          <SelectContent side="top">
+            {[10, 20, 30, 40, 50].map((size) => (
+              <SelectItem key={size} value={`${size}`}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">페이지 당 항목 수</p>
-          <Select
-            value={`${pageSize}`}
-            onValueChange={handlePageSizeChange}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((size) => (
-                <SelectItem key={size} value={`${size}`}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {pageIndex + 1} of {pageCount}
         </div>

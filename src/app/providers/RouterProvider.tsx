@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider as ReactRouterProvider, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'react-router-dom'
 import { ROUTES } from '@/shared/config/constants'
 import { ProtectedRoute } from './ProtectedRoute'
 import { MainLayout } from '../layouts/MainLayout'
@@ -71,19 +71,6 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  // 레거시 라우트 리다이렉트
-  {
-    path: ROUTES.PATCHES.GENERATE,
-    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
-  },
-  {
-    path: ROUTES.PATCHES.HISTORY,
-    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
-  },
-  {
-    path: ROUTES.PATCHES.DOWNLOAD,
-    element: <Navigate to={ROUTES.PATCHES.STANDARD} replace />,
-  },
   {
     path: ROUTES.CUSTOMERS.LIST,
     element: (
@@ -103,15 +90,6 @@ const router = createBrowserRouter([
         </MainLayout>
       </ProtectedRoute>
     ),
-  },
-  // 레거시 스크립트 라우트 리다이렉트
-  {
-    path: '/scripts/backup',
-    element: <Navigate to={ROUTES.DOWNLOADS.SCRIPTS} replace />,
-  },
-  {
-    path: '/scripts/restore',
-    element: <Navigate to={ROUTES.DOWNLOADS.SCRIPTS} replace />,
   },
 ])
 

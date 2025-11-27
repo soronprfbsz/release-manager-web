@@ -14,3 +14,11 @@ export type {
 
 // API
 export { releaseApi } from './api/releaseApi'
+
+// Queries
+export {
+  releaseKeys,
+  useStandardReleaseTree,
+  useCustomReleaseTree,
+  useReleaseVersion,
+} from './queries/releaseQueries'

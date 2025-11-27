@@ -11,3 +11,14 @@ export type {
 
 // API
 export { customerApi } from './api/customerApi'
+
+// Queries
+export {
+  customerKeys,
+  useCustomers,
+  useCustomer,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+  useUpdateCustomerStatus,
+} from './queries/customerQueries'

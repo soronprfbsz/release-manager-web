@@ -14,10 +14,6 @@ export const ROUTES = {
   PATCHES: {
     STANDARD: '/patches/standard',
     CUSTOM: '/patches/custom',
-    // 레거시 라우트 (리다이렉트용)
-    GENERATE: '/patches/generate',
-    HISTORY: '/patches/history',
-    DOWNLOAD: '/patches/download',
   },
   DOWNLOADS: {
     SCRIPTS: '/downloads/scripts',

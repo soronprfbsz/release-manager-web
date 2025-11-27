@@ -11,3 +11,11 @@ export type {
 
 // API
 export { patchApi } from './api/patchApi'
+
+// Queries
+export {
+  patchKeys,
+  usePatches,
+  usePatch,
+  useGeneratePatch,
+} from './queries/patchQueries'

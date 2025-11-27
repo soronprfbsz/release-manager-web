@@ -191,7 +191,7 @@ export function HomePage() {
                 {recentPatches.slice(0, 4).map((patch) => (
                   <Link
                     key={patch.patchId}
-                    to={ROUTES.PATCHES.HISTORY}
+                    to={ROUTES.PATCHES.STANDARD}
                     className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                   >
                     <div className="flex items-center gap-2">
