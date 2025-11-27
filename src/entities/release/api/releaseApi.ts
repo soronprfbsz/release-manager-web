@@ -43,4 +43,12 @@ export const releaseApi = {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)
   },
+
+  /** 릴리즈 파일 내용 조회 (텍스트) */
+  getFileContent: async (id: number): Promise<string> => {
+    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
+      responseType: 'text',
+    })
+    return response.data
+  },
 }

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { releaseApi, type VersionNode, type ReleaseVersionDetail, type ReleaseFileSimple } from '@/entities/release'
+import { SqlViewerModal } from '@/widgets/sql-viewer-modal'
 
 interface VersionDetailPanelProps {
   version: VersionNode | null
@@ -50,6 +51,8 @@ function groupFilesByDatabase(files: ReleaseFileSimple[]): Record<string, Releas
 
 export function VersionDetailPanel({ version, detail, isLoading }: VersionDetailPanelProps) {
   const [downloadingFiles, setDownloadingFiles] = useState<Set<number>>(new Set())
+  const [sqlViewerOpen, setSqlViewerOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<{ id: number; name: string } | null>(null)
   const { toast } = useToast()
 
   const handleDownload = async (file: ReleaseFileSimple) => {
@@ -73,6 +76,13 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
         next.delete(file.releaseFileId)
         return next
       })
+    }
+  }
+
+  const handleViewSqlFile = (file: ReleaseFileSimple) => {
+    if (file.fileName.toLowerCase().endsWith('.sql')) {
+      setSelectedFile({ id: file.releaseFileId, name: file.fileName })
+      setSqlViewerOpen(true)
     }
   }
 
@@ -199,7 +209,14 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
                             <TypographyMuted>{file.executionOrder}</TypographyMuted>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
+                            <div
+                              className={`flex items-center gap-2 ${
+                                file.fileName.toLowerCase().endsWith('.sql')
+                                  ? 'cursor-pointer hover:text-primary transition-colors'
+                                  : ''
+                              }`}
+                              onClick={() => handleViewSqlFile(file)}
+                            >
                               <File className="h-4 w-4 text-muted-foreground" />
                               <TypographyInlineCode className="bg-transparent">{file.fileName}</TypographyInlineCode>
                             </div>
@@ -274,6 +291,14 @@ export function VersionDetailPanel({ version, detail, isLoading }: VersionDetail
           </CardContent>
         </Card>
       )}
+
+      {/* SQL Viewer Modal */}
+      <SqlViewerModal
+        open={sqlViewerOpen}
+        onOpenChange={setSqlViewerOpen}
+        fileId={selectedFile?.id || null}
+        fileName={selectedFile?.name || ''}
+      />
     </div>
   )
 }

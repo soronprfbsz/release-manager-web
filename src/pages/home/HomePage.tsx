@@ -114,7 +114,7 @@ export function HomePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
-                    <Badge variant="default" className="ml-2 bg-green-500">설치본</Badge>
+                    <Badge variant="default" className="ml-2 bg-green-500 hover:bg-green-500">설치본</Badge>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </div>
