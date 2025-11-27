@@ -242,7 +242,7 @@ deploy-job:
       echo "=== 애플리케이션 헬스체크 ==="
       max_attempts=30
       attempt=0
-      until curl -sf http://${SERVER_HOST}:${SERVER_EXTERNAL_PORT}/health > /dev/null || [ $attempt -eq $max_attempts ]; do
+      until curl -sf http://${SERVER_HOST}:${SERVER_PORT}/health > /dev/null || [ $attempt -eq $max_attempts ]; do
         attempt=$((attempt+1))
         echo "  대기 중... ($attempt/$max_attempts)"
         sleep 2
@@ -267,4 +267,4 @@ deploy-job:
 
   environment:
     name: production
-    url: http://${SERVER_HOST}:${SERVER_EXTERNAL_PORT}
+    url: http://${SERVER_HOST}:${SERVER_PORT}

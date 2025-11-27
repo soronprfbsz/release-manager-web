@@ -11,7 +11,7 @@ services:
         - VITE_APP_TITLE=${VITE_APP_TITLE:-Release Manager}
     container_name: release-manager-web
     ports:
-      - "${WEB_PORT:-3000}:80"
+      - "${SERVER_PORT:-3000}:80"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
