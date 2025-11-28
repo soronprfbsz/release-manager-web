@@ -57,3 +57,20 @@ export interface ReleaseVersionDetail {
   updatedAt: string
   releaseFiles: ReleaseFileSimple[]
 }
+
+/** 릴리즈 파일 트리 노드 */
+export interface ReleaseFileNode {
+  name: string
+  path: string
+  type: 'file' | 'directory'
+  size: number | null
+  releaseFileId: number | null
+  children: ReleaseFileNode[] | null
+}
+
+/** 릴리즈 파일 트리 구조 응답 */
+export interface ReleaseFileStructure {
+  releaseVersionId: number
+  version: string
+  files: ReleaseFileNode
+}

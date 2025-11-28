@@ -49,7 +49,7 @@ export function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              이메일
+              이메일 <span className="text-destructive">*</span>
             </label>
             <Input
               id="email"
@@ -63,7 +63,7 @@ export function LoginForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
-              비밀번호
+              비밀번호 <span className="text-destructive">*</span>
             </label>
             <Input
               id="password"

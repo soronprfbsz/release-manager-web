@@ -10,6 +10,8 @@ export type {
   ReleaseTreeResponse,
   ReleaseFileSimple,
   ReleaseVersionDetail,
+  ReleaseFileNode,
+  ReleaseFileStructure,
 } from './model/types'
 
 // API

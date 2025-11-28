@@ -1,11 +1,15 @@
 import { apiClient } from '@/shared/api/client'
-import type { ReleaseTreeResponse, ReleaseVersionDetail } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
 
 const ENDPOINTS = {
   standardTree: '/api/releases/standard/tree',
   customTree: (customerCode: string) => `/api/releases/custom/${customerCode}/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
+  versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
   fileDownload: (id: number) => `/api/releases/files/${id}/download`,
+  versionDownload: (id: number) => `/api/releases/versions/${id}/download`,
+  createVersion: '/api/releases/standard/versions',
+  deleteVersion: (id: number) => `/api/releases/versions/${id}`,
 } as const
 
 export const releaseApi = {
@@ -50,5 +54,43 @@ export const releaseApi = {
       responseType: 'text',
     })
     return response.data
+  },
+
+  /** 버전 생성 (multipart/form-data) */
+  createVersion: async (version: string, comment: string, patchFiles: File): Promise<void> => {
+    const formData = new FormData()
+    formData.append('version', version)
+    formData.append('comment', comment)
+    formData.append('patchFiles', patchFiles)
+
+    await apiClient.upload(ENDPOINTS.createVersion, formData)
+  },
+
+  /** 버전 삭제 */
+  deleteVersion: async (id: number): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.deleteVersion(id))
+  },
+
+  /** 버전 파일 트리 구조 조회 */
+  getVersionFileStructure: async (id: number): Promise<ReleaseFileStructure> => {
+    const response = await apiClient.get<ReleaseFileStructure>(ENDPOINTS.versionFiles(id))
+    return response
+  },
+
+  /** 버전 전체 다운로드 (ZIP) */
+  downloadVersion: async (id: number, fileName: string): Promise<void> => {
+    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.versionDownload(id), {
+      responseType: 'blob',
+    })
+
+    const blob = new Blob([response.data])
+    const downloadUrl = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(downloadUrl)
   },
 }

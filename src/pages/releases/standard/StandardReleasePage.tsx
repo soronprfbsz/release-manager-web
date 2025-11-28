@@ -1,25 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Package, RefreshCw } from 'lucide-react'
+import { Package, RefreshCw, Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Link, useLocation } from 'react-router-dom'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
+import { useLocation } from 'react-router-dom'
 import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
-import { releaseApi, type VersionNode, type ReleaseVersionDetail } from '@/entities/release'
+import { releaseApi, type VersionNode } from '@/entities/release'
+import { VersionCreateDialog } from '@/widgets/version-create-dialog'
+import { ErrorDisplay } from '@/shared/ui/error-display'
 
 export function StandardReleasePage() {
   const location = useLocation()
   const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
   // 홈페이지에서 전달된 버전 선택
   useEffect(() => {
@@ -39,81 +34,63 @@ export function StandardReleasePage() {
     queryFn: releaseApi.getStandardTree,
   })
 
-  const {
-    data: versionDetail,
-    isLoading: isDetailLoading,
-    refetch: refetchDetail,
-  } = useQuery({
-    queryKey: ['release-version-detail', selectedVersion?.versionId],
-    queryFn: () => releaseApi.getVersionById(selectedVersion!.versionId),
-    enabled: !!selectedVersion,
-  })
-
   const handleSelectVersion = (version: VersionNode) => {
     setSelectedVersion(version)
   }
 
-  // 트리와 상세 정보 모두 새로고침
+  // 트리 새로고침
   const handleRefresh = async () => {
     await refetchTree()
-    if (selectedVersion) {
-      await refetchDetail()
-    }
+  }
+
+  const handleCreateSuccess = () => {
+    handleRefresh()
+  }
+
+  const handleDeleteSuccess = () => {
+    setSelectedVersion(null)
+    handleRefresh()
   }
 
   if (treeError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
-        <Package className="h-16 w-16 mb-4 opacity-50" />
-        <p className="text-lg mb-2">데이터를 불러오는 중 오류가 발생했습니다.</p>
-        <p className="text-sm mb-4">{(treeError as Error).message}</p>
-        <Button onClick={handleRefresh} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          다시 시도
-        </Button>
-      </div>
+      <ErrorDisplay
+        title="릴리즈 트리를 불러오는 중 오류가 발생했습니다."
+        error={treeError as Error}
+        onRetry={handleRefresh}
+      />
     )
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
-      {/* Breadcrumb */}
-      <Breadcrumb className="mb-4">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>버전 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Standard</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Page Header */}
-      <PageHeader
-        icon={<Package className="h-5 w-5 text-primary" />}
-        title="Standard 버전 관리"
-        description="표준 릴리즈 버전 정보를 생성하고 관리합니다."
-        actions={
+    <PageLayout
+      breadcrumbs={[
+        { label: 'Home', href: '/' },
+        { label: '버전 관리' },
+        { label: 'Standard', isCurrentPage: true },
+      ]}
+      icon={<Package className="h-5 w-5 text-primary" />}
+      title="Standard 버전 관리"
+      description="표준 릴리즈 버전 정보를 생성하고 관리합니다."
+      actions={
+        <>
           <Button onClick={handleRefresh} variant="outline" size="icon" title="새로고침">
             <RefreshCw className="h-4 w-4" />
           </Button>
-        }
-        className="mb-4 flex-shrink-0"
-      />
+          <Button onClick={() => setCreateDialogOpen(true)} variant="outline">
+            <Plus className="h-4 w-4" />
+            버전 생성
+          </Button>
+        </>
+      }
+    >
 
-      <div className="grid grid-cols-12 gap-4 flex-1 min-h-0">
+      {/* Content */}
+      <div className="grid grid-cols-12 gap-4">
         {/* Tree Panel */}
-        <div className="col-span-2 min-h-0">
-          <Card className="h-full flex flex-col overflow-hidden">
-            <CardHeader className="pb-3 flex-shrink-0">
+        <div className="col-span-2">
+          <Card>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Package className="h-4 w-4" />
                 버전 트리
@@ -124,8 +101,8 @@ export function StandardReleasePage() {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full">
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-24rem)]">
                 {isTreeLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -143,9 +120,9 @@ export function StandardReleasePage() {
         </div>
 
         {/* Detail Panel */}
-        <div className="col-span-10 min-h-0">
-          <Card className="h-full flex flex-col overflow-hidden">
-            <CardHeader className="pb-3 flex-shrink-0">
+        <div className="col-span-10">
+          <Card>
+            <CardHeader className="pb-3">
               <CardTitle className="text-base">
                 버전 정보
                 {selectedVersion && (
@@ -160,18 +137,23 @@ export function StandardReleasePage() {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full">
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-24rem)]">
                 <VersionDetailPanel
                   version={selectedVersion}
-                  detail={versionDetail as ReleaseVersionDetail | null}
-                  isLoading={isDetailLoading}
+                  onDelete={handleDeleteSuccess}
                 />
               </ScrollArea>
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
+
+      <VersionCreateDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={handleCreateSuccess}
+      />
+    </PageLayout>
   )
 }

@@ -73,7 +73,7 @@ export function SignUpForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="accountName" className="text-sm font-medium">
-              이름
+              이름 <span className="text-destructive">*</span>
             </label>
             <Input
               id="accountName"
@@ -88,7 +88,7 @@ export function SignUpForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              이메일
+              이메일 <span className="text-destructive">*</span>
             </label>
             <Input
               id="email"
@@ -103,7 +103,7 @@ export function SignUpForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
-              비밀번호
+              비밀번호 <span className="text-destructive">*</span>
             </label>
             <Input
               id="password"
@@ -119,7 +119,7 @@ export function SignUpForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="text-sm font-medium">
-              비밀번호 확인
+              비밀번호 확인 <span className="text-destructive">*</span>
             </label>
             <Input
               id="confirmPassword"

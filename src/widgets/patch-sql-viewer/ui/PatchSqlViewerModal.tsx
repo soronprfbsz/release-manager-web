@@ -52,7 +52,6 @@ export function PatchSqlViewerModal({
     queryKey: ['patchFileContent', patchId, filePath],
     queryFn: () => patchApi.getFileContent(patchId!, filePath!),
     enabled: open && patchId !== null && filePath !== null,
-    retry: 1,
   })
 
   const handleCopy = async () => {

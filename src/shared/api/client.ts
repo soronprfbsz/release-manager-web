@@ -3,10 +3,9 @@ import { API_BASE_URL } from '@/shared/config/constants'
 import type { ApiResponse, ApiError } from './types'
 import { sessionApi } from '@/entities/session'
 
-const ACCESS_TOKEN_KEY = 'accessToken'
-
 class ApiClient {
   private instance: AxiosInstance
+  private accessToken: string | null = null // in-memory 저장
   private isRefreshing = false
   private failedQueue: Array<{
     resolve: (value?: unknown) => void
@@ -105,15 +104,15 @@ class ApiClient {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY)
+    return this.accessToken
   }
 
   setAccessToken(token: string): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, token)
+    this.accessToken = token
   }
 
   clearAccessToken(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY)
+    this.accessToken = null
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

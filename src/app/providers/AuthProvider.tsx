@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
 import { sessionApi, type AccountInfo, type SignUpRequest } from '@/entities/session'
 import { apiClient } from '@/shared/api'
 
@@ -20,18 +20,19 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<AccountInfo | null>(() => {
-    const savedUser = localStorage.getItem(USER_KEY)
-    return savedUser ? JSON.parse(savedUser) : null
-  })
+  const [user, setUser] = useState<AccountInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const initRef = useRef(false)
 
   useEffect(() => {
+    // Strict Mode에서 두 번 실행 방지
+    if (initRef.current) return
+
     const initAuth = async () => {
-      const token = apiClient.getAccessToken()
       const savedUser = localStorage.getItem(USER_KEY)
 
-      if (token && savedUser) {
+      // savedUser가 있으면 refresh token으로 accessToken 재발급 시도
+      if (savedUser) {
         try {
           const response = await sessionApi.refresh()
           apiClient.setAccessToken(response.data.accessToken)
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(false)
     }
 
+    initRef.current = true
     initAuth()
   }, [])
 

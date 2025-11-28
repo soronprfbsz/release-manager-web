@@ -53,9 +53,7 @@ export function CustomReleasePage() {
             <Construction className="h-16 w-16 mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-2">준비 중입니다</h3>
             <p className="text-sm text-center max-w-md">
-              커스텀 릴리즈 버전 관리 기능은 현재 개발 중입니다.
-              <br />
-              고객사별 맞춤 버전 관리가 곧 지원될 예정입니다.
+              커스텀 버전 관리 기능은 개발 중입니다.
             </p>
           </div>
         </CardContent>

@@ -6,9 +6,9 @@ test.describe('고객사 관리 페이지', () => {
     await page.goto('/customers')
     await page.waitForLoadState('networkidle')
 
-    // 로그인 버튼 또는 고객사 등록 버튼 중 하나가 보일 때까지 대기
+    // 로그인 버튼 또는 고객사 생성 버튼 중 하나가 보일 때까지 대기
     const loginButton = page.getByRole('button', { name: '로그인' })
-    const customerButton = page.getByRole('button', { name: '고객사 등록' })
+    const customerButton = page.getByRole('button', { name: '고객사 생성' })
 
     await expect(loginButton.or(customerButton)).toBeVisible({ timeout: 5000 })
 
@@ -48,8 +48,8 @@ test.describe('고객사 관리 페이지', () => {
       // 새로고침 버튼 확인 (아이콘 버튼, title 속성으로 식별)
       await expect(page.locator('button[title="새로고침"]')).toBeVisible()
 
-      // 고객사 등록 버튼 확인
-      await expect(page.getByRole('button', { name: '고객사 등록' })).toBeVisible()
+      // 고객사 생성 버튼 확인
+      await expect(page.getByRole('button', { name: '고객사 생성' })).toBeVisible()
 
       // 검색 입력 확인
       await expect(page.getByPlaceholder('검색...')).toBeVisible()
@@ -129,13 +129,13 @@ test.describe('고객사 관리 페이지', () => {
     test('새 고객사를 등록할 수 있다', async ({ page }) => {
       const testCustomer = generateTestCustomer()
 
-      // 고객사 등록 버튼 클릭
-      await page.getByRole('button', { name: '고객사 등록' }).click()
+      // 고객사 생성 버튼 클릭
+      await page.getByRole('button', { name: '고객사 생성' }).click()
 
       // Sheet 패널이 열릴 때까지 대기
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
+      await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
       // 폼 입력 (dialog 내에서 찾기)
       await dialog.getByPlaceholder('예: CUSTOMER_A').fill(testCustomer.customerCode)
@@ -280,12 +280,12 @@ test.describe('고객사 관리 페이지', () => {
     test.describe.configure({ timeout: 15000 })
 
     test('필수 필드 없이 등록 시 오류가 표시된다', async ({ page }) => {
-      // 고객사 등록 Sheet 열기
-      await page.getByRole('button', { name: '고객사 등록' }).click()
+      // 고객사 생성 Sheet 열기
+      await page.getByRole('button', { name: '고객사 생성' }).click()
 
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
+      await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
       // 빈 상태로 등록 시도
       await dialog.getByRole('button', { name: '등록' }).click()
@@ -295,12 +295,12 @@ test.describe('고객사 관리 페이지', () => {
     })
 
     test('등록 Sheet를 취소할 수 있다', async ({ page }) => {
-      // 고객사 등록 Sheet 열기
-      await page.getByRole('button', { name: '고객사 등록' }).click()
+      // 고객사 생성 Sheet 열기
+      await page.getByRole('button', { name: '고객사 생성' }).click()
 
       const dialog = page.getByRole('dialog')
       await expect(dialog).toBeVisible({ timeout: 5000 })
-      await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
+      await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
       // 일부 데이터 입력
       await dialog.getByPlaceholder('예: CUSTOMER_A').fill('TEST_CANCEL')
@@ -331,11 +331,11 @@ async function createTestCustomer(
   page: import('@playwright/test').Page,
   customer: { customerCode: string; customerName: string; description?: string }
 ) {
-  await page.getByRole('button', { name: '고객사 등록' }).click()
+  await page.getByRole('button', { name: '고객사 생성' }).click()
 
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible({ timeout: 5000 })
-  await expect(dialog.getByText('고객사 등록', { exact: true })).toBeVisible()
+  await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
   await dialog.getByPlaceholder('예: CUSTOMER_A').fill(customer.customerCode)
   await dialog.getByPlaceholder('예: A회사').fill(customer.customerName)

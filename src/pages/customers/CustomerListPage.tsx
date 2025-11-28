@@ -269,7 +269,7 @@ export function CustomerListPage() {
             </Button>
             <Button onClick={openCreateModal} variant="outline">
               <Plus className="h-4 w-4" />
-              고객사 등록
+              고객사 생성
             </Button>
           </>
         }
@@ -436,7 +436,7 @@ export function CustomerListPage() {
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <Building2 className="h-12 w-12 mb-3 opacity-50" />
               <TypographyMuted>등록된 고객사가 없습니다.</TypographyMuted>
-              <TypographyMuted>고객사 등록 버튼을 눌러 새 고객사를 추가하세요.</TypographyMuted>
+              <TypographyMuted>고객사 생성 버튼을 눌러 새 고객사를 추가하세요.</TypographyMuted>
             </div>
           )}
         </CardContent>
@@ -448,7 +448,7 @@ export function CustomerListPage() {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
-              {modalMode === 'create' ? '고객사 등록' : '고객사 수정'}
+              {modalMode === 'create' ? '고객사 생성' : '고객사 수정'}
             </SheetTitle>
             <SheetDescription>
               {modalMode === 'create'

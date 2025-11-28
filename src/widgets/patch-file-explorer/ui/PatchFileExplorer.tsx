@@ -39,6 +39,13 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   if (node.type === 'directory') {
+    // 폴더 우선, 파일 나중 정렬
+    const sortedChildren = node.children ? [...node.children].sort((a, b) => {
+      if (a.type === 'directory' && b.type === 'file') return -1
+      if (a.type === 'file' && b.type === 'directory') return 1
+      return a.name.localeCompare(b.name)
+    }) : []
+
     return (
       <div>
         <div
@@ -54,9 +61,9 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
           <Folder className="h-4 w-4 text-blue-500" />
           <span className="text-sm font-medium">{node.name}</span>
         </div>
-        {isExpanded && node.children && node.children.length > 0 && (
+        {isExpanded && sortedChildren.length > 0 && (
           <div>
-            {node.children.map((child: PatchFileNode, index: number) => (
+            {sortedChildren.map((child: PatchFileNode, index: number) => (
               <FileNode
                 key={`${child.path}-${index}`}
                 node={child}
@@ -83,7 +90,7 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        <span className={`text-sm truncate ${isViewableFile ? 'text-primary hover:underline' : ''}`}>
+        <span className={`text-sm truncate ${isViewableFile ? 'hover:text-primary transition-colors' : ''}`}>
           {node.name}
         </span>
       </div>
@@ -104,7 +111,6 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
     queryKey: ['patch-file-structure', patchId],
     queryFn: () => patchApi.getFileStructure(patchId!),
     enabled: open && patchId !== null,
-    retry: 1,
   })
 
   const handleDownload = async () => {
@@ -168,7 +174,11 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
                     </div>
                   ) : (
                     <div>
-                      {fileStructure.root.children!.map((node, index) => (
+                      {[...fileStructure.root.children!].sort((a, b) => {
+                        if (a.type === 'directory' && b.type === 'file') return -1
+                        if (a.type === 'file' && b.type === 'directory') return 1
+                        return a.name.localeCompare(b.name)
+                      }).map((node, index) => (
                         <FileNode
                           key={`${node.path}-${index}`}
                           node={node}

@@ -42,6 +42,7 @@ import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
 import { customerApi } from '@/entities/customer'
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
+import { ErrorDisplay } from '@/shared/ui/error-display'
 
 interface PaginationState {
   pageIndex: number
@@ -108,7 +109,7 @@ export function StandardPatchPage() {
   const [description, setDescription] = useState('')
 
   // 패치 목록 조회
-  const { data: patchesData, isLoading, refetch } = useQuery({
+  const { data: patchesData, isLoading, error, refetch } = useQuery({
     queryKey: ['cumulative-patches', 'STANDARD', pagination],
     queryFn: () => patchApi.getList({
       page: pagination.pageIndex,
@@ -290,6 +291,12 @@ export function StandardPatchPage() {
             <div className="flex items-center justify-center h-48">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
+          ) : error ? (
+            <ErrorDisplay
+              title="패치 목록을 불러오는 중 오류가 발생했습니다."
+              error={error as Error}
+              onRetry={refetch}
+            />
           ) : patchList.length > 0 ? (
             <>
               <Table>

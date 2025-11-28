@@ -30,7 +30,6 @@ export function SqlViewerModal({ open, onOpenChange, fileId, fileName }: SqlView
     queryKey: ['sqlFileContent', fileId],
     queryFn: () => releaseApi.getFileContent(fileId!),
     enabled: open && fileId !== null,
-    retry: 1,
   })
 
   const handleCopy = async () => {
