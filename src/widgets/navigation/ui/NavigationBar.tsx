@@ -31,8 +31,8 @@ export function NavigationBar() {
       <div className="flex h-16 items-center px-12">
         {/* 좌측: 로고 */}
         <div className="flex-1">
-          <Link to={ROUTES.HOME} className="flex items-center gap-2 w-fit">
-            <Package className="h-6 w-6" />
+          <Link to={ROUTES.HOME} className="flex items-center gap-2 w-fit group">
+            <Package className="h-6 w-6 group-hover:animate-spin-slow" />
             <span className="font-bold text-lg">Release Manager</span>
           </Link>
         </div>

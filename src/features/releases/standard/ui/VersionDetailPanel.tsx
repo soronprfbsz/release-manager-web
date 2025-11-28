@@ -282,20 +282,13 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <HardDrive className="h-4 w-4 text-muted-foreground" />
-                <TypographyMuted className="text-sm">버전 ID:</TypographyMuted>
-                <TypographySmall>{version.versionId}</TypographySmall>
-              </div>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <TypographyMuted className="text-sm">생성자:</TypographyMuted>
                 <TypographySmall>{version.createdBy || '-'}</TypographySmall>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <TypographyMuted className="text-sm">생성일시:</TypographyMuted>

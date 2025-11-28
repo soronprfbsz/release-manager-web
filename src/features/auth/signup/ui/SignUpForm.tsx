@@ -50,7 +50,7 @@ export function SignUpForm() {
       navigate('/login')
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>
-      const message = axiosError.response?.data?.message || '회원가입에 실패했습니다.'
+      const message = axiosError.response?.data?.data?.message || '회원가입에 실패했습니다.'
       toast({
         title: '회원가입 실패',
         description: message,

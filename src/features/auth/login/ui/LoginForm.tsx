@@ -26,7 +26,7 @@ export function LoginForm() {
       navigate(ROUTES.HOME)
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>
-      const message = axiosError.response?.data?.message || '로그인에 실패했습니다.'
+      const message = axiosError.response?.data?.data?.message || '로그인에 실패했습니다.'
       toast({
         title: '로그인 실패',
         description: message,

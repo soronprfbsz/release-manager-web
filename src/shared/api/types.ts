@@ -15,7 +15,7 @@ export interface ApiError {
   data: {
     code: string
     message: string
-    detail?: Record<string, string>
+    detail?: unknown
   }
 }
 
