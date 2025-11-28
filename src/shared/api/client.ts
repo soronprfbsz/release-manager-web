@@ -96,9 +96,27 @@ class ApiClient {
           }
         }
 
-        const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
+        // 백엔드 에러 응답 처리
+        if (error.response?.data) {
+          const apiError = error.response.data as ApiError
+          if (apiError.status === 'fail' || apiError.status === 'error') {
+            // 백엔드에서 전달한 에러 메시지를 Error 객체로 변환
+            const errorMessage = apiError.data.message || 'An error occurred'
+            const customError = new Error(errorMessage) as Error & {
+              code?: string
+              detail?: Record<string, string>
+            }
+            customError.code = apiError.data.code
+            customError.detail = apiError.data.detail
+            console.error('API Error:', errorMessage, apiError.data)
+            return Promise.reject(customError)
+          }
+        }
+
+        // 기본 에러 처리
+        const errorMessage = error.message || 'An error occurred'
         console.error('API Error:', errorMessage)
-        return Promise.reject(error)
+        return Promise.reject(new Error(errorMessage))
       }
     )
   }

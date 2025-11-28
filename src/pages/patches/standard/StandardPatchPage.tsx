@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Layers, Download, RefreshCw, Calendar, User, ArrowRight, FileText,
-  Plus, Package, Loader2
+  Plus, Package, Loader2, Trash2
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -43,6 +43,16 @@ import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } f
 import { customerApi } from '@/entities/customer'
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 import { ErrorDisplay } from '@/shared/ui/error-display'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog'
 
 interface PaginationState {
   pageIndex: number
@@ -101,6 +111,10 @@ export function StandardPatchPage() {
   const [fileExplorerOpen, setFileExplorerOpen] = useState(false)
   const [selectedPatch, setSelectedPatch] = useState<CumulativePatch | null>(null)
 
+  // 삭제 다이얼로그 상태
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [patchToDelete, setPatchToDelete] = useState<CumulativePatch | null>(null)
+
   // 패치 생성 폼 상태
   const [fromVersion, setFromVersion] = useState('')
   const [toVersion, setToVersion] = useState('')
@@ -151,6 +165,27 @@ export function StandardPatchPage() {
       toast({
         title: '패치 생성 실패',
         description: error.message || '패치 생성 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      })
+    },
+  })
+
+  // 패치 삭제 뮤테이션
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => patchApi.deleteById(id),
+    onSuccess: () => {
+      toast({
+        title: '패치 삭제 완료',
+        description: `${patchToDelete?.patchName} 패치가 삭제되었습니다.`,
+      })
+      queryClient.invalidateQueries({ queryKey: ['cumulative-patches'] })
+      setDeleteDialogOpen(false)
+      setPatchToDelete(null)
+    },
+    onError: (error: Error) => {
+      toast({
+        title: '패치 삭제 실패',
+        description: error.message || '패치 삭제 중 오류가 발생했습니다.',
         variant: 'destructive',
       })
     },
@@ -230,6 +265,17 @@ export function StandardPatchPage() {
     setFileExplorerOpen(true)
   }
 
+  const handleDeleteClick = (patch: CumulativePatch) => {
+    setPatchToDelete(patch)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (patchToDelete) {
+      deleteMutation.mutate(patchToDelete.patchId)
+    }
+  }
+
   const patchList = patchesData?.content || []
 
   return (
@@ -307,7 +353,7 @@ export function StandardPatchPage() {
                     <TableHead className="w-48">버전 범위</TableHead>
                     <TableHead className="w-32">생성자</TableHead>
                     <TableHead className="w-56">생성일시</TableHead>
-                    <TableHead className="w-20 text-center">다운로드</TableHead>
+                    <TableHead className="w-24 text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -345,19 +391,30 @@ export function StandardPatchPage() {
                         </TypographyMuted>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDownload(patch)}
-                          disabled={downloadingId === patch.patchId}
-                          title="다운로드"
-                        >
-                          {downloadingId === patch.patchId ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                          ) : (
-                            <Download className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <div className="flex items-center justify-center gap-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDownload(patch)}
+                            disabled={downloadingId === patch.patchId}
+                            title="다운로드"
+                          >
+                            {downloadingId === patch.patchId ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                            ) : (
+                              <Download className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(patch)}
+                            disabled={deleteMutation.isPending}
+                            title="삭제"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -533,6 +590,30 @@ export function StandardPatchPage() {
         patchId={selectedPatch?.patchId || null}
         patchName={selectedPatch?.patchName || ''}
       />
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>패치 삭제 확인</AlertDialogTitle>
+            <AlertDialogDescription>
+              패치 <strong>{patchToDelete?.patchName}</strong>을(를) 삭제하시겠습니까?
+              <br />
+              이 작업은 되돌릴 수 없으며, 모든 관련 파일이 삭제됩니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

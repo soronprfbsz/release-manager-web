@@ -11,10 +11,12 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiError {
-  success: false
-  error: string
-  message: string
-  timestamp: string
+  status: 'fail' | 'error'
+  data: {
+    code: string
+    message: string
+    detail?: Record<string, string>
+  }
 }
 
 export interface PaginationParams {

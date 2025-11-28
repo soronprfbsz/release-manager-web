@@ -15,6 +15,7 @@ const ENDPOINTS = {
   download: (id: number) => `/api/patches/${id}/download`,
   files: (id: number) => `/api/patches/${id}/files`,
   fileContent: (id: number, path: string) => `/api/patches/${id}/content?path=${encodeURIComponent(path)}`,
+  delete: (id: number) => `/api/patches/${id}`,
 } as const
 
 export const patchApi = {
@@ -72,5 +73,10 @@ export const patchApi = {
   getFileContent: async (id: number, path: string): Promise<PatchFileContent> => {
     const response = await apiClient.get<PatchFileContent>(ENDPOINTS.fileContent(id, path))
     return response
+  },
+
+  /** 패치 삭제 */
+  deleteById: async (id: number): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.delete(id))
   },
 }
