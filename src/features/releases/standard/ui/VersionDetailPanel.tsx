@@ -273,13 +273,12 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                 기본 정보
               </CardTitle>
               <Button
-                variant="destructive"
-                size="sm"
+                variant="outline"
+                size="icon"
                 onClick={() => setDeleteDialogOpen(true)}
                 disabled={deleteMutation.isPending}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
+                <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>
           </CardHeader>
@@ -335,20 +334,14 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                 {hasFiles && (
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={handleDownloadAll}
                     disabled={downloadingAll}
                   >
                     {downloadingAll ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                        다운로드 중...
-                      </>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
                     ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        전체 다운로드
-                      </>
+                      <Download className="h-4 w-4" />
                     )}
                   </Button>
                 )}

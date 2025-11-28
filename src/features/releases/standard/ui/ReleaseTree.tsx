@@ -78,8 +78,8 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                     onClick={() => onSelectVersion(version)}
                     className={cn(
                       'flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left text-sm',
-                      'hover:bg-accent',
-                      selectedVersionId === version.versionId && 'bg-accent'
+                      'hover:bg-accent hover:text-accent-foreground',
+                      selectedVersionId === version.versionId && 'bg-accent text-accent-foreground'
                     )}
                   >
                     <FileCode className="h-4 w-4 text-blue-500 shrink-0" />
