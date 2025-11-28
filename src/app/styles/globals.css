@@ -29,6 +29,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --header-bg: 210 40% 98%;  /* 밝은 블루 그레이 */
   }
 
   .dark {
@@ -56,6 +57,94 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --header-bg: 217.2 32.6% 12%;  /* 진한 블루 그레이 */
+  }
+
+  .solarized-dark {
+    /* Solarized Dark base colors */
+    --background: 192 100% 11%;  /* #002b36 base03 */
+    --foreground: 44 87% 90%;    /* #eee8d5 base2 - 거의 흰색에 가까운 베이지 */
+    --card: 193 100% 13%;        /* #073642 base02 */
+    --card-foreground: 44 87% 90%;
+    --popover: 193 100% 13%;
+    --popover-foreground: 44 87% 90%;
+    --primary: 205 69% 49%;      /* #268bd2 blue */
+    --primary-foreground: 44 87% 94%;
+    --secondary: 192 81% 18%;    /* #073642 darker */
+    --secondary-foreground: 44 87% 90%;
+    --muted: 194 14% 40%;        /* #586e75 base01 */
+    --muted-foreground: 186 8% 70%; /* #93a1a1 base1 - 더 밝게 */
+    --accent: 45 100% 51%;       /* #b58900 yellow */
+    --accent-foreground: 192 100% 11%;
+    --destructive: 1 71% 52%;    /* #dc322f red */
+    --destructive-foreground: 44 87% 94%;
+    --border: 194 14% 30%;       /* 테두리를 더 어둡게 */
+    --input: 194 14% 30%;
+    --ring: 205 69% 49%;
+    --chart-1: 205 69% 49%;      /* blue */
+    --chart-2: 175 59% 40%;      /* cyan */
+    --chart-3: 68 100% 30%;      /* green */
+    --chart-4: 45 100% 51%;      /* yellow */
+    --chart-5: 18 89% 50%;       /* orange */
+    --header-bg: 193 100% 16%;   /* #073642보다 약간 밝은 청록색 */
+  }
+
+  .monokai {
+    /* Monokai theme - 어두운 배경에 주황색 강조 */
+    --background: 55 7% 16%;     /* #272822 어두운 올리브 그린 */
+    --foreground: 60 30% 96%;    /* #f8f8f2 밝은 회색 */
+    --card: 55 7% 20%;           /* #2e2e28 약간 밝은 배경 */
+    --card-foreground: 60 30% 96%;
+    --popover: 55 7% 20%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 31 100% 71%;      /* #fd971f 주황색 */
+    --primary-foreground: 55 7% 16%;
+    --secondary: 55 7% 25%;      /* 더 밝은 배경 */
+    --secondary-foreground: 60 30% 96%;
+    --muted: 55 7% 30%;          /* 중간 톤 */
+    --muted-foreground: 60 10% 70%; /* #a59f85 흐린 텍스트 */
+    --accent: 81 100% 70%;       /* #a6e22e 연두색 */
+    --accent-foreground: 55 7% 16%;
+    --destructive: 0 74% 65%;    /* #f92672 핑크/레드 */
+    --destructive-foreground: 60 30% 96%;
+    --border: 55 7% 35%;         /* 테두리 */
+    --input: 55 7% 35%;
+    --ring: 31 100% 71%;         /* 주황색 링 */
+    --chart-1: 31 100% 71%;      /* orange */
+    --chart-2: 81 100% 70%;      /* green */
+    --chart-3: 186 100% 69%;     /* cyan #66d9ef */
+    --chart-4: 330 100% 71%;     /* magenta #f92672 */
+    --chart-5: 54 70% 68%;       /* yellow #e6db74 */
+    --header-bg: 55 7% 23%;      /* 헤더용 약간 밝은 배경 */
+  }
+
+  .retro {
+    /* Retro theme - 8bit 게임 느낌 (Gameboy/NES 영감) */
+    --background: 86 28% 15%;    /* #1a2e1a 어두운 올리브 그린 */
+    --foreground: 84 17% 85%;    /* #d4dcd4 연한 그린 회색 */
+    --card: 86 28% 18%;          /* #203620 약간 밝은 배경 */
+    --card-foreground: 84 17% 85%;
+    --popover: 86 28% 18%;
+    --popover-foreground: 84 17% 85%;
+    --primary: 84 70% 60%;       /* #8bc34a 밝은 라임 그린 */
+    --primary-foreground: 86 28% 15%;
+    --secondary: 86 28% 25%;     /* 더 밝은 배경 */
+    --secondary-foreground: 84 17% 85%;
+    --muted: 86 20% 30%;         /* 중간 톤 */
+    --muted-foreground: 84 12% 65%; /* 흐린 텍스트 */
+    --accent: 45 100% 55%;       /* #ffc107 레트로 골드/옐로우 */
+    --accent-foreground: 86 28% 15%;
+    --destructive: 14 100% 55%;  /* #ff5722 오렌지 레드 */
+    --destructive-foreground: 84 17% 85%;
+    --border: 86 20% 35%;        /* 테두리 */
+    --input: 86 20% 35%;
+    --ring: 84 70% 60%;          /* 라임 그린 링 */
+    --chart-1: 84 70% 60%;       /* lime green */
+    --chart-2: 45 100% 55%;      /* amber */
+    --chart-3: 14 100% 55%;      /* deep orange */
+    --chart-4: 174 62% 47%;      /* teal #26a69a */
+    --chart-5: 291 64% 42%;      /* purple #7b1fa2 */
+    --header-bg: 84 100% 9.92%;  /* 진한 그린 */
   }
 }
 
