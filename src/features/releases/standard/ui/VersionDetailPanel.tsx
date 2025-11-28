@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Calendar, User, FileText, HardDrive, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
+import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'

@@ -104,7 +104,7 @@ class ApiClient {
             const errorMessage = apiError.data.message || 'An error occurred'
             const customError = new Error(errorMessage) as Error & {
               code?: string
-              detail?: Record<string, string>
+              detail?: unknown
             }
             customError.code = apiError.data.code
             customError.detail = apiError.data.detail
