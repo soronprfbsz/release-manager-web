@@ -4,6 +4,8 @@ import type {
   CumulativePatch,
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
+  PatchFileStructure,
+  PatchFileContent,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -11,6 +13,8 @@ const ENDPOINTS = {
   generate: '/api/patches/generate',
   byId: (id: number) => `/api/patches/${id}`,
   download: (id: number) => `/api/patches/${id}/download`,
+  files: (id: number) => `/api/patches/${id}/files`,
+  fileContent: (id: number, path: string) => `/api/patches/${id}/content?path=${encodeURIComponent(path)}`,
 } as const
 
 export const patchApi = {
@@ -56,5 +60,17 @@ export const patchApi = {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)
+  },
+
+  /** 패치 파일 구조 조회 */
+  getFileStructure: async (id: number): Promise<PatchFileStructure> => {
+    const response = await apiClient.get<PatchFileStructure>(ENDPOINTS.files(id))
+    return response
+  },
+
+  /** 패치 파일 내용 조회 */
+  getFileContent: async (id: number, path: string): Promise<PatchFileContent> => {
+    const response = await apiClient.get<PatchFileContent>(ENDPOINTS.fileContent(id, path))
+    return response
   },
 }

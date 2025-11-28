@@ -44,3 +44,25 @@ export interface CumulativePatchGenerateRequest {
   description?: string
   patchName?: string
 }
+
+export interface PatchFileNode {
+  name: string
+  path: string
+  type: 'file' | 'directory'
+  size?: number
+  children?: PatchFileNode[]
+}
+
+export interface PatchFileStructure {
+  patchId: number
+  patchName: string
+  root: PatchFileNode
+}
+
+export interface PatchFileContent {
+  patchId: number
+  path: string
+  fileName: string
+  size: number
+  content: string
+}

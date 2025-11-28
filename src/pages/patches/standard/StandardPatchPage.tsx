@@ -41,6 +41,7 @@ import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
 import { customerApi } from '@/entities/customer'
+import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 
 interface PaginationState {
   pageIndex: number
@@ -94,6 +95,10 @@ export function StandardPatchPage() {
     pageIndex: 0,
     pageSize: 10,
   })
+
+  // 파일 탐색 다이얼로그 상태
+  const [fileExplorerOpen, setFileExplorerOpen] = useState(false)
+  const [selectedPatch, setSelectedPatch] = useState<CumulativePatch | null>(null)
 
   // 패치 생성 폼 상태
   const [fromVersion, setFromVersion] = useState('')
@@ -219,6 +224,11 @@ export function StandardPatchPage() {
     }
   }
 
+  const handleViewFiles = (patch: CumulativePatch) => {
+    setSelectedPatch(patch)
+    setFileExplorerOpen(true)
+  }
+
   const patchList = patchesData?.content || []
 
   return (
@@ -300,7 +310,10 @@ export function StandardPatchPage() {
                         {patch.patchId}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => handleViewFiles(patch)}
+                        >
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
                         </div>
@@ -505,6 +518,14 @@ export function StandardPatchPage() {
           </ScrollArea>
         </SheetContent>
       </Sheet>
+
+      {/* 파일 탐색 다이얼로그 */}
+      <PatchFileExplorer
+        open={fileExplorerOpen}
+        onOpenChange={setFileExplorerOpen}
+        patchId={selectedPatch?.patchId || null}
+        patchName={selectedPatch?.patchName || ''}
+      />
     </div>
   )
 }

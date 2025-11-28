@@ -7,6 +7,9 @@ export type {
   CumulativePatch,
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
+  PatchFileNode,
+  PatchFileStructure,
+  PatchFileContent,
 } from './model/types'
 
 // API
