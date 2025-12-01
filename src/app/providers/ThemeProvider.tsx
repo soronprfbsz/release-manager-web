@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
-type Theme = 'dark' | 'light' | 'solarized-dark' | 'monokai' | 'retro' | 'system'
+type Theme = 'dark' | 'light' | 'solarized-dark' | 'monokai' | 'dracula' | 'nord' | 'gruvbox' | 'latte' | 'system'
 
 interface ThemeProviderProps {
   children: React.ReactNode
@@ -33,7 +33,16 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement
 
-    root.classList.remove('light', 'dark', 'solarized-dark', 'monokai', 'retro')
+    root.classList.remove(
+      'light',
+      'dark',
+      'solarized-dark',
+      'monokai',
+      'dracula',
+      'nord',
+      'gruvbox',
+      'latte'
+    )
 
     if (theme === 'system') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -42,6 +51,19 @@ export function ThemeProvider({
 
       root.classList.add(systemTheme)
       return
+    }
+
+    const darkThemes = [
+      'dark',
+      'solarized-dark',
+      'monokai',
+      'dracula',
+      'nord',
+      'gruvbox',
+    ]
+
+    if (darkThemes.includes(theme)) {
+      root.classList.add('dark')
     }
 
     root.classList.add(theme)

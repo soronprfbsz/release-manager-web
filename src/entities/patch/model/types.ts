@@ -11,10 +11,10 @@ export interface CumulativePatch {
   fromVersion: string
   toVersion: string
   patchName: string
-  generatedAt: string
-  generatedBy: string
+  createdBy: string
   description: string | null
   patchedBy: string | null
+  createdAt: string
 }
 
 export interface CumulativePatchDetail {
@@ -26,8 +26,7 @@ export interface CumulativePatchDetail {
   toVersion: string
   patchName: string
   outputPath: string
-  generatedAt: string
-  generatedBy: string
+  createdBy: string
   description: string | null
   patchedBy: string | null
   createdAt: string
@@ -39,7 +38,7 @@ export interface CumulativePatchGenerateRequest {
   customerId?: number
   fromVersion: string
   toVersion: string
-  generatedBy: string
+  createdBy: string
   patchedBy?: string
   description?: string
   patchName?: string

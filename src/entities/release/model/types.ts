@@ -14,8 +14,7 @@ export interface VersionNode {
   createdAt: string
   createdBy: string
   comment: string
-  isInstall: boolean
-  databases: DatabaseNode[]
+  categories: string[]
 }
 
 export interface MajorMinorNode {
@@ -32,7 +31,8 @@ export interface ReleaseTreeResponse {
 export interface ReleaseFileSimple {
   releaseFileId: number
   releaseVersion: string
-  databaseTypeName: string
+  fileCategory: string
+  subCategory: string
   fileName: string
   fileSize: number
   checksum: string
@@ -52,7 +52,6 @@ export interface ReleaseVersionDetail {
   createdBy: string
   comment: string
   customVersion: string | null
-  isInstall: boolean
   createdAt: string
   updatedAt: string
   releaseFiles: ReleaseFileSimple[]

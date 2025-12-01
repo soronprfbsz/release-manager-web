@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Package, RefreshCw, Plus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -123,17 +124,25 @@ export function StandardReleasePage() {
         <div className="col-span-10">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">
-                버전 정보
+              <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+                <span>버전 정보</span>
                 {selectedVersion && (
-                  <span className="ml-1">
-                    ({selectedVersion.version})
-                    {selectedVersion.isInstall && (
-                      <span className="ml-2 text-xs font-normal bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded align-middle">
-                        설치본
-                      </span>
+                  <>
+                    <span>({selectedVersion.version})</span>
+                    {selectedVersion.categories && selectedVersion.categories.length > 0 && (
+                      <>
+                        {selectedVersion.categories.map((category) => (
+                          <Badge
+                            key={category}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            className="text-xs px-2 py-0.5"
+                          >
+                            {category}
+                          </Badge>
+                        ))}
+                      </>
                     )}
-                  </span>
+                  </>
                 )}
               </CardTitle>
             </CardHeader>

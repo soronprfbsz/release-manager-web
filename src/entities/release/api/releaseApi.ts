@@ -32,9 +32,14 @@ export const releaseApi = {
   },
 
   /** 릴리즈 파일 다운로드 */
-  downloadFile: async (id: number, fileName: string): Promise<void> => {
+  downloadFile: async (
+    id: number,
+    fileName: string,
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
       responseType: 'blob',
+      onDownloadProgress,
     })
 
     const blob = new Blob([response.data])
@@ -57,13 +62,18 @@ export const releaseApi = {
   },
 
   /** 버전 생성 (multipart/form-data) */
-  createVersion: async (version: string, comment: string, patchFiles: File): Promise<void> => {
+  createVersion: async (
+    version: string,
+    comment: string,
+    patchFiles: File,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
     const formData = new FormData()
     formData.append('version', version)
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
 
-    await apiClient.upload(ENDPOINTS.createVersion, formData)
+    await apiClient.upload(ENDPOINTS.createVersion, formData, { onUploadProgress })
   },
 
   /** 버전 삭제 */
@@ -78,9 +88,14 @@ export const releaseApi = {
   },
 
   /** 버전 전체 다운로드 (ZIP) */
-  downloadVersion: async (id: number, fileName: string): Promise<void> => {
+  downloadVersion: async (
+    id: number,
+    fileName: string,
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.versionDownload(id), {
       responseType: 'blob',
+      onDownloadProgress,
     })
 
     const blob = new Blob([response.data])

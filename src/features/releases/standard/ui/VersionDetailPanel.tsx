@@ -3,8 +3,10 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
+import { Progress } from '@/shared/ui/progress'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
 import { SqlViewerModal } from '@/widgets/sql-viewer-modal'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -149,6 +151,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { toast } = useToast()
+  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useQuery({
@@ -180,14 +183,17 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     if (!node.releaseFileId) return
 
     setDownloadingFiles((prev) => new Set(prev).add(node.releaseFileId!))
+    startTransfer()
 
     try {
-      await releaseApi.downloadFile(node.releaseFileId, node.name)
+      await releaseApi.downloadFile(node.releaseFileId, node.name, handleProgress)
+      completeTransfer()
       toast({
         title: '다운로드 완료',
         description: `${node.name} 파일이 다운로드되었습니다.`,
       })
     } catch (error) {
+      resetTransfer()
       toast({
         title: '다운로드 실패',
         description: '파일 다운로드 중 오류가 발생했습니다.',
@@ -215,13 +221,16 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     if (!version) return
 
     setDownloadingAll(true)
+    startTransfer()
     try {
-      await releaseApi.downloadVersion(version.versionId, `release-${version.version}.zip`)
+      await releaseApi.downloadVersion(version.versionId, `release-${version.version}.zip`, handleProgress)
+      completeTransfer()
       toast({
         title: '다운로드 완료',
         description: `버전 ${version.version}의 모든 파일이 다운로드되었습니다.`,
       })
     } catch (error) {
+      resetTransfer()
       toast({
         title: '다운로드 실패',
         description: '버전 다운로드 중 오류가 발생했습니다.',
@@ -347,24 +356,40 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                   <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
                 </div>
               ) : (
-                <ScrollArea className="h-[400px] w-full rounded-md border p-2">
-                  <div>
-                    {[...fileStructure.files.children!].sort((a, b) => {
-                      if (a.type === 'directory' && b.type === 'file') return -1
-                      if (a.type === 'file' && b.type === 'directory') return 1
-                      return a.name.localeCompare(b.name)
-                    }).map((node, index) => (
-                      <FileNode
-                        key={`${node.path}-${index}`}
-                        node={node}
-                        level={0}
-                        onFileClick={handleViewFile}
-                        onDownload={handleDownload}
-                        downloadingFiles={downloadingFiles}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
+                <div className="space-y-4">
+                  <ScrollArea className="h-[400px] w-full rounded-md border p-2">
+                    <div>
+                      {[...fileStructure.files.children!].sort((a, b) => {
+                        if (a.type === 'directory' && b.type === 'file') return -1
+                        if (a.type === 'file' && b.type === 'directory') return 1
+                        return a.name.localeCompare(b.name)
+                      }).map((node, index) => (
+                        <FileNode
+                          key={`${node.path}-${index}`}
+                          node={node}
+                          level={0}
+                          onFileClick={handleViewFile}
+                          onDownload={handleDownload}
+                          downloadingFiles={downloadingFiles}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
+
+                  {/* 다운로드 진행률 표시 */}
+                  {transferState.isTransferring && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">다운로드 중...</span>
+                        <span className="font-medium">{transferState.progress}%</span>
+                      </div>
+                      <Progress value={transferState.progress} />
+                      <div className="text-xs text-muted-foreground text-center">
+                        {(transferState.loaded / (1024 * 1024)).toFixed(2)} MB / {(transferState.total / (1024 * 1024)).toFixed(2)} MB
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>

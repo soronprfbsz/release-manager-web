@@ -158,9 +158,14 @@ class ApiClient {
     return response.data.data
   }
 
-  async download(url: string, filename: string): Promise<void> {
+  async download(
+    url: string,
+    filename: string,
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> {
     const response = await this.instance.get(url, {
       responseType: 'blob',
+      onDownloadProgress,
     })
 
     const blob = new Blob([response.data])
@@ -174,12 +179,19 @@ class ApiClient {
     window.URL.revokeObjectURL(downloadUrl)
   }
 
-  async upload<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
+  async upload<T>(
+    url: string,
+    formData: FormData,
+    config?: AxiosRequestConfig & {
+      onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    }
+  ): Promise<T> {
     const response = await this.instance.post<ApiResponse<T>>(url, formData, {
       ...config,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress: config?.onUploadProgress,
     })
     return response.data.data
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { Badge } from '@/shared/ui/badge'
 import type { MajorMinorNode, VersionNode } from '@/entities/release'
 
 interface ReleaseTreeProps {
@@ -83,11 +84,19 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                     )}
                   >
                     <FileCode className="h-4 w-4 text-blue-500 shrink-0" />
-                    <span>{version.version}</span>
-                    {version.isInstall && (
-                      <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 px-1.5 py-0.5 rounded ml-auto">
-                        설치본
-                      </span>
+                    <span className="flex-shrink-0">{version.version}</span>
+                    {version.categories && version.categories.length > 0 && (
+                      <div className="flex gap-1 ml-auto">
+                        {version.categories.map((category) => (
+                          <Badge
+                            key={category}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            className="text-[10px] px-1 py-0 h-4 leading-none"
+                          >
+                            {category}
+                          </Badge>
+                        ))}
+                      </div>
                     )}
                   </button>
                 ))}

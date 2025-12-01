@@ -14,7 +14,9 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
+import { Progress } from '@/shared/ui/progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import {
   Popover,
   PopoverContent,
@@ -34,9 +36,14 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   const createMutation = useMutation({
-    mutationFn: () => releaseApi.createVersion(version, comment, file!),
+    mutationFn: async () => {
+      startTransfer()
+      await releaseApi.createVersion(version, comment, file!, handleProgress)
+      completeTransfer()
+    },
     onSuccess: () => {
       toast({
         title: '버전 생성 완료',
@@ -46,6 +53,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
       onSuccess()
     },
     onError: (error) => {
+      resetTransfer()
       toast({
         title: '버전 생성 실패',
         description: error instanceof Error ? error.message : '버전 생성 중 오류가 발생했습니다.',
@@ -58,6 +66,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
     setVersion('')
     setComment('')
     setFile(null)
+    resetTransfer()
     onOpenChange(false)
   }
 
@@ -115,11 +124,11 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
         return
       }
 
-      const maxSize = 50 * 1024 * 1024 // 50MB
+      const maxSize = 1024 * 1024 * 1024 // 1GB
       if (selectedFile.size > maxSize) {
         toast({
           title: '파일 크기 초과',
-          description: '파일 크기는 50MB를 초과할 수 없습니다.',
+          description: '파일 크기는 1GB를 초과할 수 없습니다.',
           variant: 'destructive',
         })
         return
@@ -154,11 +163,11 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
         return
       }
 
-      const maxSize = 50 * 1024 * 1024 // 50MB
+      const maxSize = 1024 * 1024 * 1024 // 1GB
       if (droppedFile.size > maxSize) {
         toast({
           title: '파일 크기 초과',
-          description: '파일 크기는 50MB를 초과할 수 없습니다.',
+          description: '파일 크기는 1GB를 초과할 수 없습니다.',
           variant: 'destructive',
         })
         return
@@ -203,24 +212,57 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                     <span className="underline decoration-dotted">버전 파일 생성 방법</span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-96" align="start">
-                  <div className="space-y-2 text-sm">
+                <PopoverContent className="w-[440px]" align="start">
+                  <div className="space-y-3 text-sm">
                     <p className="font-medium text-foreground">
-                      ZIP 파일 구조
+                      버전 파일 생성 방법
                     </p>
-                    <div className="text-muted-foreground space-y-1">
-                      <p>아래와 같은 폴더 구조로 ZIP 파일을 생성해주세요:</p>
-                      <div className="font-mono text-xs bg-muted rounded border p-2 mt-2">
-                        <div>📁 cratedb/</div>
-                        <div className="ml-4">📄 1.patch_cratedb_ddl.sql</div>
-                        <div>📁 mariadb/</div>
-                        <div className="ml-4">📄 1.patch_mariadb_ddl.sql</div>
-                        <div className="ml-4">📄 2.patch_mariadb_view.sql</div>
-                        <div className="ml-4">📄 ...</div>
+                    <div className="text-muted-foreground space-y-2">
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground text-xs">1단계: 폴더 구조 생성</p>
+                        <p className="text-xs">아래와 같은 폴더 구조로 파일을 준비하세요:</p>
+                        <div className="font-mono text-xs bg-muted rounded border p-2">
+                          <div>📁 database/</div>
+                          <div className="ml-4">📁 mariadb/</div>
+                          <div className="ml-8">📄 1.patch_mariadb_ddl.sql</div>
+                          <div className="ml-8">📄 2.patch_mariadb_view.sql</div>
+                          <div className="ml-8">📄 3.patch_mariadb_데이터코드.sql</div>
+                          <div className="ml-8">📄 ...</div>
+                          <div className="ml-4">📁 cratedb/</div>
+                          <div className="ml-8">📄 1.patch_cratedb_ddl.sql</div>
+                          <div>📁 web/</div>
+                          <div className="ml-4">📁 build/</div>
+                          <div className="ml-8">📄 app.war</div>
+                          <div>📁 engine/</div>
+                          <div className="ml-4">📁 build/</div>
+                          <div className="ml-8">📄 engine.jar</div>
+                        </div>
                       </div>
-                      <p className="text-xs mt-2 text-muted-foreground">
-                        💡 버전으로 생성할 파일 및 폴더를 모두 선택 → zip로 압축 → 버전 파일에 업로드
-                      </p>
+
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground text-xs">2단계: ZIP 압축</p>
+                        <p className="text-xs">
+                          <strong>database, web, engine 등의 최상위 폴더를 선택</strong>하여 ZIP으로 압축
+                        </p>
+                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-2 text-xs">
+                          <span className="text-yellow-600 dark:text-yellow-500">⚠️ 주의:</span> 최상위 카테고리 폴더(database, web, engine, install)를 직접 선택하여 압축해야 합니다.
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="font-medium text-foreground text-xs">폴더 구조 규칙</p>
+                        <div className="text-xs space-y-0.5">
+                          <p className="font-mono bg-muted px-2 py-1 rounded">
+                            {'{카테고리}'}/{'{하위카테고리}'}/{'{파일}'}
+                          </p>
+                          <p className="text-muted-foreground">
+                            • 카테고리: database, web, engine, install
+                          </p>
+                          <p className="text-muted-foreground">
+                            • 하위카테고리: mariadb, cratedb, build 등
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </PopoverContent>
@@ -294,7 +336,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                         {isDragging ? '파일을 여기에 놓아주세요' : '파일을 여기에 끌어다 놓거나 클릭하여 선택하세요'}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        최대 파일 크기: 50MB
+                        최대 파일 크기: 1GB
                       </p>
                     </div>
                   </div>
@@ -326,6 +368,20 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                 </div>
               )}
             </div>
+
+            {/* 업로드 진행률 표시 */}
+            {transferState.isTransferring && (
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">업로드 중...</span>
+                  <span className="font-medium">{transferState.progress}%</span>
+                </div>
+                <Progress value={transferState.progress} />
+                <div className="text-xs text-muted-foreground text-center">
+                  {(transferState.loaded / (1024 * 1024)).toFixed(2)} MB / {(transferState.total / (1024 * 1024)).toFixed(2)} MB
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>

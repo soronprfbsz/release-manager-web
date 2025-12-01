@@ -129,7 +129,7 @@ export function StandardPatchPage() {
       page: pagination.pageIndex,
       size: pagination.pageSize,
       releaseType: 'STANDARD',
-      sort: 'generatedAt,desc',
+      sort: 'createdAt,desc',
     }),
   })
 
@@ -226,7 +226,7 @@ export function StandardPatchPage() {
       customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,
-      generatedBy: user?.email || '',
+      createdBy: user?.email || '',
       patchedBy: assignedEngineer || undefined,
       description: description || undefined,
     }
@@ -381,13 +381,13 @@ export function StandardPatchPage() {
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm">
                           <User className="h-3 w-3 text-muted-foreground" />
-                          {patch.generatedBy}
+                          {patch.createdBy}
                         </div>
                       </TableCell>
                       <TableCell>
                         <TypographyMuted className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {formatDateTime(patch.generatedAt)}
+                          {formatDateTime(patch.createdAt)}
                         </TypographyMuted>
                       </TableCell>
                       <TableCell className="text-center">

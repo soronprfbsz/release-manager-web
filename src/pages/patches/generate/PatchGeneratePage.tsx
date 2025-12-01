@@ -127,7 +127,7 @@ export function PatchGeneratePage() {
       customerId: selectedCustomer?.customerId,
       fromVersion,
       toVersion,
-      generatedBy: user?.email || '',
+      createdBy: user?.email || '',
       patchedBy: assignedEngineer || undefined,
       description: description || undefined,
     }

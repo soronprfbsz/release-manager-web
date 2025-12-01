@@ -89,7 +89,7 @@ export function HomePage() {
   })
 
   const recentVersions = getRecentVersions(standardTree, 5)
-  const latestInstall = recentVersions.find(v => v.isInstall)
+  const latestInstall = recentVersions.find(v => v.categories?.includes('INSTALL'))
   const recentPatches: CumulativePatch[] = patchData?.content || []
 
   return (
@@ -112,11 +112,23 @@ export function HomePage() {
             ) : latestInstall ? (
               <Link to={ROUTES.RELEASES.STANDARD} state={{ selectedVersion: latestInstall }} className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex items-center gap-2 flex-wrap">
                     <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
-                    <Badge variant="default" className="ml-2 bg-green-500 hover:bg-green-500">설치본</Badge>
+                    {latestInstall.categories && latestInstall.categories.length > 0 && (
+                      <>
+                        {latestInstall.categories.map((category) => (
+                          <Badge
+                            key={category}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            className="text-xs px-1.5 py-0.5"
+                          >
+                            {category}
+                          </Badge>
+                        ))}
+                      </>
+                    )}
                   </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 </div>
                 <div className="flex items-center gap-4 mt-2">
                   <TypographyMuted className="flex items-center gap-1">
@@ -157,13 +169,23 @@ export function HomePage() {
                     state={{ selectedVersion: version }}
                     className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                   >
-                    <div className="flex items-center gap-2">
-                      <TypographyInlineCode className="bg-transparent">{version.version}</TypographyInlineCode>
-                      {version.isInstall && (
-                        <Badge variant="outline" className="text-xs border-green-500 text-green-500">설치본</Badge>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
+                      {version.categories && version.categories.length > 0 && (
+                        <div className="flex gap-1 flex-shrink-0">
+                          {version.categories.map((category) => (
+                            <Badge
+                              key={category}
+                              variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                              className="text-[10px] px-1 py-0 h-4 leading-none"
+                            >
+                              {category}
+                            </Badge>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <TypographyMuted className="text-xs">{formatDate(version.createdAt)}</TypographyMuted>
+                    <TypographyMuted className="text-xs flex-shrink-0">{formatDate(version.createdAt)}</TypographyMuted>
                   </Link>
                 ))}
               </div>
@@ -202,7 +224,7 @@ export function HomePage() {
                         {patch.releaseType === 'STANDARD' ? '표준' : '커스텀'}
                       </Badge>
                     </div>
-                    <TypographyMuted className="text-xs">{formatDate(patch.generatedAt)}</TypographyMuted>
+                    <TypographyMuted className="text-xs">{formatDate(patch.createdAt)}</TypographyMuted>
                   </Link>
                 ))}
               </div>
