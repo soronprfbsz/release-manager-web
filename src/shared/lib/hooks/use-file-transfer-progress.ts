@@ -55,14 +55,15 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
   const transferTypeRef = useRef<'upload' | 'download'>('download')
 
   const handleProgress = useCallback((progressEvent: { loaded: number; total?: number }) => {
-    const { loaded, total = 0 } = progressEvent
-    const progress = total > 0 ? Math.round((loaded / total) * 100) : 0
+    const { loaded, total } = progressEvent
+    const hasTotal = total !== undefined && total > 0
+    const progress = hasTotal ? Math.round((loaded / total) * 100) : 0
 
     setTransferState((prev) => ({
       ...prev,
       progress,
       loaded,
-      total,
+      total: total || 0,
       isTransferring: true,
     }))
 
@@ -70,9 +71,15 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
     if (toastRef.current) {
       const fileName = fileNameRef.current ? ` - ${fileNameRef.current}` : ''
       const transferText = transferTypeRef.current === 'upload' ? '업로드' : '다운로드'
+
+      // total이 있으면 백분율 표시, 없으면 다운로드된 크기만 표시 (스트리밍 방식)
+      const description = hasTotal
+        ? `${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total)})`
+        : `${formatFileSize(loaded)} 전송 중...`
+
       toastRef.current.update({
         title: `${transferText} 중${fileName}`,
-        description: `${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total)})`,
+        description,
         duration: Infinity,
       })
     }
