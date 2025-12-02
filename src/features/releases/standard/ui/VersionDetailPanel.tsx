@@ -154,7 +154,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
+  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useQuery({

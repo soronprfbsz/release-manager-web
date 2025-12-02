@@ -99,7 +99,7 @@ export function StandardPatchPage() {
   const { toast } = useToast()
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
+  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // Sheet 상태
   const [isSheetOpen, setIsSheetOpen] = useState(false)

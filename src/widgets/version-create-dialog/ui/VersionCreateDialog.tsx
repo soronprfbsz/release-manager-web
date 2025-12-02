@@ -35,7 +35,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
+  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   const createMutation = useMutation({
     mutationFn: async () => {
