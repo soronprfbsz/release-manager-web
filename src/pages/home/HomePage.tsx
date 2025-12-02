@@ -17,6 +17,7 @@ import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared
 import { ROUTES } from '@/shared/config/constants'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch } from '@/entities/patch'
+import { getCategoryShortName } from '@/shared/lib/utils/category'
 
 const features = [
   {
@@ -85,10 +86,10 @@ export function HomePage() {
 
   const { data: patchData, isLoading: isPatchLoading } = useQuery({
     queryKey: ['cumulative-patches'],
-    queryFn: () => patchApi.getList({ page: 0, size: 5 }),
+    queryFn: () => patchApi.getList({ page: 0, size: 4 }),
   })
 
-  const recentVersions = getRecentVersions(standardTree, 5)
+  const recentVersions = getRecentVersions(standardTree, 4)
   const latestInstall = recentVersions.find(v => v.categories?.includes('INSTALL'))
   const recentPatches: CumulativePatch[] = patchData?.content || []
 
@@ -122,7 +123,7 @@ export function HomePage() {
                             variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
                             className="text-xs px-1.5 py-0.5"
                           >
-                            {category}
+                            {getCategoryShortName(category)}
                           </Badge>
                         ))}
                       </>
@@ -179,7 +180,7 @@ export function HomePage() {
                               variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
                               className="text-[10px] px-1 py-0 h-4 leading-none"
                             >
-                              {category}
+                              {getCategoryShortName(category)}
                             </Badge>
                           ))}
                         </div>

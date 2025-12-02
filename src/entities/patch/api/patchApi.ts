@@ -47,9 +47,14 @@ export const patchApi = {
   },
 
   /** 패치 파일 다운로드 */
-  download: async (id: number, fileName: string): Promise<void> => {
+  download: async (
+    id: number,
+    fileName: string,
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.download(id), {
       responseType: 'blob',
+      onDownloadProgress,
     })
 
     const blob = new Blob([response.data])

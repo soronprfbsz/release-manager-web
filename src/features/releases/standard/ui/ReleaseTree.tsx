@@ -3,6 +3,7 @@ import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import type { MajorMinorNode, VersionNode } from '@/entities/release'
+import { getCategoryShortName } from '@/shared/lib/utils/category'
 
 interface ReleaseTreeProps {
   majorMinorGroups: MajorMinorNode[]
@@ -93,7 +94,7 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                             variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
                             className="text-[10px] px-1 py-0 h-4 leading-none"
                           >
-                            {category}
+                            {getCategoryShortName(category)}
                           </Badge>
                         ))}
                       </div>

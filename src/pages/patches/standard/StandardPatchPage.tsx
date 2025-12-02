@@ -37,6 +37,7 @@ import {
 } from '@/shared/ui/sheet'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
@@ -98,6 +99,7 @@ export function StandardPatchPage() {
   const { toast } = useToast()
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const { transferState, handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // Sheet 상태
   const [isSheetOpen, setIsSheetOpen] = useState(false)
@@ -243,13 +245,13 @@ export function StandardPatchPage() {
 
   const handleDownload = async (patch: CumulativePatch) => {
     setDownloadingId(patch.patchId)
+    const fileName = `${patch.patchName}.zip`
+    startTransfer(fileName)
     try {
-      await patchApi.download(patch.patchId, `${patch.patchName}.zip`)
-      toast({
-        title: '다운로드 완료',
-        description: `${patch.patchName} 파일이 다운로드되었습니다.`,
-      })
+      await patchApi.download(patch.patchId, fileName, handleProgress)
+      completeTransfer()
     } catch {
+      resetTransfer()
       toast({
         title: '다운로드 실패',
         description: '파일 다운로드 중 오류가 발생했습니다.',
@@ -420,6 +422,7 @@ export function StandardPatchPage() {
                   ))}
                 </TableBody>
               </Table>
+
               <div className="pt-4">
                 <DataTablePagination
                   pageIndex={pagination.pageIndex}

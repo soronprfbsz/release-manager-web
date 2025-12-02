@@ -11,6 +11,7 @@ import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { VersionCreateDialog } from '@/widgets/version-create-dialog'
 import { ErrorDisplay } from '@/shared/ui/error-display'
+import { getCategoryShortName } from '@/shared/lib/utils/category'
 
 export function StandardReleasePage() {
   const location = useLocation()
@@ -80,7 +81,7 @@ export function StandardReleasePage() {
           </Button>
           <Button onClick={() => setCreateDialogOpen(true)} variant="outline">
             <Plus className="h-4 w-4" />
-            버전 생성
+            릴리즈 생성
           </Button>
         </>
       }
@@ -137,7 +138,7 @@ export function StandardReleasePage() {
                             variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
                             className="text-xs px-2 py-0.5"
                           >
-                            {category}
+                            {getCategoryShortName(category)}
                           </Badge>
                         ))}
                       </>

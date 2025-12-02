@@ -14,7 +14,6 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
-import { Progress } from '@/shared/ui/progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import {
@@ -40,7 +39,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      startTransfer()
+      startTransfer(file?.name, 'upload')
       await releaseApi.createVersion(version, comment, file!, handleProgress)
       completeTransfer()
     },
@@ -219,48 +218,49 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                     </p>
                     <div className="text-muted-foreground space-y-2">
                       <div className="space-y-1">
-                        <p className="font-medium text-foreground text-xs">1단계: 폴더 구조 생성</p>
+                        <p className="font-medium text-foreground text-xs">1단계: 파일 준비</p>
                         <p className="text-xs">아래와 같은 폴더 구조로 파일을 준비하세요:</p>
                         <div className="font-mono text-xs bg-muted rounded border p-2">
                           <div>📁 database/</div>
-                          <div className="ml-4">📁 mariadb/</div>
-                          <div className="ml-8">📄 1.patch_mariadb_ddl.sql</div>
-                          <div className="ml-8">📄 2.patch_mariadb_view.sql</div>
-                          <div className="ml-8">📄 3.patch_mariadb_데이터코드.sql</div>
+                          <div className="ml-4">📁 MARIADB/</div>
+                          <div className="ml-8">📄 1.patch_mariadb_테스트1.sql</div>
+                          <div className="ml-8">📄 2.patch_mariadb_테스트2.sql</div>
                           <div className="ml-8">📄 ...</div>
-                          <div className="ml-4">📁 cratedb/</div>
-                          <div className="ml-8">📄 1.patch_cratedb_ddl.sql</div>
+                          <div className="ml-4">📁 CRATEDB/</div>
+                          <div className="ml-8">📄 ...</div>
                           <div>📁 web/</div>
-                          <div className="ml-4">📁 build/</div>
-                          <div className="ml-8">📄 app.war</div>
+                          <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.war</div>
+                          <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.tar</div>
                           <div>📁 engine/</div>
-                          <div className="ml-4">📁 build/</div>
-                          <div className="ml-8">📄 engine.jar</div>
+                          <div className="ml-4">📁 NC_SMS/</div>
+                          <div className="ml-8">📄 ...</div>
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <p className="font-medium text-foreground text-xs">2단계: ZIP 압축</p>
                         <p className="text-xs">
-                          <strong>database, web, engine 등의 최상위 폴더를 선택</strong>하여 ZIP으로 압축
+                          위 구조로 구성된 <strong>폴더들을 선택</strong>하여 ZIP으로 압축
                         </p>
-                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-2 text-xs">
-                          <span className="text-yellow-600 dark:text-yellow-500">⚠️ 주의:</span> 최상위 카테고리 폴더(database, web, engine, install)를 직접 선택하여 압축해야 합니다.
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="font-medium text-foreground text-xs">폴더 구조 규칙</p>
-                        <div className="text-xs space-y-0.5">
+                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-2 text-xs space-y-2">
+                          <span className="text-yellow-600 dark:text-yellow-500">⚠️폴더 구조 규칙</span>
                           <p className="font-mono bg-muted px-2 py-1 rounded">
                             {'{카테고리}'}/{'{하위카테고리}'}/{'{파일}'}
                           </p>
-                          <p className="text-muted-foreground">
-                            • 카테고리: database, web, engine, install
-                          </p>
-                          <p className="text-muted-foreground">
-                            • 하위카테고리: mariadb, cratedb, build 등
-                          </p>
+                          <div className="space-y-0.5">
+                            <p className="text-muted-foreground">
+                              • 카테고리: database, web, engine, install
+                            </p>
+                            <p className="text-muted-foreground">
+                              • 하위카테고리: MARIADB, CRATEDB, NC_SMS 등
+                            </p>
+                            <p className="text-muted-foreground">
+                              • database 및 engine 이름은 반드시 대문자로 작성
+                            </p>
+                            <p className="text-muted-foreground ml-4">
+                              mariadb<span className="text-red-500">(✗)</span> MARIADB<span className="text-green-500">(✓)</span> / Nc_Sms<span className="text-red-500">(✗)</span> NC_SMS<span className="text-green-500">(✓)</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -368,20 +368,6 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                 </div>
               )}
             </div>
-
-            {/* 업로드 진행률 표시 */}
-            {transferState.isTransferring && (
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">업로드 중...</span>
-                  <span className="font-medium">{transferState.progress}%</span>
-                </div>
-                <Progress value={transferState.progress} />
-                <div className="text-xs text-muted-foreground text-center">
-                  {(transferState.loaded / (1024 * 1024)).toFixed(2)} MB / {(transferState.total / (1024 * 1024)).toFixed(2)} MB
-                </div>
-              </div>
-            )}
           </div>
 
           <DialogFooter>

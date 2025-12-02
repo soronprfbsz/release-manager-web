@@ -3,7 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Progress } from '@/shared/ui/progress'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
@@ -102,7 +101,11 @@ function FileNode({ node, level, onFileClick, onDownload, downloadingFiles }: Fi
   }
 
   const fileName = node.name.toLowerCase()
-  const isViewableFile = fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md')
+  const isViewableFile = fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md') ||
+    fileName.endsWith('.txt') || fileName.endsWith('.log') || fileName.endsWith('.json') ||
+    fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
+    fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
+    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env')
 
   return (
     <div
@@ -183,15 +186,11 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     if (!node.releaseFileId) return
 
     setDownloadingFiles((prev) => new Set(prev).add(node.releaseFileId!))
-    startTransfer()
+    startTransfer(node.name)
 
     try {
       await releaseApi.downloadFile(node.releaseFileId, node.name, handleProgress)
       completeTransfer()
-      toast({
-        title: '다운로드 완료',
-        description: `${node.name} 파일이 다운로드되었습니다.`,
-      })
     } catch (error) {
       resetTransfer()
       toast({
@@ -211,7 +210,10 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const handleViewFile = (node: ReleaseFileNode) => {
     if (!node.releaseFileId) return
     const fileName = node.name.toLowerCase()
-    if (fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md')) {
+    const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
+      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env']
+
+    if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
       setSelectedFile({ id: node.releaseFileId, name: node.name })
       setSqlViewerOpen(true)
     }
@@ -221,14 +223,11 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     if (!version) return
 
     setDownloadingAll(true)
-    startTransfer()
+    const fileName = `release-${version.version}.zip`
+    startTransfer(fileName)
     try {
-      await releaseApi.downloadVersion(version.versionId, `release-${version.version}.zip`, handleProgress)
+      await releaseApi.downloadVersion(version.versionId, fileName, handleProgress)
       completeTransfer()
-      toast({
-        title: '다운로드 완료',
-        description: `버전 ${version.version}의 모든 파일이 다운로드되었습니다.`,
-      })
     } catch (error) {
       resetTransfer()
       toast({
@@ -313,7 +312,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                패치 노트
+                코멘트
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -331,7 +330,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2">
                   <File className="h-4 w-4" />
-                  릴리즈 파일
+                  파일
                 </CardTitle>
                 {hasFiles && (
                   <Button
@@ -375,20 +374,6 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                       ))}
                     </div>
                   </ScrollArea>
-
-                  {/* 다운로드 진행률 표시 */}
-                  {transferState.isTransferring && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">다운로드 중...</span>
-                        <span className="font-medium">{transferState.progress}%</span>
-                      </div>
-                      <Progress value={transferState.progress} />
-                      <div className="text-xs text-muted-foreground text-center">
-                        {(transferState.loaded / (1024 * 1024)).toFixed(2)} MB / {(transferState.total / (1024 * 1024)).toFixed(2)} MB
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </CardContent>

@@ -13,6 +13,8 @@ import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted } from '@/shared/ui/typography'
 import { PatchSqlViewerModal } from '@/widgets/patch-sql-viewer'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 
 interface PatchFileExplorerProps {
   open: boolean
@@ -78,7 +80,11 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
   }
 
   const fileName = node.name.toLowerCase()
-  const isViewableFile = fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md')
+  const isViewableFile = fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md') ||
+    fileName.endsWith('.txt') || fileName.endsWith('.log') || fileName.endsWith('.json') ||
+    fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
+    fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
+    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env')
 
   return (
     <div
@@ -106,6 +112,9 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
 export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: PatchFileExplorerProps) {
   const [sqlViewerOpen, setSqlViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ path: string; name: string } | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const { toast } = useToast()
+  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   const { data: fileStructure, isLoading, error } = useQuery({
     queryKey: ['patch-file-structure', patchId],
@@ -115,10 +124,21 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
 
   const handleDownload = async () => {
     if (!patchId) return
+    setDownloading(true)
+    const fileName = `${patchName}.zip`
+    startTransfer(fileName, 'download')
     try {
-      await patchApi.download(patchId, `${patchName}.zip`)
+      await patchApi.download(patchId, fileName, handleProgress)
+      completeTransfer()
     } catch (error) {
-      console.error('Download failed:', error)
+      resetTransfer()
+      toast({
+        title: '다운로드 실패',
+        description: '파일 다운로드 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      })
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -143,11 +163,15 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
               variant="ghost"
               size="icon"
               onClick={handleDownload}
-              disabled={!patchId}
+              disabled={!patchId || downloading}
               className="absolute -top-10 right-0 h-8 w-8 z-10"
               title="전체 다운로드"
             >
-              <Download className="h-4 w-4" />
+              {downloading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
             </Button>
 
             <ScrollArea className="h-[65vh] w-full rounded-md border">
