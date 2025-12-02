@@ -51,12 +51,32 @@ export const patchApi = {
   download: async (
     id: number,
     fileName: string,
-    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number; isApproximate?: boolean }) => void
   ): Promise<void> => {
+    // X-Uncompressed-Size 헤더를 읽기 위한 변수
+    let uncompressedSize: number | undefined
+
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.download(id), {
       responseType: 'blob',
-      onDownloadProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION
+      timeout: API_TIMEOUT.FILE_OPERATION,
+      onDownloadProgress: (progressEvent) => {
+        // 첫 진행률 이벤트에서 X-Uncompressed-Size 헤더 읽기
+        if (!uncompressedSize && response.headers) {
+          const headerValue = response.headers['x-uncompressed-size']
+          if (headerValue) {
+            uncompressedSize = parseInt(headerValue, 10)
+          }
+        }
+
+        // 압축 전 크기를 total로 사용하여 대략적인 진행률 표시
+        if (onDownloadProgress) {
+          onDownloadProgress({
+            loaded: progressEvent.loaded,
+            total: uncompressedSize || progressEvent.total,
+            isApproximate: !!uncompressedSize, // X-Uncompressed-Size 사용 시 대략적 진행률
+          })
+        }
+      },
     })
 
     const blob = new Blob([response.data])

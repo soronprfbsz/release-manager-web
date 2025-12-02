@@ -12,6 +12,8 @@ export interface FileTransferProgress {
   isTransferring: boolean
   /** 완료 여부 */
   isComplete: boolean
+  /** 진행률이 대략적인지 여부 (압축 전 크기 기준) */
+  isApproximate: boolean
 }
 
 export interface UseFileTransferProgressReturn {
@@ -33,6 +35,7 @@ const initialState: FileTransferProgress = {
   total: 0,
   isTransferring: false,
   isComplete: false,
+  isApproximate: false,
 }
 
 function formatFileSize(bytes: number): string {
@@ -54,8 +57,8 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
   const fileNameRef = useRef<string>('')
   const transferTypeRef = useRef<'upload' | 'download'>('download')
 
-  const handleProgress = useCallback((progressEvent: { loaded: number; total?: number }) => {
-    const { loaded, total } = progressEvent
+  const handleProgress = useCallback((progressEvent: { loaded: number; total?: number; isApproximate?: boolean }) => {
+    const { loaded, total, isApproximate = false } = progressEvent
     const hasTotal = total !== undefined && total > 0
     const progress = hasTotal ? Math.round((loaded / total) * 100) : 0
 
@@ -65,6 +68,7 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
       loaded,
       total: total || 0,
       isTransferring: true,
+      isApproximate,
     }))
 
     // Toast 업데이트 (기존 toast의 내용만 변경)
@@ -73,9 +77,14 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
       const transferText = transferTypeRef.current === 'upload' ? '업로드' : '다운로드'
 
       // total이 있으면 백분율 표시, 없으면 다운로드된 크기만 표시 (스트리밍 방식)
-      const description = hasTotal
-        ? `${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total)})`
-        : `${formatFileSize(loaded)} 전송 중...`
+      let description: string
+      if (hasTotal) {
+        // 대략적인 진행률인 경우 "약" 표시
+        const progressPrefix = isApproximate ? '약 ' : ''
+        description = `${progressPrefix}${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total)})`
+      } else {
+        description = `${formatFileSize(loaded)} 전송 중...`
+      }
 
       toastRef.current.update({
         title: `${transferText} 중${fileName}`,
