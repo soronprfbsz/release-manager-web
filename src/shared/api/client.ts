@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { API_BASE_URL } from '@/shared/config/constants'
+import { API_BASE_URL, API_TIMEOUT } from '@/shared/config/constants'
 import type { ApiResponse, ApiError } from './types'
 import { sessionApi } from '@/entities/session'
 
@@ -15,7 +15,7 @@ class ApiClient {
   constructor() {
     this.instance = axios.create({
       baseURL: API_BASE_URL,
-      timeout: 30000,
+      timeout: API_TIMEOUT.DEFAULT,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -161,11 +161,13 @@ class ApiClient {
   async download(
     url: string,
     filename: string,
-    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    timeout?: number
   ): Promise<void> {
     const response = await this.instance.get(url, {
       responseType: 'blob',
       onDownloadProgress,
+      timeout: timeout || undefined,
     })
 
     const blob = new Blob([response.data])
@@ -184,6 +186,7 @@ class ApiClient {
     formData: FormData,
     config?: AxiosRequestConfig & {
       onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+      timeout?: number
     }
   ): Promise<T> {
     const response = await this.instance.post<ApiResponse<T>>(url, formData, {
@@ -192,6 +195,7 @@ class ApiClient {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: config?.onUploadProgress,
+      timeout: config?.timeout || undefined,
     })
     return response.data.data
   }

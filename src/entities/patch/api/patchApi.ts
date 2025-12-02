@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
 import type {
   CumulativePatch,
@@ -55,6 +56,7 @@ export const patchApi = {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.download(id), {
       responseType: 'blob',
       onDownloadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION
     })
 
     const blob = new Blob([response.data])

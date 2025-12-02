@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
 import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
 
 const ENDPOINTS = {
@@ -40,6 +41,7 @@ export const releaseApi = {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
       responseType: 'blob',
       onDownloadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION
     })
 
     const blob = new Blob([response.data])
@@ -73,7 +75,10 @@ export const releaseApi = {
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
 
-    await apiClient.upload(ENDPOINTS.createVersion, formData, { onUploadProgress })
+    await apiClient.upload(ENDPOINTS.createVersion, formData, {
+      onUploadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION
+    })
   },
 
   /** 버전 삭제 */
@@ -96,6 +101,7 @@ export const releaseApi = {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.versionDownload(id), {
       responseType: 'blob',
       onDownloadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION
     })
 
     const blob = new Blob([response.data])
