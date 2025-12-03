@@ -310,8 +310,8 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="version">
-                버전 <span className="text-destructive">*</span>
+              <Label htmlFor="version" required>
+                버전
               </Label>
               <Input
                 id="version"
@@ -323,8 +323,8 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="releaseCategory">
-                릴리즈 타입 <span className="text-destructive">*</span>
+              <Label htmlFor="releaseCategory" required>
+                릴리즈 타입
               </Label>
               <Select
                 value={releaseCategory}
@@ -344,8 +344,8 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="comment">
-                코멘트 <span className="text-destructive">*</span>
+              <Label htmlFor="comment" required>
+                코멘트
               </Label>
               <Textarea
                 id="comment"
@@ -358,8 +358,8 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="patchFiles">
-                버전 파일 <span className="text-destructive">*</span>
+              <Label htmlFor="patchFiles" required>
+                버전 파일
               </Label>
               <input
                 ref={fileInputRef}

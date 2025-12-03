@@ -335,8 +335,11 @@ export function StandardPatchPage() {
                   <TableRow>
                     <TableHead className="w-16 text-center">ID</TableHead>
                     <TableHead className="w-48">패치명</TableHead>
-                    <TableHead className="w-48">버전 범위</TableHead>
-                    <TableHead className="w-32">생성자</TableHead>
+                    <TableHead className="w-32">버전 범위</TableHead>
+                    <TableHead className="w-32">고객사</TableHead>
+                    <TableHead className="w-32">담당 엔지니어</TableHead>
+                    <TableHead className="w-48">생성자</TableHead>
+                    <TableHead className="w-64">설명</TableHead>
                     <TableHead className="w-56">생성일시</TableHead>
                     <TableHead className="w-24 text-center">작업</TableHead>
                   </TableRow>
@@ -358,16 +361,45 @@ export function StandardPatchPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <TypographyInlineCode className="bg-transparent">{patch.fromVersion}</TypographyInlineCode>
+                          <TypographyInlineCode className="bg-transparent text-xs">{patch.fromVersion}</TypographyInlineCode>
                           <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                          <TypographyInlineCode className="bg-transparent font-medium">{patch.toVersion}</TypographyInlineCode>
+                          <TypographyInlineCode className="bg-transparent text-xs font-medium">{patch.toVersion}</TypographyInlineCode>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {patch.customerName ? (
+                          <div className="text-sm">
+                            <div>{patch.customerName}</div>
+                            <TypographyMuted className="text-xs">({patch.customerCode})</TypographyMuted>
+                          </div>
+                        ) : (
+                          <TypographyMuted className="text-sm">-</TypographyMuted>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {patch.patchedBy ? (
+                          <div className="flex items-center gap-1 text-sm">
+                            <User className="h-3 w-3 text-muted-foreground" />
+                            {patch.patchedBy}
+                          </div>
+                        ) : (
+                          <TypographyMuted className="text-sm">-</TypographyMuted>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm">
                           <User className="h-3 w-3 text-muted-foreground" />
                           {patch.createdBy}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {patch.description ? (
+                          <div className="text-sm text-muted-foreground line-clamp-2" title={patch.description}>
+                            {patch.description}
+                          </div>
+                        ) : (
+                          <TypographyMuted className="text-sm">-</TypographyMuted>
+                        )}
                       </TableCell>
                       <TableCell>
                         <TypographyMuted className="flex items-center gap-1">
@@ -437,7 +469,7 @@ export function StandardPatchPage() {
             <div className="space-y-5">
               {/* 버전 선택 */}
               <div className="space-y-2">
-                <Label>버전 범위 *</Label>
+                <Label required>버전 범위</Label>
                 <div className="flex items-center gap-3">
                   <Select
                     value={fromVersion}
@@ -479,7 +511,7 @@ export function StandardPatchPage() {
 
               {/* 고객사 */}
               <div className="space-y-2">
-                <Label>고객사 (선택)</Label>
+                <Label>고객사</Label>
                 <Select
                   value={customerCode || '__none__'}
                   onValueChange={(value) => setCustomerCode(value === '__none__' ? '' : value)}
@@ -500,7 +532,7 @@ export function StandardPatchPage() {
 
               {/* 담당 엔지니어 */}
               <div className="space-y-2">
-                <Label>담당 엔지니어 (선택)</Label>
+                <Label>담당 엔지니어</Label>
                 <Input
                   value={assignedEngineer}
                   onChange={(e) => setAssignedEngineer(e.target.value)}
@@ -510,7 +542,7 @@ export function StandardPatchPage() {
 
               {/* 설명 */}
               <div className="space-y-2">
-                <Label>설명 (선택)</Label>
+                <Label>설명</Label>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
