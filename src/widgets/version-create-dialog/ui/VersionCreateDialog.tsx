@@ -35,12 +35,29 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
+  const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
+  const [uploadCompleted, setUploadCompleted] = useState(false)
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      setUploadCompleted(false)
       startTransfer(file?.name, 'upload')
-      await releaseApi.createVersion(version, comment, file!, handleProgress)
+
+      // 진행률 핸들러 래퍼 - 100% 도달 시 서버 처리 단계로 전환
+      const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
+        handleProgress(progressEvent)
+
+        // 100%에 도달하면 서버 처리 단계로 전환
+        if (progressEvent.total && progressEvent.loaded >= progressEvent.total && !uploadCompleted) {
+          setUploadCompleted(true)
+          // 약간의 지연 후 서버 처리 단계 표시 (토스트 업데이트 타이밍 조정)
+          setTimeout(() => {
+            startServerProcessing()
+          }, 100)
+        }
+      }
+
+      await releaseApi.createVersion(version, comment, file!, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {
@@ -65,6 +82,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
     setVersion('')
     setComment('')
     setFile(null)
+    setUploadCompleted(false)
     resetTransfer()
     onOpenChange(false)
   }

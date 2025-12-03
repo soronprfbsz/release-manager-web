@@ -14,6 +14,8 @@ export interface FileTransferProgress {
   isComplete: boolean
   /** 진행률이 대략적인지 여부 (압축 전 크기 기준) */
   isApproximate: boolean
+  /** 서버 처리 중 여부 (업로드 100% 후 압축 등의 서버 작업) */
+  isServerProcessing: boolean
 }
 
 export interface UseFileTransferProgressReturn {
@@ -23,6 +25,8 @@ export interface UseFileTransferProgressReturn {
   handleProgress: (progressEvent: { loaded: number; total?: number }) => void
   /** 전송 시작 */
   startTransfer: (fileName?: string, type?: 'upload' | 'download') => void
+  /** 서버 처리 단계로 전환 (100% 이후 압축 등의 작업) */
+  startServerProcessing: () => void
   /** 전송 완료 */
   completeTransfer: () => void
   /** 상태 초기화 */
@@ -36,6 +40,7 @@ const initialState: FileTransferProgress = {
   isTransferring: false,
   isComplete: false,
   isApproximate: false,
+  isServerProcessing: false,
 }
 
 function formatFileSize(bytes: number): string {
@@ -69,6 +74,7 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
       total: total || 0,
       isTransferring: true,
       isApproximate,
+      isServerProcessing: false, // 진행 중일 때는 서버 처리 단계 아님
     }))
 
     // Toast 업데이트 (기존 toast의 내용만 변경)
@@ -101,6 +107,7 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
       ...prev,
       isTransferring: true,
       isComplete: false,
+      isServerProcessing: false,
     }))
 
     // 새로운 toast 생성
@@ -114,12 +121,38 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
     })
   }, [])
 
+  const startServerProcessing = useCallback(() => {
+    setTransferState((prev) => ({
+      ...prev,
+      progress: 100,
+      isTransferring: true,
+      isServerProcessing: true,
+      isComplete: false,
+    }))
+
+    // Toast 업데이트 - 서버 처리 단계 표시
+    if (toastRef.current) {
+      const fileName = fileNameRef.current ? ` - ${fileNameRef.current}` : ''
+      const transferText = transferTypeRef.current === 'upload' ? '업로드' : '다운로드'
+      const processingText = transferTypeRef.current === 'upload'
+        ? '서버에서 파일을 처리하고 있습니다...'
+        : '서버에서 파일을 준비하고 있습니다...'
+
+      toastRef.current.update({
+        title: `${transferText} 처리 중${fileName}`,
+        description: processingText,
+        duration: Infinity,
+      })
+    }
+  }, [])
+
   const completeTransfer = useCallback(() => {
     setTransferState((prev) => ({
       ...prev,
       progress: 100,
       isTransferring: false,
       isComplete: true,
+      isServerProcessing: false,
     }))
 
     // 기존 toast 닫고 완료 toast 표시
@@ -164,6 +197,7 @@ export function useFileTransferProgress(): UseFileTransferProgressReturn {
     transferState,
     handleProgress,
     startTransfer,
+    startServerProcessing,
     completeTransfer,
     resetTransfer,
   }
