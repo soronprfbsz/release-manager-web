@@ -204,8 +204,7 @@ deploy-job:
       env | \
         grep -vE '^(CI_|GITLAB_|FF_|RUNNER_|DOCKER_|DIND_|PATH=|HOME=|HOSTNAME=|PWD=|OLDPWD=|SHELL=|SHLVL=|USER=|_=|LANG=|LC_|TERM=|DEBIAN_|GRADLE_|GIT_)' | \
         grep -v '^CI=' | \
-        grep -E '^[A-Z_]+=.+$' | \
-        grep -v $'\n' > .env
+        grep -E '^[A-Z_]+=.+$' > .env
 
 
       # Docker 이미지 정보 추가
