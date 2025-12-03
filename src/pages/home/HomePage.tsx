@@ -15,8 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/sha
 import { Badge } from '@/shared/ui/badge'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 import { ROUTES } from '@/shared/config/constants'
-import { releaseApi, type VersionNode } from '@/entities/release'
-import { patchApi, type CumulativePatch } from '@/entities/patch'
+import { dashboardApi } from '@/entities/dashboard'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 
 const features = [
@@ -65,33 +64,15 @@ function formatDate(dateStr: string | null | undefined): string {
   })
 }
 
-function getRecentVersions(data: { majorMinorGroups: { versions: VersionNode[] }[] } | undefined, count: number): VersionNode[] {
-  if (!data) return []
-
-  const allVersions: VersionNode[] = []
-  data.majorMinorGroups.forEach(group => {
-    allVersions.push(...group.versions)
-  })
-
-  return allVersions
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, count)
-}
-
 export function HomePage() {
-  const { data: standardTree, isLoading: isReleaseLoading } = useQuery({
-    queryKey: ['standard-release-tree'],
-    queryFn: releaseApi.getStandardTree,
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['dashboard-recent'],
+    queryFn: dashboardApi.getRecent,
   })
 
-  const { data: patchData, isLoading: isPatchLoading } = useQuery({
-    queryKey: ['cumulative-patches'],
-    queryFn: () => patchApi.getList({ page: 0, size: 4 }),
-  })
-
-  const recentVersions = getRecentVersions(standardTree, 4)
-  const latestInstall = recentVersions.find(v => v.categories?.includes('INSTALL'))
-  const recentPatches: CumulativePatch[] = patchData?.content || []
+  const latestInstall = dashboardData?.latestInstall
+  const recentVersions = dashboardData?.recentVersions || []
+  const recentPatches = dashboardData?.recentPatches || []
 
   return (
     <div className="space-y-6">
@@ -108,19 +89,23 @@ export function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isReleaseLoading ? (
+            {isLoading ? (
               <div className="animate-pulse h-16 bg-muted rounded" />
             ) : latestInstall ? (
-              <Link to={ROUTES.RELEASES.STANDARD} state={{ selectedVersion: latestInstall }} className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors">
+              <Link
+                to={ROUTES.RELEASES.STANDARD}
+                state={{ selectedVersionId: latestInstall.releaseVersionId }}
+                className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-wrap">
                     <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
-                    {latestInstall.categories && latestInstall.categories.length > 0 && (
+                    {latestInstall.fileCategories && latestInstall.fileCategories.length > 0 && (
                       <>
-                        {latestInstall.categories.map((category) => (
+                        {latestInstall.fileCategories.map((category) => (
                           <Badge
                             key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
                             className="text-xs px-1.5 py-0.5"
                           >
                             {getCategoryShortName(category)}
@@ -157,27 +142,27 @@ export function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isReleaseLoading ? (
+            {isLoading ? (
               <div className="animate-pulse space-y-2">
                 {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
               </div>
             ) : recentVersions.length > 0 ? (
               <div className="space-y-2">
-                {recentVersions.slice(0, 4).map((version) => (
+                {recentVersions.map((version) => (
                   <Link
-                    key={version.versionId}
+                    key={version.releaseVersionId}
                     to={ROUTES.RELEASES.STANDARD}
-                    state={{ selectedVersion: version }}
+                    state={{ selectedVersionId: version.releaseVersionId }}
                     className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
-                      {version.categories && version.categories.length > 0 && (
+                      {version.fileCategories && version.fileCategories.length > 0 && (
                         <div className="flex gap-1 flex-shrink-0">
-                          {version.categories.map((category) => (
+                          {version.fileCategories.map((category) => (
                             <Badge
                               key={category}
-                              variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                              variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
                               className="text-[10px] px-1 py-0 h-4 leading-none"
                             >
                               {getCategoryShortName(category)}
@@ -205,13 +190,13 @@ export function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isPatchLoading ? (
+            {isLoading ? (
               <div className="animate-pulse space-y-2">
                 {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
               </div>
             ) : recentPatches.length > 0 ? (
               <div className="space-y-2">
-                {recentPatches.slice(0, 4).map((patch) => (
+                {recentPatches.map((patch) => (
                   <Link
                     key={patch.patchId}
                     to={ROUTES.PATCHES.STANDARD}

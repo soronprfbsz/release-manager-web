@@ -48,9 +48,8 @@ export const patchApi = {
 
   /** 패치 파일 다운로드 */
   download: async (id: number, fileName: string): Promise<void> => {
-    // 브라우저 네이티브 다운로드 사용 (진행률 자동 표시)
     const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL || ''}${ENDPOINTS.download(id)}`
+    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.download(id)}`
     link.download = fileName
     document.body.appendChild(link)
     link.click()

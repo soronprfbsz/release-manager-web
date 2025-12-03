@@ -6,7 +6,7 @@ export function getCategoryShortName(category: string): string {
     DATABASE: 'DB',
     WEB: 'WEB',
     ENGINE: 'ENGINE',
-    INSTALL: 'INSTALL',
+    ETC: 'ETC',
   }
 
   return shortNames[category.toUpperCase()] || category

@@ -86,12 +86,12 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                   >
                     <FileCode className="h-4 w-4 text-blue-500 shrink-0" />
                     <span className="flex-shrink-0">{version.version}</span>
-                    {version.categories && version.categories.length > 0 && (
+                    {version.fileCategories && version.fileCategories.length > 0 && (
                       <div className="flex gap-1 ml-auto">
-                        {version.categories.map((category) => (
+                        {version.fileCategories.map((category) => (
                           <Badge
                             key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
                             className="text-[10px] px-1 py-0 h-4 leading-none"
                           >
                             {getCategoryShortName(category)}

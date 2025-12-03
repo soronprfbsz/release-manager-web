@@ -21,8 +21,8 @@ const badgeVariants = cva(
           "border-emerald-600 text-emerald-600 bg-emerald-100 dark:border-emerald-400 dark:text-emerald-400 dark:bg-emerald-950/90",
         engine:
           "border-violet-600 text-violet-600 bg-violet-100 dark:border-violet-400 dark:text-violet-400 dark:bg-violet-950/90",
-        install:
-          "border-amber-500 text-amber-500 bg-amber-100 dark:border-amber-400 dark:text-amber-400 dark:bg-amber-950/90",
+        etc:
+          "border-slate-600 text-slate-600 bg-slate-100 dark:border-slate-400 dark:text-slate-400 dark:bg-slate-950/90",
       },
     },
     defaultVariants: {

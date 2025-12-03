@@ -14,7 +14,8 @@ export interface VersionNode {
   createdAt: string
   createdBy: string
   comment: string
-  categories: string[]
+  releaseCategory?: 'INSTALL' | 'PATCH'
+  fileCategories: string[]
 }
 
 export interface MajorMinorNode {
@@ -43,6 +44,7 @@ export interface ReleaseFileSimple {
 export interface ReleaseVersionDetail {
   releaseVersionId: number
   releaseType: string
+  releaseCategory: 'INSTALL' | 'PATCH'
   customerCode: string | null
   version: string
   majorVersion: number

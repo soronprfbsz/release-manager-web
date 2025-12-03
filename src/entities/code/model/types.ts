@@ -1,0 +1,23 @@
+/**
+ * 코드 간단 응답 (셀렉트박스, 라디오버튼 등에서 사용)
+ */
+export interface CodeSimpleResponse {
+  /** 코드 값 (value) */
+  value: string
+  /** 코드 이름 (표시용 label) */
+  name: string
+  /** 정렬 순서 */
+  sortOrder: number
+}
+
+/**
+ * 코드 타입 상수
+ */
+export const CODE_TYPE = {
+  RELEASE_CATEGORY: 'RELEASE_CATEGORY',
+  FILE_CATEGORY: 'FILE_CATEGORY',
+  DATABASE_TYPE: 'DATABASE_TYPE',
+  RELEASE_TYPE: 'RELEASE_TYPE',
+} as const
+
+export type CodeType = typeof CODE_TYPE[keyof typeof CODE_TYPE]

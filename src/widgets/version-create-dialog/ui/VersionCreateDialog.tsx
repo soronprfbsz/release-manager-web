@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useState, useRef, useEffect } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Upload, X, FileArchive, Info } from 'lucide-react'
 import { releaseApi } from '@/entities/release'
+import { codeApi, CODE_TYPE } from '@/entities/code'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,13 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import {
@@ -31,12 +39,26 @@ interface VersionCreateDialogProps {
 export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCreateDialogProps) {
   const [version, setVersion] = useState('')
   const [comment, setComment] = useState('')
+  const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   const [uploadCompleted, setUploadCompleted] = useState(false)
+
+  // 릴리즈 카테고리 목록 조회
+  const { data: releaseCategoryOptions = [] } = useQuery({
+    queryKey: ['codes', CODE_TYPE.RELEASE_CATEGORY],
+    queryFn: () => codeApi.getCodesByType(CODE_TYPE.RELEASE_CATEGORY),
+  })
+
+  // 첫 번째 옵션을 기본값으로 설정
+  useEffect(() => {
+    if (releaseCategoryOptions.length > 0 && !releaseCategory) {
+      setReleaseCategory(releaseCategoryOptions[0].value)
+    }
+  }, [releaseCategoryOptions, releaseCategory])
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -57,7 +79,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
         }
       }
 
-      await releaseApi.createVersion(version, comment, file!, progressHandler)
+      await releaseApi.createVersion(version, comment, releaseCategory, file!, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {
@@ -267,7 +289,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                           </p>
                           <div className="space-y-0.5">
                             <p className="text-muted-foreground">
-                              • 카테고리: database, web, engine, install
+                              • 카테고리: database, web, engine
                             </p>
                             <p className="text-muted-foreground">
                               • 하위카테고리: MARIADB, CRATEDB, NC_SMS 등
@@ -298,6 +320,27 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                 onChange={(e) => setVersion(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="releaseCategory">
+                릴리즈 타입 <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={releaseCategory}
+                onValueChange={setReleaseCategory}
+              >
+                <SelectTrigger id="releaseCategory">
+                  <SelectValue placeholder="릴리즈 타입을 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {releaseCategoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid gap-2">

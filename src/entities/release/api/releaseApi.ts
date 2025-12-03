@@ -34,9 +34,8 @@ export const releaseApi = {
 
   /** 릴리즈 파일 다운로드 */
   downloadFile: async (id: number, fileName: string): Promise<void> => {
-    // 브라우저 네이티브 다운로드 사용 (진행률 자동 표시)
     const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL || ''}${ENDPOINTS.fileDownload(id)}`
+    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.fileDownload(id)}`
     link.download = fileName
     document.body.appendChild(link)
     link.click()
@@ -55,12 +54,14 @@ export const releaseApi = {
   createVersion: async (
     version: string,
     comment: string,
+    releaseCategory: string,
     patchFiles: File,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<void> => {
     const formData = new FormData()
     formData.append('version', version)
     formData.append('comment', comment)
+    formData.append('releaseCategory', releaseCategory)
     formData.append('patchFiles', patchFiles)
 
     await apiClient.upload(ENDPOINTS.createVersion, formData, {
@@ -82,9 +83,8 @@ export const releaseApi = {
 
   /** 버전 전체 다운로드 (ZIP) */
   downloadVersion: async (id: number, fileName: string): Promise<void> => {
-    // 브라우저 네이티브 다운로드 사용 (진행률 자동 표시)
     const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL || ''}${ENDPOINTS.versionDownload(id)}`
+    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.versionDownload(id)}`
     link.download = fileName
     document.body.appendChild(link)
     link.click()

@@ -130,12 +130,12 @@ export function StandardReleasePage() {
                 {selectedVersion && (
                   <>
                     <span>({selectedVersion.version})</span>
-                    {selectedVersion.categories && selectedVersion.categories.length > 0 && (
+                    {selectedVersion.fileCategories && selectedVersion.fileCategories.length > 0 && (
                       <>
-                        {selectedVersion.categories.map((category) => (
+                        {selectedVersion.fileCategories.map((category) => (
                           <Badge
                             key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "install"}
+                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
                             className="text-xs px-2 py-0.5"
                           >
                             {getCategoryShortName(category)}
