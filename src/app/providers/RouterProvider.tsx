@@ -82,7 +82,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.DOWNLOADS.SCRIPTS,
+    path: ROUTES.RESOURCES.SCRIPTS,
     element: (
       <ProtectedRoute>
         <MainLayout>

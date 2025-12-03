@@ -38,7 +38,7 @@ export const menuItems: MenuItem[] = [
     path: ROUTES.CUSTOMERS.LIST,
   },
   {
-    label: '다운로드',
-    path: ROUTES.DOWNLOADS.SCRIPTS,
+    label: '리소스 관리',
+    path: ROUTES.RESOURCES.SCRIPTS,
   },
 ]

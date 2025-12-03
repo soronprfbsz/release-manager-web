@@ -82,12 +82,12 @@ export function ScriptDownloadPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>다운로드</BreadcrumbPage>
+              <BreadcrumbPage>리소스 관리</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">다운로드</h1>
+          <h1 className="text-2xl font-bold tracking-tight">리소스 관리</h1>
         </div>
         <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
           <FileText className="h-16 w-16 mb-4 opacity-50" />
@@ -114,7 +114,7 @@ export function ScriptDownloadPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>다운로드</BreadcrumbPage>
+            <BreadcrumbPage>리소스 관리</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -122,7 +122,7 @@ export function ScriptDownloadPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Download className="h-5 w-5 text-primary" />}
-        title="다운로드"
+        title="리소스 관리"
         description="데이터베이스 백업 및 복원에 필요한 스크립트를 다운로드할 수 있습니다."
         actions={
           <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">

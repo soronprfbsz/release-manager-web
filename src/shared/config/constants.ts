@@ -21,8 +21,8 @@ export const ROUTES = {
     STANDARD: '/patches/standard',
     CUSTOM: '/patches/custom',
   },
-  DOWNLOADS: {
-    SCRIPTS: '/downloads/scripts',
+  RESOURCES: {
+    SCRIPTS: '/resources/scripts',
   },
   CUSTOMERS: {
     LIST: '/customers',

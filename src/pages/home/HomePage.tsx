@@ -45,9 +45,9 @@ const features = [
   },
   {
     icon: Download,
-    title: '다운로드',
+    title: '리소스 관리',
     description: 'DB 백업/복원 스크립트를 다운로드합니다.',
-    href: ROUTES.DOWNLOADS.SCRIPTS,
+    href: ROUTES.RESOURCES.SCRIPTS,
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
   },
@@ -204,15 +204,18 @@ export function HomePage() {
                     to={ROUTES.PATCHES.STANDARD}
                     className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                   >
-                    <div className="flex items-center gap-2">
-                      <TypographyInlineCode className="text-xs bg-transparent">
-                        {patch.fromVersion} → {patch.toVersion}
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <TypographyInlineCode className="bg-transparent truncate">
+                        {patch.patchName}
                       </TypographyInlineCode>
-                      <Badge variant="outline" className="text-xs">
+                      <span className="text-xs text-muted-foreground flex-shrink-0">
+                        ({patch.fromVersion} → {patch.toVersion})
+                      </span>
+                      <Badge variant="outline" className="text-xs flex-shrink-0">
                         {patch.releaseType === 'STANDARD' ? '표준' : '커스텀'}
                       </Badge>
                     </div>
-                    <TypographyMuted className="text-xs">{formatDate(patch.createdAt)}</TypographyMuted>
+                    <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
                   </Link>
                 ))}
               </div>
