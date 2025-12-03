@@ -14,37 +14,12 @@ export const scriptApi = {
   },
 
   /** 스크립트 다운로드 */
-  download: async (code: string, defaultFileName: string): Promise<void> => {
-    const response = await apiClient.getAxiosInstance().get(
-      `${ENDPOINTS.download}?type=${encodeURIComponent(code)}`,
-      { responseType: 'blob' }
-    )
-
-    // Content-Disposition 헤더에서 파일명 추출
-    const contentDisposition = response.headers['content-disposition']
-    let fileName = defaultFileName
-
-    if (contentDisposition) {
-      const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
-      if (fileNameMatch && fileNameMatch[1]) {
-        fileName = fileNameMatch[1].replace(/['"]/g, '')
-        // URL 디코딩 처리
-        try {
-          fileName = decodeURIComponent(fileName)
-        } catch {
-          // 디코딩 실패 시 원본 사용
-        }
-      }
-    }
-
-    const blob = new Blob([response.data])
-    const downloadUrl = window.URL.createObjectURL(blob)
+  download: async (code: string): Promise<void> => {
+    // 브라우저 네이티브 다운로드 사용 (진행률 자동 표시)
     const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = fileName
+    link.href = `${apiClient.getAxiosInstance().defaults.baseURL || ''}${ENDPOINTS.download}?type=${encodeURIComponent(code)}`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    window.URL.revokeObjectURL(downloadUrl)
   },
 }

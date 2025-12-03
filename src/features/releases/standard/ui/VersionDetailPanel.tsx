@@ -4,12 +4,11 @@ import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, Chevron
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
 import { SqlViewerModal } from '@/widgets/sql-viewer-modal'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { ErrorDisplay } from '@/shared/ui/error-display'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,10 +53,9 @@ interface FileNodeProps {
   level: number
   onFileClick: (node: ReleaseFileNode) => void
   onDownload: (node: ReleaseFileNode) => void
-  downloadingFiles: Set<number>
 }
 
-function FileNode({ node, level, onFileClick, onDownload, downloadingFiles }: FileNodeProps) {
+function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   if (node.type === 'directory') {
@@ -91,7 +89,6 @@ function FileNode({ node, level, onFileClick, onDownload, downloadingFiles }: Fi
                 level={level + 1}
                 onFileClick={onFileClick}
                 onDownload={onDownload}
-                downloadingFiles={downloadingFiles}
               />
             ))}
           </div>
@@ -133,13 +130,8 @@ function FileNode({ node, level, onFileClick, onDownload, downloadingFiles }: Fi
             size="icon"
             className="h-6 w-6"
             onClick={() => onDownload(node)}
-            disabled={downloadingFiles.has(node.releaseFileId!)}
           >
-            {downloadingFiles.has(node.releaseFileId!) ? (
-              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary" />
-            ) : (
-              <Download className="h-3 w-3" />
-            )}
+            <Download className="h-3 w-3" />
           </Button>
         )}
       </div>
@@ -148,13 +140,10 @@ function FileNode({ node, level, onFileClick, onDownload, downloadingFiles }: Fi
 }
 
 export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProps) {
-  const [downloadingFiles, setDownloadingFiles] = useState<Set<number>>(new Set())
-  const [downloadingAll, setDownloadingAll] = useState(false)
   const [sqlViewerOpen, setSqlViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useQuery({
@@ -182,29 +171,9 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     },
   })
 
-  const handleDownload = async (node: ReleaseFileNode) => {
+  const handleDownload = (node: ReleaseFileNode) => {
     if (!node.releaseFileId) return
-
-    setDownloadingFiles((prev) => new Set(prev).add(node.releaseFileId!))
-    startTransfer(node.name)
-
-    try {
-      await releaseApi.downloadFile(node.releaseFileId, node.name, handleProgress)
-      completeTransfer()
-    } catch (error) {
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingFiles((prev) => {
-        const next = new Set(prev)
-        next.delete(node.releaseFileId!)
-        return next
-      })
-    }
+    releaseApi.downloadFile(node.releaseFileId, node.name)
   }
 
   const handleViewFile = (node: ReleaseFileNode) => {
@@ -219,25 +188,10 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
     }
   }
 
-  const handleDownloadAll = async () => {
+  const handleDownloadAll = () => {
     if (!version) return
-
-    setDownloadingAll(true)
     const fileName = `release-${version.version}.zip`
-    startTransfer(fileName)
-    try {
-      await releaseApi.downloadVersion(version.versionId, fileName, handleProgress)
-      completeTransfer()
-    } catch (error) {
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: '버전 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingAll(false)
-    }
+    releaseApi.downloadVersion(version.versionId, fileName)
   }
 
   if (!version) {
@@ -337,13 +291,8 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                     variant="outline"
                     size="icon"
                     onClick={handleDownloadAll}
-                    disabled={downloadingAll}
                   >
-                    {downloadingAll ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                    ) : (
-                      <Download className="h-4 w-4" />
-                    )}
+                    <Download className="h-4 w-4" />
                   </Button>
                 )}
               </div>
@@ -369,7 +318,6 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                           level={0}
                           onFileClick={handleViewFile}
                           onDownload={handleDownload}
-                          downloadingFiles={downloadingFiles}
                         />
                       ))}
                     </div>

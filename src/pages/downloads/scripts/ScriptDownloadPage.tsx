@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Download,
@@ -7,7 +6,6 @@ import {
   RotateCcw,
   HardDrive,
   FileText,
-  Loader2,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TypographyLarge, TypographyMuted } from '@/shared/ui/typography'
@@ -23,7 +21,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 import { scriptApi, type ScriptType } from '@/entities/script'
 
 /** code 기반 아이콘 매핑 */
@@ -57,9 +54,6 @@ function getFileExtension(fileName: string) {
 }
 
 export function ScriptDownloadPage() {
-  const { toast } = useToast()
-  const [downloadingCode, setDownloadingCode] = useState<string | null>(null)
-
   const {
     data: scripts,
     isLoading,
@@ -70,23 +64,8 @@ export function ScriptDownloadPage() {
     queryFn: scriptApi.getTypes,
   })
 
-  const handleDownload = async (script: ScriptType) => {
-    setDownloadingCode(script.code)
-    try {
-      await scriptApi.download(script.code, script.fileName)
-      toast({
-        title: '다운로드 완료',
-        description: `${script.description} 파일이 다운로드되었습니다.`,
-      })
-    } catch {
-      toast({
-        title: '다운로드 실패',
-        description: '스크립트 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingCode(null)
-    }
+  const handleDownload = (script: ScriptType) => {
+    scriptApi.download(script.code)
   }
 
   const scriptList = scripts || []
@@ -172,7 +151,6 @@ export function ScriptDownloadPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {scriptList.map((script) => {
             const colorClass = getScriptColorClass(script.code)
-            const isDownloading = downloadingCode === script.code
 
             return (
               <Card
@@ -197,19 +175,9 @@ export function ScriptDownloadPage() {
                   <Button
                     className="w-full"
                     onClick={() => handleDownload(script)}
-                    disabled={isDownloading}
                   >
-                    {isDownloading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        다운로드 중...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4 mr-2" />
-                        다운로드
-                      </>
-                    )}
+                    <Download className="h-4 w-4 mr-2" />
+                    다운로드
                   </Button>
                 </CardContent>
               </Card>

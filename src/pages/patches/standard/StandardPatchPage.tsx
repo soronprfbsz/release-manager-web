@@ -37,7 +37,6 @@ import {
 } from '@/shared/ui/sheet'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { releaseApi, type VersionNode } from '@/entities/release'
 import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
@@ -99,11 +98,9 @@ export function StandardPatchPage() {
   const { toast } = useToast()
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const { handleProgress, startTransfer, completeTransfer, resetTransfer } = useFileTransferProgress()
 
   // Sheet 상태
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [downloadingId, setDownloadingId] = useState<number | null>(null)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -243,23 +240,9 @@ export function StandardPatchPage() {
     }
   }
 
-  const handleDownload = async (patch: CumulativePatch) => {
-    setDownloadingId(patch.patchId)
+  const handleDownload = (patch: CumulativePatch) => {
     const fileName = `${patch.patchName}.zip`
-    startTransfer(fileName)
-    try {
-      await patchApi.download(patch.patchId, fileName, handleProgress)
-      completeTransfer()
-    } catch {
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingId(null)
-    }
+    patchApi.download(patch.patchId, fileName)
   }
 
   const handleViewFiles = (patch: CumulativePatch) => {
@@ -398,14 +381,9 @@ export function StandardPatchPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDownload(patch)}
-                            disabled={downloadingId === patch.patchId}
                             title="다운로드"
                           >
-                            {downloadingId === patch.patchId ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                            ) : (
-                              <Download className="h-4 w-4" />
-                            )}
+                            <Download className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"

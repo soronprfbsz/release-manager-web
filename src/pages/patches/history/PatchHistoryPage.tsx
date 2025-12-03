@@ -16,7 +16,6 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 import { patchApi, type CumulativePatch } from '@/entities/patch'
 
 interface PaginationState {
@@ -41,8 +40,6 @@ function formatDateTime(dateStr: string | null | undefined): string {
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 
 export function PatchHistoryPage() {
-  const { toast } = useToast()
-  const [downloadingId, setDownloadingId] = useState<number | null>(null)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -57,23 +54,8 @@ export function PatchHistoryPage() {
     }),
   })
 
-  const handleDownload = async (patch: CumulativePatch) => {
-    setDownloadingId(patch.patchId)
-    try {
-      await patchApi.download(patch.patchId, `${patch.patchName}.zip`)
-      toast({
-        title: '다운로드 완료',
-        description: `${patch.patchName} 파일이 다운로드되었습니다.`,
-      })
-    } catch {
-      toast({
-        title: '다운로드 실패',
-        description: '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    } finally {
-      setDownloadingId(null)
-    }
+  const handleDownload = (patch: CumulativePatch) => {
+    patchApi.download(patch.patchId, `${patch.patchName}.zip`)
   }
 
   const patchList = patchData?.content || []
@@ -186,14 +168,9 @@ export function PatchHistoryPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDownload(patch)}
-                          disabled={downloadingId === patch.patchId}
                           title="다운로드"
                         >
-                          {downloadingId === patch.patchId ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                          ) : (
-                            <Download className="h-4 w-4" />
-                          )}
+                          <Download className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
