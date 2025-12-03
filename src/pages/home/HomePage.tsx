@@ -68,6 +68,8 @@ export function HomePage() {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-recent'],
     queryFn: dashboardApi.getRecent,
+    refetchOnWindowFocus: true, // 페이지에 포커스 시 자동 갱신
+    refetchOnMount: true, // 컴포넌트 마운트 시 자동 갱신
   })
 
   const latestInstall = dashboardData?.latestInstall
