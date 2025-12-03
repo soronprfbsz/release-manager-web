@@ -200,8 +200,8 @@ deploy-job:
       apk add --no-cache curl 2>/dev/null || apt-get update && apt-get install -y curl 2>/dev/null || yum install -y curl 2>/dev/null || true
       command -v curl && echo "✓ curl 설치됨" || echo "✗ curl 설치 실패"
     - |
-       echo "=== Gitlab Variables로 .env 파일 생성 중 ==="
-       env | \
+      echo "=== Gitlab Variables로 .env 파일 생성 중 ==="
+      env | \
         grep -vE '^(CI_|GITLAB_|FF_|RUNNER_|DOCKER_|DIND_|PATH=|HOME=|HOSTNAME=|PWD=|OLDPWD=|SHELL=|SHLVL=|USER=|_=|LANG=|LC_|TERM=|DEBIAN_|GRADLE_|GIT_)' | \
         grep -v '^CI=' | \
         grep -E '^[A-Z_]+=.+$' | \
