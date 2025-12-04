@@ -38,7 +38,6 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
     },
   })
 
-  const [containerName, setContainerName] = useState('release-manager-mariadb')
   const [host, setHost] = useState('')
   const [port, setPort] = useState('3306')
   const [username, setUsername] = useState('')
@@ -66,7 +65,6 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
   })
 
   const handleClose = () => {
-    setContainerName('release-manager-mariadb')
     setHost('')
     setPort('3306')
     setUsername('')
@@ -78,7 +76,7 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!containerName.trim() || !host.trim() || !username.trim() || !password.trim() || !backupFileName) {
+    if (!host.trim() || !username.trim() || !password.trim() || !backupFileName) {
       toast({
         title: '입력 오류',
         description: '모든 필수 항목을 입력해주세요.',
@@ -88,7 +86,6 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
     }
 
     const request: MariaDBRestoreRequest = {
-      containerName,
       host,
       port: parseInt(port),
       username,
@@ -139,21 +136,6 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               {mariadbFiles.length === 0 && (
                 <p className="text-xs text-muted-foreground">MariaDB 백업 파일이 없습니다.</p>
               )}
-            </div>
-
-            {/* 컨테이너 이름 */}
-            <div className="space-y-2">
-              <Label htmlFor="containerName" required>Docker 컨테이너 이름</Label>
-              <Input
-                id="containerName"
-                value={containerName}
-                onChange={(e) => setContainerName(e.target.value)}
-                placeholder="release-manager-mariadb"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                복원할 MariaDB Docker 컨테이너 이름입니다.
-              </p>
             </div>
 
             {/* 호스트 */}

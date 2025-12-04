@@ -61,7 +61,6 @@ export interface MariaDBBackupRequest {
  * MariaDB 복원 요청 (MariaDBRestoreRequest)
  */
 export interface MariaDBRestoreRequest {
-  containerName: string
   host: string
   port: number
   username: string

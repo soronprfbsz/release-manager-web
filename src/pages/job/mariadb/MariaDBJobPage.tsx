@@ -7,11 +7,9 @@ import {
   Calendar,
   FileText,
   Trash2,
-  Upload,
   RotateCcw,
   HardDrive,
   User,
-  Tag,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -27,9 +25,9 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { DataTable } from '@/shared/ui/data-table'
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
-import { Badge } from '@/shared/ui/badge'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { jobApi, type BackupFile } from '@/entities/job'
 import { ErrorDisplay } from '@/shared/ui/error-display'
@@ -74,19 +72,27 @@ export function MariaDBJobPage() {
   const [contentViewerOpen, setContentViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<BackupFile | null>(null)
 
+  // 페이징 상태
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 })
+
   // 정렬 상태
   const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({
     key: 'createdAt',
     direction: 'desc',
   })
 
-  // 백업 파일 목록 조회
+  // 백업 파일 목록 조회 (MariaDB 카테고리만)
   const { data: backupFilesResponse, isLoading, error, refetch } = useQuery({
-    queryKey: ['job-backup-files'],
-    queryFn: () => jobApi.getBackupFiles({ size: 100 }),
+    queryKey: ['job-backup-files', 'MARIADB', pagination.pageIndex, pagination.pageSize],
+    queryFn: () => jobApi.getBackupFiles({
+      fileCategory: 'MARIADB',
+      page: pagination.pageIndex,
+      size: pagination.pageSize
+    }),
   })
 
   const backupFiles = backupFilesResponse?.content || []
+  const totalElements = backupFilesResponse?.totalElements || 0
 
   // 백업 파일 삭제 뮤테이션
   const deleteMutation = useMutation({
@@ -140,6 +146,10 @@ export function MariaDBJobPage() {
     })
   }
 
+  const handlePaginationChange = (newPagination: { pageIndex: number; pageSize: number }) => {
+    setPagination(newPagination)
+  }
+
   // 파일 내용 조회
   const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
     queryKey: ['backup-file-content', selectedFile?.backupFileId],
@@ -147,18 +157,18 @@ export function MariaDBJobPage() {
     enabled: contentViewerOpen && selectedFile !== null,
   })
 
-  // 정렬된 백업 파일 목록
+  // 정렬된 백업 파일 목록 (클라이언트 사이드 정렬)
   const sortedBackupList = [...backupFiles].sort((a, b) => {
     if (!sort) return 0
     const { key, direction } = sort
     let comparison = 0
 
-    if (key === 'fileName') {
+    if (key === 'rowNumber') {
+      comparison = a.rowNumber - b.rowNumber
+    } else if (key === 'fileName') {
       comparison = a.fileName.localeCompare(b.fileName)
     } else if (key === 'fileSize') {
       comparison = a.fileSize - b.fileSize
-    } else if (key === 'fileCategory') {
-      comparison = a.fileCategory.localeCompare(b.fileCategory)
     } else if (key === 'createdAt') {
       comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     } else if (key === 'createdBy') {
@@ -202,7 +212,7 @@ export function MariaDBJobPage() {
               <RefreshCw className="h-4 w-4" />
             </Button>
             <Button onClick={() => setBackupDialogOpen(true)} variant="outline">
-              <Upload className="h-4 w-4" />
+              <Database className="h-4 w-4" />
               백업 실행
             </Button>
             <Button onClick={() => setRestoreDialogOpen(true)} variant="outline">
@@ -221,14 +231,14 @@ export function MariaDBJobPage() {
               <HardDrive className="h-5 w-5" />
               백업 파일 목록
             </div>
-            {backupList.length > 0 && (
+            {totalElements > 0 && (
               <TypographyMuted>
-                총 {backupFilesResponse?.totalElements || backupList.length}개
+                총 {totalElements}개
               </TypographyMuted>
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-48">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -240,117 +250,126 @@ export function MariaDBJobPage() {
               onRetry={refetch}
             />
           ) : backupList.length > 0 ? (
-            <DataTable>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <SortableTableHead
-                      id="fileName"
-                      currentSort={sort}
-                      onSort={handleSort}
-                    >
-                      파일명
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="fileCategory"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-28"
-                    >
-                      카테고리
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="fileSize"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-24"
-                    >
-                      파일 크기
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="createdBy"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-36"
-                    >
-                      생성자
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="createdAt"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-44"
-                    >
-                      생성일시
-                    </SortableTableHead>
-                    <TableHead className="w-20 text-center">작업</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {backupList.map((file) => (
-                    <TableRow key={file.backupFileId}>
-                      <TableCell>
-                        <div
-                          className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
-                          onClick={() => handleFileClick(file)}
-                        >
-                          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          <TypographyInlineCode className="bg-transparent">{file.fileName}</TypographyInlineCode>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                          <Tag className="h-3 w-3" />
-                          {file.fileCategory}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
-                      </TableCell>
-                      <TableCell>
-                        <TruncatedCell
-                          tooltipText={file.createdBy}
-                          className="flex items-center gap-1 text-muted-foreground"
-                        >
-                          <User className="h-3 w-3 flex-shrink-0" />
-                          <span className="text-sm truncate">{file.createdBy}</span>
-                        </TruncatedCell>
-                      </TableCell>
-                      <TableCell>
-                        <TruncatedCell
-                          tooltipText={formatDateTime(file.createdAt)}
-                          className="flex items-center gap-1 text-muted-foreground"
-                        >
-                          <Calendar className="h-3 w-3 flex-shrink-0" />
-                          <span className="text-sm">{formatDateTime(file.createdAt)}</span>
-                        </TruncatedCell>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDownload(file)}
-                            title="다운로드"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(file)}
-                            disabled={deleteMutation.isPending}
-                            title="삭제"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
+            <>
+              <DataTable>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <SortableTableHead
+                        id="rowNumber"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-16 text-center"
+                      >
+                        No
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="fileName"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        파일명
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="fileSize"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-28"
+                      >
+                        파일 크기
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="createdBy"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-48"
+                      >
+                        생성자
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="createdAt"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-44"
+                      >
+                        생성일시
+                      </SortableTableHead>
+                      <TableHead className="w-24 text-center">작업</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </DataTable>
+                  </TableHeader>
+                  <TableBody>
+                    {backupList.map((file) => (
+                      <TableRow key={file.backupFileId}>
+                        <TableCell className="text-center">
+                          <TypographyMuted>{file.rowNumber}</TypographyMuted>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => handleFileClick(file)}
+                          >
+                            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <TruncatedCell tooltipText={file.fileName}>
+                              <TypographyInlineCode className="bg-transparent truncate">{file.fileName}</TypographyInlineCode>
+                            </TruncatedCell>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
+                        </TableCell>
+                        <TableCell>
+                          <TruncatedCell
+                            tooltipText={file.createdBy}
+                            className="flex items-center gap-1 text-muted-foreground"
+                          >
+                            <User className="h-3 w-3 flex-shrink-0" />
+                            <span className="text-sm truncate">{file.createdBy}</span>
+                          </TruncatedCell>
+                        </TableCell>
+                        <TableCell>
+                          <TruncatedCell
+                            tooltipText={formatDateTime(file.createdAt)}
+                            className="flex items-center gap-1 text-muted-foreground"
+                          >
+                            <Calendar className="h-3 w-3 flex-shrink-0" />
+                            <span className="text-sm whitespace-nowrap">{formatDateTime(file.createdAt)}</span>
+                          </TruncatedCell>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDownload(file)}
+                              title="다운로드"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteClick(file)}
+                              disabled={deleteMutation.isPending}
+                              title="삭제"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </DataTable>
+
+              {/* 페이징 */}
+              <DataTablePagination
+                pageIndex={pagination.pageIndex}
+                pageSize={pagination.pageSize}
+                totalElements={totalElements}
+                onPaginationChange={handlePaginationChange}
+              />
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <HardDrive className="h-12 w-12 mb-3 opacity-50" />
