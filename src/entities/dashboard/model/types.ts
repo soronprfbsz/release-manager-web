@@ -49,7 +49,7 @@ export interface TopCustomersResponse {
 /** 월별 패치 통계 아이템 (고객사별 breakdown 포함) */
 export interface MonthlyPatchStat {
   yearMonth: string // "2025-06" 형식
-  [customerName: string]: string | number // 고객사별 패치 수 (동적 키)
+  customerCounts: Record<string, number> // 고객사별 패치 수
 }
 
 /** 월별 패치 통계 응답 */
