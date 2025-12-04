@@ -5,9 +5,9 @@
 
 export interface BackupFile {
   fileName: string
-  size: number
+  fileSizeBytes: number
   createdAt: string
-  downloadUrl?: string
+  host: string | null
 }
 
 export interface JobStatus {

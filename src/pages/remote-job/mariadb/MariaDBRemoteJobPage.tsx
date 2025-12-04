@@ -207,7 +207,7 @@ export function MariaDBRemoteJobPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <TypographyMuted>{formatFileSize(file.size)}</TypographyMuted>
+                        <TypographyMuted>{formatFileSize(file.fileSizeBytes)}</TypographyMuted>
                       </TableCell>
                       <TableCell>
                         <TypographyMuted className="flex items-center gap-1">
