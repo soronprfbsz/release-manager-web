@@ -4,8 +4,8 @@ docker-compose.yml
 docker-compose.*.yml
 .dockerignore
 
-# Build output
-dist/
+# Build output (dist는 CI에서 필요하므로 제외하지 않음)
+# dist/
 build/
 
 # Logs
