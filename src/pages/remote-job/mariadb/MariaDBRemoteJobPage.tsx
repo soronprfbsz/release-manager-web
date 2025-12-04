@@ -24,6 +24,7 @@ import {
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { DataTable } from '@/shared/ui/data-table'
 import { TypographyMuted } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { remoteJobApi, type BackupFile } from '@/entities/remote-job'
@@ -186,58 +187,60 @@ export function MariaDBRemoteJobPage() {
               onRetry={refetch}
             />
           ) : backupList.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-64">파일명</TableHead>
-                  <TableHead className="w-32">파일 크기</TableHead>
-                  <TableHead className="w-56">생성일시</TableHead>
-                  <TableHead className="w-24 text-center">작업</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {backupList.map((file) => (
-                  <TableRow key={file.fileName}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm">{file.fileName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <TypographyMuted>{formatFileSize(file.size)}</TypographyMuted>
-                    </TableCell>
-                    <TableCell>
-                      <TypographyMuted className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDateTime(file.createdAt)}
-                      </TypographyMuted>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center gap-0">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDownload(file)}
-                          title="다운로드"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteClick(file)}
-                          disabled={deleteMutation.isPending}
-                          title="삭제"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <DataTable>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-64">파일명</TableHead>
+                    <TableHead className="w-32">파일 크기</TableHead>
+                    <TableHead className="w-56">생성일시</TableHead>
+                    <TableHead className="w-24 text-center">작업</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {backupList.map((file) => (
+                    <TableRow key={file.fileName}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-mono text-sm">{file.fileName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <TypographyMuted>{formatFileSize(file.size)}</TypographyMuted>
+                      </TableCell>
+                      <TableCell>
+                        <TypographyMuted className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formatDateTime(file.createdAt)}
+                        </TypographyMuted>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDownload(file)}
+                            title="다운로드"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(file)}
+                            disabled={deleteMutation.isPending}
+                            title="삭제"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </DataTable>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
               <HardDrive className="h-12 w-12 mb-3 opacity-50" />

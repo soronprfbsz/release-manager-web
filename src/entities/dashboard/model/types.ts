@@ -46,15 +46,16 @@ export interface TopCustomersResponse {
   customers: CustomerPatchStat[]
 }
 
-/** 월별 패치 통계 아이템 */
+/** 월별 패치 통계 아이템 (고객사별 breakdown 포함) */
 export interface MonthlyPatchStat {
   yearMonth: string // "2025-06" 형식
-  patchCount: number
+  [customerName: string]: string | number // 고객사별 패치 수 (동적 키)
 }
 
 /** 월별 패치 통계 응답 */
 export interface MonthlyPatchesResponse {
   months: number
+  customers: string[] // 고객사 목록
   monthly: MonthlyPatchStat[]
 }
 

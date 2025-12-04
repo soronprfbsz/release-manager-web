@@ -53,6 +53,7 @@ import {
 } from '@/shared/ui/sheet'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
+import { DataTable } from '@/shared/ui/data-table'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import {
   DropdownMenu,
@@ -313,116 +314,118 @@ export function CustomerListPage() {
             </div>
           ) : customerList.length > 0 ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow className="h-10">
-                    <SortableTableHead
-                      id="customerId"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-16 text-center"
-                    >
-                      ID
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="customerCode"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-32"
-                    >
-                      고객사 코드
-                    </SortableTableHead>
-                    <SortableTableHead
-                      id="customerName"
-                      currentSort={sort}
-                      onSort={handleSort}
-                    >
-                      고객사명
-                    </SortableTableHead>
-                    <TableHead>설명</TableHead>
-                    <TableHead className="w-20 text-center">상태</TableHead>
-                    <SortableTableHead
-                      id="createdAt"
-                      currentSort={sort}
-                      onSort={handleSort}
-                      className="w-28"
-                    >
-                      등록일
-                    </SortableTableHead>
-                    <TableHead className="w-12 text-center"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {customerList.map((customer) => (
-                    <TableRow key={customer.customerId} className="h-10">
-                      <TableCell className="text-center text-muted-foreground py-2">
-                        {customer.customerId}
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
-                      </TableCell>
-                      <TableCell className="font-medium py-2">{customer.customerName}</TableCell>
-                      <TableCell className="py-2">
-                        <TypographyMuted className="max-w-xs truncate">
-                          {customer.description || '-'}
-                        </TypographyMuted>
-                      </TableCell>
-                      <TableCell className="text-center py-2">
-                        <Badge
-                          variant="outline"
-                          className={
-                            customer.isActive
-                              ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
-                              : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
-                          }
-                        >
-                          {customer.isActive ? '활성' : '비활성'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-2 whitespace-nowrap">
-                        <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">메뉴 열기</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditModal(customer)}>
-                              <Edit2 className="mr-2 h-4 w-4" />
-                              수정
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
-                              {customer.isActive ? (
-                                <>
-                                  <PowerOff className="mr-2 h-4 w-4" />
-                                  비활성화
-                                </>
-                              ) : (
-                                <>
-                                  <Power className="mr-2 h-4 w-4" />
-                                  활성화
-                                </>
-                              )}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setDeleteConfirmId(customer.customerId)}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+              <DataTable>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <SortableTableHead
+                        id="customerId"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-16 text-center"
+                      >
+                        ID
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="customerCode"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-32"
+                      >
+                        고객사 코드
+                      </SortableTableHead>
+                      <SortableTableHead
+                        id="customerName"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        고객사명
+                      </SortableTableHead>
+                      <TableHead>설명</TableHead>
+                      <TableHead className="w-20 text-center">상태</TableHead>
+                      <SortableTableHead
+                        id="createdAt"
+                        currentSort={sort}
+                        onSort={handleSort}
+                        className="w-28"
+                      >
+                        등록일
+                      </SortableTableHead>
+                      <TableHead className="w-12 text-center"></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {customerList.map((customer) => (
+                      <TableRow key={customer.customerId}>
+                        <TableCell className="text-center text-muted-foreground">
+                          {customer.customerId}
+                        </TableCell>
+                        <TableCell>
+                          <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
+                        </TableCell>
+                        <TableCell className="font-medium">{customer.customerName}</TableCell>
+                        <TableCell>
+                          <TypographyMuted className="max-w-xs truncate">
+                            {customer.description || '-'}
+                          </TypographyMuted>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge
+                            variant="outline"
+                            className={
+                              customer.isActive
+                                ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
+                                : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
+                            }
+                          >
+                            {customer.isActive ? '활성' : '비활성'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">메뉴 열기</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEditModal(customer)}>
+                                <Edit2 className="mr-2 h-4 w-4" />
+                                수정
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
+                                {customer.isActive ? (
+                                  <>
+                                    <PowerOff className="mr-2 h-4 w-4" />
+                                    비활성화
+                                  </>
+                                ) : (
+                                  <>
+                                    <Power className="mr-2 h-4 w-4" />
+                                    활성화
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => setDeleteConfirmId(customer.customerId)}
+                                className="text-red-600 focus:text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                삭제
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </DataTable>
               <div className="pt-4">
                 <DataTablePagination
                   pageIndex={pagination.pageIndex}

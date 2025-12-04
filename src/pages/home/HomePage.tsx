@@ -11,18 +11,7 @@ import {
   Building2,
   TrendingUp
 } from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LineChart,
-  Line,
-} from 'recharts'
+import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
@@ -30,14 +19,6 @@ import { ROUTES } from '@/shared/config/constants'
 import { dashboardApi } from '@/entities/dashboard'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 
-// 차트 색상
-const CHART_COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
-]
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -55,7 +36,8 @@ export function HomePage() {
     queryKey: ['dashboard-recent'],
     queryFn: dashboardApi.getRecent,
     refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnMount: 'always',
+    staleTime: 0,
   })
 
   // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
@@ -63,12 +45,16 @@ export function HomePage() {
     queryKey: ['dashboard-top-customers'],
     queryFn: () => dashboardApi.getTopCustomers(),
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
+    staleTime: 0,
   })
 
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useQuery({
     queryKey: ['dashboard-monthly-patches'],
     queryFn: () => dashboardApi.getMonthlyPatches(),
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
+    staleTime: 0,
   })
 
   const latestInstall = dashboardData?.latestInstall
@@ -80,7 +66,8 @@ export function HomePage() {
   const statisticsMonths = topCustomersData?.months || 6
   const topN = topCustomersData?.topN || 5
 
-  // 월별 데이터 포맷팅 (YY.MM 형식)
+  // 월별 데이터 - 고객사 목록과 포맷팅된 데이터
+  const monthlyCustomers = monthlyPatchesData?.customers || []
   const formattedMonthlyData = (monthlyPatchesData?.monthly || []).map(item => ({
     ...item,
     displayMonth: item.yearMonth.slice(2).replace('-', '.'),
@@ -252,40 +239,17 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingTopCustomers ? (
-                <div className="animate-pulse h-[200px] bg-muted rounded" />
+                <div className="animate-pulse h-[150px] bg-muted rounded" />
               ) : topCustomers && topCustomers.length > 0 ? (
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart
-                    data={topCustomers}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                    <XAxis type="number" allowDecimals={false} fontSize={12} />
-                    <YAxis
-                      type="category"
-                      dataKey="customerName"
-                      width={100}
-                      fontSize={12}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      formatter={(value: number) => [`${value}건`, '패치 수']}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px',
-                      }}
-                    />
-                    <Bar dataKey="patchCount" radius={[0, 4, 4, 0]}>
-                      {topCustomers.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <HorizontalBarChart
+                  data={topCustomers}
+                  categoryKey="customerName"
+                  valueKey="patchCount"
+                  height={150}
+                  tooltipFormatter={(value) => [`${value}건`, '패치 수']}
+                />
               ) : (
-                <div className="h-[200px] flex items-center justify-center">
+                <div className="h-[150px] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -303,37 +267,18 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingMonthly ? (
-                <div className="animate-pulse h-[200px] bg-muted rounded" />
+                <div className="animate-pulse h-[150px] bg-muted rounded" />
               ) : formattedMonthlyData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart
-                    data={formattedMonthlyData}
-                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="displayMonth" fontSize={12} tickLine={false} />
-                    <YAxis allowDecimals={false} fontSize={12} tickLine={false} />
-                    <Tooltip
-                      formatter={(value: number) => [`${value}건`, '패치 수']}
-                      labelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '6px',
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="patchCount"
-                      stroke="hsl(var(--chart-1))"
-                      strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--chart-1))', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, strokeWidth: 0 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <StackedBarChart
+                  data={formattedMonthlyData}
+                  xAxisKey="displayMonth"
+                  stackKeys={monthlyCustomers}
+                  height={150}
+                  tooltipValueFormatter={(value) => `${value}건`}
+                  tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
+                />
               ) : (
-                <div className="h-[200px] flex items-center justify-center">
+                <div className="h-[150px] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}

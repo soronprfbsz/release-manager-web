@@ -20,6 +20,8 @@ import {
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { DataTable } from '@/shared/ui/data-table'
+import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import {
   Select,
@@ -330,108 +332,123 @@ export function StandardPatchPage() {
             />
           ) : patchList.length > 0 ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16 text-center">ID</TableHead>
-                    <TableHead className="w-48">패치명</TableHead>
-                    <TableHead className="w-32">버전 범위</TableHead>
-                    <TableHead className="w-32">고객사</TableHead>
-                    <TableHead className="w-32">담당 엔지니어</TableHead>
-                    <TableHead className="w-48">생성자</TableHead>
-                    <TableHead className="w-64">설명</TableHead>
-                    <TableHead className="w-56">생성일시</TableHead>
-                    <TableHead className="w-24 text-center">작업</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {patchList.map((patch) => (
-                    <TableRow key={patch.patchId}>
-                      <TableCell className="text-center text-muted-foreground">
-                        {patch.patchId}
-                      </TableCell>
-                      <TableCell>
-                        <div
-                          className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
-                          onClick={() => handleViewFiles(patch)}
-                        >
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <TypographyInlineCode className="bg-transparent text-xs">{patch.fromVersion}</TypographyInlineCode>
-                          <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                          <TypographyInlineCode className="bg-transparent text-xs font-medium">{patch.toVersion}</TypographyInlineCode>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {patch.customerName ? (
-                          <div className="text-sm">
-                            <div>{patch.customerName}</div>
-                            <TypographyMuted className="text-xs">({patch.customerCode})</TypographyMuted>
-                          </div>
-                        ) : (
-                          <TypographyMuted className="text-sm">-</TypographyMuted>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {patch.patchedBy ? (
-                          <div className="flex items-center gap-1 text-sm">
-                            <User className="h-3 w-3 text-muted-foreground" />
-                            {patch.patchedBy}
-                          </div>
-                        ) : (
-                          <TypographyMuted className="text-sm">-</TypographyMuted>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <User className="h-3 w-3 text-muted-foreground" />
-                          {patch.createdBy}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {patch.description ? (
-                          <div className="text-sm text-muted-foreground line-clamp-2" title={patch.description}>
-                            {patch.description}
-                          </div>
-                        ) : (
-                          <TypographyMuted className="text-sm">-</TypographyMuted>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <TypographyMuted className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {formatDateTime(patch.createdAt)}
-                        </TypographyMuted>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-0">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDownload(patch)}
-                            title="다운로드"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(patch)}
-                            disabled={deleteMutation.isPending}
-                            title="삭제"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <DataTable>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12 text-center">ID</TableHead>
+                      <TableHead className="w-48">패치명</TableHead>
+                      <TableHead className="w-28">버전 범위</TableHead>
+                      <TableHead className="w-28">고객사</TableHead>
+                      <TableHead className="w-40">담당 엔지니어</TableHead>
+                      <TableHead className="w-44">생성자</TableHead>
+                      <TableHead className="w-40">설명</TableHead>
+                      <TableHead className="w-40">생성일시</TableHead>
+                      <TableHead className="w-20 text-center">작업</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {patchList.map((patch) => (
+                      <TableRow key={patch.patchId}>
+                        <TableCell className="text-center text-muted-foreground">
+                          {patch.patchId}
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                            onClick={() => handleViewFiles(patch)}
+                          >
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <TypographyInlineCode className="bg-transparent">{patch.patchName}</TypographyInlineCode>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <TypographyInlineCode className="bg-transparent text-xs">{patch.fromVersion}</TypographyInlineCode>
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                            <TypographyInlineCode className="bg-transparent text-xs font-medium">{patch.toVersion}</TypographyInlineCode>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {patch.customerName ? (
+                            <div className="text-sm">
+                              <div>{patch.customerName}</div>
+                              <TypographyMuted className="text-xs">({patch.customerCode})</TypographyMuted>
+                            </div>
+                          ) : (
+                            <TypographyMuted className="text-sm">-</TypographyMuted>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {patch.patchedBy ? (
+                            <TruncatedCell
+                              tooltipText={patch.patchedBy}
+                              className="flex items-center gap-1 text-sm"
+                            >
+                              <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <span>{patch.patchedBy}</span>
+                            </TruncatedCell>
+                          ) : (
+                            <TypographyMuted className="text-sm">-</TypographyMuted>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <TruncatedCell
+                            tooltipText={patch.createdBy}
+                            className="flex items-center gap-1 text-sm"
+                          >
+                            <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            <span>{patch.createdBy}</span>
+                          </TruncatedCell>
+                        </TableCell>
+                        <TableCell>
+                          {patch.description ? (
+                            <TruncatedCell
+                              tooltipText={patch.description}
+                              maxLines={2}
+                              className="text-sm text-muted-foreground"
+                            >
+                              {patch.description}
+                            </TruncatedCell>
+                          ) : (
+                            <TypographyMuted className="text-sm">-</TypographyMuted>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <TruncatedCell
+                            tooltipText={formatDateTime(patch.createdAt)}
+                            className="flex items-center gap-1 text-muted-foreground"
+                          >
+                            <Calendar className="h-3 w-3 flex-shrink-0" />
+                            <span className="text-sm">{formatDateTime(patch.createdAt)}</span>
+                          </TruncatedCell>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDownload(patch)}
+                              title="다운로드"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteClick(patch)}
+                              disabled={deleteMutation.isPending}
+                              title="삭제"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </DataTable>
 
               <div className="pt-4">
                 <DataTablePagination
