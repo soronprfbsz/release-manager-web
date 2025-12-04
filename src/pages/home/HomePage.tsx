@@ -239,17 +239,17 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingTopCustomers ? (
-                <div className="animate-pulse h-[150px] bg-muted rounded" />
+                <div className="animate-pulse h-[200px] bg-muted rounded" />
               ) : topCustomers && topCustomers.length > 0 ? (
                 <HorizontalBarChart
                   data={topCustomers}
                   categoryKey="customerName"
                   valueKey="patchCount"
-                  height={150}
+                  height={200}
                   tooltipFormatter={(value) => [`${value}건`, '패치 수']}
                 />
               ) : (
-                <div className="h-[150px] flex items-center justify-center">
+                <div className="h-[200px] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -267,18 +267,18 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingMonthly ? (
-                <div className="animate-pulse h-[150px] bg-muted rounded" />
+                <div className="animate-pulse h-[200px] bg-muted rounded" />
               ) : formattedMonthlyData.length > 0 ? (
                 <StackedBarChart
                   data={formattedMonthlyData}
                   xAxisKey="displayMonth"
                   stackKeys={monthlyCustomers}
-                  height={150}
+                  height={200}
                   tooltipValueFormatter={(value) => `${value}건`}
                   tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
                 />
               ) : (
-                <div className="h-[150px] flex items-center justify-center">
+                <div className="h-[200px] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
