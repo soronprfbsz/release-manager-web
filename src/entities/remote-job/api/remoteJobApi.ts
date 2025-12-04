@@ -32,7 +32,10 @@ export const remoteJobApi = {
 
   /** 백업 파일 목록 조회 */
   getBackupList: async (): Promise<BackupFile[]> => {
-    const response = await apiClient.get<BackupListResponse>(ENDPOINTS.backupList)
+    const response = await apiClient.get<BackupListResponse | BackupFile[]>(ENDPOINTS.backupList)
+    if (Array.isArray(response)) {
+      return response
+    }
     return response?.files || []
   },
 
