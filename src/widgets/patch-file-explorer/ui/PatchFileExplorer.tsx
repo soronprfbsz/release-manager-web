@@ -151,20 +151,22 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
           <DialogHeader>
             <DialogTitle>{patchName}</DialogTitle>
             <DialogDescription>패치 파일 구조</DialogDescription>
+            {/* X 버튼 왼쪽에 배치되는 다운로드 버튼 */}
+            <div className="absolute top-0 right-10 flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDownload}
+                disabled={!patchId}
+                className="h-8 w-8"
+                title="전체 다운로드"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
           </DialogHeader>
 
           <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDownload}
-              disabled={!patchId}
-              className="absolute -top-10 right-0 h-8 w-8 z-10"
-              title="전체 다운로드"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-
             <ScrollArea className="h-[65vh] w-full rounded-md border">
               {isLoading && (
                 <div className="flex items-center justify-center p-8">
