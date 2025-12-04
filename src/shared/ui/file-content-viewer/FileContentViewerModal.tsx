@@ -165,6 +165,7 @@ export function FileContentViewerModal({
               </span>
             )}
           </DialogDescription>
+          {/* X 버튼 왼쪽에 배치되는 액션 버튼 */}
           <div className="absolute top-0 right-10 flex items-center gap-1">
             {onDownload && (
               <Button
