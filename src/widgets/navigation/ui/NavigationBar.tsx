@@ -38,7 +38,7 @@ export function NavigationBar() {
         </div>
 
         {/* 센터: 메뉴 */}
-        <NavigationMenu delayDuration={0}>
+        <NavigationMenu>
           <NavigationMenuList>
             {menuItems.map((item) => (
               <NavigationMenuItem key={item.label}>

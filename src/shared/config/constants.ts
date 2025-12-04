@@ -21,11 +21,14 @@ export const ROUTES = {
     STANDARD: '/patches/standard',
     CUSTOM: '/patches/custom',
   },
-  RESOURCES: {
-    SCRIPTS: '/resources/scripts',
-  },
   CUSTOMERS: {
     LIST: '/customers',
+  },
+  REMOTE_JOB: {
+    MARIADB: '/remote-job/mariadb',
+  },
+  RESOURCES: {
+    SCRIPTS: '/resources/scripts',
   },
 } as const
 

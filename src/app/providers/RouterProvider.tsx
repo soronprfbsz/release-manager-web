@@ -10,6 +10,7 @@ import { CustomReleasePage } from '@/pages/releases/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { CustomerListPage } from '@/pages/customers'
+import { MariaDBRemoteJobPage } from '@/pages/remote-job/mariadb'
 import { ScriptDownloadPage } from '@/pages/downloads/scripts'
 
 const router = createBrowserRouter([
@@ -77,6 +78,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <CustomerListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.REMOTE_JOB.MARIADB,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <MariaDBRemoteJobPage />
         </MainLayout>
       </ProtectedRoute>
     ),
