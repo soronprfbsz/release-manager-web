@@ -49,7 +49,6 @@ build-job:
   artifacts:
     paths:
       - dist/
-      - node_modules/  # test 단계에서 재사용
     expire_in: 1 hour
 
 # ========================================
@@ -62,8 +61,12 @@ test:lint:
     - 17-runner
   only:
     - main
-  dependencies:
-    - build-job  # build-job의 artifacts(node_modules) 재사용
+  cache:
+    key: yarn-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .yarn-cache/
+      - node_modules/
+    policy: pull  # 캐시 읽기만 (쓰기 안함)
   script:
     - echo "🧪 Lint 실행 중..."
     - yarn lint
@@ -77,8 +80,12 @@ test:type-check:
     - 17-runner
   only:
     - main
-  dependencies:
-    - build-job  # build-job의 artifacts(node_modules) 재사용
+  cache:
+    key: yarn-${CI_COMMIT_REF_SLUG}
+    paths:
+      - .yarn-cache/
+      - node_modules/
+    policy: pull  # 캐시 읽기만 (쓰기 안함)
   script:
     - echo "🧪 타입 체크 실행 중..."
     - yarn type-check
