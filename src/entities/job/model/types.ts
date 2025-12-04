@@ -65,7 +65,27 @@ export interface MariaDBRestoreRequest {
   port: number
   username: string
   password: string
+  backupFileId: number
+}
+
+/**
+ * 로그 파일 정보
+ */
+export interface LogFile {
+  logFileName: string
+  logType: 'BACKUP' | 'RESTORE'
+  fileSize: number
+  fileSizeFormatted: string
+  lastModified: string
+}
+
+/**
+ * 백업 파일 로그 목록 응답
+ */
+export interface BackupFileLogsResponse {
+  backupFileId: number
   backupFileName: string
+  logFiles: LogFile[]
 }
 
 /**

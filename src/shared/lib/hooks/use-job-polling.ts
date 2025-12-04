@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react'
-import { useToast } from './use-toast'
+import { toast } from './use-toast'
 import { jobApi, type JobStatus } from '@/entities/job'
 
 /** 파일 크기 포맷팅 */
@@ -36,6 +36,7 @@ class JobPollingManager {
     intervalId: ReturnType<typeof setInterval>
     attempts: number
     options: JobPollingOptions
+    toastRef: { dismiss: () => void; update: (props: any) => void } | null
   }>()
   private listeners = new Set<() => void>()
 
@@ -58,8 +59,7 @@ class JobPollingManager {
 
   startPolling(
     jobId: string,
-    options: JobPollingOptions,
-    showToast: ReturnType<typeof useToast>['toast']
+    options: JobPollingOptions
   ) {
     if (this.activeJobs.has(jobId)) {
       return // 이미 polling 중
@@ -67,6 +67,13 @@ class JobPollingManager {
 
     const { interval = 3000, maxAttempts, jobType = '작업' } = options
     let attempts = 0
+
+    // 진행 중 toast 생성 (무한 지속)
+    const toastRef = toast({
+      title: `${jobType} 진행 중`,
+      description: `${jobType} 작업을 처리하고 있습니다...`,
+      duration: Infinity,
+    })
 
     const poll = async () => {
       attempts++
@@ -83,14 +90,18 @@ class JobPollingManager {
           this.stopPolling(jobId)
           const fileSizeStr = status.fileSize ? ` (${formatFileSize(status.fileSize)})` : ''
           const fileNameStr = status.fileName ? `${status.fileName}${fileSizeStr}` : ''
-          showToast({
+
+          // 완료 toast 표시
+          toast({
             title: `${jobType} 완료`,
             description: fileNameStr || status.message || `${jobType}이 성공적으로 완료되었습니다.`,
           })
           options.onComplete?.(status)
         } else if (status.status === 'FAILED') {
           this.stopPolling(jobId)
-          showToast({
+
+          // 실패 toast 표시
+          toast({
             title: `${jobType} 실패`,
             description: status.errorMessage || `${jobType} 중 오류가 발생했습니다.`,
             variant: 'destructive',
@@ -98,7 +109,8 @@ class JobPollingManager {
           options.onFailed?.(status)
         } else if (maxAttempts && attempts >= maxAttempts) {
           this.stopPolling(jobId)
-          showToast({
+
+          toast({
             title: `${jobType} 상태 확인 중단`,
             description: '최대 시도 횟수를 초과했습니다. 작업은 백그라운드에서 계속 진행됩니다.',
             variant: 'destructive',
@@ -115,7 +127,7 @@ class JobPollingManager {
     poll()
 
     const intervalId = setInterval(poll, interval)
-    this.activeJobs.set(jobId, { intervalId, attempts, options })
+    this.activeJobs.set(jobId, { intervalId, attempts, options, toastRef })
     this.notify()
   }
 
@@ -123,6 +135,8 @@ class JobPollingManager {
     const job = this.activeJobs.get(jobId)
     if (job) {
       clearInterval(job.intervalId)
+      // 진행 중 toast 닫기
+      job.toastRef?.dismiss()
       this.activeJobs.delete(jobId)
       this.notify()
     }
@@ -131,6 +145,7 @@ class JobPollingManager {
   stopAll() {
     this.activeJobs.forEach((job) => {
       clearInterval(job.intervalId)
+      job.toastRef?.dismiss()
     })
     this.activeJobs.clear()
     this.notify()
@@ -143,19 +158,18 @@ export const jobPollingManager = new JobPollingManager()
  * Job 상태 polling 훅
  * - 비동기 작업(백업/복원) 완료 여부를 주기적으로 확인
  * - 페이지 이동해도 polling 유지 (전역 상태)
+ * - 진행 중 toast가 유지되고, 완료/실패 시 결과 toast로 교체
  */
 export function useJobPolling(options: JobPollingOptions = {}) {
-  const { toast } = useToast()
   const optionsRef = useRef(options)
   optionsRef.current = options
 
   const startPolling = useCallback((jobId: string, jobType: '백업' | '복원' = '백업') => {
     jobPollingManager.startPolling(
       jobId,
-      { ...optionsRef.current, jobType },
-      toast
+      { ...optionsRef.current, jobType }
     )
-  }, [toast])
+  }, [])
 
   const stopPolling = useCallback((jobId: string) => {
     jobPollingManager.stopPolling(jobId)

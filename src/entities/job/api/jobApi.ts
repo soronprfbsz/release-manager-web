@@ -2,6 +2,7 @@ import { apiClient } from '@/shared/api/client'
 import type {
   BackupFile,
   BackupFileSearchParams,
+  BackupFileLogsResponse,
   JobStatus,
   MariaDBBackupRequest,
   MariaDBRestoreRequest,
@@ -19,6 +20,10 @@ const ENDPOINTS = {
   backupFiles: '/api/jobs/backup-files',
   backupFileDownload: (id: number) => `/api/jobs/backup-files/${id}/download`,
   backupFileDelete: (id: number) => `/api/jobs/backup-files/${id}`,
+  // 로그 관리
+  backupFileLogs: (id: number) => `/api/jobs/backup-files/${id}/logs`,
+  backupFileLogDownload: (id: number, logFileName: string) =>
+    `/api/jobs/backup-files/${id}/logs/download?logFileName=${encodeURIComponent(logFileName)}`,
 } as const
 
 export const jobApi = {
@@ -83,6 +88,31 @@ export const jobApi = {
     const response = await apiClient.getAxiosInstance().get(ENDPOINTS.backupFileDownload(id), {
       responseType: 'text',
     })
+    return { content: response.data }
+  },
+
+  /** 백업 파일 로그 목록 조회 */
+  getBackupFileLogs: async (id: number): Promise<BackupFileLogsResponse> => {
+    const response = await apiClient.get<BackupFileLogsResponse>(ENDPOINTS.backupFileLogs(id))
+    return response
+  },
+
+  /** 로그 파일 다운로드 */
+  downloadLogFile: async (backupFileId: number, logFileName: string): Promise<void> => {
+    const link = document.createElement('a')
+    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.backupFileLogDownload(backupFileId, logFileName)}`
+    link.download = logFileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  },
+
+  /** 로그 파일 내용 조회 */
+  getLogFileContent: async (backupFileId: number, logFileName: string): Promise<{ content: string }> => {
+    const response = await apiClient.getAxiosInstance().get(
+      ENDPOINTS.backupFileLogDownload(backupFileId, logFileName),
+      { responseType: 'text' }
+    )
     return { content: response.data }
   },
 }

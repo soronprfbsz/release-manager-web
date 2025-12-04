@@ -42,16 +42,12 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
   const [port, setPort] = useState('3306')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [backupFileName, setBackupFileName] = useState('')
+  const [selectedBackupFileId, setSelectedBackupFileId] = useState<string>('')
 
   const restoreMutation = useMutation({
     mutationFn: (request: MariaDBRestoreRequest) => jobApi.restoreMariaDB(request),
     onSuccess: (data) => {
-      toast({
-        title: '복원 작업 시작',
-        description: '복원이 진행 중입니다. 완료 시 알림을 받게 됩니다.',
-      })
-      // job 상태 polling 시작
+      // job 상태 polling 시작 (진행 중 toast 자동 표시)
       startPolling(data.jobId, '복원')
       handleClose()
     },
@@ -69,14 +65,14 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
     setPort('3306')
     setUsername('')
     setPassword('')
-    setBackupFileName('')
+    setSelectedBackupFileId('')
     onOpenChange(false)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!host.trim() || !username.trim() || !password.trim() || !backupFileName) {
+    if (!host.trim() || !username.trim() || !password.trim() || !selectedBackupFileId) {
       toast({
         title: '입력 오류',
         description: '모든 필수 항목을 입력해주세요.',
@@ -90,7 +86,7 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
       port: parseInt(port),
       username,
       password,
-      backupFileName,
+      backupFileId: parseInt(selectedBackupFileId),
     }
 
     restoreMutation.mutate(request)
@@ -116,10 +112,10 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 백업 파일 선택 */}
             <div className="space-y-2">
-              <Label htmlFor="backupFileName" required>백업 파일</Label>
+              <Label htmlFor="backupFileId" required>백업 파일</Label>
               <Select
-                value={backupFileName}
-                onValueChange={setBackupFileName}
+                value={selectedBackupFileId}
+                onValueChange={setSelectedBackupFileId}
                 disabled={mariadbFiles.length === 0}
               >
                 <SelectTrigger>
@@ -127,7 +123,7 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
                 </SelectTrigger>
                 <SelectContent>
                   {mariadbFiles.map((file) => (
-                    <SelectItem key={file.backupFileId} value={file.fileName}>
+                    <SelectItem key={file.backupFileId} value={file.backupFileId.toString()}>
                       {file.fileName}
                     </SelectItem>
                   ))}
@@ -207,7 +203,7 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               </Button>
               <Button
                 type="submit"
-                disabled={restoreMutation.isPending || !backupFileName}
+                disabled={restoreMutation.isPending || !selectedBackupFileId}
                 className="flex-1"
               >
                 {restoreMutation.isPending ? (

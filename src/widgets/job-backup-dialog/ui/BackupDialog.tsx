@@ -41,11 +41,7 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
   const backupMutation = useMutation({
     mutationFn: (request: MariaDBBackupRequest) => jobApi.backupMariaDB(request),
     onSuccess: (data) => {
-      toast({
-        title: '백업 작업 시작',
-        description: '백업이 진행 중입니다. 완료 시 알림을 받게 됩니다.',
-      })
-      // job 상태 polling 시작
+      // job 상태 polling 시작 (진행 중 toast 자동 표시)
       startPolling(data.jobId, '백업')
       handleClose()
     },

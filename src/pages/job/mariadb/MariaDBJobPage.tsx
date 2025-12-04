@@ -10,6 +10,7 @@ import {
   RotateCcw,
   HardDrive,
   User,
+  ScrollText,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -28,8 +29,9 @@ import { DataTable } from '@/shared/ui/data-table'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+import { Badge } from '@/shared/ui/badge'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { jobApi, type BackupFile } from '@/entities/job'
+import { jobApi, type BackupFile, type LogFile } from '@/entities/job'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { BackupDialog } from '@/widgets/job-backup-dialog'
 import { RestoreDialog } from '@/widgets/job-restore-dialog'
@@ -44,6 +46,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/shared/ui/dialog'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 
 function formatDateTime(dateStr: string | null | undefined): string {
   if (!dateStr) return '-'
@@ -71,6 +81,12 @@ export function MariaDBJobPage() {
   // 파일 내용 조회 상태
   const [contentViewerOpen, setContentViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<BackupFile | null>(null)
+
+  // 로그 조회 상태
+  const [logsDialogOpen, setLogsDialogOpen] = useState(false)
+  const [logsFile, setLogsFile] = useState<BackupFile | null>(null)
+  const [logViewerOpen, setLogViewerOpen] = useState(false)
+  const [selectedLog, setSelectedLog] = useState<{ backupFileId: number; logFileName: string; fileSize: number } | null>(null)
 
   // 페이징 상태
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 })
@@ -135,6 +151,26 @@ export function MariaDBJobPage() {
     setContentViewerOpen(true)
   }
 
+  const handleLogsClick = (file: BackupFile) => {
+    setLogsFile(file)
+    setLogsDialogOpen(true)
+  }
+
+  const handleLogFileClick = (log: LogFile) => {
+    if (!logsFile) return
+    setSelectedLog({
+      backupFileId: logsFile.backupFileId,
+      logFileName: log.logFileName,
+      fileSize: log.fileSize,
+    })
+    setLogViewerOpen(true)
+  }
+
+  const handleLogDownload = (log: LogFile) => {
+    if (!logsFile) return
+    jobApi.downloadLogFile(logsFile.backupFileId, log.logFileName)
+  }
+
   const handleSort = (key: string) => {
     setSort((current) => {
       if (current?.key === key) {
@@ -155,6 +191,20 @@ export function MariaDBJobPage() {
     queryKey: ['backup-file-content', selectedFile?.backupFileId],
     queryFn: () => jobApi.getBackupFileContent(selectedFile!.backupFileId),
     enabled: contentViewerOpen && selectedFile !== null,
+  })
+
+  // 로그 목록 조회
+  const { data: logsData, isLoading: isLoadingLogs, error: logsError } = useQuery({
+    queryKey: ['backup-file-logs', logsFile?.backupFileId],
+    queryFn: () => jobApi.getBackupFileLogs(logsFile!.backupFileId),
+    enabled: logsDialogOpen && logsFile !== null,
+  })
+
+  // 로그 파일 내용 조회
+  const { data: logContent, isLoading: isLoadingLogContent, error: logContentError } = useQuery({
+    queryKey: ['log-file-content', selectedLog?.backupFileId, selectedLog?.logFileName],
+    queryFn: () => jobApi.getLogFileContent(selectedLog!.backupFileId, selectedLog!.logFileName),
+    enabled: logViewerOpen && selectedLog !== null,
   })
 
   // 정렬된 백업 파일 목록 (클라이언트 사이드 정렬)
@@ -294,7 +344,7 @@ export function MariaDBJobPage() {
                       >
                         생성일시
                       </SortableTableHead>
-                      <TableHead className="w-24 text-center">작업</TableHead>
+                      <TableHead className="w-32 text-center">작업</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -337,6 +387,14 @@ export function MariaDBJobPage() {
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleLogsClick(file)}
+                              title="로그 조회"
+                            >
+                              <ScrollText className="h-4 w-4" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -430,6 +488,86 @@ export function MariaDBJobPage() {
         description="SQL 백업 파일 내용"
         fileSize={selectedFile?.fileSize}
         onDownload={selectedFile ? () => handleDownload(selectedFile) : undefined}
+      />
+
+      {/* 로그 목록 다이얼로그 */}
+      <Dialog open={logsDialogOpen} onOpenChange={setLogsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ScrollText className="h-5 w-5" />
+              로그 목록
+            </DialogTitle>
+            <DialogDescription>
+              {logsFile?.fileName}의 백업/복원 로그
+            </DialogDescription>
+          </DialogHeader>
+
+          <ScrollArea className="max-h-[400px]">
+            {isLoadingLogs ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+              </div>
+            ) : logsError ? (
+              <div className="text-center py-8 text-destructive">
+                로그 목록을 불러오는 중 오류가 발생했습니다.
+              </div>
+            ) : logsData?.logFiles && logsData.logFiles.length > 0 ? (
+              <div className="space-y-2">
+                {logsData.logFiles.map((log) => (
+                  <div
+                    key={log.logFileName}
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                  >
+                    <div
+                      className="flex items-center gap-3 flex-1 cursor-pointer"
+                      onClick={() => handleLogFileClick(log)}
+                    >
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate hover:text-primary transition-colors">
+                          {log.logFileName}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge variant={log.logType === 'BACKUP' ? 'default' : 'secondary'} className="text-xs">
+                            {log.logType === 'BACKUP' ? '백업' : '복원'}
+                          </Badge>
+                          <span>{log.fileSizeFormatted}</span>
+                          <span>{log.lastModified}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleLogDownload(log)}
+                      title="다운로드"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                로그 파일이 없습니다.
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* 로그 내용 조회 모달 */}
+      <FileContentViewerModal
+        open={logViewerOpen}
+        onOpenChange={setLogViewerOpen}
+        fileName={selectedLog?.logFileName || ''}
+        content={logContent?.content || null}
+        isLoading={isLoadingLogContent}
+        error={logContentError as Error | null}
+        description="로그 파일 내용"
+        fileSize={selectedLog?.fileSize}
+        onDownload={selectedLog ? () => jobApi.downloadLogFile(selectedLog.backupFileId, selectedLog.logFileName) : undefined}
       />
     </div>
   )
