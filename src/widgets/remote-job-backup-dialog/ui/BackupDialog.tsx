@@ -13,6 +13,7 @@ import { Button } from '@/shared/ui/button'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
 import { remoteJobApi, type MariaDBBackupRequest } from '@/entities/remote-job'
 
 interface BackupDialogProps {
@@ -23,6 +24,11 @@ interface BackupDialogProps {
 
 export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProps) {
   const { toast } = useToast()
+  const { startPolling } = useJobPolling({
+    onComplete: () => {
+      onSuccess() // 백업 목록 새로고침
+    },
+  })
 
   const [host, setHost] = useState('')
   const [port, setPort] = useState('3306')
@@ -36,10 +42,11 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
     onSuccess: (data) => {
       toast({
         title: '백업 작업 시작',
-        description: `작업 ID: ${data.jobId} - 백업이 진행 중입니다.`,
+        description: '백업이 진행 중입니다. 완료 시 알림을 받게 됩니다.',
       })
+      // job 상태 polling 시작
+      startPolling(data.jobId, '백업')
       handleClose()
-      onSuccess()
     },
     onError: (error: Error) => {
       toast({

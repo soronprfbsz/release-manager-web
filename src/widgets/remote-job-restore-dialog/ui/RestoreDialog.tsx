@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
 import { remoteJobApi, type MariaDBRestoreRequest } from '@/entities/remote-job'
 
 interface RestoreDialogProps {
@@ -30,6 +31,11 @@ interface RestoreDialogProps {
 
 export function RestoreDialog({ open, onOpenChange, onSuccess }: RestoreDialogProps) {
   const { toast } = useToast()
+  const { startPolling } = useJobPolling({
+    onComplete: () => {
+      onSuccess()
+    },
+  })
 
   const [host, setHost] = useState('')
   const [port, setPort] = useState('3306')
@@ -50,10 +56,11 @@ export function RestoreDialog({ open, onOpenChange, onSuccess }: RestoreDialogPr
     onSuccess: (data) => {
       toast({
         title: '복원 작업 시작',
-        description: `작업 ID: ${data.jobId} - 복원이 진행 중입니다.`,
+        description: '복원이 진행 중입니다. 완료 시 알림을 받게 됩니다.',
       })
+      // job 상태 polling 시작
+      startPolling(data.jobId, '복원')
       handleClose()
-      onSuccess()
     },
     onError: (error: Error) => {
       toast({

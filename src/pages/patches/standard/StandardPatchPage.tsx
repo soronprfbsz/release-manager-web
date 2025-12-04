@@ -19,7 +19,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { DataTable } from '@/shared/ui/data-table'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
@@ -107,6 +107,21 @@ export function StandardPatchPage() {
     pageIndex: 0,
     pageSize: 10,
   })
+  const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({
+    key: 'createdAt',
+    direction: 'desc',
+  })
+
+  const handleSort = (key: string) => {
+    setSort((current) => {
+      if (current?.key === key) {
+        return current.direction === 'asc'
+          ? { key, direction: 'desc' }
+          : null
+      }
+      return { key, direction: 'asc' }
+    })
+  }
 
   // 파일 탐색 다이얼로그 상태
   const [fileExplorerOpen, setFileExplorerOpen] = useState(false)
@@ -125,12 +140,12 @@ export function StandardPatchPage() {
 
   // 패치 목록 조회
   const { data: patchesData, isLoading, error, refetch } = useQuery({
-    queryKey: ['cumulative-patches', 'STANDARD', pagination],
+    queryKey: ['cumulative-patches', 'STANDARD', pagination, sort],
     queryFn: () => patchApi.getList({
       page: pagination.pageIndex,
       size: pagination.pageSize,
       releaseType: 'STANDARD',
-      sort: 'createdAt,desc',
+      sort: sort ? `${sort.key},${sort.direction}` : undefined,
     }),
   })
 
@@ -337,13 +352,48 @@ export function StandardPatchPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12 text-center">ID</TableHead>
-                      <TableHead className="w-48">패치명</TableHead>
+                      <SortableTableHead
+                        className="w-48"
+                        id="patchName"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        패치명
+                      </SortableTableHead>
                       <TableHead className="w-28">버전 범위</TableHead>
-                      <TableHead className="w-28">고객사</TableHead>
-                      <TableHead className="w-40">담당 엔지니어</TableHead>
-                      <TableHead className="w-44">생성자</TableHead>
+                      <SortableTableHead
+                        className="w-28"
+                        id="customerName"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        고객사
+                      </SortableTableHead>
+                      <SortableTableHead
+                        className="w-40"
+                        id="patchedBy"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        담당 엔지니어
+                      </SortableTableHead>
+                      <SortableTableHead
+                        className="w-44"
+                        id="createdBy"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        생성자
+                      </SortableTableHead>
                       <TableHead className="w-40">설명</TableHead>
-                      <TableHead className="w-40">생성일시</TableHead>
+                      <SortableTableHead
+                        className="w-40"
+                        id="createdAt"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        생성일시
+                      </SortableTableHead>
                       <TableHead className="w-20 text-center">작업</TableHead>
                     </TableRow>
                   </TableHeader>

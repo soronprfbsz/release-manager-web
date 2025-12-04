@@ -12,12 +12,14 @@ export interface BackupFile {
 
 export interface JobStatus {
   jobId: string
-  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED'
-  progress?: number
-  message?: string
-  startTime?: string
-  endTime?: string
-  errorMessage?: string
+  status: 'RUNNING' | 'SUCCESS' | 'FAILED'
+  startTime: string | null
+  endTime: string | null
+  message: string | null
+  fileName: string | null
+  fileSize: number | null
+  logFile: string | null
+  errorMessage: string | null
 }
 
 export interface MariaDBBackupRequest {
