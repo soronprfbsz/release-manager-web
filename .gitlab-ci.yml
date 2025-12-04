@@ -28,7 +28,7 @@ stages:
 # ========================================
 build-job:
   stage: build
-  image: node:20-alpine
+  image: node:24-alpine
   tags:
     - 17-runner
   only:
@@ -57,7 +57,7 @@ build-job:
 # ========================================
 test:lint:
   stage: test
-  image: node:20-alpine
+  image: node:24-alpine
   tags:
     - 17-runner
   only:
@@ -72,7 +72,7 @@ test:lint:
 
 test:type-check:
   stage: test
-  image: node:20-alpine
+  image: node:24-alpine
   tags:
     - 17-runner
   only:
