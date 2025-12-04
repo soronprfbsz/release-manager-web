@@ -5,7 +5,6 @@ import type {
   MariaDBBackupRequest,
   MariaDBRestoreRequest,
   AsyncJobResponse,
-  BackupListResponse,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -13,6 +12,7 @@ const ENDPOINTS = {
   mariadbBackupAsync: '/api/remote/mariadb-backup/async',
   backupList: '/api/remote/mariadb-backup/list',
   backupDownload: (fileName: string) => `/api/remote/mariadb-backup/download/${encodeURIComponent(fileName)}`,
+  backupContent: (fileName: string) => `/api/remote/mariadb-backup/content/${encodeURIComponent(fileName)}`,
   jobStatus: (jobId: string) => `/api/remote/job-status/${encodeURIComponent(jobId)}`,
   backupDelete: (fileName: string) => `/api/remote/mariadb-backup/${encodeURIComponent(fileName)}`,
 } as const
@@ -32,11 +32,8 @@ export const remoteJobApi = {
 
   /** 백업 파일 목록 조회 */
   getBackupList: async (): Promise<BackupFile[]> => {
-    const response = await apiClient.get<BackupListResponse | BackupFile[]>(ENDPOINTS.backupList)
-    if (Array.isArray(response)) {
-      return response
-    }
-    return response?.files || []
+    const response = await apiClient.get<BackupFile[]>(ENDPOINTS.backupList)
+    return response || []
   },
 
   /** 백업 파일 다운로드 */
@@ -58,5 +55,11 @@ export const remoteJobApi = {
   /** 백업 파일 삭제 */
   deleteBackup: async (fileName: string): Promise<void> => {
     await apiClient.delete(ENDPOINTS.backupDelete(fileName))
+  },
+
+  /** 백업 파일 내용 조회 */
+  getBackupContent: async (fileName: string): Promise<{ content: string }> => {
+    const response = await apiClient.get<{ content: string }>(ENDPOINTS.backupContent(fileName))
+    return response
   },
 }

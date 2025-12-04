@@ -5,5 +5,4 @@ export type {
   MariaDBBackupRequest,
   MariaDBRestoreRequest,
   AsyncJobResponse,
-  BackupListResponse,
 } from './model/types'

@@ -23,7 +23,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { DataTable } from '@/shared/ui/data-table'
 import { TypographyMuted } from '@/shared/ui/typography'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -31,6 +31,7 @@ import { remoteJobApi, type BackupFile } from '@/entities/remote-job'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { BackupDialog } from '@/widgets/remote-job-backup-dialog'
 import { RestoreDialog } from '@/widgets/remote-job-restore-dialog'
+import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,6 +73,16 @@ export function MariaDBRemoteJobPage() {
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<BackupFile | null>(null)
+
+  // 파일 내용 조회 상태
+  const [contentViewerOpen, setContentViewerOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+
+  // 정렬 상태
+  const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({
+    key: 'createdAt',
+    direction: 'desc',
+  })
 
   // 백업 파일 목록 조회
   const { data: backupFiles, isLoading, error, refetch } = useQuery({
@@ -115,7 +126,47 @@ export function MariaDBRemoteJobPage() {
     }
   }
 
-  const backupList = backupFiles || []
+  const handleFileClick = (file: BackupFile) => {
+    setSelectedFile(file.fileName)
+    setContentViewerOpen(true)
+  }
+
+  const handleSort = (key: string) => {
+    setSort((current) => {
+      if (current?.key === key) {
+        return current.direction === 'asc'
+          ? { key, direction: 'desc' }
+          : null
+      }
+      return { key, direction: 'asc' }
+    })
+  }
+
+  // 파일 내용 조회
+  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
+    queryKey: ['backup-file-content', selectedFile],
+    queryFn: () => remoteJobApi.getBackupContent(selectedFile!),
+    enabled: contentViewerOpen && selectedFile !== null,
+  })
+
+  // 정렬된 백업 파일 목록
+  const sortedBackupList = [...(backupFiles || [])].sort((a, b) => {
+    if (!sort) return 0
+    const { key, direction } = sort
+    let comparison = 0
+
+    if (key === 'fileName') {
+      comparison = a.fileName.localeCompare(b.fileName)
+    } else if (key === 'fileSizeBytes') {
+      comparison = a.fileSizeBytes - b.fileSizeBytes
+    } else if (key === 'createdAt') {
+      comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    }
+
+    return direction === 'asc' ? comparison : -comparison
+  })
+
+  const backupList = sortedBackupList
 
   return (
     <div className="space-y-6">
@@ -191,9 +242,30 @@ export function MariaDBRemoteJobPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-64">파일명</TableHead>
-                    <TableHead className="w-32">파일 크기</TableHead>
-                    <TableHead className="w-56">생성일시</TableHead>
+                    <SortableTableHead
+                      className="w-64"
+                      id="fileName"
+                      currentSort={sort}
+                      onSort={handleSort}
+                    >
+                      파일명
+                    </SortableTableHead>
+                    <SortableTableHead
+                      className="w-32"
+                      id="fileSizeBytes"
+                      currentSort={sort}
+                      onSort={handleSort}
+                    >
+                      파일 크기
+                    </SortableTableHead>
+                    <SortableTableHead
+                      className="w-56"
+                      id="createdAt"
+                      currentSort={sort}
+                      onSort={handleSort}
+                    >
+                      생성일시
+                    </SortableTableHead>
                     <TableHead className="w-24 text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -201,7 +273,10 @@ export function MariaDBRemoteJobPage() {
                   {backupList.map((file) => (
                     <TableRow key={file.fileName}>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => handleFileClick(file)}
+                        >
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <span className="font-mono text-sm">{file.fileName}</span>
                         </div>
@@ -288,6 +363,17 @@ export function MariaDBRemoteJobPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* 파일 내용 조회 모달 */}
+      <FileContentViewerModal
+        open={contentViewerOpen}
+        onOpenChange={setContentViewerOpen}
+        fileName={selectedFile || ''}
+        content={fileContent?.content || null}
+        isLoading={isLoadingContent}
+        error={contentError as Error | null}
+        description="SQL 백업 파일 내용"
+      />
     </div>
   )
 }

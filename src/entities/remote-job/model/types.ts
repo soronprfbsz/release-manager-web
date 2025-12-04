@@ -44,8 +44,3 @@ export interface AsyncJobResponse {
   jobId: string
   message: string
 }
-
-export interface BackupListResponse {
-  files?: BackupFile[]
-  totalCount?: number
-}
