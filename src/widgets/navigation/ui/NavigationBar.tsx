@@ -31,8 +31,10 @@ export function NavigationBar() {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    // 대시보드 데이터 새로고침
+    // 대시보드 데이터 새로고침 (recent, top-customers, monthly)
     queryClient.invalidateQueries({ queryKey: ['dashboard-recent'] })
+    queryClient.invalidateQueries({ queryKey: ['dashboard-top-customers'] })
+    queryClient.invalidateQueries({ queryKey: ['dashboard-monthly-patches'] })
     // 이미 홈이면 네비게이션 스킵, 아니면 홈으로 이동
     if (location.pathname !== ROUTES.HOME) {
       navigate(ROUTES.HOME)
