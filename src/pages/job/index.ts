@@ -1,0 +1,1 @@
+export { MariaDBJobPage } from './mariadb'

@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react'
 import { useToast } from './use-toast'
-import { remoteJobApi, type JobStatus } from '@/entities/remote-job'
+import { jobApi, type JobStatus } from '@/entities/job'
 
 /** 파일 크기 포맷팅 */
 function formatFileSize(bytes: number | null): string {
@@ -72,7 +72,11 @@ class JobPollingManager {
       attempts++
 
       try {
-        const status = await remoteJobApi.getJobStatus(jobId)
+        // jobId에 따라 적절한 API 호출
+        const isBackupJob = jobId.startsWith('backup_')
+        const status = isBackupJob
+          ? await jobApi.getBackupJobStatus(jobId)
+          : await jobApi.getRestoreJobStatus(jobId)
         options.onStatusChange?.(status)
 
         if (status.status === 'SUCCESS') {

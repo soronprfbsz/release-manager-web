@@ -24,8 +24,8 @@ export const ROUTES = {
   CUSTOMERS: {
     LIST: '/customers',
   },
-  REMOTE_JOB: {
-    MARIADB: '/remote-job/mariadb',
+  JOBS: {
+    MARIADB: '/jobs/mariadb',
   },
   RESOURCES: {
     SCRIPTS: '/resources/scripts',

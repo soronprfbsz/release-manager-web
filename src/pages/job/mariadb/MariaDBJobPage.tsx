@@ -10,6 +10,8 @@ import {
   Upload,
   RotateCcw,
   HardDrive,
+  User,
+  Tag,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -25,12 +27,14 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { DataTable } from '@/shared/ui/data-table'
-import { TypographyMuted } from '@/shared/ui/typography'
+import { TruncatedCell } from '@/shared/ui/truncated-cell'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+import { Badge } from '@/shared/ui/badge'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { remoteJobApi, type BackupFile } from '@/entities/remote-job'
+import { jobApi, type BackupFile } from '@/entities/job'
 import { ErrorDisplay } from '@/shared/ui/error-display'
-import { BackupDialog } from '@/widgets/remote-job-backup-dialog'
-import { RestoreDialog } from '@/widgets/remote-job-restore-dialog'
+import { BackupDialog } from '@/widgets/job-backup-dialog'
+import { RestoreDialog } from '@/widgets/job-restore-dialog'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import {
   AlertDialog,
@@ -56,15 +60,7 @@ function formatDateTime(dateStr: string | null | undefined): string {
   })
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
-}
-
-export function MariaDBRemoteJobPage() {
+export function MariaDBJobPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -76,7 +72,7 @@ export function MariaDBRemoteJobPage() {
 
   // 파일 내용 조회 상태
   const [contentViewerOpen, setContentViewerOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<BackupFile | null>(null)
 
   // 정렬 상태
   const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({
@@ -85,20 +81,22 @@ export function MariaDBRemoteJobPage() {
   })
 
   // 백업 파일 목록 조회
-  const { data: backupFiles, isLoading, error, refetch } = useQuery({
-    queryKey: ['remote-job-backup-files'],
-    queryFn: remoteJobApi.getBackupList,
+  const { data: backupFilesResponse, isLoading, error, refetch } = useQuery({
+    queryKey: ['job-backup-files'],
+    queryFn: () => jobApi.getBackupFiles({ size: 100 }),
   })
+
+  const backupFiles = backupFilesResponse?.content || []
 
   // 백업 파일 삭제 뮤테이션
   const deleteMutation = useMutation({
-    mutationFn: (fileName: string) => remoteJobApi.deleteBackup(fileName),
+    mutationFn: (id: number) => jobApi.deleteBackupFile(id),
     onSuccess: () => {
       toast({
         title: '백업 파일 삭제 완료',
         description: `${fileToDelete?.fileName} 파일이 삭제되었습니다.`,
       })
-      queryClient.invalidateQueries({ queryKey: ['remote-job-backup-files'] })
+      queryClient.invalidateQueries({ queryKey: ['job-backup-files'] })
       setDeleteDialogOpen(false)
       setFileToDelete(null)
     },
@@ -112,7 +110,7 @@ export function MariaDBRemoteJobPage() {
   })
 
   const handleDownload = (file: BackupFile) => {
-    remoteJobApi.downloadBackup(file.fileName)
+    jobApi.downloadBackupFile(file.backupFileId, file.fileName)
   }
 
   const handleDeleteClick = (file: BackupFile) => {
@@ -122,12 +120,12 @@ export function MariaDBRemoteJobPage() {
 
   const handleDeleteConfirm = () => {
     if (fileToDelete) {
-      deleteMutation.mutate(fileToDelete.fileName)
+      deleteMutation.mutate(fileToDelete.backupFileId)
     }
   }
 
   const handleFileClick = (file: BackupFile) => {
-    setSelectedFile(file.fileName)
+    setSelectedFile(file)
     setContentViewerOpen(true)
   }
 
@@ -144,23 +142,27 @@ export function MariaDBRemoteJobPage() {
 
   // 파일 내용 조회
   const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
-    queryKey: ['backup-file-content', selectedFile],
-    queryFn: () => remoteJobApi.getBackupContent(selectedFile!),
+    queryKey: ['backup-file-content', selectedFile?.backupFileId],
+    queryFn: () => jobApi.getBackupFileContent(selectedFile!.backupFileId),
     enabled: contentViewerOpen && selectedFile !== null,
   })
 
   // 정렬된 백업 파일 목록
-  const sortedBackupList = [...(backupFiles || [])].sort((a, b) => {
+  const sortedBackupList = [...backupFiles].sort((a, b) => {
     if (!sort) return 0
     const { key, direction } = sort
     let comparison = 0
 
     if (key === 'fileName') {
       comparison = a.fileName.localeCompare(b.fileName)
-    } else if (key === 'fileSizeBytes') {
-      comparison = a.fileSizeBytes - b.fileSizeBytes
+    } else if (key === 'fileSize') {
+      comparison = a.fileSize - b.fileSize
+    } else if (key === 'fileCategory') {
+      comparison = a.fileCategory.localeCompare(b.fileCategory)
     } else if (key === 'createdAt') {
       comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    } else if (key === 'createdBy') {
+      comparison = a.createdBy.localeCompare(b.createdBy)
     }
 
     return direction === 'asc' ? comparison : -comparison
@@ -180,7 +182,7 @@ export function MariaDBRemoteJobPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>원격 작업 관리</BreadcrumbPage>
+            <BreadcrumbPage>작업 관리</BreadcrumbPage>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -192,8 +194,8 @@ export function MariaDBRemoteJobPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Database className="h-5 w-5 text-primary" />}
-        title="MariaDB 원격 작업"
-        description="원격 MariaDB 백업 및 복원 작업을 수행합니다."
+        title="MariaDB 작업"
+        description="MariaDB 백업 및 복원 작업을 수행합니다."
         actions={
           <>
             <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
@@ -221,7 +223,7 @@ export function MariaDBRemoteJobPage() {
             </div>
             {backupList.length > 0 && (
               <TypographyMuted>
-                총 {backupList.length}개
+                총 {backupFilesResponse?.totalElements || backupList.length}개
               </TypographyMuted>
             )}
           </CardTitle>
@@ -243,7 +245,6 @@ export function MariaDBRemoteJobPage() {
                 <TableHeader>
                   <TableRow>
                     <SortableTableHead
-                      className="w-64"
                       id="fileName"
                       currentSort={sort}
                       onSort={handleSort}
@@ -251,44 +252,78 @@ export function MariaDBRemoteJobPage() {
                       파일명
                     </SortableTableHead>
                     <SortableTableHead
-                      className="w-32"
-                      id="fileSizeBytes"
+                      id="fileCategory"
                       currentSort={sort}
                       onSort={handleSort}
+                      className="w-28"
+                    >
+                      카테고리
+                    </SortableTableHead>
+                    <SortableTableHead
+                      id="fileSize"
+                      currentSort={sort}
+                      onSort={handleSort}
+                      className="w-24"
                     >
                       파일 크기
                     </SortableTableHead>
                     <SortableTableHead
-                      className="w-56"
+                      id="createdBy"
+                      currentSort={sort}
+                      onSort={handleSort}
+                      className="w-36"
+                    >
+                      생성자
+                    </SortableTableHead>
+                    <SortableTableHead
                       id="createdAt"
                       currentSort={sort}
                       onSort={handleSort}
+                      className="w-44"
                     >
                       생성일시
                     </SortableTableHead>
-                    <TableHead className="w-24 text-center">작업</TableHead>
+                    <TableHead className="w-20 text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {backupList.map((file) => (
-                    <TableRow key={file.fileName}>
+                    <TableRow key={file.backupFileId}>
                       <TableCell>
                         <div
                           className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
                           onClick={() => handleFileClick(file)}
                         >
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-mono text-sm">{file.fileName}</span>
+                          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <TypographyInlineCode className="bg-transparent">{file.fileName}</TypographyInlineCode>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <TypographyMuted>{formatFileSize(file.fileSizeBytes)}</TypographyMuted>
+                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                          <Tag className="h-3 w-3" />
+                          {file.fileCategory}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        <TypographyMuted className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {formatDateTime(file.createdAt)}
-                        </TypographyMuted>
+                        <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
+                      </TableCell>
+                      <TableCell>
+                        <TruncatedCell
+                          tooltipText={file.createdBy}
+                          className="flex items-center gap-1 text-muted-foreground"
+                        >
+                          <User className="h-3 w-3 flex-shrink-0" />
+                          <span className="text-sm truncate">{file.createdBy}</span>
+                        </TruncatedCell>
+                      </TableCell>
+                      <TableCell>
+                        <TruncatedCell
+                          tooltipText={formatDateTime(file.createdAt)}
+                          className="flex items-center gap-1 text-muted-foreground"
+                        >
+                          <Calendar className="h-3 w-3 flex-shrink-0" />
+                          <span className="text-sm">{formatDateTime(file.createdAt)}</span>
+                        </TruncatedCell>
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-0">
@@ -337,6 +372,7 @@ export function MariaDBRemoteJobPage() {
       <RestoreDialog
         open={restoreDialogOpen}
         onOpenChange={setRestoreDialogOpen}
+        backupFiles={backupFiles}
         onSuccess={() => refetch()}
       />
 
@@ -368,7 +404,7 @@ export function MariaDBRemoteJobPage() {
       <FileContentViewerModal
         open={contentViewerOpen}
         onOpenChange={setContentViewerOpen}
-        fileName={selectedFile || ''}
+        fileName={selectedFile?.fileName || ''}
         content={fileContent?.content || null}
         isLoading={isLoadingContent}
         error={contentError as Error | null}

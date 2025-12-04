@@ -38,11 +38,11 @@ export const menuItems: MenuItem[] = [
     path: ROUTES.CUSTOMERS.LIST,
   },
   {
-    label: '원격 작업 관리',
+    label: '작업 관리',
     children: [
       {
         label: 'MariaDB 백업 및 복원',
-        path: ROUTES.REMOTE_JOB.MARIADB,
+        path: ROUTES.JOBS.MARIADB,
       },
     ],
   },

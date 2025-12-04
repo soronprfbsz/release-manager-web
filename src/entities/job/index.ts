@@ -1,8 +1,9 @@
-export { remoteJobApi } from './api/remoteJobApi'
+export { jobApi } from './api/jobApi'
 export type {
   BackupFile,
+  BackupFileSearchParams,
   JobStatus,
   MariaDBBackupRequest,
   MariaDBRestoreRequest,
-  AsyncJobResponse,
+  PageResponse,
 } from './model/types'
