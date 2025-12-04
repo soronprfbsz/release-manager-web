@@ -42,11 +42,14 @@ build-job:
   script:
     - echo "📦 프로젝트 빌드 시작..."
     - npm ci --cache .npm --prefer-offline
+    # Vite 환경변수 설정 (GitLab CI Variables에서 주입)
+    - echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
     - npm run build
     - echo "✅ 빌드 완료"
   artifacts:
     paths:
       - dist/
+      - node_modules/  # test 단계에서 재사용
     expire_in: 1 hour
 
 # ========================================
@@ -59,15 +62,10 @@ test:lint:
     - 17-runner
   only:
     - main
-  cache:
-    key: npm-${CI_COMMIT_REF_SLUG}
-    paths:
-      - .npm/
-      - node_modules/
-    policy: pull
+  dependencies:
+    - build-job  # build-job의 artifacts(node_modules) 재사용
   script:
     - echo "🧪 Lint 실행 중..."
-    - npm ci --cache .npm --prefer-offline
     - npm run lint
     - echo "✅ Lint 완료"
   when: manual
@@ -79,15 +77,10 @@ test:type-check:
     - 17-runner
   only:
     - main
-  cache:
-    key: npm-${CI_COMMIT_REF_SLUG}
-    paths:
-      - .npm/
-      - node_modules/
-    policy: pull
+  dependencies:
+    - build-job  # build-job의 artifacts(node_modules) 재사용
   script:
     - echo "🧪 타입 체크 실행 중..."
-    - npm ci --cache .npm --prefer-offline
     - npm run type-check
     - echo "✅ 타입 체크 완료"
   when: manual
@@ -120,15 +113,11 @@ docker-build-job:
       fi
 
       echo "❌ Harbor에 이미지 없음 → 빌드 시작..."
+      # Dockerfile.ci는 이미 빌드된 dist/를 복사만 함 (node 빌드 없음)
       docker build \
         -f docker/Dockerfile.ci \
         -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} \
-        --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} \
-        --build-arg VITE_APP_TITLE="${VITE_APP_TITLE:-Release Manager}" \
-        --build-arg BUILDKIT_INLINE_CACHE=1 \
-        --cache-from ${DOCKER_IMAGE_NAME}:latest \
         --progress=plain \
-        --force-rm \
         .
 
       echo "✅ 이미지 빌드 완료: ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
