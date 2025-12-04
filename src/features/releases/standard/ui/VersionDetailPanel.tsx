@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
-import { SqlViewerModal } from '@/widgets/sql-viewer-modal'
+import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -140,8 +140,8 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
 }
 
 export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProps) {
-  const [sqlViewerOpen, setSqlViewerOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<{ id: number; name: string } | null>(null)
+  const [fileViewerOpen, setFileViewerOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<{ id: number; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { toast } = useToast()
 
@@ -183,8 +183,21 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
       '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
-      setSelectedFile({ id: node.releaseFileId, name: node.name })
-      setSqlViewerOpen(true)
+      setSelectedFile({ id: node.releaseFileId, name: node.name, size: node.size ?? undefined })
+      setFileViewerOpen(true)
+    }
+  }
+
+  // 파일 내용 조회
+  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
+    queryKey: ['release-file-content', selectedFile?.id],
+    queryFn: () => releaseApi.getFileContent(selectedFile!.id),
+    enabled: fileViewerOpen && selectedFile !== null,
+  })
+
+  const handleDownloadSelectedFile = () => {
+    if (selectedFile) {
+      releaseApi.downloadFile(selectedFile.id, selectedFile.name)
     }
   }
 
@@ -328,12 +341,17 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
           </Card>
         )}
 
-        {/* SQL Viewer Modal */}
-        <SqlViewerModal
-          open={sqlViewerOpen}
-          onOpenChange={setSqlViewerOpen}
-          fileId={selectedFile?.id || null}
+        {/* File Content Viewer Modal */}
+        <FileContentViewerModal
+          open={fileViewerOpen}
+          onOpenChange={setFileViewerOpen}
           fileName={selectedFile?.name || ''}
+          content={fileContent || null}
+          isLoading={isLoadingContent}
+          error={contentError as Error | null}
+          description="파일 내용"
+          fileSize={selectedFile?.size}
+          onDownload={handleDownloadSelectedFile}
         />
       </div>
 

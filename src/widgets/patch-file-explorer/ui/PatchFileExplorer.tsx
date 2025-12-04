@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted } from '@/shared/ui/typography'
-import { PatchSqlViewerModal } from '@/widgets/patch-sql-viewer'
+import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 
 interface PatchFileExplorerProps {
   open: boolean
@@ -108,13 +108,20 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
 }
 
 export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: PatchFileExplorerProps) {
-  const [sqlViewerOpen, setSqlViewerOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<{ path: string; name: string } | null>(null)
+  const [fileViewerOpen, setFileViewerOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<{ path: string; name: string; size?: number } | null>(null)
 
   const { data: fileStructure, isLoading, error } = useQuery({
     queryKey: ['patch-file-structure', patchId],
     queryFn: () => patchApi.getFileStructure(patchId!),
     enabled: open && patchId !== null,
+  })
+
+  // 파일 내용 조회
+  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useQuery({
+    queryKey: ['patch-file-content', patchId, selectedFile?.path],
+    queryFn: () => patchApi.getFileContent(patchId!, selectedFile!.path),
+    enabled: fileViewerOpen && patchId !== null && selectedFile !== null,
   })
 
   const handleDownload = () => {
@@ -124,8 +131,15 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
   }
 
   const handleFileClick = (node: PatchFileNode) => {
-    setSelectedFile({ path: node.path, name: node.name })
-    setSqlViewerOpen(true)
+    setSelectedFile({ path: node.path, name: node.name, size: node.size })
+    setFileViewerOpen(true)
+  }
+
+  const handleDownloadFile = () => {
+    if (!patchId || !selectedFile) return
+    // 개별 파일 다운로드는 전체 패치 다운로드로 대체
+    const fileName = `${patchName}.zip`
+    patchApi.download(patchId, fileName)
   }
 
   const hasContent = fileStructure?.root?.children && fileStructure.root.children.length > 0
@@ -196,12 +210,16 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
         </DialogContent>
       </Dialog>
 
-      <PatchSqlViewerModal
-        open={sqlViewerOpen}
-        onOpenChange={setSqlViewerOpen}
-        patchId={patchId}
-        filePath={selectedFile?.path || null}
+      <FileContentViewerModal
+        open={fileViewerOpen}
+        onOpenChange={setFileViewerOpen}
         fileName={selectedFile?.name || ''}
+        content={fileContentData?.content || null}
+        isLoading={isLoadingContent}
+        error={contentError as Error | null}
+        description="파일 내용"
+        fileSize={selectedFile?.size}
+        onDownload={handleDownloadFile}
       />
     </>
   )

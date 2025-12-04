@@ -428,6 +428,8 @@ export function MariaDBJobPage() {
         isLoading={isLoadingContent}
         error={contentError as Error | null}
         description="SQL 백업 파일 내용"
+        fileSize={selectedFile?.fileSize}
+        onDownload={selectedFile ? () => handleDownload(selectedFile) : undefined}
       />
     </div>
   )
