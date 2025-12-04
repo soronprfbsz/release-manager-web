@@ -34,7 +34,10 @@ build-job:
   only:
     - main
   cache:
-    key: yarn-${CI_COMMIT_REF_SLUG}
+    key:
+      files:
+        - yarn.lock
+      prefix: yarn-${CI_COMMIT_REF_SLUG}
     paths:
       - .yarn-cache/
       - node_modules/
@@ -62,7 +65,10 @@ test:lint:
   only:
     - main
   cache:
-    key: yarn-${CI_COMMIT_REF_SLUG}
+    key:
+      files:
+        - yarn.lock
+      prefix: yarn-${CI_COMMIT_REF_SLUG}
     paths:
       - .yarn-cache/
       - node_modules/
@@ -81,7 +87,10 @@ test:type-check:
   only:
     - main
   cache:
-    key: yarn-${CI_COMMIT_REF_SLUG}
+    key:
+      files:
+        - yarn.lock
+      prefix: yarn-${CI_COMMIT_REF_SLUG}
     paths:
       - .yarn-cache/
       - node_modules/
