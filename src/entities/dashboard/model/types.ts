@@ -64,3 +64,9 @@ export interface StatisticsParams {
   months?: number
   topN?: number
 }
+
+/** 최근 데이터 요청 파라미터 */
+export interface RecentDataParams {
+  versionLimit?: number
+  patchLimit?: number
+}

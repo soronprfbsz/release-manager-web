@@ -3,7 +3,8 @@ import type {
   DashboardRecentData,
   TopCustomersResponse,
   MonthlyPatchesResponse,
-  StatisticsParams
+  StatisticsParams,
+  RecentDataParams
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -14,8 +15,10 @@ const ENDPOINTS = {
 
 export const dashboardApi = {
   /** 최근 데이터 조회 (최신 설치본, 최근 버전, 최근 패치) */
-  getRecent: async (): Promise<DashboardRecentData> => {
-    const response = await apiClient.get<DashboardRecentData>(ENDPOINTS.recent)
+  getRecent: async (params?: RecentDataParams): Promise<DashboardRecentData> => {
+    const response = await apiClient.get<DashboardRecentData>(ENDPOINTS.recent, {
+      params: { versionLimit: params?.versionLimit, patchLimit: params?.patchLimit },
+    })
     return response
   },
 

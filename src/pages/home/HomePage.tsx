@@ -34,7 +34,7 @@ function formatDate(dateStr: string | null | undefined): string {
 export function HomePage() {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-recent'],
-    queryFn: dashboardApi.getRecent,
+    queryFn: () => dashboardApi.getRecent(),
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
     staleTime: 0,
