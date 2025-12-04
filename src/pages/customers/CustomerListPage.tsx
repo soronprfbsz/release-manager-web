@@ -488,15 +488,19 @@ export function CustomerListPage() {
                   className="min-h-[80px]"
                 />
               </div>
-              <div className="flex items-center gap-3">
-                <Label>활성 상태</Label>
+
+              {/* 활성 상태 토글 */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium">활성화</Label>
+                  <p className="text-xs text-muted-foreground">
+                    비활성화 시 관리 대상에서 제외됩니다.
+                  </p>
+                </div>
                 <Switch
                   checked={formData.isActive}
                   onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                 />
-                <TypographyMuted>
-                  {formData.isActive ? '활성' : '비활성'}
-                </TypographyMuted>
               </div>
 
               {/* 버튼 */}
