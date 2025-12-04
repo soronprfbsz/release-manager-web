@@ -69,8 +69,8 @@ export function HomePage() {
   // 월별 데이터 - 고객사 목록과 포맷팅된 데이터
   const monthlyCustomers = monthlyPatchesData?.customers || []
   const formattedMonthlyData = (monthlyPatchesData?.monthly || []).map(item => ({
-    ...item,
     displayMonth: item.yearMonth.slice(2).replace('-', '.'),
+    ...item.customerCounts,  // customerCounts를 최상위로 평탄화
   }))
 
   return (
@@ -79,148 +79,148 @@ export function HomePage() {
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
         <div className="grid grid-cols-3 gap-4">
-        {/* Latest Install Version */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              최신 설치본
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="animate-pulse h-16 bg-muted rounded" />
-            ) : latestInstall ? (
-              <Link
-                to={ROUTES.RELEASES.STANDARD}
-                state={{ selectedVersionId: latestInstall.releaseVersionId }}
-                className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
-                    {latestInstall.fileCategories && latestInstall.fileCategories.length > 0 && (
-                      <>
-                        {latestInstall.fileCategories.map((category) => (
-                          <Badge
-                            key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                            className="text-xs px-1.5 py-0.5"
-                          >
-                            {getCategoryShortName(category)}
-                          </Badge>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                </div>
-                <div className="flex items-center gap-4 mt-2">
-                  <TypographyMuted className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    {latestInstall.createdBy}
-                  </TypographyMuted>
-                  <TypographyMuted className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(latestInstall.createdAt)}
-                  </TypographyMuted>
-                </div>
-              </Link>
-            ) : (
-              <TypographyMuted>설치본이 없습니다.</TypographyMuted>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Releases */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Clock className="h-4 w-4 text-blue-500" />
-              최신 릴리즈 버전
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="animate-pulse space-y-2">
-                {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
-              </div>
-            ) : recentVersions.length > 0 ? (
-              <div className="space-y-2">
-                {recentVersions.map((version) => (
-                  <Link
-                    key={version.releaseVersionId}
-                    to={ROUTES.RELEASES.STANDARD}
-                    state={{ selectedVersionId: version.releaseVersionId }}
-                    className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
-                      {version.fileCategories && version.fileCategories.length > 0 && (
-                        <div className="flex gap-1 flex-shrink-0">
-                          {version.fileCategories.map((category) => (
+          {/* Latest Install Version */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                최신 설치본
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="animate-pulse h-16 bg-muted rounded" />
+              ) : latestInstall ? (
+                <Link
+                  to={ROUTES.RELEASES.STANDARD}
+                  state={{ selectedVersionId: latestInstall.releaseVersionId }}
+                  className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
+                      {latestInstall.fileCategories && latestInstall.fileCategories.length > 0 && (
+                        <>
+                          {latestInstall.fileCategories.map((category) => (
                             <Badge
                               key={category}
                               variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                              className="text-[10px] px-1 py-0 h-4 leading-none"
+                              className="text-xs px-1.5 py-0.5"
                             >
                               {getCategoryShortName(category)}
                             </Badge>
                           ))}
-                        </div>
+                        </>
                       )}
                     </div>
-                    <TypographyMuted className="text-xs flex-shrink-0">{formatDate(version.createdAt)}</TypographyMuted>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
-            )}
-          </CardContent>
-        </Card>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <TypographyMuted className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {latestInstall.createdBy}
+                    </TypographyMuted>
+                    <TypographyMuted className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {formatDate(latestInstall.createdAt)}
+                    </TypographyMuted>
+                  </div>
+                </Link>
+              ) : (
+                <TypographyMuted>설치본이 없습니다.</TypographyMuted>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Recent Patches */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Layers className="h-4 w-4 text-green-500" />
-              최근 생성 패치
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="animate-pulse space-y-2">
-                {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
-              </div>
-            ) : recentPatches.length > 0 ? (
-              <div className="space-y-2">
-                {recentPatches.map((patch) => (
-                  <Link
-                    key={patch.patchId}
-                    to={ROUTES.PATCHES.STANDARD}
-                    className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <TypographyInlineCode className="bg-transparent truncate">
-                        {patch.patchName}
-                      </TypographyInlineCode>
-                      <span className="text-xs text-muted-foreground flex-shrink-0">
-                        ({patch.fromVersion} → {patch.toVersion})
-                      </span>
-                      <Badge variant="outline" className="text-xs flex-shrink-0">
-                        {patch.releaseType === 'STANDARD' ? '표준' : '커스텀'}
-                      </Badge>
-                    </div>
-                    <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
-            )}
-          </CardContent>
-        </Card>
+          {/* Recent Releases */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-500" />
+                최신 릴리즈 버전
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="animate-pulse space-y-2">
+                  {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
+                </div>
+              ) : recentVersions.length > 0 ? (
+                <div className="space-y-2">
+                  {recentVersions.map((version) => (
+                    <Link
+                      key={version.releaseVersionId}
+                      to={ROUTES.RELEASES.STANDARD}
+                      state={{ selectedVersionId: version.releaseVersionId }}
+                      className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
+                        {version.fileCategories && version.fileCategories.length > 0 && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            {version.fileCategories.map((category) => (
+                              <Badge
+                                key={category}
+                                variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                className="text-[10px] px-1 py-0 h-4 leading-none"
+                              >
+                                {getCategoryShortName(category)}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <TypographyMuted className="text-xs flex-shrink-0">{formatDate(version.createdAt)}</TypographyMuted>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Patches */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Layers className="h-4 w-4 text-green-500" />
+                최근 생성 패치
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="animate-pulse space-y-2">
+                  {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
+                </div>
+              ) : recentPatches.length > 0 ? (
+                <div className="space-y-2">
+                  {recentPatches.map((patch) => (
+                    <Link
+                      key={patch.patchId}
+                      to={ROUTES.PATCHES.STANDARD}
+                      className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <TypographyInlineCode className="bg-transparent truncate">
+                          {patch.patchName}
+                        </TypographyInlineCode>
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
+                          ({patch.fromVersion} → {patch.toVersion})
+                        </span>
+                        <Badge variant="outline" className="text-xs flex-shrink-0">
+                          {patch.releaseType === 'STANDARD' ? '표준' : '커스텀'}
+                        </Badge>
+                      </div>
+                      <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -256,12 +256,12 @@ export function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 월별 패치 생성 추이 (Line Chart) */}
+          {/* 월별 패치 생성 현황 (Line Chart) */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
-                월별 패치 생성 추이
+                월별 패치 생성 현황
               </CardTitle>
               <CardDescription>최근 {monthlyPatchesData?.months || 6}개월</CardDescription>
             </CardHeader>
