@@ -311,15 +311,15 @@
     --input: 220 16% 36%;
     --ring: 193 43% 67%;
     --chart-1: 193 43% 67%;
-    /* Cyan */
-    --chart-2: 179 25% 65%;
-    /* Blue */
-    --chart-3: 354 42% 56%;
-    /* Red */
+    /* Cyan #88c0d0 */
+    --chart-2: 311 30% 63%;
+    /* Purple #b48ead */
+    --chart-3: 92 28% 65%;
+    /* Green #a3be8c */
     --chart-4: 28 38% 63%;
     /* Orange #d08770 */
-    --chart-5: 92 28% 65%;
-    /* Green #a3be8c */
+    --chart-5: 354 42% 56%;
+    /* Red #bf616a */
     --header-bg: 220 16% 28%;
   }
 
