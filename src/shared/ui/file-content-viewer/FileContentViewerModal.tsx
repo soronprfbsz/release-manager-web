@@ -165,20 +165,7 @@ export function FileContentViewerModal({
               </span>
             )}
           </DialogDescription>
-        </DialogHeader>
-
-        {/* 큰 파일 경고 */}
-        {isTruncated && (
-          <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
-            <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
-            <span className="text-yellow-600 dark:text-yellow-500">
-              파일이 큽니다 ({formatFileSize(contentSize)}). 처음 {PREVIEW_LINES}줄만 표시됩니다. 전체 내용은 다운로드하여 확인하세요.
-            </span>
-          </div>
-        )}
-
-        <div className="relative flex-1 min-h-0">
-          <div className="absolute -top-10 right-0 flex items-center gap-1 z-10">
+          <div className="absolute top-0 right-10 flex items-center gap-1">
             {onDownload && (
               <Button
                 variant="ghost"
@@ -205,6 +192,19 @@ export function FileContentViewerModal({
               )}
             </Button>
           </div>
+        </DialogHeader>
+
+        {/* 큰 파일 경고 */}
+        {isTruncated && (
+          <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
+            <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
+            <span className="text-yellow-600 dark:text-yellow-500">
+              파일이 큽니다 ({formatFileSize(contentSize)}). 처음 {PREVIEW_LINES}줄만 표시됩니다. 전체 내용은 다운로드하여 확인하세요.
+            </span>
+          </div>
+        )}
+
+        <div className="relative flex-1 min-h-0">
 
           <ScrollArea className="h-[55vh] w-full rounded-md border">
             <div className="min-w-max">
@@ -248,21 +248,8 @@ export function FileContentViewerModal({
 
           {/* 더 보기 안내 */}
           {isTruncated && (
-            <div className="mt-3 flex flex-col items-center gap-2">
-              <div className="text-sm text-muted-foreground">
-                {displayedLines.toLocaleString()} / {totalLines.toLocaleString()} 줄 표시 중
-              </div>
-              {onDownload && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={onDownload}
-                  className="gap-1"
-                >
-                  <Download className="h-4 w-4" />
-                  파일 다운로드
-                </Button>
-              )}
+            <div className="mt-3 text-center text-sm text-muted-foreground">
+              {displayedLines.toLocaleString()} / {totalLines.toLocaleString()} 줄 표시 중
             </div>
           )}
         </div>
