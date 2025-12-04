@@ -30,3 +30,36 @@ export interface DashboardRecentData {
   recentVersions: RecentVersion[]
   recentPatches: RecentPatch[]
 }
+
+/** 고객사별 패치 통계 아이템 */
+export interface CustomerPatchStat {
+  customerId: number
+  customerCode: string
+  customerName: string
+  patchCount: number
+}
+
+/** 고객사별 패치 통계 응답 */
+export interface TopCustomersResponse {
+  months: number
+  topN: number
+  customers: CustomerPatchStat[]
+}
+
+/** 월별 패치 통계 아이템 */
+export interface MonthlyPatchStat {
+  yearMonth: string // "2025-06" 형식
+  patchCount: number
+}
+
+/** 월별 패치 통계 응답 */
+export interface MonthlyPatchesResponse {
+  months: number
+  monthly: MonthlyPatchStat[]
+}
+
+/** 통계 요청 파라미터 */
+export interface StatisticsParams {
+  months?: number
+  topN?: number
+}

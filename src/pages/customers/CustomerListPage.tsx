@@ -460,7 +460,7 @@ export function CustomerListPage() {
           <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label>고객사 코드 *</Label>
+                <Label required>고객사 코드</Label>
                 <Input
                   value={formData.customerCode}
                   onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
@@ -472,7 +472,7 @@ export function CustomerListPage() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label>고객사명 *</Label>
+                <Label required>고객사명</Label>
                 <Input
                   value={formData.customerName}
                   onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
@@ -480,7 +480,7 @@ export function CustomerListPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>설명 (선택)</Label>
+                <Label>설명</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}

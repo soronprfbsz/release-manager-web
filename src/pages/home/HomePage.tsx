@@ -9,8 +9,20 @@ import {
   Clock,
   CheckCircle,
   Building2,
-  Download
+  TrendingUp
 } from 'lucide-react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  LineChart,
+  Line,
+} from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Badge } from '@/shared/ui/badge'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
@@ -18,39 +30,13 @@ import { ROUTES } from '@/shared/config/constants'
 import { dashboardApi } from '@/entities/dashboard'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 
-const features = [
-  {
-    icon: Package,
-    title: '버전관리',
-    description: '표준 릴리즈 버전을 트리 구조로 관리하고 파일을 다운로드합니다.',
-    href: ROUTES.RELEASES.STANDARD,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-  },
-  {
-    icon: Layers,
-    title: '패치관리',
-    description: '표준 버전 간 누적 패치를 생성하고 관리합니다.',
-    href: ROUTES.PATCHES.STANDARD,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-  },
-  {
-    icon: Building2,
-    title: '고객사 관리',
-    description: '고객사 정보를 등록하고 관리합니다.',
-    href: ROUTES.CUSTOMERS.LIST,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
-  },
-  {
-    icon: Download,
-    title: '리소스 관리',
-    description: 'DB 백업/복원 스크립트를 다운로드합니다.',
-    href: ROUTES.RESOURCES.SCRIPTS,
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10',
-  },
+// 차트 색상
+const CHART_COLORS = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
 ]
 
 function formatDate(dateStr: string | null | undefined): string {
@@ -68,13 +54,37 @@ export function HomePage() {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-recent'],
     queryFn: dashboardApi.getRecent,
-    refetchOnWindowFocus: true, // 페이지에 포커스 시 자동 갱신
-    refetchOnMount: true, // 컴포넌트 마운트 시 자동 갱신
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  })
+
+  // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
+  const { data: topCustomersData, isLoading: isLoadingTopCustomers } = useQuery({
+    queryKey: ['dashboard-top-customers'],
+    queryFn: () => dashboardApi.getTopCustomers(),
+    refetchOnWindowFocus: true,
+  })
+
+  const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useQuery({
+    queryKey: ['dashboard-monthly-patches'],
+    queryFn: () => dashboardApi.getMonthlyPatches(),
+    refetchOnWindowFocus: true,
   })
 
   const latestInstall = dashboardData?.latestInstall
   const recentVersions = dashboardData?.recentVersions || []
   const recentPatches = dashboardData?.recentPatches || []
+
+  // 통계 데이터 추출
+  const topCustomers = topCustomersData?.customers || []
+  const statisticsMonths = topCustomersData?.months || 6
+  const topN = topCustomersData?.topN || 5
+
+  // 월별 데이터 포맷팅 (YY.MM 형식)
+  const formattedMonthlyData = (monthlyPatchesData?.monthly || []).map(item => ({
+    ...item,
+    displayMonth: item.yearMonth.slice(2).replace('-', '.'),
+  }))
 
   return (
     <div className="space-y-6">
@@ -227,30 +237,108 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Feature Cards */}
+      {/* Statistics */}
       <div>
-        <TypographyLarge className="mb-3">Feature</TypographyLarge>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {features.map((feature) => (
-            <Link key={feature.title} to={feature.href}>
-              <Card className="h-full transition-colors hover:border-primary/50">
-                <CardHeader className="pb-3">
-                  <div className={`w-10 h-10 rounded-lg ${feature.bgColor} flex items-center justify-center mb-2`}>
-                    <feature.icon className={`h-5 w-5 ${feature.color}`} />
-                  </div>
-                  <CardTitle className="text-base flex items-center justify-between">
-                    {feature.title}
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+        <TypographyLarge className="mb-3">Statistics</TypographyLarge>
+        <div className="grid grid-cols-2 gap-4">
+          {/* 고객사별 패치 통계 (Bar Chart) */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-purple-500" />
+                고객사별 패치 현황
+              </CardTitle>
+              <CardDescription>최근 {statisticsMonths}개월 Top {topN}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTopCustomers ? (
+                <div className="animate-pulse h-[200px] bg-muted rounded" />
+              ) : topCustomers && topCustomers.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart
+                    data={topCustomers}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                    <XAxis type="number" allowDecimals={false} fontSize={12} />
+                    <YAxis
+                      type="category"
+                      dataKey="customerName"
+                      width={100}
+                      fontSize={12}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [`${value}건`, '패치 수']}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px',
+                      }}
+                    />
+                    <Bar dataKey="patchCount" radius={[0, 4, 4, 0]}>
+                      {topCustomers.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center">
+                  <TypographyMuted>데이터가 없습니다.</TypographyMuted>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 월별 패치 생성 추이 (Line Chart) */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-blue-500" />
+                월별 패치 생성 추이
+              </CardTitle>
+              <CardDescription>최근 {monthlyPatchesData?.months || 6}개월</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingMonthly ? (
+                <div className="animate-pulse h-[200px] bg-muted rounded" />
+              ) : formattedMonthlyData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart
+                    data={formattedMonthlyData}
+                    margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="displayMonth" fontSize={12} tickLine={false} />
+                    <YAxis allowDecimals={false} fontSize={12} tickLine={false} />
+                    <Tooltip
+                      formatter={(value: number) => [`${value}건`, '패치 수']}
+                      labelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px',
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="patchCount"
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-1))', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center">
+                  <TypographyMuted>데이터가 없습니다.</TypographyMuted>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
