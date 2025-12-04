@@ -181,7 +181,6 @@ harbor-push-job:
       fi
   after_script:
     - docker logout $HARBOR_REGISTRY || true
-  when: manual
 
 # ========================================
 # 배포 단계

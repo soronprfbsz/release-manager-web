@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Package } from 'lucide-react'
 import {
   NavigationMenu,
@@ -20,10 +21,22 @@ import { cn } from '@/shared/lib/utils'
 export function NavigationBar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const queryClient = useQueryClient()
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    // 대시보드 데이터 새로고침
+    queryClient.invalidateQueries({ queryKey: ['dashboard-recent'] })
+    // 이미 홈이면 네비게이션 스킵, 아니면 홈으로 이동
+    if (location.pathname !== ROUTES.HOME) {
+      navigate(ROUTES.HOME)
+    }
   }
 
   return (
@@ -31,10 +44,14 @@ export function NavigationBar() {
       <div className="flex h-16 items-center px-12">
         {/* 좌측: 로고 */}
         <div className="flex-1">
-          <Link to={ROUTES.HOME} className="flex items-center gap-2 w-fit group">
+          <a
+            href={ROUTES.HOME}
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 w-fit group cursor-pointer"
+          >
             <Package className="h-6 w-6 group-hover:animate-spin-slow" />
             <span className="font-bold text-lg">Release Manager</span>
-          </Link>
+          </a>
         </div>
 
         {/* 센터: 메뉴 */}
