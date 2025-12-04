@@ -14,6 +14,7 @@ import {
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 import { Button } from '@/shared/ui/button'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { copyToClipboard } from '@/shared/lib/utils/clipboard'
 
 interface PatchSqlViewerModalProps {
   open: boolean
@@ -57,15 +58,15 @@ export function PatchSqlViewerModal({
   const handleCopy = async () => {
     if (!fileContent?.content) return
 
-    try {
-      await navigator.clipboard.writeText(fileContent.content)
+    const success = await copyToClipboard(fileContent.content)
+    if (success) {
       setCopied(true)
       toast({
         title: '복사 완료',
         description: '파일 내용이 클립보드에 복사되었습니다.',
       })
       setTimeout(() => setCopied(false), 2000)
-    } catch (error) {
+    } else {
       toast({
         title: '복사 실패',
         description: '클립보드 복사 중 오류가 발생했습니다.',
