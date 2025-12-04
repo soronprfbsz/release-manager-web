@@ -14,8 +14,8 @@ variables:
   # Harbor Registry 설정
   HARBOR_IMAGE_NAME: "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${SERVER_NAME}"
 
-  # Node 캐시 설정
-  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  # Yarn 캐시 설정
+  YARN_CACHE_FOLDER: "$CI_PROJECT_DIR/.yarn-cache"
 
 stages:
   - build
@@ -34,17 +34,17 @@ build-job:
   only:
     - main
   cache:
-    key: npm-${CI_COMMIT_REF_SLUG}
+    key: yarn-${CI_COMMIT_REF_SLUG}
     paths:
-      - .npm/
+      - .yarn-cache/
       - node_modules/
     policy: pull-push
   script:
     - echo "📦 프로젝트 빌드 시작..."
-    - npm ci --cache .npm --prefer-offline
+    - yarn install --frozen-lockfile --cache-folder .yarn-cache
     # Vite 환경변수 설정 (GitLab CI Variables에서 주입)
     - echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
-    - npm run build
+    - yarn build
     - echo "✅ 빌드 완료"
   artifacts:
     paths:
@@ -66,7 +66,7 @@ test:lint:
     - build-job  # build-job의 artifacts(node_modules) 재사용
   script:
     - echo "🧪 Lint 실행 중..."
-    - npm run lint
+    - yarn lint
     - echo "✅ Lint 완료"
   when: manual
 
@@ -81,7 +81,7 @@ test:type-check:
     - build-job  # build-job의 artifacts(node_modules) 재사용
   script:
     - echo "🧪 타입 체크 실행 중..."
-    - npm run type-check
+    - yarn type-check
     - echo "✅ 타입 체크 완료"
   when: manual
 

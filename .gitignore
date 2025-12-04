@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Package manager lock files (using yarn)
+package-lock.json
+
+# Yarn cache
+.yarn-cache/
+
 # TypeScript
 *.tsbuildinfo
 
