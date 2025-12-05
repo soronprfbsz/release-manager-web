@@ -87,7 +87,7 @@ export function PatchTable({
             </SortableTableHead>
             <SortableTableHead
               className="w-40"
-              id="patchedBy"
+              id="engineerName"
               currentSort={sort}
               onSort={onSort}
             >
@@ -154,13 +154,13 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                {patch.patchedBy ? (
+                {patch.engineerName ? (
                   <TruncatedCell
-                    tooltipText={patch.patchedBy}
+                    tooltipText={patch.engineerName}
                     className="flex items-center gap-1 text-sm"
                   >
                     <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                    <span>{patch.patchedBy}</span>
+                    <span>{patch.engineerName}</span>
                   </TruncatedCell>
                 ) : (
                   <TypographyMuted className="text-sm">-</TypographyMuted>

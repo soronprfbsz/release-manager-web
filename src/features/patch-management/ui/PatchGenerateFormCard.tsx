@@ -6,10 +6,10 @@
 import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
 
 import type { Customer } from '@/entities/customer'
+import type { Engineer } from '@/entities/engineer'
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import {
   Select,
@@ -30,6 +30,7 @@ interface PatchGenerateFormCardProps {
   formData: PatchCreateFormData
   versions: string[]
   customers: Customer[]
+  engineers: Engineer[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onReleaseTypeChange: (type: ReleaseType) => void
@@ -42,6 +43,7 @@ export function PatchGenerateFormCard({
   formData,
   versions,
   customers,
+  engineers,
   isVersionsLoading,
   isSubmitting,
   onReleaseTypeChange,
@@ -176,13 +178,27 @@ export function PatchGenerateFormCard({
         {/* Assigned Engineer */}
         <div className="space-y-2">
           <Label>담당 엔지니어</Label>
-          <Input
-            value={formData.assignedEngineer}
-            onChange={(e) =>
-              onFormDataChange({ ...formData, assignedEngineer: e.target.value })
+          <Select
+            value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+            onValueChange={(value) =>
+              onFormDataChange({
+                ...formData,
+                engineerId: value === '__none__' ? null : Number(value),
+              })
             }
-            placeholder="패치 담당 엔지니어 이름을 입력하세요"
-          />
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="선택 안함" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">선택 안함</SelectItem>
+              {engineers.map((e) => (
+                <SelectItem key={e.engineerId} value={String(e.engineerId)}>
+                  {e.engineerName} ({e.departmentName || '부서 없음'})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Description */}

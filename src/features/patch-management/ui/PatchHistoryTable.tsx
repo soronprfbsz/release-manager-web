@@ -66,7 +66,8 @@ export function PatchHistoryTable({
               <TableHead className="w-48">버전 범위</TableHead>
               <TableHead className="w-24 text-center">릴리즈</TableHead>
               <TableHead className="w-32">생성자</TableHead>
-              <TableHead className="w-56">생성일시</TableHead>
+              <TableHead className="w-32">담당 엔지니어</TableHead>
+              <TableHead className="w-48">생성일시</TableHead>
               <TableHead className="w-20 text-center">다운로드</TableHead>
             </TableRow>
           </TableHeader>
@@ -105,6 +106,16 @@ export function PatchHistoryTable({
                     <User className="h-3 w-3 text-muted-foreground" />
                     {patch.createdBy}
                   </div>
+                </TableCell>
+                <TableCell>
+                  {patch.engineerName ? (
+                    <div className="flex items-center gap-1 text-sm">
+                      <User className="h-3 w-3 text-muted-foreground" />
+                      {patch.engineerName}
+                    </div>
+                  ) : (
+                    <TypographyMuted>-</TypographyMuted>
+                  )}
                 </TableCell>
                 <TableCell>
                   <TypographyMuted className="flex items-center gap-1">

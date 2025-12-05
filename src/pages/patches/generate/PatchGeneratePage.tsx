@@ -20,6 +20,7 @@ import {
 } from '@/features/patch-management'
 
 import { customerApi } from '@/entities/customer'
+import { engineerApi } from '@/entities/engineer'
 import { patchApi, type CumulativePatchGenerateRequest } from '@/entities/patch'
 import { releaseApi, type VersionNode } from '@/entities/release'
 
@@ -38,7 +39,7 @@ const INITIAL_FORM_DATA: PatchCreateFormData = {
   fromVersion: '',
   toVersion: '',
   customerCode: '',
-  assignedEngineer: '',
+  engineerId: null,
   description: '',
 }
 
@@ -85,6 +86,11 @@ export function PatchGeneratePage() {
     queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
   })
 
+  const { data: engineers } = useQuery({
+    queryKey: ['engineers-all'],
+    queryFn: () => engineerApi.getList({ size: 1000 }),
+  })
+
   const versions = getVersionsFromTree(treeData)
 
   // Mutations
@@ -126,7 +132,7 @@ export function PatchGeneratePage() {
       fromVersion: formData.fromVersion,
       toVersion: formData.toVersion,
       createdBy: user?.email || '',
-      patchedBy: formData.assignedEngineer || undefined,
+      engineerId: formData.engineerId || undefined,
       description: formData.description || undefined,
     }
 
@@ -168,6 +174,7 @@ export function PatchGeneratePage() {
           formData={formData}
           versions={versions}
           customers={customers?.content || []}
+          engineers={engineers?.content || []}
           isVersionsLoading={isTreeLoading}
           isSubmitting={generateMutation.isPending}
           onReleaseTypeChange={setReleaseType}
@@ -179,6 +186,7 @@ export function PatchGeneratePage() {
           releaseType={releaseType}
           formData={formData}
           customers={customers?.content || []}
+          engineers={engineers?.content || []}
           userEmail={user?.email}
         />
       </div>

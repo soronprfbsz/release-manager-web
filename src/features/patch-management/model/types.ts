@@ -7,7 +7,7 @@ export interface PatchCreateFormData {
   fromVersion: string
   toVersion: string
   customerCode: string
-  assignedEngineer: string
+  engineerId: number | null
   description: string
 }
 

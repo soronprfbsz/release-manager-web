@@ -13,7 +13,8 @@ export interface CumulativePatch {
   patchName: string
   createdBy: string
   description: string | null
-  patchedBy: string | null
+  engineerId: number | null
+  engineerName: string | null
   createdAt: string
 }
 
@@ -28,7 +29,8 @@ export interface CumulativePatchDetail {
   outputPath: string
   createdBy: string
   description: string | null
-  patchedBy: string | null
+  engineerId: number | null
+  engineerName: string | null
   createdAt: string
   updatedAt: string
 }
@@ -39,7 +41,7 @@ export interface CumulativePatchGenerateRequest {
   fromVersion: string
   toVersion: string
   createdBy: string
-  patchedBy?: string
+  engineerId?: number
   description?: string
   patchName?: string
 }

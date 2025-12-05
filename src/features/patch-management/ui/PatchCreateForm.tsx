@@ -6,9 +6,9 @@
 import { ArrowRight, Layers, Loader2 } from 'lucide-react'
 
 import type { Customer } from '@/entities/customer'
+import type { Engineer } from '@/entities/engineer'
 
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
@@ -35,6 +35,7 @@ interface PatchCreateFormProps {
   formData: PatchCreateFormData
   versions: string[]
   customers: Customer[]
+  engineers: Engineer[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onFormDataChange: (data: PatchCreateFormData) => void
@@ -47,6 +48,7 @@ export function PatchCreateForm({
   formData,
   versions,
   customers,
+  engineers,
   isVersionsLoading,
   isSubmitting,
   onFormDataChange,
@@ -159,13 +161,27 @@ export function PatchCreateForm({
             {/* 담당 엔지니어 */}
             <div className="space-y-2">
               <Label>담당 엔지니어</Label>
-              <Input
-                value={formData.assignedEngineer}
-                onChange={(e) =>
-                  onFormDataChange({ ...formData, assignedEngineer: e.target.value })
+              <Select
+                value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+                onValueChange={(value) =>
+                  onFormDataChange({
+                    ...formData,
+                    engineerId: value === '__none__' ? null : Number(value),
+                  })
                 }
-                placeholder="패치 담당 엔지니어 이름"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="선택 안함" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">선택 안함</SelectItem>
+                  {engineers.map((e) => (
+                    <SelectItem key={e.engineerId} value={String(e.engineerId)}>
+                      {e.engineerName} ({e.departmentName || '부서 없음'})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* 설명 */}
