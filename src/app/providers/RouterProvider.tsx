@@ -9,7 +9,8 @@ import { StandardReleasePage } from '@/pages/releases/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomPatchPage } from '@/pages/patches/custom'
-import { CustomerListPage } from '@/pages/customers'
+import { CustomerListPage } from '@/pages/operations/customers'
+import { EngineerListPage } from '@/pages/operations/engineers'
 import { MariaDBJobPage } from '@/pages/job'
 import { ScriptDownloadPage } from '@/pages/downloads/scripts'
 
@@ -73,11 +74,21 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.CUSTOMERS.LIST,
+    path: ROUTES.OPERATIONS.CUSTOMERS,
     element: (
       <ProtectedRoute>
         <MainLayout>
           <CustomerListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.OPERATIONS.ENGINEERS,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <EngineerListPage />
         </MainLayout>
       </ProtectedRoute>
     ),

@@ -34,8 +34,17 @@ export const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: '고객사 관리',
-    path: ROUTES.CUSTOMERS.LIST,
+    label: '운영 관리',
+    children: [
+      {
+        label: '고객사',
+        path: ROUTES.OPERATIONS.CUSTOMERS,
+      },
+      {
+        label: '엔지니어',
+        path: ROUTES.OPERATIONS.ENGINEERS,
+      },
+    ],
   },
   {
     label: '작업 관리',

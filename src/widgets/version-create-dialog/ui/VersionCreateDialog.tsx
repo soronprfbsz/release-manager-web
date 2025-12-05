@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Upload, X, FileArchive, Info } from 'lucide-react'
+import { Upload, X, FileArchive, Info, Loader2, Package } from 'lucide-react'
 import { releaseApi } from '@/entities/release'
 import { codeApi, CODE_TYPE } from '@/entities/code'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/ui/dialog'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -228,17 +228,20 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>버전 생성</DialogTitle>
-            <DialogDescription>
-              새로운 릴리즈 버전을 생성합니다.
-            </DialogDescription>
-          </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-[500px] sm:max-w-[500px]">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            버전 생성
+          </SheetTitle>
+          <SheetDescription>
+            새로운 릴리즈 버전을 생성합니다.
+          </SheetDescription>
+        </SheetHeader>
 
-          <div className="grid gap-4 py-4">
+        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* 파일 구조 안내 - 호버 시 표시 */}
             <div className="flex items-center gap-2">
               <Popover>
@@ -309,7 +312,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
               </Popover>
             </div>
 
-            <div className="grid gap-2">
+            <div className="space-y-2">
               <Label htmlFor="version" required>
                 버전
               </Label>
@@ -322,7 +325,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
               />
             </div>
 
-            <div className="grid gap-2">
+            <div className="space-y-2">
               <Label htmlFor="releaseCategory" required>
                 릴리즈 타입
               </Label>
@@ -343,7 +346,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
               </Select>
             </div>
 
-            <div className="grid gap-2">
+            <div className="space-y-2">
               <Label htmlFor="comment" required>
                 코멘트
               </Label>
@@ -357,7 +360,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
               />
             </div>
 
-            <div className="grid gap-2">
+            <div className="space-y-2">
               <Label htmlFor="patchFiles" required>
                 버전 파일
               </Label>
@@ -429,18 +432,39 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                 </div>
               )}
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={createMutation.isPending}>
-              취소
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? '생성 중...' : '생성'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            {/* 버튼 */}
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={createMutation.isPending}
+                className="flex-1"
+              >
+                취소
+              </Button>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending}
+                className="flex-1"
+              >
+                {createMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    생성 중...
+                  </>
+                ) : (
+                  <>
+                    <Package className="h-4 w-4 mr-2" />
+                    생성
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   )
 }

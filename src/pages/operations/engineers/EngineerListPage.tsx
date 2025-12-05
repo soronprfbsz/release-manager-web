@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Building2,
+  Users,
   Plus,
   Search,
   Edit2,
@@ -9,13 +9,13 @@ import {
   RefreshCw,
   Loader2,
   MoreHorizontal,
-  Power,
-  PowerOff
+  Mail,
+  Phone,
+  Building
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
-import { Badge } from '@/shared/ui/badge'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
@@ -28,14 +28,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
-import { Switch } from '@/shared/ui/switch'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -54,7 +46,7 @@ import {
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
 import { DataTable } from '@/shared/ui/data-table'
-import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+import { TypographyMuted } from '@/shared/ui/typography'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,8 +55,9 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { customerApi, type Customer, type CustomerCreateRequest, type CustomerUpdateRequest } from '@/entities/customer'
-
+import { formatPhoneNumber } from '@/shared/lib/utils/phone'
+import { PhoneInput } from '@/shared/ui/phone-input'
+import { engineerApi, type Engineer, type EngineerCreateRequest, type EngineerUpdateRequest } from '@/entities/engineer'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 
 function formatDateTime(dateStr: string | null | undefined): string {
@@ -85,35 +78,33 @@ interface PaginationState {
   pageSize: number
 }
 
-export function CustomerListPage() {
+export function EngineerListPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterActive, setFilterActive] = useState<string>('all')
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
   const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
   const [modalMode, setModalMode] = useState<ModalMode>(null)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [editingEngineer, setEditingEngineer] = useState<Engineer | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
-    customerCode: '',
-    customerName: '',
+    engineerName: '',
+    engineerEmail: '',
+    engineerPhone: '',
+    department: '',
     description: '',
-    isActive: true,
   })
 
-  const { data: customerData, isLoading, refetch } = useQuery({
-    queryKey: ['customers', filterActive, searchKeyword, pagination, sort],
+  const { data: engineerData, isLoading, refetch } = useQuery({
+    queryKey: ['engineers', searchKeyword, pagination, sort],
     queryFn: () => {
-      const isActiveFilter = filterActive === 'all' ? undefined : filterActive === 'true'
-      return customerApi.getList({
-        isActive: isActiveFilter,
+      return engineerApi.getList({
         keyword: searchKeyword || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
@@ -123,23 +114,23 @@ export function CustomerListPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (request: CustomerCreateRequest) => customerApi.create(request),
+    mutationFn: (request: EngineerCreateRequest) => engineerApi.create(request),
     onSuccess: () => {
-      toast({ title: '고객사 생성 완료', description: '새 고객사가 등록되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
+      toast({ title: '엔지니어 등록 완료', description: '새 엔지니어가 등록되었습니다.' })
+      queryClient.invalidateQueries({ queryKey: ['engineers'] })
       closeModal()
     },
     onError: (error: Error) => {
-      toast({ title: '생성 실패', description: error.message, variant: 'destructive' })
+      toast({ title: '등록 실패', description: error.message, variant: 'destructive' })
     },
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, request }: { id: number; request: CustomerUpdateRequest }) =>
-      customerApi.update(id, request),
+    mutationFn: ({ id, request }: { id: number; request: EngineerUpdateRequest }) =>
+      engineerApi.update(id, request),
     onSuccess: () => {
-      toast({ title: '수정 완료', description: '고객사 정보가 수정되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
+      toast({ title: '수정 완료', description: '엔지니어 정보가 수정되었습니다.' })
+      queryClient.invalidateQueries({ queryKey: ['engineers'] })
       closeModal()
     },
     onError: (error: Error) => {
@@ -148,10 +139,10 @@ export function CustomerListPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => customerApi.delete(id),
+    mutationFn: (id: number) => engineerApi.delete(id),
     onSuccess: () => {
-      toast({ title: '삭제 완료', description: '고객사가 삭제되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
+      toast({ title: '삭제 완료', description: '엔지니어가 삭제되었습니다.' })
+      queryClient.invalidateQueries({ queryKey: ['engineers'] })
       setDeleteConfirmId(null)
     },
     onError: (error: Error) => {
@@ -159,46 +150,35 @@ export function CustomerListPage() {
     },
   })
 
-  const statusMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      customerApi.updateStatus(id, isActive),
-    onSuccess: () => {
-      toast({ title: '상태 변경 완료', description: '활성화 상태가 변경되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-    },
-    onError: (error: Error) => {
-      toast({ title: '상태 변경 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
   const openCreateModal = () => {
-    setFormData({ customerCode: '', customerName: '', description: '', isActive: true })
-    setEditingCustomer(null)
+    setFormData({ engineerName: '', engineerEmail: '', engineerPhone: '', department: '', description: '' })
+    setEditingEngineer(null)
     setModalMode('create')
   }
 
-  const openEditModal = (customer: Customer) => {
+  const openEditModal = (engineer: Engineer) => {
     setFormData({
-      customerCode: customer.customerCode,
-      customerName: customer.customerName,
-      description: customer.description || '',
-      isActive: customer.isActive,
+      engineerName: engineer.engineerName,
+      engineerEmail: engineer.engineerEmail,
+      engineerPhone: engineer.engineerPhone || '',
+      department: engineer.department || '',
+      description: engineer.description || '',
     })
-    setEditingCustomer(customer)
+    setEditingEngineer(engineer)
     setModalMode('edit')
   }
 
   const closeModal = () => {
     setModalMode(null)
-    setEditingCustomer(null)
-    setFormData({ customerCode: '', customerName: '', description: '', isActive: true })
+    setEditingEngineer(null)
+    setFormData({ engineerName: '', engineerEmail: '', engineerPhone: '', department: '', description: '' })
   }
 
   const handleSubmit = () => {
-    if (!formData.customerCode.trim() || !formData.customerName.trim()) {
+    if (!formData.engineerName.trim() || !formData.engineerEmail.trim()) {
       toast({
         title: '입력 오류',
-        description: '고객사 코드와 고객사명은 필수입니다.',
+        description: '이름과 이메일은 필수입니다.',
         variant: 'destructive',
       })
       return
@@ -206,25 +186,24 @@ export function CustomerListPage() {
 
     if (modalMode === 'create') {
       createMutation.mutate({
-        customerCode: formData.customerCode.trim(),
-        customerName: formData.customerName.trim(),
+        engineerName: formData.engineerName.trim(),
+        engineerEmail: formData.engineerEmail.trim(),
+        engineerPhone: formData.engineerPhone || undefined,
+        department: formData.department.trim() || undefined,
         description: formData.description.trim() || undefined,
-        isActive: formData.isActive,
       })
-    } else if (modalMode === 'edit' && editingCustomer) {
+    } else if (modalMode === 'edit' && editingEngineer) {
       updateMutation.mutate({
-        id: editingCustomer.customerId,
+        id: editingEngineer.engineerId,
         request: {
-          customerName: formData.customerName.trim(),
+          engineerName: formData.engineerName.trim(),
+          engineerEmail: formData.engineerEmail.trim(),
+          engineerPhone: formData.engineerPhone || undefined,
+          department: formData.department.trim() || undefined,
           description: formData.description.trim() || undefined,
-          isActive: formData.isActive,
         },
       })
     }
-  }
-
-  const handleToggleStatus = (customer: Customer) => {
-    statusMutation.mutate({ id: customer.customerId, isActive: !customer.isActive })
   }
 
   const handleSort = (key: string) => {
@@ -238,8 +217,7 @@ export function CustomerListPage() {
     })
   }
 
-  const customerList = customerData?.content || []
-
+  const engineerList = engineerData?.content || []
 
   return (
     <div className="space-y-6">
@@ -253,16 +231,20 @@ export function CustomerListPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>고객사 관리</BreadcrumbPage>
+            <span>운영 관리</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>엔지니어 관리</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       {/* Page Header */}
       <PageHeader
-        icon={<Building2 className="h-5 w-5 text-primary" />}
-        title="고객사 관리"
-        description="고객사 정보를 등록하고 관리합니다."
+        icon={<Users className="h-5 w-5 text-primary" />}
+        title="엔지니어 관리"
+        description="패치 담당 엔지니어 정보를 등록하고 관리합니다."
         actions={
           <>
             <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
@@ -270,19 +252,19 @@ export function CustomerListPage() {
             </Button>
             <Button onClick={openCreateModal} variant="outline">
               <Plus className="h-4 w-4" />
-              고객사 생성
+              엔지니어 등록
             </Button>
           </>
         }
       />
 
-      {/* 고객사 목록 */}
+      {/* 엔지니어 목록 */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              고객사 목록
+              <Users className="h-5 w-5" />
+              엔지니어 목록
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -290,20 +272,10 @@ export function CustomerListPage() {
                 <Input
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="검색..."
+                  placeholder="이름 검색..."
                   className="pl-8 h-8 w-[180px] text-sm"
                 />
               </div>
-              <Select value={filterActive} onValueChange={setFilterActive}>
-                <SelectTrigger className="h-8 w-[90px] text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  <SelectItem value="true">활성</SelectItem>
-                  <SelectItem value="false">비활성</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </CardHeader>
@@ -312,14 +284,14 @@ export function CustomerListPage() {
             <div className="flex items-center justify-center h-48">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
-          ) : customerList.length > 0 ? (
+          ) : engineerList.length > 0 ? (
             <>
               <DataTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <SortableTableHead
-                        id="customerId"
+                        id="engineerId"
                         currentSort={sort}
                         onSort={handleSort}
                         className="w-16 text-center"
@@ -327,22 +299,27 @@ export function CustomerListPage() {
                         ID
                       </SortableTableHead>
                       <SortableTableHead
-                        id="customerCode"
+                        id="engineerName"
                         currentSort={sort}
                         onSort={handleSort}
-                        className="w-32"
                       >
-                        고객사 코드
+                        이름
                       </SortableTableHead>
                       <SortableTableHead
-                        id="customerName"
+                        id="engineerEmail"
                         currentSort={sort}
                         onSort={handleSort}
                       >
-                        고객사명
+                        이메일
                       </SortableTableHead>
-                      <TableHead>설명</TableHead>
-                      <TableHead className="w-20 text-center">상태</TableHead>
+                      <TableHead>연락처</TableHead>
+                      <SortableTableHead
+                        id="department"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      >
+                        소속팀
+                      </SortableTableHead>
                       <SortableTableHead
                         id="createdAt"
                         currentSort={sort}
@@ -355,34 +332,40 @@ export function CustomerListPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {customerList.map((customer) => (
-                      <TableRow key={customer.customerId}>
+                    {engineerList.map((engineer) => (
+                      <TableRow key={engineer.engineerId}>
                         <TableCell className="text-center text-muted-foreground">
-                          {customer.customerId}
+                          {engineer.engineerId}
+                        </TableCell>
+                        <TableCell className="font-medium">{engineer.engineerName}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                            {engineer.engineerEmail}
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
+                          {engineer.engineerPhone ? (
+                            <div className="flex items-center gap-1.5 text-sm">
+                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                              {formatPhoneNumber(engineer.engineerPhone)}
+                            </div>
+                          ) : (
+                            <TypographyMuted>-</TypographyMuted>
+                          )}
                         </TableCell>
-                        <TableCell className="font-medium">{customer.customerName}</TableCell>
                         <TableCell>
-                          <TypographyMuted className="max-w-xs truncate">
-                            {customer.description || '-'}
-                          </TypographyMuted>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge
-                            variant="outline"
-                            className={
-                              customer.isActive
-                                ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
-                                : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
-                            }
-                          >
-                            {customer.isActive ? '활성' : '비활성'}
-                          </Badge>
+                          {engineer.department ? (
+                            <div className="flex items-center gap-1.5 text-sm">
+                              <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                              {engineer.department}
+                            </div>
+                          ) : (
+                            <TypographyMuted>-</TypographyMuted>
+                          )}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
+                          <TypographyMuted>{formatDateTime(engineer.createdAt)}</TypographyMuted>
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -393,26 +376,13 @@ export function CustomerListPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => openEditModal(customer)}>
+                              <DropdownMenuItem onClick={() => openEditModal(engineer)}>
                                 <Edit2 className="mr-2 h-4 w-4" />
                                 수정
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
-                                {customer.isActive ? (
-                                  <>
-                                    <PowerOff className="mr-2 h-4 w-4" />
-                                    비활성화
-                                  </>
-                                ) : (
-                                  <>
-                                    <Power className="mr-2 h-4 w-4" />
-                                    활성화
-                                  </>
-                                )}
-                              </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => setDeleteConfirmId(customer.customerId)}
+                                onClick={() => setDeleteConfirmId(engineer.engineerId)}
                                 className="text-red-600 focus:text-red-600"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
@@ -430,16 +400,16 @@ export function CustomerListPage() {
                 <DataTablePagination
                   pageIndex={pagination.pageIndex}
                   pageSize={pagination.pageSize}
-                  totalElements={customerData?.totalElements || 0}
+                  totalElements={engineerData?.totalElements || 0}
                   onPaginationChange={setPagination}
                 />
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-              <Building2 className="h-12 w-12 mb-3 opacity-50" />
-              <TypographyMuted>등록된 고객사가 없습니다.</TypographyMuted>
-              <TypographyMuted>고객사 생성 버튼을 눌러 새 고객사를 추가하세요.</TypographyMuted>
+              <Users className="h-12 w-12 mb-3 opacity-50" />
+              <TypographyMuted>등록된 엔지니어가 없습니다.</TypographyMuted>
+              <TypographyMuted>엔지니어 등록 버튼을 눌러 새 엔지니어를 추가하세요.</TypographyMuted>
             </div>
           )}
         </CardContent>
@@ -450,36 +420,51 @@ export function CustomerListPage() {
         <SheetContent className="w-[400px] sm:max-w-[400px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              {modalMode === 'create' ? '고객사 생성' : '고객사 수정'}
+              <Users className="h-5 w-5" />
+              {modalMode === 'create' ? '엔지니어 등록' : '엔지니어 수정'}
             </SheetTitle>
             <SheetDescription>
               {modalMode === 'create'
-                ? '새 고객사 정보를 입력하세요.'
-                : '고객사 정보를 수정하세요.'}
+                ? '새 엔지니어 정보를 입력하세요.'
+                : '엔지니어 정보를 수정하세요.'}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label required>고객사 코드</Label>
+                <Label required>이름</Label>
                 <Input
-                  value={formData.customerCode}
-                  onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
-                  placeholder="예: CUSTOMER_A"
-                  disabled={modalMode === 'edit'}
+                  value={formData.engineerName}
+                  onChange={(e) => setFormData({ ...formData, engineerName: e.target.value })}
+                  placeholder="예: 홍길동"
+                  maxLength={50}
                 />
-                {modalMode === 'edit' && (
-                  <TypographyMuted className="text-xs">고객사 코드는 수정할 수 없습니다.</TypographyMuted>
-                )}
               </div>
               <div className="space-y-2">
-                <Label required>고객사명</Label>
+                <Label required>이메일</Label>
                 <Input
-                  value={formData.customerName}
-                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                  placeholder="예: A회사"
+                  type="email"
+                  value={formData.engineerEmail}
+                  onChange={(e) => setFormData({ ...formData, engineerEmail: e.target.value })}
+                  placeholder="예: engineer@company.com"
+                  maxLength={100}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>연락처</Label>
+                <PhoneInput
+                  value={formData.engineerPhone}
+                  onChange={(value) => setFormData({ ...formData, engineerPhone: value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>소속팀</Label>
+                <Input
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  placeholder="예: 기술지원팀"
+                  maxLength={100}
                 />
               </div>
               <div className="space-y-2">
@@ -487,22 +472,9 @@ export function CustomerListPage() {
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="고객사에 대한 설명을 입력하세요"
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              {/* 활성 상태 토글 */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">활성화</Label>
-                  <p className="text-xs text-muted-foreground">
-                    비활성화 시 관리 대상에서 제외됩니다.
-                  </p>
-                </div>
-                <Switch
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  placeholder="엔지니어에 대한 설명을 입력하세요"
+                  maxLength={500}
+                  rows={3}
                 />
               </div>
 
@@ -531,9 +503,9 @@ export function CustomerListPage() {
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>고객사 삭제</DialogTitle>
+            <DialogTitle>엔지니어 삭제</DialogTitle>
             <DialogDescription>
-              정말로 이 고객사를 삭제하시겠습니까?
+              정말로 이 엔지니어를 삭제하시겠습니까?
               이 작업은 되돌릴 수 없습니다.
             </DialogDescription>
           </DialogHeader>

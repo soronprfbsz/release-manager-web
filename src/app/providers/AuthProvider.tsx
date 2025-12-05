@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
 import { sessionApi, type AccountInfo, type SignUpRequest } from '@/entities/session'
 import { apiClient } from '@/shared/api'
+import { ROUTES } from '@/shared/config/constants'
 
 interface AuthContextType {
   user: AccountInfo | null
@@ -24,9 +25,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
   const initRef = useRef(false)
 
+  // 인증 실패 시 호출되는 콜백 (refresh token 만료 등)
+  const handleAuthFailure = useCallback(() => {
+    apiClient.clearAccessToken()
+    localStorage.removeItem(USER_KEY)
+    setUser(null)
+    // 로그인 페이지로 이동 (현재 페이지가 로그인 페이지가 아닌 경우에만)
+    if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
+      window.location.href = ROUTES.AUTH.LOGIN
+    }
+  }, [])
+
   useEffect(() => {
     // Strict Mode에서 두 번 실행 방지
     if (initRef.current) return
+
+    // apiClient에 인증 실패 콜백 등록
+    apiClient.setAuthFailureCallback(handleAuthFailure)
 
     const initAuth = async () => {
       const savedUser = localStorage.getItem(USER_KEY)
@@ -49,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     initRef.current = true
     initAuth()
-  }, [])
+  }, [handleAuthFailure])
 
   const login = useCallback(async (email: string, password: string) => {
     const response = await sessionApi.signIn({ email, password })

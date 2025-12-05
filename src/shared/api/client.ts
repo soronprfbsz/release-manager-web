@@ -3,6 +3,9 @@ import { API_BASE_URL, API_TIMEOUT } from '@/shared/config/constants'
 import type { ApiResponse, ApiError } from './types'
 import { sessionApi } from '@/entities/session'
 
+// 인증 실패 시 호출되는 콜백 (AuthProvider에서 설정)
+type AuthFailureCallback = () => void
+
 class ApiClient {
   private instance: AxiosInstance
   private accessToken: string | null = null // in-memory 저장
@@ -11,6 +14,7 @@ class ApiClient {
     resolve: (value?: unknown) => void
     reject: (error?: unknown) => void
   }> = []
+  private onAuthFailure: AuthFailureCallback | null = null
 
   constructor() {
     this.instance = axios.create({
@@ -89,7 +93,10 @@ class ApiClient {
           } catch (refreshError) {
             this.processQueue(refreshError as AxiosError, null)
             this.clearAccessToken()
-            window.location.href = '/login'
+            // AuthProvider에서 설정한 콜백 호출 (로그아웃 처리 및 로그인 페이지 이동)
+            if (this.onAuthFailure) {
+              this.onAuthFailure()
+            }
             return Promise.reject(refreshError)
           } finally {
             this.isRefreshing = false
@@ -131,6 +138,10 @@ class ApiClient {
 
   clearAccessToken(): void {
     this.accessToken = null
+  }
+
+  setAuthFailureCallback(callback: AuthFailureCallback): void {
+    this.onAuthFailure = callback
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

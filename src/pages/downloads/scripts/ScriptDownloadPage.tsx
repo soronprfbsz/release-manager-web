@@ -39,6 +39,14 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -433,47 +441,30 @@ export function ScriptDownloadPage() {
         </div>
       )}
 
-      {/* 업로드 모달 */}
-      <Dialog open={isUploadOpen} onOpenChange={(open) => !open && closeUploadModal()}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* 업로드 Sheet */}
+      <Sheet open={isUploadOpen} onOpenChange={(open) => !open && closeUploadModal()}>
+        <SheetContent className="w-[400px] sm:max-w-[400px]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
               리소스 추가
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               새로운 리소스 파일을 업로드합니다.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
-          <div className="space-y-4 py-4">
-            {/* 대분류 선택 */}
-            <div className="space-y-2">
-              <Label required>대분류</Label>
-              <Select value={fileCategory} onValueChange={handleFileCategoryChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="대분류를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fileCategoryList.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 소분류 선택 (대분류가 SCRIPT 또는 DOCUMENT인 경우) */}
-            {subCategoryList.length > 0 && (
+          <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+            <div className="space-y-5">
+              {/* 대분류 선택 */}
               <div className="space-y-2">
-                <Label>소분류</Label>
-                <Select value={subCategory} onValueChange={setSubCategory}>
+                <Label required>대분류</Label>
+                <Select value={fileCategory} onValueChange={handleFileCategoryChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder="소분류를 선택하세요" />
+                    <SelectValue placeholder="대분류를 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
-                    {subCategoryList.map((cat) => (
+                    {fileCategoryList.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.name}
                       </SelectItem>
@@ -481,82 +472,120 @@ export function ScriptDownloadPage() {
                   </SelectContent>
                 </Select>
               </div>
-            )}
 
-            {/* 파일 선택 영역 */}
-            <div className="space-y-2">
-              <Label required>파일</Label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              {selectedFile ? (
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                  <File className="h-8 w-8 text-muted-foreground" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-                    <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setSelectedFile(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
-                >
-                  <Upload className="h-6 w-6 text-muted-foreground mb-1" />
-                  <p className="text-sm text-muted-foreground">클릭하여 파일을 선택하세요</p>
+              {/* 소분류 선택 (대분류가 SCRIPT 또는 DOCUMENT인 경우) */}
+              {subCategoryList.length > 0 && (
+                <div className="space-y-2">
+                  <Label>소분류</Label>
+                  <Select value={subCategory} onValueChange={setSubCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="소분류를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subCategoryList.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
-            </div>
 
-            {/* 설명 입력 */}
-            <div className="space-y-2">
-              <Label>설명</Label>
-              <Input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="리소스에 대한 설명을 입력하세요"
-              />
-            </div>
-
-            {/* 업로드 진행률 */}
-            {uploadMutation.isPending && uploadProgress > 0 && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>업로드 중...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
+              {/* 파일 선택 영역 */}
+              <div className="space-y-2">
+                <Label required>파일</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                {selectedFile ? (
+                  <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+                    <File className="h-8 w-8 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setSelectedFile(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
                   <div
-                    className="h-full bg-primary transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                    <p className="text-sm text-muted-foreground">클릭하여 파일을 선택하세요</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={closeUploadModal} disabled={uploadMutation.isPending}>
-              취소
-            </Button>
-            <Button onClick={handleUploadSubmit} disabled={uploadMutation.isPending || !selectedFile || !fileCategory}>
-              {uploadMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              업로드
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {/* 설명 입력 */}
+              <div className="space-y-2">
+                <Label>설명</Label>
+                <Input
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="리소스에 대한 설명을 입력하세요"
+                />
+              </div>
+
+              {/* 업로드 진행률 */}
+              {uploadMutation.isPending && uploadProgress > 0 && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>업로드 중...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 버튼 */}
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={closeUploadModal}
+                  disabled={uploadMutation.isPending}
+                  className="flex-1"
+                >
+                  취소
+                </Button>
+                <Button
+                  onClick={handleUploadSubmit}
+                  disabled={uploadMutation.isPending || !selectedFile || !fileCategory}
+                  className="flex-1"
+                >
+                  {uploadMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      업로드 중...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      업로드
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
 
       {/* 삭제 확인 모달 */}
       <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>

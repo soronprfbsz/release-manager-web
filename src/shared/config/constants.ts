@@ -21,8 +21,9 @@ export const ROUTES = {
     STANDARD: '/patches/standard',
     CUSTOM: '/patches/custom',
   },
-  CUSTOMERS: {
-    LIST: '/customers',
+  OPERATIONS: {
+    CUSTOMERS: '/operations/customers',
+    ENGINEERS: '/operations/engineers',
   },
   JOBS: {
     MARIADB: '/jobs/mariadb',
