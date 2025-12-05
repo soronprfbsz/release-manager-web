@@ -7,8 +7,8 @@ export interface Engineer {
   engineerId: number
   engineerName: string
   engineerEmail: string
-  engineerPhone: string | null
-  department: string | null
+  departmentId: number | null
+  departmentName: string | null
   description: string | null
   createdAt: string
   updatedAt: string
@@ -17,15 +17,13 @@ export interface Engineer {
 export interface EngineerCreateRequest {
   engineerName: string
   engineerEmail: string
-  engineerPhone?: string
-  department?: string
+  departmentId?: number
   description?: string
 }
 
 export interface EngineerUpdateRequest {
   engineerName?: string
   engineerEmail?: string
-  engineerPhone?: string
-  department?: string
+  departmentId?: number
   description?: string
 }

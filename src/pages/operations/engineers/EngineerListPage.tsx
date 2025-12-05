@@ -10,8 +10,7 @@ import {
   Loader2,
   MoreHorizontal,
   Mail,
-  Phone,
-  Building
+  Building,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
@@ -19,6 +18,13 @@ import { PageHeader } from '@/shared/ui/page-header'
 import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import { Link } from 'react-router-dom'
 import {
   Breadcrumb,
@@ -55,9 +61,8 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { formatPhoneNumber } from '@/shared/lib/utils/phone'
-import { PhoneInput } from '@/shared/ui/phone-input'
 import { engineerApi, type Engineer, type EngineerCreateRequest, type EngineerUpdateRequest } from '@/entities/engineer'
+import { departmentApi } from '@/entities/department'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 
 function formatDateTime(dateStr: string | null | undefined): string {
@@ -96,9 +101,14 @@ export function EngineerListPage() {
   const [formData, setFormData] = useState({
     engineerName: '',
     engineerEmail: '',
-    engineerPhone: '',
-    department: '',
+    departmentId: '',
     description: '',
+  })
+
+  // 부서 목록 조회
+  const { data: departments = [] } = useQuery({
+    queryKey: ['departments'],
+    queryFn: () => departmentApi.getList(),
   })
 
   const { data: engineerData, isLoading, refetch } = useQuery({
@@ -151,7 +161,7 @@ export function EngineerListPage() {
   })
 
   const openCreateModal = () => {
-    setFormData({ engineerName: '', engineerEmail: '', engineerPhone: '', department: '', description: '' })
+    setFormData({ engineerName: '', engineerEmail: '', departmentId: '', description: '' })
     setEditingEngineer(null)
     setModalMode('create')
   }
@@ -160,8 +170,7 @@ export function EngineerListPage() {
     setFormData({
       engineerName: engineer.engineerName,
       engineerEmail: engineer.engineerEmail,
-      engineerPhone: engineer.engineerPhone || '',
-      department: engineer.department || '',
+      departmentId: engineer.departmentId?.toString() || '',
       description: engineer.description || '',
     })
     setEditingEngineer(engineer)
@@ -171,7 +180,7 @@ export function EngineerListPage() {
   const closeModal = () => {
     setModalMode(null)
     setEditingEngineer(null)
-    setFormData({ engineerName: '', engineerEmail: '', engineerPhone: '', department: '', description: '' })
+    setFormData({ engineerName: '', engineerEmail: '', departmentId: '', description: '' })
   }
 
   const handleSubmit = () => {
@@ -188,8 +197,7 @@ export function EngineerListPage() {
       createMutation.mutate({
         engineerName: formData.engineerName.trim(),
         engineerEmail: formData.engineerEmail.trim(),
-        engineerPhone: formData.engineerPhone || undefined,
-        department: formData.department.trim() || undefined,
+        departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
         description: formData.description.trim() || undefined,
       })
     } else if (modalMode === 'edit' && editingEngineer) {
@@ -198,8 +206,7 @@ export function EngineerListPage() {
         request: {
           engineerName: formData.engineerName.trim(),
           engineerEmail: formData.engineerEmail.trim(),
-          engineerPhone: formData.engineerPhone || undefined,
-          department: formData.department.trim() || undefined,
+          departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
           description: formData.description.trim() || undefined,
         },
       })
@@ -312,7 +319,6 @@ export function EngineerListPage() {
                       >
                         이메일
                       </SortableTableHead>
-                      <TableHead>연락처</TableHead>
                       <SortableTableHead
                         id="department"
                         currentSort={sort}
@@ -345,20 +351,10 @@ export function EngineerListPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {engineer.engineerPhone ? (
-                            <div className="flex items-center gap-1.5 text-sm">
-                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                              {formatPhoneNumber(engineer.engineerPhone)}
-                            </div>
-                          ) : (
-                            <TypographyMuted>-</TypographyMuted>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {engineer.department ? (
+                          {engineer.departmentName ? (
                             <div className="flex items-center gap-1.5 text-sm">
                               <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                              {engineer.department}
+                              {engineer.departmentName}
                             </div>
                           ) : (
                             <TypographyMuted>-</TypographyMuted>
@@ -452,20 +448,22 @@ export function EngineerListPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>연락처</Label>
-                <PhoneInput
-                  value={formData.engineerPhone}
-                  onChange={(value) => setFormData({ ...formData, engineerPhone: value })}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label>소속팀</Label>
-                <Input
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder="예: 기술지원팀"
-                  maxLength={100}
-                />
+                <Select
+                  value={formData.departmentId}
+                  onValueChange={(value) => setFormData({ ...formData, departmentId: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="소속팀을 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.departmentId} value={dept.departmentId.toString()}>
+                        {dept.departmentName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>설명</Label>
