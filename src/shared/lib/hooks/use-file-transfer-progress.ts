@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+
 import { toast } from '@/shared/lib/hooks/use-toast'
 
 // ============================================

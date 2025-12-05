@@ -1,6 +1,8 @@
 import axios from 'axios'
-import { API_BASE_URL } from '@/shared/config/constants'
+
 import type { ApiResponse } from '@/shared/api/types'
+import { API_BASE_URL } from '@/shared/config/constants'
+
 import type {
   SignUpRequest,
   SignUpResponse,

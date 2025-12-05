@@ -1,7 +1,10 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { API_BASE_URL, API_TIMEOUT } from '@/shared/config/constants'
-import type { ApiResponse, ApiError } from './types'
+
 import { sessionApi } from '@/entities/session'
+
+import { API_BASE_URL, API_TIMEOUT } from '@/shared/config/constants'
+
+import type { ApiResponse, ApiError } from './types'
 
 // 인증 실패 시 호출되는 콜백 (AuthProvider에서 설정)
 type AuthFailureCallback = () => void

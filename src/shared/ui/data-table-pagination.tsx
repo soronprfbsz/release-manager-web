@@ -4,6 +4,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react'
+
+import { Button } from './button'
 import {
   Select,
   SelectContent,
@@ -11,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './select'
-import { Button } from './button'
 
 interface DataTablePaginationProps {
   pageIndex: number

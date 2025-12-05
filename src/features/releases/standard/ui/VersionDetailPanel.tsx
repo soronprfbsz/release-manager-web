@@ -1,14 +1,13 @@
 import { useState } from 'react'
+
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Button } from '@/shared/ui/button'
-import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
+
 import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
-import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import { ErrorDisplay } from '@/shared/ui/error-display'
+
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { formatFileSize } from '@/shared/lib/utils/format'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,33 +18,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ErrorDisplay } from '@/shared/ui/error-display'
+import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
 interface VersionDetailPanelProps {
   version: VersionNode | null
   onDelete?: () => void
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
-
-
-function formatDateTime(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return '-'
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 interface FileNodeProps {

@@ -1,13 +1,16 @@
 import { useState, FormEvent } from 'react'
+
+import { AxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
+
 import { useAuth } from '@/app/providers/AuthProvider'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
+
+import type { ApiError } from '@/shared/api'
 import { ROUTES } from '@/shared/config/constants'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { AxiosError } from 'axios'
-import type { ApiError } from '@/shared/api'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')

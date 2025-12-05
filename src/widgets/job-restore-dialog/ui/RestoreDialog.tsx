@@ -1,17 +1,16 @@
 import { useState } from 'react'
+
 import { useMutation } from '@tanstack/react-query'
 import { Loader2, RotateCcw } from 'lucide-react'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/ui/sheet'
-import { ScrollArea } from '@/shared/ui/scroll-area'
+
+import { jobApi, type MariaDBRestoreRequest, type BackupFile } from '@/entities/job'
+
+import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
-import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -19,9 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
-import { jobApi, type MariaDBRestoreRequest, type BackupFile } from '@/entities/job'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+
 
 interface RestoreDialogProps {
   open: boolean

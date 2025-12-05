@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
 import type { PaginationParams } from '@/shared/api/types'
+
 import { customerApi } from '../api/customerApi'
+
 import type { CustomerCreateRequest, CustomerUpdateRequest } from '../model/types'
 
 // Query Keys Factory

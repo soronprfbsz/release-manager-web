@@ -1,17 +1,25 @@
 import { useState, useEffect } from 'react'
+
 import { useQuery } from '@tanstack/react-query'
 import { Package, RefreshCw, Plus } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { useLocation } from 'react-router-dom'
+
+import { VersionCreateDialog } from '@/widgets/version-create-dialog'
+
+import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
+
+import { releaseApi, type VersionNode } from '@/entities/release'
+
+import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import { useLocation } from 'react-router-dom'
-import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
-import { releaseApi, type VersionNode } from '@/entities/release'
-import { VersionCreateDialog } from '@/widgets/version-create-dialog'
-import { ErrorDisplay } from '@/shared/ui/error-display'
-import { getCategoryShortName } from '@/shared/lib/utils/category'
+
+
+
 
 export function StandardReleasePage() {
   const location = useLocation()

@@ -1,20 +1,22 @@
 import { useState, useRef, useEffect } from 'react'
+
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Upload, X, FileArchive, Info, Loader2, Package } from 'lucide-react'
-import { releaseApi } from '@/entities/release'
+
 import { codeApi, CODE_TYPE } from '@/entities/code'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/ui/sheet'
-import { ScrollArea } from '@/shared/ui/scroll-area'
+import { releaseApi } from '@/entities/release'
+
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/shared/ui/popover'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -22,13 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/shared/ui/popover'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+import { Textarea } from '@/shared/ui/textarea'
 
 interface VersionCreateDialogProps {
   open: boolean

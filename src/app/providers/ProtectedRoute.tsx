@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from './AuthProvider'
+
 import { ROUTES } from '@/shared/config/constants'
+
+import { useAuth } from './AuthProvider'
 
 interface ProtectedRouteProps {
   children: React.ReactNode

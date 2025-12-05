@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+
 import type { ResourceFile } from '../model/types'
 
 const ENDPOINTS = {

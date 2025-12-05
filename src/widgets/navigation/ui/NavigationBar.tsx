@@ -1,7 +1,17 @@
 import * as React from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+
 import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Package } from 'lucide-react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+
+import { useAuth } from '@/app/providers/AuthProvider'
+
+import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
+
+
+import { ROUTES } from '@/shared/config/constants'
+import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,12 +21,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/shared/ui/navigation-menu'
-import { Button } from '@/shared/ui/button'
-import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
-import { useAuth } from '@/app/providers/AuthProvider'
+
 import { menuItems } from '../model/menuItems'
-import { ROUTES } from '@/shared/config/constants'
-import { cn } from '@/shared/lib/utils'
 
 export function NavigationBar() {
   const { user, logout } = useAuth()

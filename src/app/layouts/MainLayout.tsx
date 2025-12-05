@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+
 import { NavigationBar } from '@/widgets/navigation/ui/NavigationBar'
 
 interface MainLayoutProps {

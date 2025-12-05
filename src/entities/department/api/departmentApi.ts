@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+
 import type { Department } from '../model/types'
 
 const ENDPOINTS = {

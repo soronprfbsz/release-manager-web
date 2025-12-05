@@ -1,7 +1,6 @@
-import { Link } from 'react-router-dom'
 import { GitBranch, Construction } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { PageHeader } from '@/shared/ui/page-header'
+import { Link } from 'react-router-dom'
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,6 +9,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { PageHeader } from '@/shared/ui/page-header'
 
 export function CustomPatchPage() {
   return (

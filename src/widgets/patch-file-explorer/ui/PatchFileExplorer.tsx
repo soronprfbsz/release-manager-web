@@ -1,7 +1,11 @@
 import { useState } from 'react'
+
 import { useQuery } from '@tanstack/react-query'
 import { Folder, File, ChevronRight, ChevronDown, Download } from 'lucide-react'
+
 import { patchApi, type PatchFileNode } from '@/entities/patch'
+
+import { Button } from '@/shared/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -9,10 +13,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/shared/ui/dialog'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Button } from '@/shared/ui/button'
-import { TypographyMuted } from '@/shared/ui/typography'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import { TypographyMuted } from '@/shared/ui/typography'
 
 interface PatchFileExplorerProps {
   open: boolean

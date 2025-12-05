@@ -1,5 +1,6 @@
 import { apiClient } from '@/shared/api/client'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
+
 import type { Customer, CustomerCreateRequest, CustomerUpdateRequest } from '../model/types'
 
 const ENDPOINTS = {

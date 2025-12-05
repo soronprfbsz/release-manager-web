@@ -1,25 +1,33 @@
+/**
+ * Customer List Page
+ * 고객사 목록 페이지 - Feature 컴포넌트를 조합하여 구성
+ */
+
 import { useState } from 'react'
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  Building2,
-  Plus,
-  Search,
-  Edit2,
-  Trash2,
-  RefreshCw,
-  Loader2,
-  MoreHorizontal,
-  Power,
-  PowerOff
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Button } from '@/shared/ui/button'
-import { PageHeader } from '@/shared/ui/page-header'
-import { Badge } from '@/shared/ui/badge'
-import { Label } from '@/shared/ui/label'
-import { Input } from '@/shared/ui/input'
-import { Textarea } from '@/shared/ui/textarea'
+import { Building2, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
+
+import {
+  CustomerTable,
+  CustomerForm,
+  CustomerFilters,
+  CustomerDeleteDialog,
+  type CustomerFormData,
+  type CustomerFiltersState,
+  type CustomerFormMode,
+  validateCustomerForm,
+} from '@/features/customer-management'
+
+import {
+  customerApi,
+  type Customer,
+  type CustomerCreateRequest,
+  type CustomerUpdateRequest,
+} from '@/entities/customer'
+
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,93 +36,62 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
-import { Switch } from '@/shared/ui/switch'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from '@/shared/ui/dialog'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/ui/sheet'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, SortableTableHead } from '@/shared/ui/table'
-import { DataTable } from '@/shared/ui/data-table'
-import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { customerApi, type Customer, type CustomerCreateRequest, type CustomerUpdateRequest } from '@/entities/customer'
-
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
+import { PageHeader } from '@/shared/ui/page-header'
 
-function formatDateTime(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return '-'
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).replace(/\. /g, '-').replace('.', '')
-}
 
-type ModalMode = 'create' | 'edit' | null
 
 interface PaginationState {
   pageIndex: number
   pageSize: number
 }
 
+const INITIAL_FORM_DATA: CustomerFormData = {
+  customerCode: '',
+  customerName: '',
+  description: '',
+  isActive: true,
+}
+
+const INITIAL_FILTERS: CustomerFiltersState = {
+  keyword: '',
+  isActive: 'all',
+}
+
 export function CustomerListPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterActive, setFilterActive] = useState<string>('all')
+  // Filter state
+  const [filters, setFilters] = useState<CustomerFiltersState>(INITIAL_FILTERS)
+
+  // Pagination state
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   })
+
+  // Sort state
   const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
-  const [modalMode, setModalMode] = useState<ModalMode>(null)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
-  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
   // Form state
-  const [formData, setFormData] = useState({
-    customerCode: '',
-    customerName: '',
-    description: '',
-    isActive: true,
-  })
+  const [modalMode, setModalMode] = useState<CustomerFormMode>(null)
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [formData, setFormData] = useState<CustomerFormData>(INITIAL_FORM_DATA)
 
+  // Delete state
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
+
+  // Query
   const { data: customerData, isLoading, refetch } = useQuery({
-    queryKey: ['customers', filterActive, searchKeyword, pagination, sort],
+    queryKey: ['customers', filters, pagination, sort],
     queryFn: () => {
-      const isActiveFilter = filterActive === 'all' ? undefined : filterActive === 'true'
+      const isActiveFilter = filters.isActive === 'all' ? undefined : filters.isActive === 'true'
       return customerApi.getList({
         isActive: isActiveFilter,
-        keyword: searchKeyword || undefined,
+        keyword: filters.keyword || undefined,
         page: pagination.pageIndex,
         size: pagination.pageSize,
         sort: sort ? `${sort.key},${sort.direction}` : undefined,
@@ -122,6 +99,7 @@ export function CustomerListPage() {
     },
   })
 
+  // Mutations
   const createMutation = useMutation({
     mutationFn: (request: CustomerCreateRequest) => customerApi.create(request),
     onSuccess: () => {
@@ -171,8 +149,9 @@ export function CustomerListPage() {
     },
   })
 
+  // Handlers
   const openCreateModal = () => {
-    setFormData({ customerCode: '', customerName: '', description: '', isActive: true })
+    setFormData(INITIAL_FORM_DATA)
     setEditingCustomer(null)
     setModalMode('create')
   }
@@ -191,16 +170,14 @@ export function CustomerListPage() {
   const closeModal = () => {
     setModalMode(null)
     setEditingCustomer(null)
-    setFormData({ customerCode: '', customerName: '', description: '', isActive: true })
+    setFormData(INITIAL_FORM_DATA)
   }
 
   const handleSubmit = () => {
-    if (!formData.customerCode.trim() || !formData.customerName.trim()) {
-      toast({
-        title: '입력 오류',
-        description: '고객사 코드와 고객사명은 필수입니다.',
-        variant: 'destructive',
-      })
+    const validation = validateCustomerForm(formData)
+    if (!validation.isValid) {
+      const errorMessage = Object.values(validation.errors).join(' ')
+      toast({ title: '입력 오류', description: errorMessage, variant: 'destructive' })
       return
     }
 
@@ -230,16 +207,13 @@ export function CustomerListPage() {
   const handleSort = (key: string) => {
     setSort((current) => {
       if (current?.key === key) {
-        return current.direction === 'asc'
-          ? { key, direction: 'desc' }
-          : null
+        return current.direction === 'asc' ? { key, direction: 'desc' } : null
       }
       return { key, direction: 'asc' }
     })
   }
 
   const customerList = customerData?.content || []
-
 
   return (
     <div className="space-y-6">
@@ -257,7 +231,7 @@ export function CustomerListPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>고객사 관리</BreadcrumbPage>
+            <BreadcrumbPage>고객사</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -280,7 +254,7 @@ export function CustomerListPage() {
         }
       />
 
-      {/* 고객사 목록 */}
+      {/* Customer List Card */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -288,27 +262,7 @@ export function CustomerListPage() {
               <Building2 className="h-5 w-5" />
               고객사 목록
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="검색..."
-                  className="pl-8 h-8 w-[180px] text-sm"
-                />
-              </div>
-              <Select value={filterActive} onValueChange={setFilterActive}>
-                <SelectTrigger className="h-8 w-[90px] text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  <SelectItem value="true">활성</SelectItem>
-                  <SelectItem value="false">비활성</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <CustomerFilters filters={filters} onFiltersChange={setFilters} />
           </div>
         </CardHeader>
         <CardContent>
@@ -316,246 +270,48 @@ export function CustomerListPage() {
             <div className="flex items-center justify-center h-48">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
-          ) : customerList.length > 0 ? (
-            <>
-              <DataTable>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <SortableTableHead
-                        id="customerId"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        className="w-16 text-center"
-                      >
-                        ID
-                      </SortableTableHead>
-                      <SortableTableHead
-                        id="customerCode"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        className="w-32"
-                      >
-                        고객사 코드
-                      </SortableTableHead>
-                      <SortableTableHead
-                        id="customerName"
-                        currentSort={sort}
-                        onSort={handleSort}
-                      >
-                        고객사명
-                      </SortableTableHead>
-                      <TableHead>설명</TableHead>
-                      <TableHead className="w-20 text-center">상태</TableHead>
-                      <SortableTableHead
-                        id="createdAt"
-                        currentSort={sort}
-                        onSort={handleSort}
-                        className="w-28"
-                      >
-                        등록일
-                      </SortableTableHead>
-                      <TableHead className="w-12 text-center"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {customerList.map((customer) => (
-                      <TableRow key={customer.customerId}>
-                        <TableCell className="text-center text-muted-foreground">
-                          {customer.customerId}
-                        </TableCell>
-                        <TableCell>
-                          <TypographyInlineCode className="bg-transparent">{customer.customerCode}</TypographyInlineCode>
-                        </TableCell>
-                        <TableCell className="font-medium">{customer.customerName}</TableCell>
-                        <TableCell>
-                          <TypographyMuted className="max-w-xs truncate">
-                            {customer.description || '-'}
-                          </TypographyMuted>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge
-                            variant="outline"
-                            className={
-                              customer.isActive
-                                ? 'border-green-500 bg-green-500/10 text-green-600 dark:text-green-400'
-                                : 'border-gray-500 bg-gray-500/10 text-gray-600 dark:text-gray-400'
-                            }
-                          >
-                            {customer.isActive ? '활성' : '비활성'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <TypographyMuted>{formatDateTime(customer.createdAt)}</TypographyMuted>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">메뉴 열기</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => openEditModal(customer)}>
-                                <Edit2 className="mr-2 h-4 w-4" />
-                                수정
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleStatus(customer)}>
-                                {customer.isActive ? (
-                                  <>
-                                    <PowerOff className="mr-2 h-4 w-4" />
-                                    비활성화
-                                  </>
-                                ) : (
-                                  <>
-                                    <Power className="mr-2 h-4 w-4" />
-                                    활성화
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setDeleteConfirmId(customer.customerId)}
-                                className="text-red-600 focus:text-red-600"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                삭제
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </DataTable>
-              <div className="pt-4">
-                <DataTablePagination
-                  pageIndex={pagination.pageIndex}
-                  pageSize={pagination.pageSize}
-                  totalElements={customerData?.totalElements || 0}
-                  onPaginationChange={setPagination}
-                />
-              </div>
-            </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-              <Building2 className="h-12 w-12 mb-3 opacity-50" />
-              <TypographyMuted>등록된 고객사가 없습니다.</TypographyMuted>
-              <TypographyMuted>고객사 생성 버튼을 눌러 새 고객사를 추가하세요.</TypographyMuted>
-            </div>
+            <>
+              <CustomerTable
+                customers={customerList}
+                sort={sort}
+                onSort={handleSort}
+                onEdit={openEditModal}
+                onDelete={setDeleteConfirmId}
+                onToggleStatus={handleToggleStatus}
+              />
+              {customerList.length > 0 && (
+                <div className="pt-4">
+                  <DataTablePagination
+                    pageIndex={pagination.pageIndex}
+                    pageSize={pagination.pageSize}
+                    totalElements={customerData?.totalElements || 0}
+                    onPaginationChange={setPagination}
+                  />
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
 
-      {/* 생성/수정 슬라이드 패널 */}
-      <Sheet open={modalMode !== null} onOpenChange={(open) => !open && closeModal()}>
-        <SheetContent className="w-[400px] sm:max-w-[400px]">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              {modalMode === 'create' ? '고객사 생성' : '고객사 수정'}
-            </SheetTitle>
-            <SheetDescription>
-              {modalMode === 'create'
-                ? '새 고객사 정보를 입력하세요.'
-                : '고객사 정보를 수정하세요.'}
-            </SheetDescription>
-          </SheetHeader>
+      {/* Form Sheet */}
+      <CustomerForm
+        mode={modalMode}
+        formData={formData}
+        isSubmitting={createMutation.isPending || updateMutation.isPending}
+        onFormDataChange={setFormData}
+        onSubmit={handleSubmit}
+        onClose={closeModal}
+      />
 
-          <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <Label required>고객사 코드</Label>
-                <Input
-                  value={formData.customerCode}
-                  onChange={(e) => setFormData({ ...formData, customerCode: e.target.value })}
-                  placeholder="예: CUSTOMER_A"
-                  disabled={modalMode === 'edit'}
-                />
-                {modalMode === 'edit' && (
-                  <TypographyMuted className="text-xs">고객사 코드는 수정할 수 없습니다.</TypographyMuted>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label required>고객사명</Label>
-                <Input
-                  value={formData.customerName}
-                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                  placeholder="예: A회사"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>설명</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="고객사에 대한 설명을 입력하세요"
-                  className="min-h-[80px]"
-                />
-              </div>
-
-              {/* 활성 상태 토글 */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">활성화</Label>
-                  <p className="text-xs text-muted-foreground">
-                    비활성화 시 관리 대상에서 제외됩니다.
-                  </p>
-                </div>
-                <Switch
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-                />
-              </div>
-
-              {/* 버튼 */}
-              <div className="flex gap-2 pt-4">
-                <Button variant="outline" onClick={closeModal} className="flex-1">
-                  취소
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                  className="flex-1"
-                >
-                  {(createMutation.isPending || updateMutation.isPending) && (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  )}
-                  {modalMode === 'create' ? '등록' : '수정'}
-                </Button>
-              </div>
-            </div>
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
-
-      {/* 삭제 확인 모달 */}
-      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>고객사 삭제</DialogTitle>
-            <DialogDescription>
-              정말로 이 고객사를 삭제하시겠습니까?
-              이 작업은 되돌릴 수 없습니다.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
-              취소
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              삭제
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Dialog */}
+      <CustomerDeleteDialog
+        isOpen={deleteConfirmId !== null}
+        isDeleting={deleteMutation.isPending}
+        onConfirm={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+        onClose={() => setDeleteConfirmId(null)}
+      />
     </div>
   )
 }

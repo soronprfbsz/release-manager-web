@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   Package,
@@ -11,25 +10,17 @@ import {
   Building2,
   TrendingUp
 } from 'lucide-react'
-import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Badge } from '@/shared/ui/badge'
-import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
-import { ROUTES } from '@/shared/config/constants'
+import { Link } from 'react-router-dom'
+
 import { dashboardApi } from '@/entities/dashboard'
+
+import { ROUTES } from '@/shared/config/constants'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
-
-
-function formatDate(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return '-'
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
+import { formatDate } from '@/shared/lib/utils/date'
+import { Badge } from '@/shared/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
+import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
+import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
 export function HomePage() {
   const { data: dashboardData, isLoading } = useQuery({

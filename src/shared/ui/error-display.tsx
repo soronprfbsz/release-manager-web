@@ -1,4 +1,5 @@
 import { AlertCircle, RefreshCw } from 'lucide-react'
+
 import { Button } from './button'
 
 interface ErrorDisplayProps {

@@ -1,7 +1,12 @@
 import { useState, useMemo } from 'react'
+
+import { Clipboard, ClipboardCheck, Loader2, AlertTriangle, Download } from 'lucide-react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Clipboard, ClipboardCheck, Loader2, AlertTriangle, Download } from 'lucide-react'
+
+import { useToast } from '@/shared/lib/hooks/use-toast'
+import { copyToClipboard } from '@/shared/lib/utils/clipboard'
+import { Button } from '@/shared/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,9 +15,6 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
-import { Button } from '@/shared/ui/button'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { copyToClipboard } from '@/shared/lib/utils/clipboard'
 
 // 미리보기 제한 설정
 const PREVIEW_SIZE_LIMIT = 500 * 1024 // 500KB - 미리보기 최대 크기

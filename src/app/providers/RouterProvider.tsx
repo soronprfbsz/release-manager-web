@@ -1,18 +1,21 @@
 import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'react-router-dom'
-import { ROUTES } from '@/shared/config/constants'
-import { ProtectedRoute } from './ProtectedRoute'
-import { MainLayout } from '../layouts/MainLayout'
+
 import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
+import { ScriptDownloadPage } from '@/pages/downloads/scripts'
 import { HomePage } from '@/pages/home'
-import { StandardReleasePage } from '@/pages/releases/standard'
-import { CustomReleasePage } from '@/pages/releases/custom'
-import { StandardPatchPage } from '@/pages/patches/standard'
-import { CustomPatchPage } from '@/pages/patches/custom'
+import { MariaDBJobPage } from '@/pages/job'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
-import { MariaDBJobPage } from '@/pages/job'
-import { ScriptDownloadPage } from '@/pages/downloads/scripts'
+import { CustomPatchPage } from '@/pages/patches/custom'
+import { StandardPatchPage } from '@/pages/patches/standard'
+import { CustomReleasePage } from '@/pages/releases/custom'
+import { StandardReleasePage } from '@/pages/releases/standard'
+
+import { ROUTES } from '@/shared/config/constants'
+
+import { ProtectedRoute } from './ProtectedRoute'
+import { MainLayout } from '../layouts/MainLayout'
 
 const router = createBrowserRouter([
   {

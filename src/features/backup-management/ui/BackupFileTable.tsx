@@ -1,0 +1,191 @@
+/**
+ * Backup File Table Component
+ * 백업 파일 목록 테이블 컴포넌트
+ */
+
+import {
+  Calendar,
+  Download,
+  FileText,
+  HardDrive,
+  ScrollText,
+  Trash2,
+  User,
+} from 'lucide-react'
+
+import type { BackupFile } from '@/entities/job'
+
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { Button } from '@/shared/ui/button'
+import { DataTable } from '@/shared/ui/data-table'
+import { EmptyState } from '@/shared/ui/empty-state'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  SortableTableHead,
+} from '@/shared/ui/table'
+import { TruncatedCell } from '@/shared/ui/truncated-cell'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+
+import type { SortConfig } from '../model/types'
+
+interface BackupFileTableProps {
+  files: BackupFile[]
+  sort: SortConfig | null
+  isDeleting?: boolean
+  onSort: (key: string) => void
+  onFileClick: (file: BackupFile) => void
+  onLogsClick: (file: BackupFile) => void
+  onDownload: (file: BackupFile) => void
+  onDelete: (file: BackupFile) => void
+}
+
+export function BackupFileTable({
+  files,
+  sort,
+  isDeleting,
+  onSort,
+  onFileClick,
+  onLogsClick,
+  onDownload,
+  onDelete,
+}: BackupFileTableProps) {
+  if (files.length === 0) {
+    return (
+      <EmptyState
+        icon={HardDrive}
+        title="백업 파일이 없습니다."
+        description="백업 실행 버튼을 눌러 새 백업을 생성하세요."
+      />
+    )
+  }
+
+  return (
+    <DataTable>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <SortableTableHead
+              id="rowNumber"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-16 text-center"
+            >
+              No
+            </SortableTableHead>
+            <SortableTableHead
+              id="fileName"
+              currentSort={sort}
+              onSort={onSort}
+            >
+              파일명
+            </SortableTableHead>
+            <SortableTableHead
+              id="fileSize"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-28"
+            >
+              파일 크기
+            </SortableTableHead>
+            <SortableTableHead
+              id="createdBy"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-48"
+            >
+              생성자
+            </SortableTableHead>
+            <SortableTableHead
+              id="createdAt"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-44"
+            >
+              생성일시
+            </SortableTableHead>
+            <TableHead className="w-32 text-center">작업</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {files.map((file) => (
+            <TableRow key={file.backupFileId}>
+              <TableCell className="text-center">
+                <TypographyMuted>{file.rowNumber}</TypographyMuted>
+              </TableCell>
+              <TableCell>
+                <div
+                  className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => onFileClick(file)}
+                >
+                  <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <TruncatedCell tooltipText={file.fileName}>
+                    <TypographyInlineCode className="bg-transparent truncate">
+                      {file.fileName}
+                    </TypographyInlineCode>
+                  </TruncatedCell>
+                </div>
+              </TableCell>
+              <TableCell>
+                <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
+              </TableCell>
+              <TableCell>
+                <TruncatedCell
+                  tooltipText={file.createdBy}
+                  className="flex items-center gap-1 text-muted-foreground"
+                >
+                  <User className="h-3 w-3 flex-shrink-0" />
+                  <span className="text-sm truncate">{file.createdBy}</span>
+                </TruncatedCell>
+              </TableCell>
+              <TableCell>
+                <TruncatedCell
+                  tooltipText={formatDateTime(file.createdAt)}
+                  className="flex items-center gap-1 text-muted-foreground"
+                >
+                  <Calendar className="h-3 w-3 flex-shrink-0" />
+                  <span className="text-sm whitespace-nowrap">
+                    {formatDateTime(file.createdAt)}
+                  </span>
+                </TruncatedCell>
+              </TableCell>
+              <TableCell className="text-center">
+                <div className="flex items-center justify-center gap-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onLogsClick(file)}
+                    title="로그 조회"
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDownload(file)}
+                    title="다운로드"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(file)}
+                    disabled={isDeleting}
+                    title="삭제"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </DataTable>
+  )
+}

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
+
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from 'lucide-react'
-import { cn } from '@/shared/lib/utils'
-import { Badge } from '@/shared/ui/badge'
+
 import type { MajorMinorNode, VersionNode } from '@/entities/release'
+
+import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { Badge } from '@/shared/ui/badge'
 
 interface ReleaseTreeProps {
   majorMinorGroups: MajorMinorNode[]
