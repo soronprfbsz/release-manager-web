@@ -4,6 +4,7 @@
  */
 
 export interface Customer {
+  rowNumber: number
   customerId: number
   customerCode: string
   customerName: string

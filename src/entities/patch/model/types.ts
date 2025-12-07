@@ -4,6 +4,7 @@
  */
 
 export interface CumulativePatch {
+  rowNumber: number
   patchId: number
   releaseType: string
   customerCode: string | null

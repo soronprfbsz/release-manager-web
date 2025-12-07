@@ -5,6 +5,7 @@
 
 export interface EngineerFormData {
   engineerName: string
+  position: string
   engineerEmail: string
   departmentId: string
   description: string

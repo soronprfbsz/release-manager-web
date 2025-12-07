@@ -61,7 +61,7 @@ export function PatchHistoryTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-center">ID</TableHead>
+              <TableHead className="w-16 text-center">번호</TableHead>
               <TableHead className="w-48">패치명</TableHead>
               <TableHead className="w-48">버전 범위</TableHead>
               <TableHead className="w-24 text-center">릴리즈</TableHead>
@@ -75,7 +75,7 @@ export function PatchHistoryTable({
             {patches.map((patch) => (
               <TableRow key={patch.patchId}>
                 <TableCell className="text-center text-muted-foreground">
-                  {patch.patchId}
+                  {patch.rowNumber}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

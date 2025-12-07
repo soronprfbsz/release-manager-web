@@ -20,6 +20,7 @@ import {
   validateEngineerForm,
 } from '@/features/engineer-management'
 
+import { codeApi, CODE_TYPE } from '@/entities/code'
 import { departmentApi } from '@/entities/department'
 import {
   engineerApi,
@@ -51,6 +52,7 @@ interface PaginationState {
 
 const INITIAL_FORM_DATA: EngineerFormData = {
   engineerName: '',
+  position: '',
   engineerEmail: '',
   departmentId: '',
   description: '',
@@ -88,6 +90,11 @@ export function EngineerListPage() {
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
     queryFn: () => departmentApi.getList(),
+  })
+
+  const { data: positions = [] } = useQuery({
+    queryKey: ['codes', CODE_TYPE.POSITION],
+    queryFn: () => codeApi.getCodesByType(CODE_TYPE.POSITION),
   })
 
   const { data: engineerData, isLoading, refetch } = useQuery({
@@ -150,6 +157,7 @@ export function EngineerListPage() {
   const openEditModal = (engineer: Engineer) => {
     setFormData({
       engineerName: engineer.engineerName,
+      position: engineer.position || '',
       engineerEmail: engineer.engineerEmail,
       departmentId: engineer.departmentId?.toString() || '',
       description: engineer.description || '',
@@ -175,6 +183,7 @@ export function EngineerListPage() {
     if (modalMode === 'create') {
       createMutation.mutate({
         engineerName: formData.engineerName.trim(),
+        position: formData.position.trim() || undefined,
         engineerEmail: formData.engineerEmail.trim(),
         departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
         description: formData.description.trim() || undefined,
@@ -184,6 +193,7 @@ export function EngineerListPage() {
         id: editingEngineer.engineerId,
         request: {
           engineerName: formData.engineerName.trim(),
+          position: formData.position.trim() || undefined,
           engineerEmail: formData.engineerEmail.trim(),
           departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
           description: formData.description.trim() || undefined,
@@ -287,6 +297,7 @@ export function EngineerListPage() {
         mode={modalMode}
         formData={formData}
         departments={departments}
+        positions={positions}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}

@@ -5,6 +5,7 @@
 
 import { Users } from 'lucide-react'
 
+import type { CodeSimpleResponse } from '@/entities/code'
 import type { Department } from '@/entities/department'
 
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -25,6 +26,7 @@ interface EngineerFormProps {
   mode: EngineerFormMode
   formData: EngineerFormData
   departments: Department[]
+  positions: CodeSimpleResponse[]
   isSubmitting: boolean
   onFormDataChange: (data: EngineerFormData) => void
   onSubmit: () => void
@@ -35,6 +37,7 @@ export function EngineerForm({
   mode,
   formData,
   departments,
+  positions,
   isSubmitting,
   onFormDataChange,
   onSubmit,
@@ -63,6 +66,26 @@ export function EngineerForm({
           placeholder="예: 홍길동"
           maxLength={50}
         />
+      </div>
+      <div className="space-y-2">
+        <Label>직급</Label>
+        <Select
+          value={formData.position}
+          onValueChange={(value) =>
+            onFormDataChange({ ...formData, position: value })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="직급을 선택하세요" />
+          </SelectTrigger>
+          <SelectContent>
+            {positions.map((pos) => (
+              <SelectItem key={pos.value} value={pos.value}>
+                {pos.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-2">
         <Label required>이메일</Label>

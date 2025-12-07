@@ -9,6 +9,7 @@ import {
   Trash2,
   Mail,
   Building,
+  Briefcase,
 } from 'lucide-react'
 
 import type { Engineer } from '@/entities/engineer'
@@ -68,12 +69,12 @@ export function EngineerTable({
         <TableHeader>
           <TableRow>
             <SortableTableHead
-              id="engineerId"
+              id="rowNumber"
               currentSort={sort}
               onSort={onSort}
               className="w-16 text-center"
             >
-              ID
+              번호
             </SortableTableHead>
             <SortableTableHead
               id="engineerName"
@@ -81,6 +82,13 @@ export function EngineerTable({
               onSort={onSort}
             >
               이름
+            </SortableTableHead>
+            <SortableTableHead
+              id="position"
+              currentSort={sort}
+              onSort={onSort}
+            >
+              직급
             </SortableTableHead>
             <SortableTableHead
               id="engineerEmail"
@@ -102,7 +110,7 @@ export function EngineerTable({
               onSort={onSort}
               className="w-28"
             >
-              등록일
+              생성일
             </SortableTableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
@@ -111,9 +119,19 @@ export function EngineerTable({
           {engineers.map((engineer) => (
             <TableRow key={engineer.engineerId}>
               <TableCell className="text-center text-muted-foreground">
-                {engineer.engineerId}
+                {engineer.rowNumber}
               </TableCell>
               <TableCell className="font-medium">{engineer.engineerName}</TableCell>
+              <TableCell>
+                {engineer.position ? (
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+                    {engineer.position}
+                  </div>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />

@@ -72,12 +72,12 @@ export function CustomerTable({
         <TableHeader>
           <TableRow>
             <SortableTableHead
-              id="customerId"
+              id="rowNumber"
               currentSort={sort}
               onSort={onSort}
               className="w-16 text-center"
             >
-              ID
+              번호
             </SortableTableHead>
             <SortableTableHead
               id="customerCode"
@@ -111,7 +111,7 @@ export function CustomerTable({
           {customers.map((customer) => (
             <TableRow key={customer.customerId}>
               <TableCell className="text-center text-muted-foreground">
-                {customer.customerId}
+                {customer.rowNumber}
               </TableCell>
               <TableCell>
                 <TypographyInlineCode className="bg-transparent">
