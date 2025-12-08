@@ -417,4 +417,25 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* CommandList Scrollbar Style (same as Radix ScrollArea) */
+  [cmdk-list] {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  [cmdk-list]::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  [cmdk-list]::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  [cmdk-list]::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
 }
