@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Package } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
@@ -29,7 +28,6 @@ export function NavigationBar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const queryClient = useQueryClient()
 
   // 동적 메뉴 데이터 로드
   const { data: menusData, isLoading: isMenusLoading, error: menusError } = useMenus()
@@ -41,10 +39,6 @@ export function NavigationBar() {
 
   const handleLogoClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    // 대시보드 데이터 새로고침 (recent, top-customers, monthly)
-    queryClient.invalidateQueries({ queryKey: ['dashboard-recent'] })
-    queryClient.invalidateQueries({ queryKey: ['dashboard-top-customers'] })
-    queryClient.invalidateQueries({ queryKey: ['dashboard-monthly-patches'] })
     // 이미 홈이면 네비게이션 스킵, 아니면 홈으로 이동
     if (location.pathname !== ROUTES.HOME) {
       navigate(ROUTES.HOME)
@@ -84,7 +78,7 @@ export function NavigationBar() {
             <NavigationMenuList>
               {menuItems.map((item) => (
                 <NavigationMenuItem key={item.label}>
-                  {item.children ? (
+                  {item.children && item.children.length > 0 ? (
                     <>
                       <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
                       <NavigationMenuContent>
