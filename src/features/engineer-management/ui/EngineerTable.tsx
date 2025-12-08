@@ -83,19 +83,19 @@ export function EngineerTable({
               소속팀
             </SortableTableHead>
             <SortableTableHead
-              id="engineerName"
-              currentSort={sort}
-              onSort={onSort}
-            >
-              이름
-            </SortableTableHead>
-            <SortableTableHead
               id="position"
               currentSort={sort}
               onSort={onSort}
               className="w-24"
             >
               직급
+            </SortableTableHead>
+            <SortableTableHead
+              id="engineerName"
+              currentSort={sort}
+              onSort={onSort}
+            >
+              이름
             </SortableTableHead>
             <SortableTableHead
               id="engineerEmail"
@@ -128,7 +128,6 @@ export function EngineerTable({
                   <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{engineer.engineerName}</TableCell>
               <TableCell>
                 {engineer.position ? (
                   <span className="text-sm">{engineer.position}</span>
@@ -136,6 +135,7 @@ export function EngineerTable({
                   <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
+              <TableCell className="font-medium">{engineer.engineerName}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />
