@@ -67,7 +67,7 @@ export function PatchTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12 text-center">번호</TableHead>
+            <TableHead className="w-12 text-center">No</TableHead>
             <SortableTableHead
               className="w-48"
               id="patchName"

@@ -72,7 +72,7 @@ export function EngineerTable({
               onSort={onSort}
               className="w-16 text-center"
             >
-              ID
+              No
             </SortableTableHead>
             <SortableTableHead
               id="department"

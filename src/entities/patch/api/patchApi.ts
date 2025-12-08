@@ -21,12 +21,13 @@ const ENDPOINTS = {
 
 export const patchApi = {
   /** 패치 목록 조회 (페이징) */
-  getList: async (params?: PaginationParams & { releaseType?: string }): Promise<PageResponse<CumulativePatch>> => {
+  getList: async (params?: PaginationParams & { releaseType?: string; projectId?: string }): Promise<PageResponse<CumulativePatch>> => {
     const queryParams = new URLSearchParams()
     if (params?.page !== undefined) queryParams.append('page', String(params.page))
     if (params?.size !== undefined) queryParams.append('size', String(params.size))
     if (params?.sort) queryParams.append('sort', params.sort)
     if (params?.releaseType) queryParams.append('releaseType', params.releaseType)
+    if (params?.projectId) queryParams.append('projectId', params.projectId)
 
     const queryString = queryParams.toString()
     const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base

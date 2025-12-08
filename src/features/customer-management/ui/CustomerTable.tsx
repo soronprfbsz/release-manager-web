@@ -77,8 +77,9 @@ export function CustomerTable({
               onSort={onSort}
               className="w-16 text-center"
             >
-              번호
+              No
             </SortableTableHead>
+            <TableHead className="w-20 text-center">상태</TableHead>
             <SortableTableHead
               id="customerCode"
               currentSort={sort}
@@ -95,16 +96,9 @@ export function CustomerTable({
               고객사명
             </SortableTableHead>
             <TableHead>설명</TableHead>
-            <TableHead className="w-40">프로젝트</TableHead>
-            <TableHead className="w-20 text-center">상태</TableHead>
-            <SortableTableHead
-              id="createdAt"
-              currentSort={sort}
-              onSort={onSort}
-              className="w-28"
-            >
-              등록일
-            </SortableTableHead>
+            <TableHead className="w-40">프로젝트명</TableHead>
+            <TableHead className="w-32">최종 패치 버전</TableHead>
+            <TableHead className="w-28">최종 패치일</TableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -113,6 +107,11 @@ export function CustomerTable({
             <TableRow key={customer.customerId}>
               <TableCell className="text-center text-muted-foreground">
                 {customer.rowNumber}
+              </TableCell>
+              <TableCell className="text-center">
+                <StatusBadge variant={customer.isActive ? 'active' : 'inactive'}>
+                  {customer.isActive ? '활성' : '비활성'}
+                </StatusBadge>
               </TableCell>
               <TableCell>
                 <TypographyInlineCode className="bg-transparent">
@@ -134,13 +133,19 @@ export function CustomerTable({
                   <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
-              <TableCell className="text-center">
-                <StatusBadge variant={customer.isActive ? 'active' : 'inactive'}>
-                  {customer.isActive ? '활성' : '비활성'}
-                </StatusBadge>
+              <TableCell>
+                {customer.project?.lastPatchedVersion ? (
+                  <span className="text-sm font-mono">{customer.project.lastPatchedVersion}</span>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
               </TableCell>
               <TableCell className="whitespace-nowrap">
-                <TypographyMuted>{formatDateShort(customer.createdAt)}</TypographyMuted>
+                {customer.project?.lastPatchedAt ? (
+                  <TypographyMuted>{formatDateShort(customer.project.lastPatchedAt)}</TypographyMuted>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
               </TableCell>
               <TableCell>
                 <TableActionMenu>
