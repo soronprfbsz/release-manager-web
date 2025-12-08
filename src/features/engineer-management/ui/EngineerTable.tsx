@@ -90,6 +90,14 @@ export function EngineerTable({
               이름
             </SortableTableHead>
             <SortableTableHead
+              id="position"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-24"
+            >
+              직급
+            </SortableTableHead>
+            <SortableTableHead
               id="engineerEmail"
               currentSort={sort}
               onSort={onSort}
@@ -121,6 +129,13 @@ export function EngineerTable({
                 )}
               </TableCell>
               <TableCell className="font-medium">{engineer.engineerName}</TableCell>
+              <TableCell>
+                {engineer.position ? (
+                  <span className="text-sm">{engineer.position}</span>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />
