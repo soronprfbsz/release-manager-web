@@ -8,8 +8,6 @@ import {
   Edit2,
   Trash2,
   Mail,
-  Building,
-  Briefcase,
 } from 'lucide-react'
 
 import type { Engineer } from '@/entities/engineer'
@@ -74,7 +72,15 @@ export function EngineerTable({
               onSort={onSort}
               className="w-16 text-center"
             >
-              번호
+              ID
+            </SortableTableHead>
+            <SortableTableHead
+              id="department"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-28"
+            >
+              소속팀
             </SortableTableHead>
             <SortableTableHead
               id="engineerName"
@@ -84,13 +90,6 @@ export function EngineerTable({
               이름
             </SortableTableHead>
             <SortableTableHead
-              id="position"
-              currentSort={sort}
-              onSort={onSort}
-            >
-              직급
-            </SortableTableHead>
-            <SortableTableHead
               id="engineerEmail"
               currentSort={sort}
               onSort={onSort}
@@ -98,19 +97,12 @@ export function EngineerTable({
               이메일
             </SortableTableHead>
             <SortableTableHead
-              id="department"
-              currentSort={sort}
-              onSort={onSort}
-            >
-              소속팀
-            </SortableTableHead>
-            <SortableTableHead
               id="createdAt"
               currentSort={sort}
               onSort={onSort}
               className="w-28"
             >
-              생성일
+              등록일
             </SortableTableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
@@ -121,32 +113,19 @@ export function EngineerTable({
               <TableCell className="text-center text-muted-foreground">
                 {engineer.rowNumber}
               </TableCell>
-              <TableCell className="font-medium">{engineer.engineerName}</TableCell>
               <TableCell>
-                {engineer.position ? (
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-                    {engineer.position}
-                  </div>
+                {engineer.departmentName ? (
+                  <span className="text-sm">{engineer.departmentName}</span>
                 ) : (
                   <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
+              <TableCell className="font-medium">{engineer.engineerName}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5 text-sm">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                   {engineer.engineerEmail}
                 </div>
-              </TableCell>
-              <TableCell>
-                {engineer.departmentName ? (
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                    {engineer.departmentName}
-                  </div>
-                ) : (
-                  <TypographyMuted>-</TypographyMuted>
-                )}
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <TypographyMuted>{formatDateShort(engineer.createdAt)}</TypographyMuted>

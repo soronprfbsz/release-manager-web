@@ -10,6 +10,7 @@ import { Layers } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/AuthProvider'
+import { useProject } from '@/app/providers/ProjectProvider'
 
 import {
   PatchGenerateFormCard,
@@ -68,6 +69,7 @@ function getVersionsFromTree(
 export function PatchGeneratePage() {
   const { toast } = useToast()
   const { user } = useAuth()
+  const { projectId } = useProject()
   const queryClient = useQueryClient()
 
   // Form state
@@ -76,8 +78,8 @@ export function PatchGeneratePage() {
 
   // Queries
   const { data: treeData, isLoading: isTreeLoading } = useQuery({
-    queryKey: ['standard-release-tree'],
-    queryFn: releaseApi.getStandardTree,
+    queryKey: ['standard-release-tree', projectId],
+    queryFn: () => releaseApi.getStandardTree(projectId),
     enabled: releaseType === 'STANDARD',
   })
 
@@ -127,6 +129,7 @@ export function PatchGeneratePage() {
     )
 
     const request: CumulativePatchGenerateRequest = {
+      projectId,
       type: releaseType.toLowerCase() as 'standard' | 'custom',
       customerId: selectedCustomer?.customerId,
       fromVersion: formData.fromVersion,

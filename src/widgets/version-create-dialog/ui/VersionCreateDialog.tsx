@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Upload, X, FileArchive, Info, Loader2, Package } from 'lucide-react'
 
+import { useProject } from '@/app/providers/ProjectProvider'
+
 import { codeApi, CODE_TYPE } from '@/entities/code'
 import { releaseApi } from '@/entities/release'
 
@@ -40,6 +42,7 @@ interface VersionCreateDialogProps {
 }
 
 export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCreateDialogProps) {
+  const { projectId } = useProject()
   const [version, setVersion] = useState('')
   const [comment, setComment] = useState('')
   const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
@@ -82,7 +85,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
         }
       }
 
-      await releaseApi.createVersion(version, comment, releaseCategory, file!, progressHandler)
+      await releaseApi.createVersion(projectId, version, comment, releaseCategory, file!, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {

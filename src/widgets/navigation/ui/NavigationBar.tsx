@@ -6,6 +6,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/AuthProvider'
 
+import { ProjectSelector } from '@/widgets/project-selector'
 import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
 
 
@@ -94,8 +95,10 @@ export function NavigationBar() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* 우측: 사용자 정보 */}
-        <div className="flex-1 flex items-center justify-end gap-2">
+        {/* 우측: 프로젝트 선택 및 사용자 정보 */}
+        <div className="flex-1 flex items-center justify-end gap-3">
+          <ProjectSelector />
+          <div className="h-4 w-px bg-border" />
           {user && (
             <span className="text-sm text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
               {user.accountName}

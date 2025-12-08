@@ -6,23 +6,23 @@ import { releaseApi } from '../api/releaseApi'
 export const releaseKeys = {
   all: ['releases'] as const,
   trees: () => [...releaseKeys.all, 'tree'] as const,
-  standardTree: () => [...releaseKeys.trees(), 'standard'] as const,
-  customTree: (customerCode: string) => [...releaseKeys.trees(), 'custom', customerCode] as const,
+  standardTree: (projectId: string) => [...releaseKeys.trees(), 'standard', projectId] as const,
+  customTree: (projectId: string, customerCode: string) => [...releaseKeys.trees(), 'custom', projectId, customerCode] as const,
   versions: () => [...releaseKeys.all, 'version'] as const,
   version: (id: number) => [...releaseKeys.versions(), id] as const,
 }
 
 // Query Hooks
-export const useStandardReleaseTree = () =>
+export const useStandardReleaseTree = (projectId: string) =>
   useQuery({
-    queryKey: releaseKeys.standardTree(),
-    queryFn: () => releaseApi.getStandardTree(),
+    queryKey: releaseKeys.standardTree(projectId),
+    queryFn: () => releaseApi.getStandardTree(projectId),
   })
 
-export const useCustomReleaseTree = (customerCode: string) =>
+export const useCustomReleaseTree = (projectId: string, customerCode: string) =>
   useQuery({
-    queryKey: releaseKeys.customTree(customerCode),
-    queryFn: () => releaseApi.getCustomTree(customerCode),
+    queryKey: releaseKeys.customTree(projectId, customerCode),
+    queryFn: () => releaseApi.getCustomTree(projectId, customerCode),
     enabled: !!customerCode,
   })
 

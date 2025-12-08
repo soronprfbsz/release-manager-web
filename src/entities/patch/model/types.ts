@@ -37,6 +37,7 @@ export interface CumulativePatchDetail {
 }
 
 export interface CumulativePatchGenerateRequest {
+  projectId: string
   type: 'standard' | 'custom'
   customerId?: number
   fromVersion: string

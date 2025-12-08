@@ -4,8 +4,8 @@ import { API_TIMEOUT } from '@/shared/config/constants'
 import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
 
 const ENDPOINTS = {
-  standardTree: '/api/releases/standard/tree',
-  customTree: (customerCode: string) => `/api/releases/custom/${customerCode}/tree`,
+  standardTree: (projectId: string) => `/api/releases/projects/${projectId}/standard/tree`,
+  customTree: (projectId: string, customerCode: string) => `/api/releases/projects/${projectId}/custom/${customerCode}/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
   fileDownload: (id: number) => `/api/releases/files/${id}/download`,
@@ -16,14 +16,14 @@ const ENDPOINTS = {
 
 export const releaseApi = {
   /** 표준 릴리즈 트리 조회 */
-  getStandardTree: async (): Promise<ReleaseTreeResponse> => {
-    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.standardTree)
+  getStandardTree: async (projectId: string): Promise<ReleaseTreeResponse> => {
+    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.standardTree(projectId))
     return response
   },
 
   /** 커스텀 릴리즈 트리 조회 */
-  getCustomTree: async (customerCode: string): Promise<ReleaseTreeResponse> => {
-    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.customTree(customerCode))
+  getCustomTree: async (projectId: string, customerCode: string): Promise<ReleaseTreeResponse> => {
+    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.customTree(projectId, customerCode))
     return response
   },
 
@@ -53,6 +53,7 @@ export const releaseApi = {
 
   /** 버전 생성 (multipart/form-data) */
   createVersion: async (
+    projectId: string,
     version: string,
     comment: string,
     releaseCategory: string,
@@ -60,6 +61,7 @@ export const releaseApi = {
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<void> => {
     const formData = new FormData()
+    formData.append('projectId', projectId)
     formData.append('version', version)
     formData.append('comment', comment)
     formData.append('releaseCategory', releaseCategory)

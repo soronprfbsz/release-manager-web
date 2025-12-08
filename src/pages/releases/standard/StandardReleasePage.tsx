@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Package, RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
+import { useProject } from '@/app/providers/ProjectProvider'
+
 import { VersionCreateDialog } from '@/widgets/version-create-dialog'
 
 import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
@@ -23,6 +25,7 @@ import { ScrollArea } from '@/shared/ui/scroll-area'
 
 export function StandardReleasePage() {
   const location = useLocation()
+  const { projectId } = useProject()
   const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
@@ -40,8 +43,8 @@ export function StandardReleasePage() {
     error: treeError,
     refetch: refetchTree,
   } = useQuery({
-    queryKey: ['standard-release-tree'],
-    queryFn: releaseApi.getStandardTree,
+    queryKey: ['standard-release-tree', projectId],
+    queryFn: () => releaseApi.getStandardTree(projectId),
   })
 
   const handleSelectVersion = (version: VersionNode) => {

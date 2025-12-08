@@ -10,6 +10,7 @@ import { Package, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/AuthProvider'
+import { useProject } from '@/app/providers/ProjectProvider'
 
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 
@@ -79,6 +80,7 @@ function getVersionsFromTree(
 export function StandardPatchPage() {
   const { toast } = useToast()
   const { user } = useAuth()
+  const { projectId } = useProject()
   const queryClient = useQueryClient()
 
   // Form state
@@ -123,8 +125,8 @@ export function StandardPatchPage() {
   })
 
   const { data: treeData, isLoading: isTreeLoading } = useQuery({
-    queryKey: ['standard-release-tree'],
-    queryFn: releaseApi.getStandardTree,
+    queryKey: ['standard-release-tree', projectId],
+    queryFn: () => releaseApi.getStandardTree(projectId),
     enabled: isFormOpen,
   })
 
@@ -210,6 +212,7 @@ export function StandardPatchPage() {
     )
 
     const request: CumulativePatchGenerateRequest = {
+      projectId,
       type: 'standard',
       customerId: selectedCustomer?.customerId,
       fromVersion: formData.fromVersion,

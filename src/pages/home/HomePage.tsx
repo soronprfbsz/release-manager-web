@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+import { useProject } from '@/app/providers/ProjectProvider'
+
 import { dashboardApi } from '@/entities/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
@@ -23,9 +25,11 @@ import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
 export function HomePage() {
+  const { projectId } = useProject()
+
   const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ['dashboard-recent'],
-    queryFn: () => dashboardApi.getRecent(),
+    queryKey: ['dashboard-recent', projectId],
+    queryFn: () => dashboardApi.getRecent(projectId),
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
     staleTime: 0,
@@ -33,16 +37,16 @@ export function HomePage() {
 
   // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
   const { data: topCustomersData, isLoading: isLoadingTopCustomers } = useQuery({
-    queryKey: ['dashboard-top-customers'],
-    queryFn: () => dashboardApi.getTopCustomers(),
+    queryKey: ['dashboard-top-customers', projectId],
+    queryFn: () => dashboardApi.getTopCustomers(projectId),
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
     staleTime: 0,
   })
 
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useQuery({
-    queryKey: ['dashboard-monthly-patches'],
-    queryFn: () => dashboardApi.getMonthlyPatches(),
+    queryKey: ['dashboard-monthly-patches', projectId],
+    queryFn: () => dashboardApi.getMonthlyPatches(projectId),
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
     staleTime: 0,
