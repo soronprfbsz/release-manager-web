@@ -14,6 +14,8 @@ import {
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { useAuth } from '@/app/providers/AuthProvider'
+
 import { projectApi, type Project, DEFAULT_PROJECT_ID } from '@/entities/project'
 
 const STORAGE_KEY = 'release-manager-selected-project'
@@ -39,6 +41,7 @@ interface ProjectProviderProps {
 
 export function ProjectProvider({ children }: ProjectProviderProps) {
   const queryClient = useQueryClient()
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth()
 
   // localStorage에서 초기값 로드
   const [projectId, setProjectId] = useState<string>(() => {
@@ -46,11 +49,12 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
     return stored || DEFAULT_PROJECT_ID
   })
 
-  // 프로젝트 목록 조회
+  // 프로젝트 목록 조회 (인증 완료 후에만 요청)
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectApi.getList(),
     staleTime: 5 * 60 * 1000, // 5분간 캐시
+    enabled: isAuthenticated && !isAuthLoading, // 인증 완료 후에만 실행
   })
 
   // 현재 선택된 프로젝트
