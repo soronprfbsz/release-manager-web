@@ -6,17 +6,15 @@
 export interface Account {
   rowNumber: number
   accountId: number
-  username: string
   email: string
+  accountName: string
   role: string
-  isActive: boolean
+  status: string
   lastLoginAt: string | null
   createdAt: string
-  updatedAt: string
 }
 
 export interface AccountUpdateRequest {
-  email?: string
   role?: string
-  isActive?: boolean
+  status?: string
 }

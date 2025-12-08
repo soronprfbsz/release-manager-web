@@ -8,23 +8,20 @@ import type { Account } from '@/entities/account'
 export type AccountFormMode = 'edit'
 
 export interface AccountFormData {
-  email: string
   role: string
-  isActive: boolean
+  status: string
 }
 
 export function createAccountFormData(account?: Account): AccountFormData {
   if (!account) {
     return {
-      email: '',
       role: '',
-      isActive: true,
+      status: 'ACTIVE',
     }
   }
 
   return {
-    email: account.email,
     role: account.role,
-    isActive: account.isActive,
+    status: account.status,
   }
 }

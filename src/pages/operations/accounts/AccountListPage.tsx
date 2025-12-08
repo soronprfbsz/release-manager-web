@@ -91,9 +91,8 @@ export function AccountListPage() {
     if (!editingAccount) return
 
     const request: AccountUpdateRequest = {
-      email: formData.email.trim() || undefined,
       role: formData.role || undefined,
-      isActive: formData.isActive,
+      status: formData.status,
     }
 
     updateMutation.mutate(
@@ -211,7 +210,8 @@ export function AccountListPage() {
       {/* Form Sheet */}
       {isFormOpen && editingAccount && (
         <AccountForm
-          username={editingAccount.username}
+          accountName={editingAccount.accountName}
+          email={editingAccount.email}
           formData={formData}
           isSubmitting={updateMutation.isPending}
           onFormDataChange={setFormData}
@@ -223,7 +223,7 @@ export function AccountListPage() {
       {/* Delete Dialog */}
       <AccountDeleteDialog
         open={deleteConfirmAccount !== null}
-        accountUsername={deleteConfirmAccount?.username || null}
+        accountUsername={deleteConfirmAccount?.accountName || null}
         onConfirm={handleDelete}
         onCancel={() => setDeleteConfirmAccount(null)}
       />

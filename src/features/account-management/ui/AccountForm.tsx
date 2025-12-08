@@ -15,7 +15,8 @@ import { TypographyMuted } from '@/shared/ui/typography'
 import type { AccountFormData } from '../model/types'
 
 interface AccountFormProps {
-  username: string
+  accountName: string
+  email: string
   formData: AccountFormData
   isSubmitting: boolean
   onFormDataChange: (data: AccountFormData) => void
@@ -30,7 +31,8 @@ const ROLE_OPTIONS = [
 ]
 
 export function AccountForm({
-  username,
+  accountName,
+  email,
   formData,
   isSubmitting,
   onFormDataChange,
@@ -51,25 +53,25 @@ export function AccountForm({
       onClose={onClose}
     >
       <div className="space-y-2">
-        <Label>사용자명</Label>
+        <Label>계정명</Label>
         <Input
-          value={username}
+          value={accountName}
           disabled
         />
         <TypographyMuted className="text-xs">
-          사용자명은 수정할 수 없습니다.
+          계정명은 수정할 수 없습니다.
         </TypographyMuted>
       </div>
       <div className="space-y-2">
-        <Label required>이메일</Label>
+        <Label>이메일</Label>
         <Input
           type="email"
-          value={formData.email}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, email: e.target.value })
-          }
-          placeholder="예: user@company.com"
+          value={email}
+          disabled
         />
+        <TypographyMuted className="text-xs">
+          이메일은 수정할 수 없습니다.
+        </TypographyMuted>
       </div>
       <div className="space-y-2">
         <Label>권한</Label>
@@ -91,9 +93,9 @@ export function AccountForm({
           </TypographyMuted>
         </div>
         <Switch
-          checked={formData.isActive}
+          checked={formData.status === 'ACTIVE'}
           onCheckedChange={(checked) =>
-            onFormDataChange({ ...formData, isActive: checked })
+            onFormDataChange({ ...formData, status: checked ? 'ACTIVE' : 'INACTIVE' })
           }
         />
       </div>

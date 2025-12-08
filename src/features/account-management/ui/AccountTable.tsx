@@ -76,12 +76,12 @@ export function AccountTable({
             </SortableTableHead>
             <TableHead className="w-20 text-center">상태</TableHead>
             <SortableTableHead
-              id="username"
+              id="accountName"
               currentSort={sort}
               onSort={onSort}
               className="w-40"
             >
-              사용자명
+              계정명
             </SortableTableHead>
             <SortableTableHead
               id="email"
@@ -103,11 +103,11 @@ export function AccountTable({
                 {account.rowNumber}
               </TableCell>
               <TableCell className="text-center">
-                <StatusBadge variant={account.isActive ? 'active' : 'inactive'}>
-                  {account.isActive ? '활성' : '비활성'}
+                <StatusBadge variant={account.status === 'ACTIVE' ? 'active' : 'inactive'}>
+                  {account.status === 'ACTIVE' ? '활성' : '비활성'}
                 </StatusBadge>
               </TableCell>
-              <TableCell className="font-medium">{account.username}</TableCell>
+              <TableCell className="font-medium">{account.accountName}</TableCell>
               <TableCell>
                 <TypographyMuted>{account.email}</TypographyMuted>
               </TableCell>
