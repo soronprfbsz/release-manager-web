@@ -97,9 +97,30 @@ export function CustomerTable({
               고객사명
             </SortableTableHead>
             <TableHead>설명</TableHead>
-            <TableHead className="w-36">프로젝트명</TableHead>
-            <TableHead className="w-40">최종 패치 버전</TableHead>
-            <TableHead className="w-40">최종 패치일</TableHead>
+            <SortableTableHead
+              id="projectName"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-36"
+            >
+              프로젝트명
+            </SortableTableHead>
+            <SortableTableHead
+              id="lastPatchedVersion"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-40"
+            >
+              최종 패치 버전
+            </SortableTableHead>
+            <SortableTableHead
+              id="lastPatchedAt"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-40"
+            >
+              최종 패치일
+            </SortableTableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
         </TableHeader>
