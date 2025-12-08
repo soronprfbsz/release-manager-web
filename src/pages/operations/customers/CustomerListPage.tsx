@@ -26,6 +26,7 @@ import {
   type CustomerCreateRequest,
   type CustomerUpdateRequest,
 } from '@/entities/customer'
+import { projectApi } from '@/entities/project'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -53,6 +54,7 @@ const INITIAL_FORM_DATA: CustomerFormData = {
   customerName: '',
   description: '',
   isActive: true,
+  projectId: '',
 }
 
 const INITIAL_FILTERS: CustomerFiltersState = {
@@ -97,6 +99,13 @@ export function CustomerListPage() {
         sort: sort ? `${sort.key},${sort.direction}` : undefined,
       })
     },
+  })
+
+  // 프로젝트 목록 조회
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => projectApi.getList(),
+    staleTime: 5 * 60 * 1000,
   })
 
   // Mutations
@@ -162,6 +171,7 @@ export function CustomerListPage() {
       customerName: customer.customerName,
       description: customer.description || '',
       isActive: customer.isActive,
+      projectId: customer.project?.projectId || '',
     })
     setEditingCustomer(customer)
     setModalMode('edit')
@@ -187,6 +197,7 @@ export function CustomerListPage() {
         customerName: formData.customerName.trim(),
         description: formData.description.trim() || undefined,
         isActive: formData.isActive,
+        projectId: formData.projectId || undefined,
       })
     } else if (modalMode === 'edit' && editingCustomer) {
       updateMutation.mutate({
@@ -195,6 +206,7 @@ export function CustomerListPage() {
           customerName: formData.customerName.trim(),
           description: formData.description.trim() || undefined,
           isActive: formData.isActive,
+          projectId: formData.projectId || undefined,
         },
       })
     }
@@ -299,6 +311,7 @@ export function CustomerListPage() {
       <CustomerForm
         mode={modalMode}
         formData={formData}
+        projects={projects}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}

@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'reac
 
 import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
-import { ScriptDownloadPage } from '@/pages/downloads/scripts'
+import { ResourcePage } from '@/pages/resources'
 import { HomePage } from '@/pages/home'
 import { MariaDBJobPage } from '@/pages/job'
 import { CustomerListPage } from '@/pages/operations/customers'
@@ -107,11 +107,11 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.RESOURCES.SCRIPTS,
+    path: ROUTES.RESOURCES.ROOT,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ScriptDownloadPage />
+          <ResourcePage />
         </MainLayout>
       </ProtectedRoute>
     ),

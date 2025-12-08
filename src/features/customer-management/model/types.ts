@@ -8,6 +8,7 @@ export interface CustomerFormData {
   customerName: string
   description: string
   isActive: boolean
+  projectId: string
 }
 
 export interface CustomerFiltersState {

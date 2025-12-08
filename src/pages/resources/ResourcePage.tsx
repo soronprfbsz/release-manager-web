@@ -1,5 +1,5 @@
 /**
- * Script Download Page (Resource Management)
+ * Resource Page
  * 리소스 관리 페이지 - Feature 컴포넌트를 조합하여 구성
  */
 
@@ -38,7 +38,7 @@ const INITIAL_FORM_DATA: ResourceUploadFormData = {
   description: '',
 }
 
-export function ScriptDownloadPage() {
+export function ResourcePage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 

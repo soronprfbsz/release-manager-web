@@ -5,9 +5,18 @@
 
 import { Building2 } from 'lucide-react'
 
+import type { Project } from '@/entities/project'
+
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -17,6 +26,7 @@ import type { CustomerFormData, CustomerFormMode } from '../model/types'
 interface CustomerFormProps {
   mode: CustomerFormMode
   formData: CustomerFormData
+  projects: Project[]
   isSubmitting: boolean
   onFormDataChange: (data: CustomerFormData) => void
   onSubmit: () => void
@@ -26,6 +36,7 @@ interface CustomerFormProps {
 export function CustomerForm({
   mode,
   formData,
+  projects,
   isSubmitting,
   onFormDataChange,
   onSubmit,
@@ -80,6 +91,29 @@ export function CustomerForm({
           placeholder="고객사에 대한 설명을 입력하세요"
           className="min-h-[80px]"
         />
+      </div>
+
+      {/* 프로젝트 선택 */}
+      <div className="space-y-2">
+        <Label required>프로젝트</Label>
+        <Select
+          value={formData.projectId}
+          onValueChange={(value) => onFormDataChange({ ...formData, projectId: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="프로젝트를 선택하세요" />
+          </SelectTrigger>
+          <SelectContent>
+            {projects.map((project) => (
+              <SelectItem key={project.projectId} value={project.projectId}>
+                {project.projectName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <TypographyMuted className="text-xs">
+          고객사에서 사용하는 프로젝트를 선택하세요.
+        </TypographyMuted>
       </div>
 
       {/* 활성 상태 토글 */}

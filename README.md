@@ -69,20 +69,6 @@ src/
 
 ## 개발 참고사항
 
-### npm 이슈
-
-이 프로젝트는 npm의 optional dependencies 버그로 인해 **yarn**을 사용합니다.
-npm 대신 yarn을 사용해주세요.
-
 ### 환경 변수
 
-- `.env.development`: 개발 환경 설정
-- `.env.production`: 프로덕션 환경 설정
-
-## 문서
-
-상세한 프로젝트 계획은 `claudedocs/project-plan.md`를 참고하세요.
-
-## 라이선스
-
-Private
+- env.example 파일을 수정하여 .env 파일을 생성하여 사용

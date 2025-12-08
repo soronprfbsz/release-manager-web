@@ -29,7 +29,7 @@ export const ROUTES = {
     MARIADB: '/jobs/mariadb',
   },
   RESOURCES: {
-    SCRIPTS: '/resources/scripts',
+    ROOT: '/resources',
   },
 } as const
 

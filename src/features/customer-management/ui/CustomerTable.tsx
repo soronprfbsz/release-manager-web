@@ -95,6 +95,7 @@ export function CustomerTable({
               고객사명
             </SortableTableHead>
             <TableHead>설명</TableHead>
+            <TableHead className="w-40">프로젝트</TableHead>
             <TableHead className="w-20 text-center">상태</TableHead>
             <SortableTableHead
               id="createdAt"
@@ -123,6 +124,15 @@ export function CustomerTable({
                 <TypographyMuted className="max-w-xs truncate">
                   {customer.description || '-'}
                 </TypographyMuted>
+              </TableCell>
+              <TableCell>
+                {customer.project ? (
+                  <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-muted">
+                    {customer.project.projectName}
+                  </span>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
               </TableCell>
               <TableCell className="text-center">
                 <StatusBadge variant={customer.isActive ? 'active' : 'inactive'}>
