@@ -206,7 +206,6 @@ export function CustomerListPage() {
           customerName: formData.customerName.trim(),
           description: formData.description.trim() || undefined,
           isActive: formData.isActive,
-          projectId: formData.projectId || undefined,
         },
       })
     }

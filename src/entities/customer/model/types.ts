@@ -35,5 +35,4 @@ export interface CustomerUpdateRequest {
   customerName?: string
   description?: string
   isActive?: boolean
-  projectId?: string
 }

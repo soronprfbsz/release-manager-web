@@ -84,7 +84,7 @@ export function CustomerTable({
               id="customerCode"
               currentSort={sort}
               onSort={onSort}
-              className="w-32"
+              className="w-36"
             >
               고객사 코드
             </SortableTableHead>
@@ -92,13 +92,14 @@ export function CustomerTable({
               id="customerName"
               currentSort={sort}
               onSort={onSort}
+              className="w-64"
             >
               고객사명
             </SortableTableHead>
             <TableHead>설명</TableHead>
-            <TableHead className="w-40">프로젝트명</TableHead>
-            <TableHead className="w-32">최종 패치 버전</TableHead>
-            <TableHead className="w-28">최종 패치일</TableHead>
+            <TableHead className="w-36">프로젝트명</TableHead>
+            <TableHead className="w-40">최종 패치 버전</TableHead>
+            <TableHead className="w-40">최종 패치일</TableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -120,7 +121,7 @@ export function CustomerTable({
               </TableCell>
               <TableCell className="font-medium">{customer.customerName}</TableCell>
               <TableCell>
-                <TypographyMuted className="max-w-xs truncate">
+                <TypographyMuted className="truncate">
                   {customer.description || '-'}
                 </TypographyMuted>
               </TableCell>
