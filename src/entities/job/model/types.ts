@@ -54,6 +54,7 @@ export interface MariaDBBackupRequest {
   username: string
   password: string
   database: string
+  fileName?: string
   description?: string
 }
 

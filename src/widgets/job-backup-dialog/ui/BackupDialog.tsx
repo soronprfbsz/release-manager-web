@@ -40,6 +40,7 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
   const [database, setDatabase] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [fileName, setFileName] = useState('')
   const [description, setDescription] = useState('')
 
   const backupMutation = useMutation({
@@ -64,6 +65,7 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
     setDatabase('')
     setUsername('')
     setPassword('')
+    setFileName('')
     setDescription('')
     onOpenChange(false)
   }
@@ -86,6 +88,7 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
       database,
       username,
       password,
+      fileName: fileName.trim() || undefined,
       description: description.trim() || undefined,
     }
 
@@ -167,6 +170,20 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
                 placeholder="데이터베이스 비밀번호"
                 required
               />
+            </div>
+
+            {/* 파일명 (선택) */}
+            <div className="space-y-2">
+              <Label htmlFor="fileName">파일명</Label>
+              <Input
+                id="fileName"
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                placeholder="예: production_backup_2025 (선택)"
+              />
+              <p className="text-xs text-muted-foreground">
+                생략 시 기본 파일명으로 생성됩니다. (.sql 확장자는 자동으로 추가됩니다)
+              </p>
             </div>
 
             {/* 설명 (선택) */}
