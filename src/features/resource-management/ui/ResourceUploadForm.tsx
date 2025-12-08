@@ -10,16 +10,10 @@ import { File, Loader2, Upload, X } from 'lucide-react'
 import type { CodeSimpleResponse } from '@/entities/code'
 
 import { Button } from '@/shared/ui/button'
+import { Combobox } from '@/shared/ui/combobox'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -87,41 +81,34 @@ export function ResourceUploadForm({
             {/* Category Select */}
             <div className="space-y-2">
               <Label required>대분류</Label>
-              <Select value={formData.fileCategory} onValueChange={handleFileCategoryChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="대분류를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                options={categories.map((cat) => ({
+                  value: cat.value,
+                  label: cat.name,
+                }))}
+                value={formData.fileCategory}
+                onValueChange={handleFileCategoryChange}
+                placeholder="대분류를 선택하세요"
+                searchPlaceholder="대분류 검색..."
+              />
             </div>
 
             {/* Sub Category Select */}
             {subCategories.length > 0 && (
               <div className="space-y-2">
                 <Label>소분류</Label>
-                <Select
+                <Combobox
+                  options={subCategories.map((cat) => ({
+                    value: cat.value,
+                    label: cat.name,
+                  }))}
                   value={formData.subCategory}
                   onValueChange={(value) =>
                     onFormDataChange({ ...formData, subCategory: value })
                   }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="소분류를 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subCategories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="소분류를 선택하세요"
+                  searchPlaceholder="소분류 검색..."
+                />
               </div>
             )}
 

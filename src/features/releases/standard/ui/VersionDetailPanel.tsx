@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, ChevronRight, ChevronDown } from 'lucide-react'
+import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react'
 
 import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
 
@@ -59,7 +59,11 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
           ) : (
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
-          <Folder className="h-4 w-4 text-blue-500" />
+          {isExpanded ? (
+            <FolderOpen className="h-4 w-4 text-blue-500" />
+          ) : (
+            <Folder className="h-4 w-4 text-blue-500" />
+          )}
           <span className="text-sm font-medium">{node.name}</span>
         </div>
         {isExpanded && sortedChildren.length > 0 && (

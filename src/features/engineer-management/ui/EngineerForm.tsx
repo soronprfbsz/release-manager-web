@@ -8,16 +8,10 @@ import { Users } from 'lucide-react'
 import type { CodeSimpleResponse } from '@/entities/code'
 import type { Department } from '@/entities/department'
 
+import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
 
 import type { EngineerFormData, EngineerFormMode } from '../model/types'
@@ -69,23 +63,18 @@ export function EngineerForm({
       </div>
       <div className="space-y-2">
         <Label>직급</Label>
-        <Select
+        <Combobox
+          options={positions.map((pos) => ({
+            value: pos.value,
+            label: pos.name,
+          }))}
           value={formData.position}
           onValueChange={(value) =>
             onFormDataChange({ ...formData, position: value })
           }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="직급을 선택하세요" />
-          </SelectTrigger>
-          <SelectContent>
-            {positions.map((pos) => (
-              <SelectItem key={pos.value} value={pos.value}>
-                {pos.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="직급을 선택하세요"
+          searchPlaceholder="직급 검색..."
+        />
       </div>
       <div className="space-y-2">
         <Label required>이메일</Label>
@@ -101,23 +90,18 @@ export function EngineerForm({
       </div>
       <div className="space-y-2">
         <Label>소속팀</Label>
-        <Select
+        <Combobox
+          options={departments.map((dept) => ({
+            value: dept.departmentId.toString(),
+            label: dept.departmentName,
+          }))}
           value={formData.departmentId}
           onValueChange={(value) =>
             onFormDataChange({ ...formData, departmentId: value })
           }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="소속팀을 선택하세요" />
-          </SelectTrigger>
-          <SelectContent>
-            {departments.map((dept) => (
-              <SelectItem key={dept.departmentId} value={dept.departmentId.toString()}>
-                {dept.departmentName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder="소속팀을 선택하세요"
+          searchPlaceholder="소속팀 검색..."
+        />
       </div>
       <div className="space-y-2">
         <Label>설명</Label>

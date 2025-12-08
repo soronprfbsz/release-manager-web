@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Folder, File, ChevronRight, ChevronDown, Download } from 'lucide-react'
+import { Folder, FolderOpen, File, ChevronRight, ChevronDown, Download } from 'lucide-react'
 
 import { patchApi, type PatchFileNode } from '@/entities/patch'
 
@@ -61,7 +61,11 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
           ) : (
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           )}
-          <Folder className="h-4 w-4 text-blue-500" />
+          {isExpanded ? (
+            <FolderOpen className="h-4 w-4 text-blue-500" />
+          ) : (
+            <Folder className="h-4 w-4 text-blue-500" />
+          )}
           <span className="text-sm font-medium">{node.name}</span>
         </div>
         {isExpanded && sortedChildren.length > 0 && (

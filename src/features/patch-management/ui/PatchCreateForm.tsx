@@ -9,6 +9,7 @@ import type { Customer } from '@/entities/customer'
 import type { Engineer } from '@/entities/engineer'
 
 import { Button } from '@/shared/ui/button'
+import { Combobox } from '@/shared/ui/combobox'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
@@ -135,7 +136,14 @@ export function PatchCreateForm({
             {/* 고객사 */}
             <div className="space-y-2">
               <Label>고객사</Label>
-              <Select
+              <Combobox
+                options={[
+                  { value: '__none__', label: '선택 안함' },
+                  ...customers.map((c) => ({
+                    value: c.customerCode,
+                    label: `${c.customerName} (${c.customerCode})`,
+                  })),
+                ]}
                 value={formData.customerCode || '__none__'}
                 onValueChange={(value) =>
                   onFormDataChange({
@@ -143,25 +151,22 @@ export function PatchCreateForm({
                     customerCode: value === '__none__' ? '' : value,
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="선택 안함" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">선택 안함</SelectItem>
-                  {customers.map((c) => (
-                    <SelectItem key={c.customerId} value={c.customerCode}>
-                      {c.customerName} ({c.customerCode})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="선택 안함"
+                searchPlaceholder="고객사 검색..."
+              />
             </div>
 
             {/* 담당 엔지니어 */}
             <div className="space-y-2">
               <Label>담당 엔지니어</Label>
-              <Select
+              <Combobox
+                options={[
+                  { value: '__none__', label: '선택 안함' },
+                  ...engineers.map((e) => ({
+                    value: String(e.engineerId),
+                    label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+                  })),
+                ]}
                 value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
                 onValueChange={(value) =>
                   onFormDataChange({
@@ -169,19 +174,9 @@ export function PatchCreateForm({
                     engineerId: value === '__none__' ? null : Number(value),
                   })
                 }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="선택 안함" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">선택 안함</SelectItem>
-                  {engineers.map((e) => (
-                    <SelectItem key={e.engineerId} value={String(e.engineerId)}>
-                      {e.engineerName} ({e.departmentName || '부서 없음'})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="선택 안함"
+                searchPlaceholder="엔지니어 검색..."
+              />
             </div>
 
             {/* 설명 */}
