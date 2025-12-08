@@ -24,6 +24,7 @@ export const ROUTES = {
   OPERATIONS: {
     CUSTOMERS: '/operations/customers',
     ENGINEERS: '/operations/engineers',
+    ACCOUNTS: '/operations/accounts',
   },
   JOBS: {
     MARIADB: '/jobs/mariadb',

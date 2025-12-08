@@ -6,11 +6,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useAuth } from '@/app/providers/AuthProvider'
 
+import { useMenus } from '@/entities/menu'
+
 import { ProjectSelector } from '@/widgets/project-selector'
 import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
 
-
 import { ROUTES } from '@/shared/config/constants'
+import { convertMenuResponseToMenuItem } from '@/shared/lib/menu-mapper'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
@@ -23,13 +25,14 @@ import {
   navigationMenuTriggerStyle,
 } from '@/shared/ui/navigation-menu'
 
-import { menuItems } from '../model/menuItems'
-
 export function NavigationBar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const queryClient = useQueryClient()
+
+  // 동적 메뉴 데이터 로드
+  const { data: menusData, isLoading: isMenusLoading, error: menusError } = useMenus()
 
   const handleLogout = () => {
     logout()
@@ -48,6 +51,12 @@ export function NavigationBar() {
     }
   }
 
+  // 메뉴 데이터를 MenuItem 형식으로 변환
+  const menuItems = React.useMemo(() => {
+    if (!menusData) return []
+    return menusData.map(convertMenuResponseToMenuItem)
+  }, [menusData])
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="flex h-16 items-center px-12">
@@ -64,36 +73,44 @@ export function NavigationBar() {
         </div>
 
         {/* 센터: 메뉴 */}
-        <NavigationMenu>
-          <NavigationMenuList>
-            {menuItems.map((item) => (
-              <NavigationMenuItem key={item.label}>
-                {item.children ? (
-                  <>
-                    <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[200px] gap-1 p-2">
-                        {item.children.map((child) => (
-                          <ListItem
-                            key={child.label}
-                            title={child.label}
-                            href={child.path!}
-                          />
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </>
-                ) : (
-                  <Link to={item.path!}>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      {item.label}
-                    </NavigationMenuLink>
-                  </Link>
-                )}
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {isMenusLoading ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+          </div>
+        ) : menusError ? (
+          <div className="text-sm text-destructive">메뉴 로드 실패</div>
+        ) : (
+          <NavigationMenu>
+            <NavigationMenuList>
+              {menuItems.map((item) => (
+                <NavigationMenuItem key={item.label}>
+                  {item.children ? (
+                    <>
+                      <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[200px] gap-1 p-2">
+                          {item.children.map((child) => (
+                            <ListItem
+                              key={child.label}
+                              title={child.label}
+                              href={child.path!}
+                            />
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  ) : (
+                    <Link to={item.path!}>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        {item.label}
+                      </NavigationMenuLink>
+                    </Link>
+                  )}
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        )}
 
         {/* 우측: 프로젝트 선택 및 사용자 정보 */}
         <div className="flex-1 flex items-center justify-end gap-3">

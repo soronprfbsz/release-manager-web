@@ -5,6 +5,7 @@ import { SignUpPage } from '@/pages/auth/signup'
 import { ResourcePage } from '@/pages/resources'
 import { HomePage } from '@/pages/home'
 import { MariaDBJobPage } from '@/pages/job'
+import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
 import { CustomPatchPage } from '@/pages/patches/custom'
@@ -92,6 +93,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <EngineerListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.OPERATIONS.ACCOUNTS,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <AccountListPage />
         </MainLayout>
       </ProtectedRoute>
     ),

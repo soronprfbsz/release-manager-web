@@ -54,10 +54,15 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={cn(
+            "w-full justify-between whitespace-nowrap h-9 px-3 py-2 text-sm font-normal shadow-sm",
+            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset",
+            !selectedOption && "text-muted-foreground",
+            className
+          )}
           disabled={disabled}
         >
-          <span className="truncate">
+          <span className="truncate text-left overflow-hidden">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

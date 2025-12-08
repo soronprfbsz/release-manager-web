@@ -44,6 +44,10 @@ export const menuItems: MenuItem[] = [
         label: '엔지니어',
         path: ROUTES.OPERATIONS.ENGINEERS,
       },
+      {
+        label: '계정 관리',
+        path: ROUTES.OPERATIONS.ACCOUNTS,
+      },
     ],
   },
   {

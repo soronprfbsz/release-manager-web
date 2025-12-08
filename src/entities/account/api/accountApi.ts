@@ -1,0 +1,37 @@
+import { apiClient } from '@/shared/api/client'
+import type { PageResponse, PaginationParams } from '@/shared/api/types'
+
+import type { Account, AccountUpdateRequest } from '../model/types'
+
+const ENDPOINTS = {
+  base: '/api/accounts',
+  byId: (id: number) => `/api/accounts/${id}`,
+} as const
+
+export const accountApi = {
+  /** 계정 목록 조회 (페이징) */
+  getList: async (params?: PaginationParams & { keyword?: string }): Promise<PageResponse<Account>> => {
+    const queryParams = new URLSearchParams()
+    if (params?.page !== undefined) queryParams.append('page', String(params.page))
+    if (params?.size !== undefined) queryParams.append('size', String(params.size))
+    if (params?.sort) queryParams.append('sort', params.sort)
+    if (params?.keyword) queryParams.append('keyword', params.keyword)
+
+    const queryString = queryParams.toString()
+    const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base
+
+    const response = await apiClient.get<PageResponse<Account>>(url)
+    return response
+  },
+
+  /** 계정 수정 */
+  update: async (id: number, request: AccountUpdateRequest): Promise<Account> => {
+    const response = await apiClient.put<Account>(ENDPOINTS.byId(id), request)
+    return response
+  },
+
+  /** 계정 삭제 */
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.byId(id))
+  },
+}

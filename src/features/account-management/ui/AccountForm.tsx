@@ -1,0 +1,102 @@
+/**
+ * Account Form Component
+ * 계정 수정 폼 컴포넌트
+ */
+
+import { User } from 'lucide-react'
+
+import { Combobox } from '@/shared/ui/combobox'
+import { FormSheet } from '@/shared/ui/form-sheet'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Switch } from '@/shared/ui/switch'
+import { TypographyMuted } from '@/shared/ui/typography'
+
+import type { AccountFormData } from '../model/types'
+
+interface AccountFormProps {
+  username: string
+  formData: AccountFormData
+  isSubmitting: boolean
+  onFormDataChange: (data: AccountFormData) => void
+  onSubmit: () => void
+  onClose: () => void
+}
+
+const ROLE_OPTIONS = [
+  { value: 'ADMIN', label: '관리자' },
+  { value: 'USER', label: '사용자' },
+  { value: 'VIEWER', label: '조회자' },
+]
+
+export function AccountForm({
+  username,
+  formData,
+  isSubmitting,
+  onFormDataChange,
+  onSubmit,
+  onClose,
+}: AccountFormProps) {
+  return (
+    <FormSheet
+      mode="edit"
+      icon={User}
+      title={{ create: '', edit: '계정 수정' }}
+      description={{
+        create: '',
+        edit: '계정 정보를 수정하세요.',
+      }}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+      onClose={onClose}
+    >
+      <div className="space-y-2">
+        <Label>사용자명</Label>
+        <Input
+          value={username}
+          disabled
+        />
+        <TypographyMuted className="text-xs">
+          사용자명은 수정할 수 없습니다.
+        </TypographyMuted>
+      </div>
+      <div className="space-y-2">
+        <Label required>이메일</Label>
+        <Input
+          type="email"
+          value={formData.email}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, email: e.target.value })
+          }
+          placeholder="예: user@company.com"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>권한</Label>
+        <Combobox
+          options={ROLE_OPTIONS}
+          value={formData.role}
+          onValueChange={(value) =>
+            onFormDataChange({ ...formData, role: value })
+          }
+          placeholder="권한을 선택하세요"
+          searchPlaceholder="권한 검색..."
+        />
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label>활성 상태</Label>
+          <TypographyMuted className="text-xs">
+            비활성화하면 해당 계정으로 로그인할 수 없습니다.
+          </TypographyMuted>
+        </div>
+        <Switch
+          checked={formData.isActive}
+          onCheckedChange={(checked) =>
+            onFormDataChange({ ...formData, isActive: checked })
+          }
+        />
+      </div>
+    </FormSheet>
+  )
+}

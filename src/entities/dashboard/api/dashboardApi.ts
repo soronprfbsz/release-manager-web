@@ -10,8 +10,8 @@ import type {
 
 const ENDPOINTS = {
   recent: (projectId: string) => `/api/projects/${projectId}/dashboard/recent`,
-  topCustomers: (projectId: string) => `/api/projects/${projectId}/statistics/patches/top-customers`,
-  monthlyPatches: (projectId: string) => `/api/projects/${projectId}/statistics/patches/monthly`,
+  topCustomers: (projectId: string) => `/api/projects/${projectId}/analytics/patches/top-customers`,
+  monthlyPatches: (projectId: string) => `/api/projects/${projectId}/analytics/patches/monthly`,
 } as const
 
 export const dashboardApi = {
