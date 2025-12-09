@@ -34,5 +34,6 @@ export type MenuId =
   // 작업 관리
   | 'job_management'
   | 'job_mariadb'
+  | 'job_terminal'
   // 리소스 관리
   | 'resource_management'

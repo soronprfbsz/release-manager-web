@@ -94,11 +94,11 @@ export function NavigationBar() {
                       </NavigationMenuContent>
                     </>
                   ) : (
-                    <Link to={item.path!}>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    <NavigationMenuLink asChild>
+                      <Link to={item.path!} className={navigationMenuTriggerStyle()}>
                         {item.label}
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   )}
                 </NavigationMenuItem>
               ))}

@@ -7,6 +7,16 @@ export const API_TIMEOUT = {
   FILE_OPERATION: Number(import.meta.env.VITE_API_TIMEOUT_FILE_OPERATION || 1800000), // 30분
 } as const
 
+/**
+ * WebSocket URL 생성
+ * VITE_API_BASE_URL을 기반으로 WebSocket URL 생성
+ * 예: http://localhost:8081 -> http://localhost:8081/ws/terminal
+ */
+export const getWebSocketUrl = (): string => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'
+  return `${baseUrl}/ws/terminal`
+}
+
 export const ROUTES = {
   HOME: '/',
   AUTH: {
@@ -32,6 +42,7 @@ export const ROUTES = {
   RESOURCES: {
     ROOT: '/resources',
   },
+  TERMINAL: '/terminal',
 } as const
 
 export const RELEASE_TYPE = {

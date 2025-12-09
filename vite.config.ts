@@ -11,7 +11,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        global: 'globalThis',
       },
+    },
+    define: {
+      global: 'globalThis',
     },
     server: {
       port: parseInt(env.SERVER_PORT || '3000'),

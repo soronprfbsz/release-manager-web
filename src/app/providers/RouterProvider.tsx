@@ -12,6 +12,7 @@ import { CustomPatchPage } from '@/pages/patches/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
 import { StandardReleasePage } from '@/pages/releases/standard'
+import { TerminalPage } from '@/pages/terminal/TerminalPage'
 
 import { ROUTES } from '@/shared/config/constants'
 
@@ -123,6 +124,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <ResourcePage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.TERMINAL,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <TerminalPage />
         </MainLayout>
       </ProtectedRoute>
     ),
