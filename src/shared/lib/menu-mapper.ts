@@ -31,7 +31,7 @@ export function menuIdToPath(menuId: string): string | undefined {
     // 작업 관리
     job_management: undefined,
     job_mariadb: ROUTES.JOBS.MARIADB,
-    job_terminal: ROUTES.TERMINAL,
+    job_terminal: undefined,
 
     // 리소스 관리
     resource_management: ROUTES.RESOURCES.ROOT,
