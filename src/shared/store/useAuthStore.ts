@@ -29,8 +29,6 @@ interface AuthState {
   setIsLoading: (isLoading: boolean) => void
 }
 
-const USER_KEY = 'user'
-
 export const useAuthStore = create<AuthState>()(
   devtools(
     persist(
@@ -49,7 +47,6 @@ export const useAuthStore = create<AuthState>()(
 
         handleAuthFailure: () => {
           apiClient.clearAccessToken()
-          localStorage.removeItem(USER_KEY)
           set({ user: null }, false, 'handleAuthFailure')
 
           // 로그인 페이지로 이동 (현재 페이지가 로그인 페이지가 아닌 경우에만)
@@ -59,19 +56,17 @@ export const useAuthStore = create<AuthState>()(
         },
 
         initAuth: async () => {
-          const savedUser = localStorage.getItem(USER_KEY)
+          const currentUser = get().user
 
-          // savedUser가 있으면 refresh token으로 accessToken 재발급 시도
-          if (savedUser) {
+          // Zustand persist에서 복원된 user가 있으면 refresh token 시도
+          if (currentUser) {
             try {
               const response = await sessionApi.refresh()
               apiClient.setAccessToken(response.data.accessToken)
               const accountInfo = response.data.accountInfo
               set({ user: accountInfo, isLoading: false }, false, 'initAuth/success')
-              localStorage.setItem(USER_KEY, JSON.stringify(accountInfo))
             } catch {
               apiClient.clearAccessToken()
-              localStorage.removeItem(USER_KEY)
               set({ user: null, isLoading: false }, false, 'initAuth/failure')
             }
           } else {
@@ -84,7 +79,6 @@ export const useAuthStore = create<AuthState>()(
           const { accessToken, accountInfo } = response.data
 
           apiClient.setAccessToken(accessToken)
-          localStorage.setItem(USER_KEY, JSON.stringify(accountInfo))
           set({ user: accountInfo }, false, 'login')
         },
 
@@ -99,7 +93,6 @@ export const useAuthStore = create<AuthState>()(
             // 로그아웃 API 실패해도 로컬 상태는 초기화
           } finally {
             apiClient.clearAccessToken()
-            localStorage.removeItem(USER_KEY)
             set({ user: null }, false, 'logout')
           }
         },
