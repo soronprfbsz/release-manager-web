@@ -155,19 +155,11 @@ export function StandardPatchPage() {
   }
 
   const handleSort = (key: string) => {
-    // 프론트엔드 정렬 키를 백엔드 엔티티 경로로 매핑
-    const sortKeyMap: Record<string, string> = {
-      customerName: 'customer.customerName',
-      engineerName: 'engineer.engineerName',
-    }
-
-    const backendKey = sortKeyMap[key] || key
-
     setSort((current) => {
-      if (current?.key === backendKey) {
-        return current.direction === 'asc' ? { key: backendKey, direction: 'desc' } : null
+      if (current?.key === key) {
+        return current.direction === 'asc' ? { key, direction: 'desc' } : null
       }
-      return { key: backendKey, direction: 'asc' }
+      return { key, direction: 'asc' }
     })
   }
 
