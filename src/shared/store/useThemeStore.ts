@@ -25,8 +25,6 @@ interface ThemeState {
   setTheme: (theme: Theme) => void
 }
 
-const STORAGE_KEY = 'vite-ui-theme'
-
 const darkThemes: Theme[] = [
   'dark',
   'solarized-dark',
@@ -76,7 +74,6 @@ export const useThemeStore = create<ThemeState>()(
         // Actions
         setTheme: (theme: Theme) => {
           set({ theme }, false, 'setTheme')
-          localStorage.setItem(STORAGE_KEY, theme)
           applyThemeToDOM(theme)
         },
       }),

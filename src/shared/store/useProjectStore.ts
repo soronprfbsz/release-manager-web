@@ -25,8 +25,6 @@ interface ProjectState {
   initializeWithProjects: (projects: Project[]) => void
 }
 
-const STORAGE_KEY = 'release-manager-selected-project'
-
 export const useProjectStore = create<ProjectState>()(
   devtools(
     persist(
@@ -64,9 +62,6 @@ export const useProjectStore = create<ProjectState>()(
             'selectProject'
           )
 
-          // localStorage에 저장
-          localStorage.setItem(STORAGE_KEY, newProjectId)
-
           // 프로젝트 변경 시 관련 쿼리 무효화 (옵션)
           invalidateQueries?.()
         },
@@ -87,7 +82,6 @@ export const useProjectStore = create<ProjectState>()(
               false,
               'initializeWithProjects/firstProject'
             )
-            localStorage.setItem(STORAGE_KEY, firstProject.projectId)
           } else {
             set(
               {
