@@ -3,9 +3,8 @@
  * 엔지니어 목록 페이지 - Feature 컴포넌트를 조합하여 구성
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Users, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -20,16 +19,18 @@ import {
   validateEngineerForm,
 } from '@/features/engineer-management'
 
-import { codeApi, CODE_TYPE } from '@/entities/code'
-import { departmentApi } from '@/entities/department'
+import { CODE_TYPE, useCodesByType } from '@/entities/code'
+import { useDepartments } from '@/entities/department'
 import {
-  engineerApi,
+  useEngineers,
+  useCreateEngineer,
+  useUpdateEngineer,
+  useDeleteEngineer,
   type Engineer,
-  type EngineerCreateRequest,
-  type EngineerUpdateRequest,
 } from '@/entities/engineer'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -64,7 +65,6 @@ const INITIAL_FILTERS: EngineerFiltersState = {
 
 export function EngineerListPage() {
   const { toast } = useToast()
-  const queryClient = useQueryClient()
 
   // Filter state
   const [filters, setFilters] = useState<EngineerFiltersState>(INITIAL_FILTERS)
@@ -86,66 +86,27 @@ export function EngineerListPage() {
   // Delete state
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
+  // Computed query params
+  const queryParams = useMemo(
+    () => ({
+      keyword: filters.keyword || undefined,
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      sort: sort ? `${sort.key},${sort.direction}` : undefined,
+    }),
+    [filters, pagination, sort]
+  )
+
   // Queries
-  const { data: departments = [] } = useQuery({
-    queryKey: ['departments'],
-    queryFn: () => departmentApi.getList(),
-  })
+  const { data: departments = [] } = useDepartments()
+  const { data: positions = [] } = useCodesByType(CODE_TYPE.POSITION)
 
-  const { data: positions = [] } = useQuery({
-    queryKey: ['codes', CODE_TYPE.POSITION],
-    queryFn: () => codeApi.getCodesByType(CODE_TYPE.POSITION),
-  })
-
-  const { data: engineerData, isLoading, refetch } = useQuery({
-    queryKey: ['engineers', filters, pagination, sort],
-    queryFn: () => {
-      return engineerApi.getList({
-        keyword: filters.keyword || undefined,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        sort: sort ? `${sort.key},${sort.direction}` : undefined,
-      })
-    },
-  })
+  const { data: engineerData, isLoading, refetch } = useEngineers(queryParams)
 
   // Mutations
-  const createMutation = useMutation({
-    mutationFn: (request: EngineerCreateRequest) => engineerApi.create(request),
-    onSuccess: () => {
-      toast({ title: '엔지니어 등록 완료', description: '새 엔지니어가 등록되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['engineers'] })
-      closeModal()
-    },
-    onError: (error: Error) => {
-      toast({ title: '등록 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, request }: { id: number; request: EngineerUpdateRequest }) =>
-      engineerApi.update(id, request),
-    onSuccess: () => {
-      toast({ title: '수정 완료', description: '엔지니어 정보가 수정되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['engineers'] })
-      closeModal()
-    },
-    onError: (error: Error) => {
-      toast({ title: '수정 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => engineerApi.delete(id),
-    onSuccess: () => {
-      toast({ title: '삭제 완료', description: '엔지니어가 삭제되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['engineers'] })
-      setDeleteConfirmId(null)
-    },
-    onError: (error: Error) => {
-      toast({ title: '삭제 실패', description: error.message, variant: 'destructive' })
-    },
-  })
+  const createMutation = useCreateEngineer()
+  const updateMutation = useUpdateEngineer()
+  const deleteMutation = useDeleteEngineer()
 
   // Handlers
   const openCreateModal = () => {
@@ -181,23 +142,53 @@ export function EngineerListPage() {
     }
 
     if (modalMode === 'create') {
-      createMutation.mutate({
-        engineerName: formData.engineerName.trim(),
-        position: formData.position.trim() || undefined,
-        engineerEmail: formData.engineerEmail.trim(),
-        departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
-        description: formData.description.trim() || undefined,
-      })
-    } else if (modalMode === 'edit' && editingEngineer) {
-      updateMutation.mutate({
-        id: editingEngineer.engineerId,
-        request: {
+      createMutation.mutate(
+        {
           engineerName: formData.engineerName.trim(),
           position: formData.position.trim() || undefined,
           engineerEmail: formData.engineerEmail.trim(),
           departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
           description: formData.description.trim() || undefined,
         },
+        {
+          onSuccess: () => {
+            toast({ title: '엔지니어 등록 완료', description: '새 엔지니어가 등록되었습니다.' })
+            closeModal()
+          },
+          onError: createErrorHandler(toast, '등록 실패'),
+        }
+      )
+    } else if (modalMode === 'edit' && editingEngineer) {
+      updateMutation.mutate(
+        {
+          id: editingEngineer.engineerId,
+          data: {
+            engineerName: formData.engineerName.trim(),
+            position: formData.position.trim() || undefined,
+            engineerEmail: formData.engineerEmail.trim(),
+            departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
+            description: formData.description.trim() || undefined,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast({ title: '수정 완료', description: '엔지니어 정보가 수정되었습니다.' })
+            closeModal()
+          },
+          onError: createErrorHandler(toast, '수정 실패'),
+        }
+      )
+    }
+  }
+
+  const handleDeleteConfirm = () => {
+    if (deleteConfirmId) {
+      deleteMutation.mutate(deleteConfirmId, {
+        onSuccess: () => {
+          toast({ title: '삭제 완료', description: '엔지니어가 삭제되었습니다.' })
+          setDeleteConfirmId(null)
+        },
+        onError: createErrorHandler(toast, '삭제 실패'),
       })
     }
   }
@@ -308,7 +299,7 @@ export function EngineerListPage() {
       <EngineerDeleteDialog
         isOpen={deleteConfirmId !== null}
         isDeleting={deleteMutation.isPending}
-        onConfirm={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+        onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteConfirmId(null)}
       />
     </div>

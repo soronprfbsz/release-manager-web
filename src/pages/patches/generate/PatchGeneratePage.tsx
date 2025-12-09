@@ -5,12 +5,11 @@
 
 import { useState } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Layers } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { useAuth } from '@/app/providers/AuthProvider'
-import { useProject } from '@/app/providers/ProjectProvider'
+import { useAuthStore, useProjectStore } from '@/shared/store'
 
 import {
   PatchGenerateFormCard,
@@ -22,8 +21,8 @@ import {
 
 import { customerApi } from '@/entities/customer'
 import { engineerApi } from '@/entities/engineer'
-import { patchApi, type CumulativePatchGenerateRequest } from '@/entities/patch'
-import { releaseApi, type VersionNode } from '@/entities/release'
+import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -68,18 +67,15 @@ function getVersionsFromTree(
 
 export function PatchGeneratePage() {
   const { toast } = useToast()
-  const { user } = useAuth()
-  const { projectId } = useProject()
-  const queryClient = useQueryClient()
+  const user = useAuthStore((state) => state.user)
+  const projectId = useProjectStore((state) => state.projectId)
 
   // Form state
   const [releaseType, setReleaseType] = useState<ReleaseType>('STANDARD')
   const [formData, setFormData] = useState<PatchCreateFormData>(INITIAL_FORM_DATA)
 
   // Queries
-  const { data: treeData, isLoading: isTreeLoading } = useQuery({
-    queryKey: ['standard-release-tree', projectId],
-    queryFn: () => releaseApi.getStandardTree(projectId),
+  const { data: treeData, isLoading: isTreeLoading } = useStandardReleaseTree(projectId, {
     enabled: releaseType === 'STANDARD',
   })
 
@@ -96,24 +92,7 @@ export function PatchGeneratePage() {
   const versions = getVersionsFromTree(treeData)
 
   // Mutations
-  const generateMutation = useMutation({
-    mutationFn: (request: CumulativePatchGenerateRequest) => patchApi.generate(request),
-    onSuccess: (data) => {
-      toast({
-        title: '패치 생성 완료',
-        description: `${data.patchName} 패치가 생성되었습니다.`,
-      })
-      queryClient.invalidateQueries({ queryKey: ['cumulative-patches'] })
-      setFormData(INITIAL_FORM_DATA)
-    },
-    onError: (error: Error) => {
-      toast({
-        title: '패치 생성 실패',
-        description: error.message || '패치 생성 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    },
-  })
+  const generateMutation = useGeneratePatch()
 
   // Handlers
   const handleSubmit = () => {
@@ -139,7 +118,22 @@ export function PatchGeneratePage() {
       description: formData.description || undefined,
     }
 
-    generateMutation.mutate(request)
+    generateMutation.mutate(request, {
+      onSuccess: (data) => {
+        toast({
+          title: '패치 생성 완료',
+          description: `${data.patchName} 패치가 생성되었습니다.`,
+        })
+        setFormData(INITIAL_FORM_DATA)
+      },
+      onError: (error: Error) => {
+        toast({
+          title: '패치 생성 실패',
+          description: error.message || '패치 생성 중 오류가 발생했습니다.',
+          variant: 'destructive',
+        })
+      },
+    })
   }
 
   return (

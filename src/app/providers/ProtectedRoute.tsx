@@ -1,15 +1,15 @@
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { ROUTES } from '@/shared/config/constants'
-
-import { useAuth } from './AuthProvider'
+import { useAuthStore } from '@/shared/store'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated())
+  const isLoading = useAuthStore((state) => state.isLoading)
   const location = useLocation()
 
   // 인증 상태 확인 중일 때는 로딩 표시

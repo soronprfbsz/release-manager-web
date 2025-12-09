@@ -23,4 +23,8 @@ export {
   useStandardReleaseTree,
   useCustomReleaseTree,
   useReleaseVersion,
+  useVersionFileStructure,
+  useReleaseFileContent,
+  useCreateVersion,
+  useDeleteVersion,
 } from './queries/releaseQueries'

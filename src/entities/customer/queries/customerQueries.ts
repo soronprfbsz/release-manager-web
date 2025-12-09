@@ -72,7 +72,41 @@ export const useUpdateCustomerStatus = () => {
   return useMutation({
     mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
       customerApi.updateStatus(id, isActive),
-    onSuccess: (_, variables) => {
+
+    // Optimistic update for instant UI feedback
+    onMutate: async ({ id, isActive }) => {
+      // Cancel outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: customerKeys.lists() })
+
+      // Snapshot previous value for rollback
+      const previousData = queryClient.getQueriesData({ queryKey: customerKeys.lists() })
+
+      // Optimistically update all list queries
+      queryClient.setQueriesData({ queryKey: customerKeys.lists() }, (old: any) => {
+        if (!old?.content) return old
+
+        return {
+          ...old,
+          content: old.content.map((customer: any) =>
+            customer.customerId === id ? { ...customer, isActive } : customer
+          ),
+        }
+      })
+
+      return { previousData }
+    },
+
+    onError: (_error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
+    },
+
+    onSettled: (_, __, variables) => {
+      // Refetch to ensure server state is correct
       queryClient.invalidateQueries({ queryKey: customerKeys.detail(variables.id) })
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() })
     },

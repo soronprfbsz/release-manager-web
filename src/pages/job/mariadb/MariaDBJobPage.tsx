@@ -5,7 +5,6 @@
 
 import { useState } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Database, HardDrive, RefreshCw, RotateCcw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -20,7 +19,16 @@ import {
   type LogViewerState,
 } from '@/features/backup-management'
 
-import { jobApi, type BackupFile, type LogFile } from '@/entities/job'
+import {
+  jobApi,
+  useBackupFiles,
+  useBackupFileLogs,
+  useBackupFileContent,
+  useLogFileContent,
+  useDeleteBackupFile,
+  type BackupFile,
+  type LogFile,
+} from '@/entities/job'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -41,7 +49,6 @@ import { TypographyMuted } from '@/shared/ui/typography'
 
 export function MariaDBJobPage() {
   const { toast } = useToast()
-  const queryClient = useQueryClient()
 
   // Dialog states
   const [backupDialogOpen, setBackupDialogOpen] = useState(false)
@@ -74,46 +81,44 @@ export function MariaDBJobPage() {
     isLoading,
     error,
     refetch,
-  } = useQuery({
-    queryKey: ['job-backup-files', 'MARIADB', pagination.pageIndex, pagination.pageSize],
-    queryFn: () =>
-      jobApi.getBackupFiles({
-        fileCategory: 'MARIADB',
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-      }),
+  } = useBackupFiles({
+    fileCategory: 'MARIADB',
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
   })
 
-  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
-    queryKey: ['backup-file-content', selectedFile?.backupFileId],
-    queryFn: () => jobApi.getBackupFileContent(selectedFile!.backupFileId),
-    enabled: contentViewerOpen && selectedFile !== null,
-  })
+  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useBackupFileContent(
+    selectedFile?.backupFileId || 0,
+    {
+      enabled: contentViewerOpen && selectedFile !== null,
+    }
+  )
 
-  const { data: logsData, isLoading: isLoadingLogs, error: logsError } = useQuery({
-    queryKey: ['backup-file-logs', logsFile?.backupFileId],
-    queryFn: () => jobApi.getBackupFileLogs(logsFile!.backupFileId),
-    enabled: logsDialogOpen && logsFile !== null,
-  })
+  const { data: logsData, isLoading: isLoadingLogs, error: logsError } = useBackupFileLogs(
+    logsFile?.backupFileId || 0,
+    {
+      enabled: logsDialogOpen && logsFile !== null,
+    }
+  )
 
-  const { data: logContent, isLoading: isLoadingLogContent, error: logContentError } = useQuery({
-    queryKey: ['log-file-content', selectedLog?.backupFileId, selectedLog?.logFileName],
-    queryFn: () => jobApi.getLogFileContent(selectedLog!.backupFileId, selectedLog!.logFileName),
-    enabled: logViewerOpen && selectedLog !== null,
-  })
+  const { data: logContent, isLoading: isLoadingLogContent, error: logContentError } = useLogFileContent(
+    selectedLog?.backupFileId || 0,
+    selectedLog?.logFileName || '',
+    {
+      enabled: logViewerOpen && selectedLog !== null,
+    }
+  )
 
   const backupFiles = backupFilesResponse?.content || []
   const totalElements = backupFilesResponse?.totalElements || 0
 
   // Mutations
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => jobApi.deleteBackupFile(id),
+  const deleteMutation = useDeleteBackupFile({
     onSuccess: () => {
       toast({
         title: '백업 파일 삭제 완료',
         description: `${fileToDelete?.fileName} 파일이 삭제되었습니다.`,
       })
-      queryClient.invalidateQueries({ queryKey: ['job-backup-files'] })
       setDeleteDialogOpen(false)
       setFileToDelete(null)
     },

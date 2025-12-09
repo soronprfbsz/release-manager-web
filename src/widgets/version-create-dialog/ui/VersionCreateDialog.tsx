@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { Upload, X, FileArchive, Info, Loader2, Package } from 'lucide-react'
 
-import { useProject } from '@/app/providers/ProjectProvider'
-
-import { codeApi, CODE_TYPE } from '@/entities/code'
+import { CODE_TYPE, useCodesByType } from '@/entities/code'
+import { useProjectStore } from '@/shared/store'
 import { releaseApi } from '@/entities/release'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
@@ -42,7 +41,7 @@ interface VersionCreateDialogProps {
 }
 
 export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCreateDialogProps) {
-  const { projectId } = useProject()
+  const projectId = useProjectStore((state) => state.projectId)
   const [version, setVersion] = useState('')
   const [comment, setComment] = useState('')
   const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
@@ -54,10 +53,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   const [uploadCompleted, setUploadCompleted] = useState(false)
 
   // 릴리즈 카테고리 목록 조회
-  const { data: releaseCategoryOptions = [] } = useQuery({
-    queryKey: ['codes', CODE_TYPE.RELEASE_CATEGORY],
-    queryFn: () => codeApi.getCodesByType(CODE_TYPE.RELEASE_CATEGORY),
-  })
+  const { data: releaseCategoryOptions = [] } = useCodesByType(CODE_TYPE.RELEASE_CATEGORY)
 
   // 첫 번째 옵션을 기본값으로 설정
   useEffect(() => {

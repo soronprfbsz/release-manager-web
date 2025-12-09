@@ -5,9 +5,8 @@
 
 import { ChevronDown, FolderKanban } from 'lucide-react'
 
-import { useProject } from '@/app/providers/ProjectProvider'
-
 import { cn } from '@/shared/lib/utils'
+import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -23,7 +22,10 @@ interface ProjectSelectorProps {
 }
 
 export function ProjectSelector({ className }: ProjectSelectorProps) {
-  const { projectId, projects, isLoading, selectProject } = useProject()
+  const projectId = useProjectStore((state) => state.projectId)
+  const projects = useProjectStore((state) => state.projects)
+  const isLoading = useProjectStore((state) => state.isLoading)
+  const selectProject = useProjectStore((state) => state.selectProject)
 
   if (isLoading) {
     return (

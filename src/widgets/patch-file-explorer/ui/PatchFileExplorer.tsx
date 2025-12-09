@@ -1,9 +1,13 @@
 import { useState } from 'react'
 
-import { useQuery } from '@tanstack/react-query'
 import { Folder, FolderOpen, File, ChevronRight, ChevronDown, Download } from 'lucide-react'
 
-import { patchApi, type PatchFileNode } from '@/entities/patch'
+import {
+  patchApi,
+  usePatchFileStructure,
+  usePatchFileContent,
+  type PatchFileNode,
+} from '@/entities/patch'
 
 import { Button } from '@/shared/ui/button'
 import {
@@ -118,18 +122,17 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ path: string; name: string; size?: number } | null>(null)
 
-  const { data: fileStructure, isLoading, error } = useQuery({
-    queryKey: ['patch-file-structure', patchId],
-    queryFn: () => patchApi.getFileStructure(patchId!),
-    enabled: open && patchId !== null,
-  })
+  const { data: fileStructure, isLoading, error } = usePatchFileStructure(
+    patchId ?? 0,
+    open && patchId !== null
+  )
 
   // 파일 내용 조회
-  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useQuery({
-    queryKey: ['patch-file-content', patchId, selectedFile?.path],
-    queryFn: () => patchApi.getFileContent(patchId!, selectedFile!.path),
-    enabled: fileViewerOpen && patchId !== null && selectedFile !== null,
-  })
+  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = usePatchFileContent(
+    patchId ?? 0,
+    selectedFile?.path ?? '',
+    fileViewerOpen && patchId !== null && selectedFile !== null
+  )
 
   const handleDownload = () => {
     if (!patchId) return

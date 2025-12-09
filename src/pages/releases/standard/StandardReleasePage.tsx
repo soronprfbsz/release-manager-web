@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react'
 
-import { useQuery } from '@tanstack/react-query'
 import { Package, RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
-import { useProject } from '@/app/providers/ProjectProvider'
-
 import { VersionCreateDialog } from '@/widgets/version-create-dialog'
+
+import { useProjectStore } from '@/shared/store'
 
 import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
 
-import { releaseApi, type VersionNode } from '@/entities/release'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
 
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { Badge } from '@/shared/ui/badge'
@@ -25,7 +24,7 @@ import { ScrollArea } from '@/shared/ui/scroll-area'
 
 export function StandardReleasePage() {
   const location = useLocation()
-  const { projectId } = useProject()
+  const projectId = useProjectStore((state) => state.projectId)
   const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
@@ -42,10 +41,7 @@ export function StandardReleasePage() {
     isLoading: isTreeLoading,
     error: treeError,
     refetch: refetchTree,
-  } = useQuery({
-    queryKey: ['standard-release-tree', projectId],
-    queryFn: () => releaseApi.getStandardTree(projectId),
-  })
+  } = useStandardReleaseTree(projectId)
 
   const handleSelectVersion = (version: VersionNode) => {
     setSelectedVersion(version)

@@ -2,8 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 
 import { Moon, Sun, Check } from 'lucide-react'
 
-import { useTheme } from '@/app/providers/ThemeProvider'
-
+import { useThemeStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -13,7 +12,8 @@ import {
 } from '@/shared/ui/dropdown-menu'
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const theme = useThemeStore((state) => state.theme)
+  const setTheme = useThemeStore((state) => state.setTheme)
   const [open, setOpen] = useState(false)
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 

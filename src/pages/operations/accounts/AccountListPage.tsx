@@ -25,6 +25,7 @@ import {
 } from '@/entities/account'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -102,9 +103,7 @@ export function AccountListPage() {
           toast({ title: '수정 완료', description: '계정 정보가 수정되었습니다.' })
           closeModal()
         },
-        onError: (error: Error) => {
-          toast({ title: '수정 실패', description: error.message, variant: 'destructive' })
-        },
+        onError: createErrorHandler(toast, '수정 실패'),
       }
     )
   }
@@ -117,9 +116,7 @@ export function AccountListPage() {
         toast({ title: '삭제 완료', description: '계정이 삭제되었습니다.' })
         setDeleteConfirmAccount(null)
       },
-      onError: (error: Error) => {
-        toast({ title: '삭제 실패', description: error.message, variant: 'destructive' })
-      },
+      onError: createErrorHandler(toast, '삭제 실패'),
     })
   }
 

@@ -3,8 +3,6 @@ import * as React from 'react'
 import { LogOut, Package } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
-import { useAuth } from '@/app/providers/AuthProvider'
-
 import { useMenus } from '@/entities/menu'
 
 import { ProjectSelector } from '@/widgets/project-selector'
@@ -13,6 +11,7 @@ import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
 import { ROUTES } from '@/shared/config/constants'
 import { convertMenuResponseToMenuItem } from '@/shared/lib/menu-mapper'
 import { cn } from '@/shared/lib/utils'
+import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import {
   NavigationMenu,
@@ -25,7 +24,8 @@ import {
 } from '@/shared/ui/navigation-menu'
 
 export function NavigationBar() {
-  const { user, logout } = useAuth()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
   const location = useLocation()
 

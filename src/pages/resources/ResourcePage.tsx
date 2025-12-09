@@ -5,7 +5,6 @@
 
 import { useState } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Download, FileText, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -16,8 +15,14 @@ import {
   type ResourceUploadFormData,
 } from '@/features/resource-management'
 
-import { codeApi, CODE_TYPE } from '@/entities/code'
-import { resourceApi, type ResourceFile } from '@/entities/resource'
+import { CODE_TYPE, useCodesByType } from '@/entities/code'
+import {
+  resourceApi,
+  useResources,
+  useUploadResource,
+  useDeleteResource,
+  type ResourceFile,
+} from '@/entities/resource'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -40,7 +45,6 @@ const INITIAL_FORM_DATA: ResourceUploadFormData = {
 
 export function ResourcePage() {
   const { toast } = useToast()
-  const queryClient = useQueryClient()
 
   // Modal states
   const [isUploadOpen, setIsUploadOpen] = useState(false)
@@ -56,15 +60,9 @@ export function ResourcePage() {
     isLoading,
     error,
     refetch,
-  } = useQuery({
-    queryKey: ['resources'],
-    queryFn: resourceApi.getList,
-  })
+  } = useResources()
 
-  const { data: fileCategoryList = [] } = useQuery({
-    queryKey: ['codes', CODE_TYPE.RESOURCE_FILE_CATEGORY],
-    queryFn: () => codeApi.getCodesByType(CODE_TYPE.RESOURCE_FILE_CATEGORY),
-  })
+  const { data: fileCategoryList = [] } = useCodesByType(CODE_TYPE.RESOURCE_FILE_CATEGORY)
 
   // Get subcategory code type based on category
   const getSubCategoryCodeType = (category: string) => {
@@ -74,39 +72,19 @@ export function ResourcePage() {
       case 'DOCUMENT':
         return CODE_TYPE.RESOURCE_SUBCATEGORY_DOCUMENT
       default:
-        return null
+        return ''
     }
   }
 
   const subCategoryCodeType = getSubCategoryCodeType(formData.fileCategory)
-  const { data: subCategoryList = [] } = useQuery({
-    queryKey: ['codes', subCategoryCodeType],
-    queryFn: () => codeApi.getCodesByType(subCategoryCodeType!),
+  const { data: subCategoryList = [] } = useCodesByType(subCategoryCodeType, {
     enabled: !!subCategoryCodeType,
   })
 
   // Mutations
-  const uploadMutation = useMutation({
-    mutationFn: ({
-      file,
-      fileCategory,
-      subCategory,
-      description,
-    }: {
-      file: File
-      fileCategory: string
-      subCategory?: string
-      description?: string
-    }) =>
-      resourceApi.upload(file, fileCategory, subCategory, description, (progressEvent) => {
-        if (progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          setUploadProgress(progress)
-        }
-      }),
+  const uploadMutation = useUploadResource({
     onSuccess: () => {
       toast({ title: '업로드 완료', description: '리소스 파일이 등록되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['resources'] })
       closeUploadModal()
     },
     onError: (error: Error) => {
@@ -114,11 +92,9 @@ export function ResourcePage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => resourceApi.delete(id),
+  const deleteMutation = useDeleteResource({
     onSuccess: () => {
       toast({ title: '삭제 완료', description: '리소스 파일이 삭제되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['resources'] })
       setDeleteTarget(null)
     },
     onError: (error: Error) => {
@@ -165,6 +141,12 @@ export function ResourcePage() {
       fileCategory: formData.fileCategory,
       subCategory: formData.subCategory.trim() || undefined,
       description: formData.description.trim() || undefined,
+      onProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          setUploadProgress(progress)
+        }
+      },
     })
   }
 

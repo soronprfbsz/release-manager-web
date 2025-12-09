@@ -5,13 +5,12 @@
 
 import { useState } from 'react'
 
-import { useQuery } from '@tanstack/react-query'
 import { Layers, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { PatchHistoryTable } from '@/features/patch-management'
 
-import { patchApi, type CumulativePatch } from '@/entities/patch'
+import { patchApi, usePatches, type CumulativePatch } from '@/entities/patch'
 
 import {
   Breadcrumb,
@@ -41,14 +40,10 @@ export function PatchHistoryPage() {
     data: patchData,
     isLoading,
     refetch,
-  } = useQuery({
-    queryKey: ['cumulative-patches', pagination],
-    queryFn: () =>
-      patchApi.getList({
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        sort: 'createdAt,desc',
-      }),
+  } = usePatches({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    sort: 'createdAt,desc',
   })
 
   const handleDownload = (patch: CumulativePatch) => {

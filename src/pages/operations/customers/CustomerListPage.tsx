@@ -3,9 +3,8 @@
  * 고객사 목록 페이지 - Feature 컴포넌트를 조합하여 구성
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Building2, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -21,14 +20,17 @@ import {
 } from '@/features/customer-management'
 
 import {
-  customerApi,
+  useCustomers,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+  useUpdateCustomerStatus,
   type Customer,
-  type CustomerCreateRequest,
-  type CustomerUpdateRequest,
 } from '@/entities/customer'
-import { projectApi } from '@/entities/project'
+import { useProjects } from '@/entities/project'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -64,7 +66,6 @@ const INITIAL_FILTERS: CustomerFiltersState = {
 
 export function CustomerListPage() {
   const { toast } = useToast()
-  const queryClient = useQueryClient()
 
   // Filter state
   const [filters, setFilters] = useState<CustomerFiltersState>(INITIAL_FILTERS)
@@ -86,77 +87,29 @@ export function CustomerListPage() {
   // Delete state
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
+  // Computed query params
+  const queryParams = useMemo(() => {
+    const isActiveFilter = filters.isActive === 'all' ? undefined : filters.isActive === 'true'
+    return {
+      isActive: isActiveFilter,
+      keyword: filters.keyword || undefined,
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      sort: sort ? `${sort.key},${sort.direction}` : undefined,
+    }
+  }, [filters, pagination, sort])
+
   // Query
-  const { data: customerData, isLoading, refetch } = useQuery({
-    queryKey: ['customers', filters, pagination, sort],
-    queryFn: () => {
-      const isActiveFilter = filters.isActive === 'all' ? undefined : filters.isActive === 'true'
-      return customerApi.getList({
-        isActive: isActiveFilter,
-        keyword: filters.keyword || undefined,
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        sort: sort ? `${sort.key},${sort.direction}` : undefined,
-      })
-    },
-  })
+  const { data: customerData, isLoading, refetch } = useCustomers(queryParams)
 
   // 프로젝트 목록 조회
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => projectApi.getList(),
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data: projects = [] } = useProjects()
 
   // Mutations
-  const createMutation = useMutation({
-    mutationFn: (request: CustomerCreateRequest) => customerApi.create(request),
-    onSuccess: () => {
-      toast({ title: '고객사 생성 완료', description: '새 고객사가 등록되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-      closeModal()
-    },
-    onError: (error: Error) => {
-      toast({ title: '생성 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, request }: { id: number; request: CustomerUpdateRequest }) =>
-      customerApi.update(id, request),
-    onSuccess: () => {
-      toast({ title: '수정 완료', description: '고객사 정보가 수정되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-      closeModal()
-    },
-    onError: (error: Error) => {
-      toast({ title: '수정 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => customerApi.delete(id),
-    onSuccess: () => {
-      toast({ title: '삭제 완료', description: '고객사가 삭제되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-      setDeleteConfirmId(null)
-    },
-    onError: (error: Error) => {
-      toast({ title: '삭제 실패', description: error.message, variant: 'destructive' })
-    },
-  })
-
-  const statusMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
-      customerApi.updateStatus(id, isActive),
-    onSuccess: () => {
-      toast({ title: '상태 변경 완료', description: '활성화 상태가 변경되었습니다.' })
-      queryClient.invalidateQueries({ queryKey: ['customers'] })
-    },
-    onError: (error: Error) => {
-      toast({ title: '상태 변경 실패', description: error.message, variant: 'destructive' })
-    },
-  })
+  const createMutation = useCreateCustomer()
+  const updateMutation = useUpdateCustomer()
+  const deleteMutation = useDeleteCustomer()
+  const statusMutation = useUpdateCustomerStatus()
 
   // Handlers
   const openCreateModal = () => {
@@ -192,27 +145,65 @@ export function CustomerListPage() {
     }
 
     if (modalMode === 'create') {
-      createMutation.mutate({
-        customerCode: formData.customerCode.trim(),
-        customerName: formData.customerName.trim(),
-        description: formData.description.trim() || undefined,
-        isActive: formData.isActive,
-        projectId: formData.projectId || undefined,
-      })
-    } else if (modalMode === 'edit' && editingCustomer) {
-      updateMutation.mutate({
-        id: editingCustomer.customerId,
-        request: {
+      createMutation.mutate(
+        {
+          customerCode: formData.customerCode.trim(),
           customerName: formData.customerName.trim(),
           description: formData.description.trim() || undefined,
           isActive: formData.isActive,
+          projectId: formData.projectId || undefined,
         },
-      })
+        {
+          onSuccess: () => {
+            toast({ title: '고객사 생성 완료', description: '새 고객사가 등록되었습니다.' })
+            closeModal()
+          },
+          onError: createErrorHandler(toast, '생성 실패'),
+        }
+      )
+    } else if (modalMode === 'edit' && editingCustomer) {
+      updateMutation.mutate(
+        {
+          id: editingCustomer.customerId,
+          data: {
+            customerName: formData.customerName.trim(),
+            description: formData.description.trim() || undefined,
+            isActive: formData.isActive,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast({ title: '수정 완료', description: '고객사 정보가 수정되었습니다.' })
+            closeModal()
+          },
+          onError: createErrorHandler(toast, '수정 실패'),
+        }
+      )
     }
   }
 
   const handleToggleStatus = (customer: Customer) => {
-    statusMutation.mutate({ id: customer.customerId, isActive: !customer.isActive })
+    statusMutation.mutate(
+      { id: customer.customerId, isActive: !customer.isActive },
+      {
+        onSuccess: () => {
+          toast({ title: '상태 변경 완료', description: '활성화 상태가 변경되었습니다.' })
+        },
+        onError: createErrorHandler(toast, '상태 변경 실패'),
+      }
+    )
+  }
+
+  const handleDeleteConfirm = () => {
+    if (deleteConfirmId) {
+      deleteMutation.mutate(deleteConfirmId, {
+        onSuccess: () => {
+          toast({ title: '삭제 완료', description: '고객사가 삭제되었습니다.' })
+          setDeleteConfirmId(null)
+        },
+        onError: createErrorHandler(toast, '삭제 실패'),
+      })
+    }
   }
 
   const handleSort = (key: string) => {
@@ -321,7 +312,7 @@ export function CustomerListPage() {
       <CustomerDeleteDialog
         isOpen={deleteConfirmId !== null}
         isDeleting={deleteMutation.isPending}
-        onConfirm={() => deleteConfirmId && deleteMutation.mutate(deleteConfirmId)}
+        onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteConfirmId(null)}
       />
     </div>

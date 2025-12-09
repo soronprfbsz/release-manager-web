@@ -1,9 +1,15 @@
 import { useState } from 'react'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
 import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react'
 
-import { releaseApi, type VersionNode, type ReleaseFileNode } from '@/entities/release'
+import {
+  releaseApi,
+  useVersionFileStructure,
+  useReleaseFileContent,
+  useDeleteVersion,
+  type VersionNode,
+  type ReleaseFileNode,
+} from '@/entities/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatDateTime } from '@/shared/lib/utils/date'
@@ -132,30 +138,31 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const { toast } = useToast()
 
   // 파일 트리 구조 조회
-  const { data: fileStructure, isLoading, error } = useQuery({
-    queryKey: ['release-file-structure', version?.versionId],
-    queryFn: () => releaseApi.getVersionFileStructure(version!.versionId),
-    enabled: !!version,
-  })
+  const { data: fileStructure, isLoading, error } = useVersionFileStructure(version?.versionId ?? 0)
 
-  const deleteMutation = useMutation({
-    mutationFn: () => releaseApi.deleteVersion(version!.versionId),
-    onSuccess: () => {
-      toast({
-        title: '버전 삭제 완료',
-        description: `버전 ${version?.version}이(가) 삭제되었습니다.`,
-      })
-      setDeleteDialogOpen(false)
-      onDelete?.()
-    },
-    onError: (error) => {
-      toast({
-        title: '버전 삭제 실패',
-        description: error instanceof Error ? error.message : '버전 삭제 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    },
-  })
+  const deleteMutation = useDeleteVersion()
+
+  const handleDeleteConfirm = () => {
+    if (!version) return
+
+    deleteMutation.mutate(version.versionId, {
+      onSuccess: () => {
+        toast({
+          title: '버전 삭제 완료',
+          description: `버전 ${version.version}이(가) 삭제되었습니다.`,
+        })
+        setDeleteDialogOpen(false)
+        onDelete?.()
+      },
+      onError: (error) => {
+        toast({
+          title: '버전 삭제 실패',
+          description: error instanceof Error ? error.message : '버전 삭제 중 오류가 발생했습니다.',
+          variant: 'destructive',
+        })
+      },
+    })
+  }
 
   const handleDownload = (node: ReleaseFileNode) => {
     if (!node.releaseFileId) return
@@ -175,11 +182,10 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   }
 
   // 파일 내용 조회
-  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useQuery({
-    queryKey: ['release-file-content', selectedFile?.id],
-    queryFn: () => releaseApi.getFileContent(selectedFile!.id),
-    enabled: fileViewerOpen && selectedFile !== null,
-  })
+  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
+    selectedFile?.id ?? 0,
+    fileViewerOpen && selectedFile !== null
+  )
 
   const handleDownloadSelectedFile = () => {
     if (selectedFile) {
@@ -355,7 +361,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteMutation.mutate()}
+              onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending}
               className="bg-destructive hover:bg-destructive/90"
             >

@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import {
   Package,
   Layers,
@@ -12,11 +11,14 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { useProject } from '@/app/providers/ProjectProvider'
-
-import { dashboardApi } from '@/entities/dashboard'
+import {
+  useDashboardRecent,
+  useDashboardTopCustomers,
+  useDashboardMonthlyPatches,
+} from '@/entities/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
+import { useProjectStore } from '@/shared/store'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { formatDate } from '@/shared/lib/utils/date'
 import { Badge } from '@/shared/ui/badge'
@@ -25,32 +27,14 @@ import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
 export function HomePage() {
-  const { projectId } = useProject()
+  const projectId = useProjectStore((state) => state.projectId)
 
-  const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ['dashboard-recent', projectId],
-    queryFn: () => dashboardApi.getRecent(projectId),
-    refetchOnWindowFocus: true,
-    refetchOnMount: 'always',
-    staleTime: 0,
-  })
+  const { data: dashboardData, isLoading } = useDashboardRecent(projectId)
 
   // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
-  const { data: topCustomersData, isLoading: isLoadingTopCustomers } = useQuery({
-    queryKey: ['dashboard-top-customers', projectId],
-    queryFn: () => dashboardApi.getTopCustomers(projectId),
-    refetchOnWindowFocus: true,
-    refetchOnMount: 'always',
-    staleTime: 0,
-  })
+  const { data: topCustomersData, isLoading: isLoadingTopCustomers } = useDashboardTopCustomers(projectId)
 
-  const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useQuery({
-    queryKey: ['dashboard-monthly-patches', projectId],
-    queryFn: () => dashboardApi.getMonthlyPatches(projectId),
-    refetchOnWindowFocus: true,
-    refetchOnMount: 'always',
-    staleTime: 0,
-  })
+  const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId)
 
   const latestInstall = dashboardData?.latestInstall
   const recentVersions = dashboardData?.recentVersions || []

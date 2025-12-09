@@ -5,14 +5,13 @@
 
 import { useState } from 'react'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Package, Plus, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { useAuth } from '@/app/providers/AuthProvider'
-import { useProject } from '@/app/providers/ProjectProvider'
-
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
+
+import { useAuthStore, useProjectStore } from '@/shared/store'
 
 import {
   PatchTable,
@@ -25,10 +24,18 @@ import {
 
 import { customerApi } from '@/entities/customer'
 import { engineerApi } from '@/entities/engineer'
-import { patchApi, type CumulativePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
-import { releaseApi, type VersionNode } from '@/entities/release'
+import {
+  patchApi,
+  usePatches,
+  useGeneratePatch,
+  useDeletePatch,
+  type CumulativePatch,
+  type CumulativePatchGenerateRequest,
+} from '@/entities/patch'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -79,9 +86,8 @@ function getVersionsFromTree(
 
 export function StandardPatchPage() {
   const { toast } = useToast()
-  const { user } = useAuth()
-  const { projectId } = useProject()
-  const queryClient = useQueryClient()
+  const user = useAuthStore((state) => state.user)
+  const projectId = useProjectStore((state) => state.projectId)
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -113,20 +119,15 @@ export function StandardPatchPage() {
     isLoading,
     error,
     refetch,
-  } = useQuery({
-    queryKey: ['cumulative-patches', 'STANDARD', pagination, sort],
-    queryFn: () =>
-      patchApi.getList({
-        page: pagination.pageIndex,
-        size: pagination.pageSize,
-        releaseType: 'STANDARD',
-        sort: sort ? `${sort.key},${sort.direction}` : undefined,
-      }),
+  } = usePatches({
+    page: pagination.pageIndex,
+    size: pagination.pageSize,
+    releaseType: 'STANDARD',
+    projectId,
+    sort: sort ? `${sort.key},${sort.direction}` : undefined,
   })
 
-  const { data: treeData, isLoading: isTreeLoading } = useQuery({
-    queryKey: ['standard-release-tree', projectId],
-    queryFn: () => releaseApi.getStandardTree(projectId),
+  const { data: treeData, isLoading: isTreeLoading } = useStandardReleaseTree(projectId, {
     enabled: isFormOpen,
   })
 
@@ -145,45 +146,8 @@ export function StandardPatchPage() {
   const versions = getVersionsFromTree(treeData)
 
   // Mutations
-  const generateMutation = useMutation({
-    mutationFn: (request: CumulativePatchGenerateRequest) => patchApi.generate(request),
-    onSuccess: (data) => {
-      toast({
-        title: '패치 생성 완료',
-        description: `${data.patchName} 패치가 생성되었습니다.`,
-      })
-      queryClient.invalidateQueries({ queryKey: ['cumulative-patches'] })
-      resetForm()
-      setIsFormOpen(false)
-    },
-    onError: (error: Error) => {
-      toast({
-        title: '패치 생성 실패',
-        description: error.message || '패치 생성 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => patchApi.deleteById(id),
-    onSuccess: () => {
-      toast({
-        title: '패치 삭제 완료',
-        description: `${patchToDelete?.patchName} 패치가 삭제되었습니다.`,
-      })
-      queryClient.invalidateQueries({ queryKey: ['cumulative-patches'] })
-      setDeleteDialogOpen(false)
-      setPatchToDelete(null)
-    },
-    onError: (error: Error) => {
-      toast({
-        title: '패치 삭제 실패',
-        description: error.message || '패치 삭제 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    },
-  })
+  const generateMutation = useGeneratePatch()
+  const deleteMutation = useDeletePatch()
 
   // Handlers
   const resetForm = () => {
@@ -222,7 +186,17 @@ export function StandardPatchPage() {
       description: formData.description || undefined,
     }
 
-    generateMutation.mutate(request)
+    generateMutation.mutate(request, {
+      onSuccess: (data) => {
+        toast({
+          title: '패치 생성 완료',
+          description: `${data.patchName} 패치가 생성되었습니다.`,
+        })
+        resetForm()
+        setIsFormOpen(false)
+      },
+      onError: createErrorHandler(toast, '패치 생성 실패'),
+    })
   }
 
   const handleDownload = (patch: CumulativePatch) => {
@@ -242,7 +216,17 @@ export function StandardPatchPage() {
 
   const handleDeleteConfirm = () => {
     if (patchToDelete) {
-      deleteMutation.mutate(patchToDelete.patchId)
+      deleteMutation.mutate(patchToDelete.patchId, {
+        onSuccess: () => {
+          toast({
+            title: '패치 삭제 완료',
+            description: `${patchToDelete.patchName} 패치가 삭제되었습니다.`,
+          })
+          setDeleteDialogOpen(false)
+          setPatchToDelete(null)
+        },
+        onError: createErrorHandler(toast, '패치 삭제 실패'),
+      })
     }
   }
 

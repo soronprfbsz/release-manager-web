@@ -20,5 +20,8 @@ export {
   patchKeys,
   usePatches,
   usePatch,
+  usePatchFileStructure,
+  usePatchFileContent,
   useGeneratePatch,
+  useDeletePatch,
 } from './queries/patchQueries'
