@@ -45,8 +45,6 @@ build-job:
   script:
     - echo "📦 프로젝트 빌드 시작..."
     - yarn install --frozen-lockfile --cache-folder .yarn-cache
-    # Vite 환경변수 설정 (GitLab CI Variables에서 주입)
-    - echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}"
     - yarn build
     - echo "✅ 빌드 완료"
   artifacts:

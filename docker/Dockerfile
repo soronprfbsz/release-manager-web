@@ -13,11 +13,9 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Build arguments for environment variables
-ARG VITE_API_BASE_URL
 ARG VITE_APP_TITLE
 
 # Set environment variables for Vite build
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 
 # Build the application
@@ -29,8 +27,11 @@ FROM nginx:alpine
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration template
+COPY docker/nginx.conf /etc/nginx/templates/default.conf.template
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Environment variable for API server URL (default for local development)
+ENV API_SERVER_URL=http://localhost:8081
+
+# Start nginx with envsubst
+CMD ["/bin/sh", "-c", "envsubst '$$API_SERVER_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

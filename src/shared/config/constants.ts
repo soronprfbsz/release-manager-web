@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+// 프론트엔드는 항상 상대 경로 사용 → Nginx 프록시가 백엔드로 라우팅
+export const API_BASE_URL = ''
 export const APP_TITLE = import.meta.env.VITE_APP_TITLE || 'Release Manager'
 
 // API Timeout Configuration (milliseconds)

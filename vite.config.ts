@@ -21,11 +21,11 @@ export default defineConfig(({ mode }) => {
       port: parseInt(env.SERVER_PORT || '3000'),
       proxy: {
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:8081',
+          target: env.VITE_API_SERVER_URL || 'http://localhost:8081',
           changeOrigin: true,
         },
         '/ws/shell': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:8081',
+          target: env.VITE_API_SERVER_URL || 'http://localhost:8081',
           changeOrigin: true,
           ws: true,
         },
