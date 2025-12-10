@@ -3,8 +3,9 @@
  * xterm.js 기반 완전한 터미널 에뮬레이터
  */
 
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react'
+import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback, useState } from 'react'
 import { Terminal as XTerm } from '@xterm/xterm'
+import type { ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { Terminal as TerminalIcon, Maximize2, Minimize2 } from 'lucide-react'
@@ -12,6 +13,9 @@ import '@xterm/xterm/css/xterm.css'
 
 import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
 import { Button } from '@/shared/ui/button'
+import { useThemeStore } from '@/shared/store/useThemeStore'
+import type { Theme } from '@/shared/store/useThemeStore'
+import { XTERM_THEMES } from '../config/xterm-themes'
 
 interface XtermTerminalProps {
   shellSessionId: string | null
@@ -60,9 +64,53 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       },
     }))
 
+    // Theme 관리
+    const theme = useThemeStore((state) => state.theme)
+
+    // 테마 적용 함수
+    const getTerminalTheme = useCallback((currentTheme: Theme) => {
+      if (currentTheme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        return isDark ? XTERM_THEMES.dark : XTERM_THEMES.light
+      }
+      return XTERM_THEMES[currentTheme] || XTERM_THEMES.dark
+    }, [])
+
+    // 현재 제마 상태 관리
+    const [activeTheme, setActiveTheme] = useState<ITheme>(() => getTerminalTheme(theme))
+
+    // 테마 변경 감지 및 적용
+    useEffect(() => {
+      if (!xtermRef.current) return
+
+      const newTheme = getTerminalTheme(theme)
+      xtermRef.current.options.theme = newTheme
+      setActiveTheme(newTheme)
+    }, [theme, getTerminalTheme])
+
+    // 시스템 테마 변경 감지
+    useEffect(() => {
+      if (theme !== 'system') return
+
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      const handleChange = () => {
+        if (!xtermRef.current) return
+        const newTheme = getTerminalTheme('system')
+        xtermRef.current.options.theme = newTheme
+        setActiveTheme(newTheme)
+      }
+
+      mediaQuery.addEventListener('change', handleChange)
+      return () => mediaQuery.removeEventListener('change', handleChange)
+    }, [theme, getTerminalTheme])
+
     // xterm 인스턴스 초기화 (마운트 시 한 번만)
     useEffect(() => {
       if (!terminalRef.current) return
+
+      // 초기 테마
+      const initialTheme = getTerminalTheme(theme)
+      setActiveTheme(initialTheme)
 
       // Terminal 인스턴스 생성
       const term = new XTerm({
@@ -71,29 +119,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         fontFamily: 'Menlo, Monaco, "Courier New", monospace',
         fontSize: 14,
         convertEol: true, // 개행 문자 자동 변환
-        theme: {
-          background: '#0f172a', // slate-950
-          foreground: '#e5e7eb', // text-gray-200
-          cursor: '#10b981', // green-500
-          cursorAccent: '#0f172a',
-          selectionBackground: '#334155', // slate-700
-          black: '#1e293b',
-          red: '#ef4444',
-          green: '#10b981',
-          yellow: '#f59e0b',
-          blue: '#3b82f6',
-          magenta: '#a855f7',
-          cyan: '#06b6d4',
-          white: '#e5e7eb',
-          brightBlack: '#475569',
-          brightRed: '#f87171',
-          brightGreen: '#34d399',
-          brightYellow: '#fbbf24',
-          brightBlue: '#60a5fa',
-          brightMagenta: '#c084fc',
-          brightCyan: '#22d3ee',
-          brightWhite: '#f9fafb',
-        },
+        theme: initialTheme, // 초기 테마 적용
         rows: 30,
         cols: 100,
         scrollback: 1000,
@@ -143,7 +169,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         fitAddonRef.current = null
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []) // 마운트 시 한 번만 실행
+    }, []) // 마운트 시 한 번만 실행 (테마 변경은 별도 useEffect에서 처리)
 
     // 전체화면 상태 변경 시 터미널 크기 조정
     useEffect(() => {
@@ -166,7 +192,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     // 연결되지 않은 경우
     if (!shellSessionId) {
       return (
-        <div className="h-[calc(100vh-320px)] flex items-center justify-center rounded-lg border border-dashed bg-muted/10">
+        <div className="h-full flex items-center justify-center rounded-lg border border-dashed bg-muted/10">
           <div className="text-center text-muted-foreground">
             <TerminalIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>SSH 연결 버튼을 눌러 원격 서버에 연결하세요.</p>
@@ -178,15 +204,30 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     return (
       <div
         ref={containerRef}
-        className={`flex flex-col rounded-lg border bg-slate-950 overflow-hidden ${
-          isFullscreen ? 'h-screen' : 'h-[calc(100vh-320px)]'
-        }`}
+        className={`flex flex-col rounded-lg border overflow-hidden ${isFullscreen ? 'h-screen' : 'h-[calc(95vh-16rem)]'
+          }`}
+        style={{
+          backgroundColor: activeTheme.background,
+          borderColor: activeTheme.selectionBackground || activeTheme.brightBlack,
+        }}
       >
         {/* 터미널 헤더 */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/50 border-b border-slate-800">
+        <div
+          className="flex items-center justify-between px-4 py-2.5 border-b"
+          style={{
+            backgroundColor: activeTheme.background,
+            borderColor: activeTheme.selectionBackground || activeTheme.brightBlack,
+          }}
+        >
           <div className="flex items-center gap-2">
-            <TerminalIcon className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-xs font-medium text-slate-300">
+            <TerminalIcon
+              className="h-3.5 w-3.5"
+              style={{ color: activeTheme.foreground }}
+            />
+            <span
+              className="text-xs font-medium"
+              style={{ color: activeTheme.foreground }}
+            >
               {username}@{host}
             </span>
           </div>
@@ -200,9 +241,10 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-slate-400 hover:text-slate-200"
+              className="h-6 w-6 hover:opacity-80 transition-opacity"
               onClick={toggleFullscreen}
               title={isFullscreen ? '전체화면 종료' : '전체화면'}
+              style={{ color: activeTheme.foreground }}
             >
               {isFullscreen ? (
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -214,7 +256,9 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         </div>
 
         {/* xterm.js 터미널 영역 */}
-        <div ref={terminalRef} className="flex-1 p-2" />
+        <div className="flex-1 p-2 overflow-hidden min-h-0">
+          <div ref={terminalRef} className="h-full w-full" />
+        </div>
       </div>
     )
   }

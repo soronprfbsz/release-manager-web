@@ -194,46 +194,48 @@ export function SshShellPage() {
   )
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>작업 관리</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>SSH 터미널</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>작업 관리</BreadcrumbPage>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>SSH 터미널</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
 
       {/* Page Header */}
       <PageHeader
         icon={<Terminal className="h-5 w-5 text-primary" />}
         title="SSH 터미널"
         description="SSH를 통해 원격 서버에 연결하여 터미널을 사용합니다."
-        actions={
-          <>
-            {shellSessionId ? (
-              <Button onClick={handleDisconnect} variant="outline">
-                연결 종료
-              </Button>
-            ) : (
-              <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
-                <Plus className="h-4 w-4" />
-                연결
-              </Button>
-            )}
-          </>
-        }
-      />
+          actions={
+            <>
+              {shellSessionId ? (
+                <Button onClick={handleDisconnect} variant="outline">
+                  연결 종료
+                </Button>
+              ) : (
+                <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
+                  <Plus className="h-4 w-4" />
+                  연결
+                </Button>
+              )}
+            </>
+          }
+        />
 
       {/* 연결 Sheet */}
       <SshConnectionSheet
@@ -250,15 +252,17 @@ export function SshShellPage() {
       />
 
       {/* xterm.js 터미널 */}
-      <XtermTerminal
-        key={shellSessionId || 'no-session'}
-        ref={terminalRef}
-        shellSessionId={shellSessionId}
-        host={host}
-        username={username}
-        isConnected={isConnected}
-        onData={handleTerminalData}
-      />
+      <div className="h-[calc(100vh-300px)]">
+        <XtermTerminal
+          key={shellSessionId || 'no-session'}
+          ref={terminalRef}
+          shellSessionId={shellSessionId}
+          host={host}
+          username={username}
+          isConnected={isConnected}
+          onData={handleTerminalData}
+        />
+      </div>
     </div>
   )
 }
