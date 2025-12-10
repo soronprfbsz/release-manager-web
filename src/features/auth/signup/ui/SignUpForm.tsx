@@ -79,7 +79,9 @@ export function SignUpForm() {
             </label>
             <Input
               id="accountName"
+              name="name"
               type="text"
+              autoComplete="name"
               placeholder="홍길동"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
@@ -94,7 +96,9 @@ export function SignUpForm() {
             </label>
             <Input
               id="email"
+              name="username"
               type="email"
+              autoComplete="username"
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -109,7 +113,9 @@ export function SignUpForm() {
             </label>
             <Input
               id="password"
+              name="new-password"
               type="password"
+              autoComplete="new-password"
               placeholder="8자 이상 입력"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -125,7 +131,9 @@ export function SignUpForm() {
             </label>
             <Input
               id="confirmPassword"
+              name="new-password"
               type="password"
+              autoComplete="new-password"
               placeholder="비밀번호 재입력"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

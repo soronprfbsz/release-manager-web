@@ -28,6 +28,7 @@ export const ROUTES = {
   },
   JOBS: {
     MARIADB: '/jobs/mariadb',
+    REMOTE: '/jobs/remote',
   },
   RESOURCES: {
     ROOT: '/resources',

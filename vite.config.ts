@@ -24,6 +24,11 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_BASE_URL || 'http://localhost:8081',
           changeOrigin: true,
         },
+        '/ws/remote-execution': {
+          target: env.VITE_API_BASE_URL || 'http://localhost:8081',
+          changeOrigin: true,
+          ws: true,
+        },
       },
     },
   }
