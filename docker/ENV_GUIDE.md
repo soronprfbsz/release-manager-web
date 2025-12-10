@@ -5,7 +5,7 @@
 
 ## 환경 변수 목록
 
-### VITE_API_BASE_URL
+### VITE_API_SERVER_URL
 - **설명**: 백엔드 API 서버 주소
 - **형식**: `http://host:port` 또는 `https://domain.com`
 - **예시**: 
@@ -25,7 +25,7 @@
 cp .env.example .env
 
 # .env 파일 수정
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_SERVER_URL=http://localhost:8080
 VITE_APP_TITLE=Release Manager
 
 # 개발 서버 실행
@@ -39,7 +39,7 @@ cd docker
 cp ../.env.example .env
 
 # .env 파일 수정
-VITE_API_BASE_URL=http://backend:8080
+VITE_API_SERVER_URL=http://backend:8080
 WEB_PORT=3000
 
 # 실행
@@ -49,7 +49,7 @@ docker-compose up -d
 ### 3. GitLab CI/CD
 GitLab 프로젝트 Settings > CI/CD > Variables에 다음 변수 추가:
 
-- `VITE_API_BASE_URL`: 백엔드 API URL
+- `VITE_API_SERVER_URL`: 백엔드 API URL
 - `VITE_APP_TITLE`: 애플리케이션 제목 (선택)
 - `WEB_PORT`: 웹 서버 포트 (기본: 3000)
 
@@ -68,19 +68,19 @@ nginx는 정적 파일만 서빙하므로 런타임 환경 변수 변경 불가.
 
 ### 개발 환경
 ```env
-VITE_API_BASE_URL=http://dev-backend:8080
+VITE_API_SERVER_URL=http://dev-backend:8080
 VITE_APP_TITLE=Release Manager (Dev)
 ```
 
 ### 스테이징 환경
 ```env
-VITE_API_BASE_URL=http://staging-backend:8080
+VITE_API_SERVER_URL=http://staging-backend:8080
 VITE_APP_TITLE=Release Manager (Staging)
 ```
 
 ### 프로덕션 환경
 ```env
-VITE_API_BASE_URL=https://api.production.com
+VITE_API_SERVER_URL=https://api.production.com
 VITE_APP_TITLE=Release Manager
 ```
 
