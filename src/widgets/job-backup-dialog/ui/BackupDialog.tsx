@@ -152,6 +152,8 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
               <Label htmlFor="username" required>사용자명</Label>
               <Input
                 id="username"
+                name="username"
+                autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="데이터베이스 사용자명"
@@ -164,7 +166,9 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
               <Label htmlFor="password" required>비밀번호</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="데이터베이스 비밀번호"

@@ -99,7 +99,9 @@ export function useSshShellWebSocket({
         // SSH Shell 세션 구독
         client.subscribe(`/topic/shell/${shellSessionId}`, (message: IMessage) => {
           try {
-            const outputMessage: OutputMessage = JSON.parse(message.body)
+            const wsMessage = JSON.parse(message.body)
+            // WebSocketMessage 래퍼에서 payload 추출
+            const outputMessage: OutputMessage = wsMessage.payload || wsMessage
             onMessage(outputMessage)
           } catch (error) {
             console.error('Failed to parse message:', error)

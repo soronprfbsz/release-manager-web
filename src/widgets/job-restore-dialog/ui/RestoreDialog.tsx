@@ -168,6 +168,8 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               <Label htmlFor="restore-username" required>사용자명</Label>
               <Input
                 id="restore-username"
+                name="username"
+                autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="데이터베이스 사용자명"
@@ -180,7 +182,9 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               <Label htmlFor="restore-password" required>비밀번호</Label>
               <Input
                 id="restore-password"
+                name="password"
                 type="password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="데이터베이스 비밀번호"

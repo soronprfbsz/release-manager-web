@@ -83,7 +83,7 @@ export function SshConnectionSheet({
           <Input
             id="username"
             name="username"
-            autoComplete="username"
+            autoComplete="off"
             value={formData.username}
             onChange={(e) => onFormDataChange({ ...formData, username: e.target.value })}
             placeholder="root"
@@ -100,7 +100,7 @@ export function SshConnectionSheet({
             id="password"
             name="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="off"
             value={formData.password}
             onChange={(e) => onFormDataChange({ ...formData, password: e.target.value })}
             placeholder="••••••••"

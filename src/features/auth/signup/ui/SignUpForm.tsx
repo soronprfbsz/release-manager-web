@@ -81,7 +81,7 @@ export function SignUpForm() {
               id="accountName"
               name="name"
               type="text"
-              autoComplete="name"
+              autoComplete="off"
               placeholder="홍길동"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
@@ -98,7 +98,7 @@ export function SignUpForm() {
               id="email"
               name="username"
               type="email"
-              autoComplete="username"
+              autoComplete="off"
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -115,7 +115,7 @@ export function SignUpForm() {
               id="password"
               name="new-password"
               type="password"
-              autoComplete="new-password"
+              autoComplete="off"
               placeholder="8자 이상 입력"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -133,7 +133,7 @@ export function SignUpForm() {
               id="confirmPassword"
               name="new-password"
               type="password"
-              autoComplete="new-password"
+              autoComplete="off"
               placeholder="비밀번호 재입력"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
