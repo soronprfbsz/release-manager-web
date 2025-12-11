@@ -27,7 +27,7 @@ export interface TerminalLine {
  * SSH Shell 상태
  */
 export interface SshShellState {
-  shellSessionId: string | null
+  sessionId: string | null
   status: string | null
   isConnected: boolean
   lines: TerminalLine[]
@@ -51,7 +51,7 @@ export const INITIAL_FORM_DATA: SshConnectionFormData = {
  * SSH Shell 상태 초기값
  */
 export const INITIAL_SHELL_STATE: SshShellState = {
-  shellSessionId: null,
+  sessionId: null,
   status: null,
   isConnected: false,
   lines: [],

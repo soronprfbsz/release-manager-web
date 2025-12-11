@@ -13,10 +13,10 @@ import type {
 const ENDPOINTS = {
   // MariaDB 백업
   mariadbBackup: '/api/jobs/mariadb-backup',
-  mariadbBackupJobStatus: (jobId: string) => `/api/jobs/mariadb-backup/job-status/${encodeURIComponent(jobId)}`,
+  mariadbBackupJobStatus: (id: string) => `/api/jobs/mariadb-backup/job-status/${encodeURIComponent(id)}`,
   // MariaDB 복원
   mariadbRestore: '/api/jobs/mariadb-restore',
-  mariadbRestoreJobStatus: (jobId: string) => `/api/jobs/mariadb-restore/job-status/${encodeURIComponent(jobId)}`,
+  mariadbRestoreJobStatus: (id: string) => `/api/jobs/mariadb-restore/job-status/${encodeURIComponent(id)}`,
   // 백업 파일 관리
   backupFiles: '/api/jobs/backup-files',
   backupFileDownload: (id: number) => `/api/jobs/backup-files/${id}/download`,

@@ -20,11 +20,11 @@ export function useConnectShell() {
 /**
  * 세션 정보 조회 Query
  */
-export function useShellSessionInfo(shellSessionId: string | null, enabled: boolean = true) {
+export function useShellSessionInfo(sessionId: string | null, enabled: boolean = true) {
   return useQuery({
-    queryKey: ['sshShell', 'session', shellSessionId],
-    queryFn: () => sshShellApi.getSessionInfo(shellSessionId!),
-    enabled: enabled && !!shellSessionId,
+    queryKey: ['sshShell', 'session', sessionId],
+    queryFn: () => sshShellApi.getSessionInfo(sessionId!),
+    enabled: enabled && !!sessionId,
     refetchInterval: 5000, // 5초마다 갱신
   })
 }
@@ -34,6 +34,6 @@ export function useShellSessionInfo(shellSessionId: string | null, enabled: bool
  */
 export function useDisconnectShell() {
   return useMutation({
-    mutationFn: (shellSessionId: string) => sshShellApi.disconnect(shellSessionId),
+    mutationFn: (sessionId: string) => sshShellApi.disconnect(sessionId),
   })
 }

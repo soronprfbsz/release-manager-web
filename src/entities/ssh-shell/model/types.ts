@@ -27,7 +27,7 @@ export interface ShellConnectRequest {
  * 셸 연결 응답
  */
 export interface ShellConnectResponse {
-  shellSessionId: string
+  terminalId: string
   status: ShellStatus
   host: string
   websocketUrl: string
@@ -41,7 +41,7 @@ export interface ShellConnectResponse {
  * 셸 세션 정보 응답
  */
 export interface ShellSessionInfo {
-  shellSessionId: string
+  terminalId: string
   status: ShellStatus
   host: string
   username: string
@@ -49,7 +49,6 @@ export interface ShellSessionInfo {
   createdAt: string
   lastActivityAt: string
   expiresAt: string
-  commandCount: number
 }
 
 /**

@@ -9,9 +9,9 @@ import type {
 } from '../model/types'
 
 const ENDPOINTS = {
-  recent: (projectId: string) => `/api/projects/${projectId}/dashboard/recent`,
-  topCustomers: (projectId: string) => `/api/projects/${projectId}/analytics/patches/top-customers`,
-  monthlyPatches: (projectId: string) => `/api/projects/${projectId}/analytics/patches/monthly`,
+  recent: (id: string) => `/api/projects/${id}/dashboard/recent`,
+  topCustomers: (id: string) => `/api/projects/${id}/analytics/patches/top-customers`,
+  monthlyPatches: (id: string) => `/api/projects/${id}/analytics/patches/monthly`,
 } as const
 
 export const dashboardApi = {

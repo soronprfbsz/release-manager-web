@@ -11,7 +11,7 @@ import AnsiToHtml from 'ansi-to-html'
 import type { TerminalLine } from '../model/types'
 
 interface SshTerminalProps {
-  shellSessionId: string | null
+  sessionId: string | null
   status: string | null
   lines: TerminalLine[]
   host: string | null
@@ -25,7 +25,7 @@ interface SshTerminalProps {
 }
 
 export function SshTerminal({
-  shellSessionId,
+  sessionId,
   status,
   lines,
   host,
@@ -97,7 +97,7 @@ export function SshTerminal({
   }
 
   // 연결되지 않은 경우 메시지만 표시
-  if (!shellSessionId) {
+  if (!sessionId) {
     return (
       <div className="h-[calc(100vh-280px)] flex items-center justify-center rounded-lg border border-dashed bg-muted/10">
         <div className="text-center text-muted-foreground max-w-md">
@@ -132,7 +132,7 @@ export function SshTerminal({
             </div>
           )}
         </div>
-        <div className="text-xs text-slate-500 font-mono">{shellSessionId}</div>
+        <div className="text-xs text-slate-500 font-mono">{sessionId}</div>
       </div>
 
       {/* 터미널 출력 영역 */}

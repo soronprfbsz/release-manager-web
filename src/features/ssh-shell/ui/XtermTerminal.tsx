@@ -18,7 +18,7 @@ import type { Theme } from '@/shared/store/useThemeStore'
 import { XTERM_THEMES } from '../config/xterm-themes'
 
 interface XtermTerminalProps {
-  shellSessionId: string | null
+  sessionId: string | null
   host: string | null
   username: string | null
   isConnected: boolean
@@ -32,7 +32,7 @@ export interface XtermTerminalHandle {
 }
 
 export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>(
-  function XtermTerminal({ shellSessionId, host, username, isConnected, onData }, ref) {
+  function XtermTerminal({ sessionId, host, username, isConnected, onData }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
@@ -135,7 +135,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       // DOM에 마운트
       term.open(terminalRef.current)
 
-      // 사용자 입력 처리 - ref를 사용하여 최신 상태 참조
+      // 사용자 입력 처리 - SSH 연결이 완료된 경우에만 입력 전송
       term.onData((data) => {
         if (isConnectedRef.current) {
           onDataRef.current(data)
@@ -190,7 +190,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     }, [isFullscreen])
 
     // 연결되지 않은 경우
-    if (!shellSessionId) {
+    if (!sessionId) {
       return (
         <div className="h-full flex items-center justify-center rounded-lg border border-dashed bg-muted/10">
           <div className="text-center text-muted-foreground">

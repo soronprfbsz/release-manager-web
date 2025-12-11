@@ -36,7 +36,7 @@ export function SshShellPage() {
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false)
   const [formData, setFormData] = useState<SshConnectionFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [shellSessionId, setShellSessionId] = useState<string | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [host, setHost] = useState<string | null>(null)
   const [username, setUsername] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -77,11 +77,10 @@ export function SshShellPage() {
   }, [])
 
   const handleWebSocketConnect = useCallback(() => {
-    console.log('WebSocket connected')
+    // WebSocket 연결 완료
   }, [])
 
   const handleWebSocketDisconnect = useCallback(() => {
-    console.log('WebSocket disconnected')
     setIsConnected(false)
   }, [])
 
@@ -99,7 +98,7 @@ export function SshShellPage() {
 
   // WebSocket 연결
   const { sendCommand, disconnect: wsDisconnect } = useSshShellWebSocket({
-    shellSessionId,
+    sessionId,
     onMessage: handleWebSocketMessage,
     onConnect: handleWebSocketConnect,
     onDisconnect: handleWebSocketDisconnect,
@@ -129,7 +128,7 @@ export function SshShellPage() {
       const response = await connectMutation.mutateAsync(request)
 
       // 셸 상태 업데이트
-      setShellSessionId(response.shellSessionId)
+      setSessionId(response.terminalId)
       setHost(response.host)
       setUsername(formData.username)
 
@@ -138,7 +137,7 @@ export function SshShellPage() {
 
       toast({
         title: 'SSH 연결 성공',
-        description: `세션 ${response.shellSessionId}이(가) 시작되었습니다.`,
+        description: `세션 ${response.terminalId}이(가) 시작되었습니다.`,
       })
     } catch (error) {
       console.error('Failed to connect:', error)
@@ -152,17 +151,17 @@ export function SshShellPage() {
 
   // SSH 연결 종료
   const handleDisconnect = useCallback(async () => {
-    if (!shellSessionId) return
+    if (!sessionId) return
 
     try {
       // WebSocket 먼저 종료
       wsDisconnect()
 
       // REST API로 세션 종료
-      await disconnectMutation.mutateAsync(shellSessionId)
+      await disconnectMutation.mutateAsync(sessionId)
 
       // 상태 초기화
-      setShellSessionId(null)
+      setSessionId(null)
       setHost(null)
       setUsername(null)
       setIsConnected(false)
@@ -182,7 +181,7 @@ export function SshShellPage() {
         variant: 'destructive',
       })
     }
-  }, [shellSessionId, wsDisconnect, disconnectMutation, toast])
+  }, [sessionId, wsDisconnect, disconnectMutation, toast])
 
   // xterm 사용자 입력 처리 (onData 콜백)
   const handleTerminalData = useCallback(
@@ -223,7 +222,7 @@ export function SshShellPage() {
         description="SSH를 통해 원격 서버에 연결하여 터미널을 사용합니다."
           actions={
             <>
-              {shellSessionId ? (
+              {sessionId ? (
                 <Button onClick={handleDisconnect} variant="outline">
                   연결 종료
                 </Button>
@@ -254,9 +253,9 @@ export function SshShellPage() {
       {/* xterm.js 터미널 */}
       <div className="h-[calc(100vh-300px)]">
         <XtermTerminal
-          key={shellSessionId || 'no-session'}
+          key={sessionId || 'no-session'}
           ref={terminalRef}
-          shellSessionId={shellSessionId}
+          sessionId={sessionId}
           host={host}
           username={username}
           isConnected={isConnected}

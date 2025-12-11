@@ -4,8 +4,8 @@ import { API_TIMEOUT } from '@/shared/config/constants'
 import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
 
 const ENDPOINTS = {
-  standardTree: (projectId: string) => `/api/releases/projects/${projectId}/standard/tree`,
-  customTree: (projectId: string, customerCode: string) => `/api/releases/projects/${projectId}/custom/${customerCode}/tree`,
+  standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
+  customTree: (id: string, customerCode: string) => `/api/releases/projects/${id}/custom/${customerCode}/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
   fileDownload: (id: number) => `/api/releases/files/${id}/download`,

@@ -10,7 +10,7 @@ import SockJS from 'sockjs-client'
 import type { OutputMessage, CommandMessage } from '@/entities/ssh-shell'
 
 interface UseSshShellWebSocketProps {
-  shellSessionId: string | null
+  sessionId: string | null
   onMessage: (message: OutputMessage) => void
   onConnect?: () => void
   onDisconnect?: () => void
@@ -27,7 +27,7 @@ interface UseSshShellWebSocketReturn {
  * SSH Shell WebSocket 연결 훅
  */
 export function useSshShellWebSocket({
-  shellSessionId,
+  sessionId,
   onMessage,
   onConnect,
   onDisconnect,
@@ -38,7 +38,7 @@ export function useSshShellWebSocket({
 
   const sendCommand = useCallback(
     (command: string) => {
-      if (!clientRef.current || !shellSessionId) {
+      if (!clientRef.current || !sessionId) {
         console.warn('WebSocket not connected or no session ID')
         return
       }
@@ -49,7 +49,7 @@ export function useSshShellWebSocket({
 
       try {
         clientRef.current.publish({
-          destination: `/app/shell/${shellSessionId}/command`,
+          destination: `/app/terminal/${sessionId}/command`,
           body: JSON.stringify(message),
         })
       } catch (error) {
@@ -57,7 +57,7 @@ export function useSshShellWebSocket({
         onError?.(error instanceof Error ? error : new Error('Failed to send command'))
       }
     },
-    [shellSessionId, onError]
+    [sessionId, onError]
   )
 
   const disconnect = useCallback(() => {
@@ -74,7 +74,7 @@ export function useSshShellWebSocket({
   }, [onDisconnect])
 
   useEffect(() => {
-    if (!shellSessionId) {
+    if (!sessionId) {
       disconnect()
       return
     }
@@ -82,7 +82,7 @@ export function useSshShellWebSocket({
     // WebSocket URL 생성 - SockJS는 http/https 프로토콜 사용
     const protocol = window.location.protocol
     const host = window.location.host
-    const wsUrl = `${protocol}//${host}/ws/shell`
+    const wsUrl = `${protocol}//${host}/ws/terminal`
 
     // STOMP 클라이언트 생성
     const client = new Client({
@@ -97,7 +97,7 @@ export function useSshShellWebSocket({
         onConnect?.()
 
         // SSH Shell 세션 구독
-        client.subscribe(`/topic/shell/${shellSessionId}`, (message: IMessage) => {
+        client.subscribe(`/topic/terminal/${sessionId}`, (message: IMessage) => {
           try {
             const wsMessage = JSON.parse(message.body)
             // WebSocketMessage 래퍼에서 payload 추출
@@ -136,7 +136,7 @@ export function useSshShellWebSocket({
     return () => {
       disconnect()
     }
-  }, [shellSessionId, onMessage, onConnect, onDisconnect, onError, disconnect])
+  }, [sessionId, onMessage, onConnect, onDisconnect, onError, disconnect])
 
   return {
     isConnected,

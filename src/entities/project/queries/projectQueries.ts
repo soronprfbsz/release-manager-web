@@ -33,7 +33,7 @@ export function useProjects(
   return useQuery({
     queryKey: projectKeys.list(),
     queryFn: () => projectApi.getList(),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시
+    staleTime: 10 * 60 * 1000, // 10분간 캐시
     ...options,
   })
 }
