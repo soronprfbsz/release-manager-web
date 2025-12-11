@@ -12,7 +12,6 @@ import type { OutputMessage, CommandMessage } from '@/entities/ssh-shell'
 interface UseSshShellWebSocketProps {
   sessionId: string | null
   onMessage: (message: OutputMessage) => void
-  onConnect?: () => void
   onDisconnect?: () => void
   onError?: (error: Error) => void
 }
@@ -29,7 +28,6 @@ interface UseSshShellWebSocketReturn {
 export function useSshShellWebSocket({
   sessionId,
   onMessage,
-  onConnect,
   onDisconnect,
   onError,
 }: UseSshShellWebSocketProps): UseSshShellWebSocketReturn {
@@ -92,9 +90,7 @@ export function useSshShellWebSocket({
       heartbeatOutgoing: 4000,
 
       onConnect: () => {
-        console.log('WebSocket connected')
         setIsConnected(true)
-        onConnect?.()
 
         // SSH Shell 세션 구독
         client.subscribe(`/topic/terminal/${sessionId}`, (message: IMessage) => {
@@ -136,7 +132,7 @@ export function useSshShellWebSocket({
     return () => {
       disconnect()
     }
-  }, [sessionId, onMessage, onConnect, onDisconnect, onError, disconnect])
+  }, [sessionId, onMessage, onDisconnect, onError, disconnect])
 
   return {
     isConnected,

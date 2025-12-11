@@ -17,4 +17,6 @@ export { INITIAL_FORM_DATA, INITIAL_SHELL_STATE } from './model/types'
 export { validateSshConnectionForm } from './model/validation'
 
 // Hooks
+export { useSshShell } from './lib/use-ssh-shell'
+export type { SshSession, UseSshShellReturn } from './lib/use-ssh-shell'
 export { useSshShellWebSocket } from './lib/use-ssh-shell-websocket'

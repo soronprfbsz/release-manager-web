@@ -7,19 +7,14 @@ import { useState, useCallback, useRef } from 'react'
 import { Plus, Terminal } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-import { useConnectShell, useDisconnectShell } from '@/entities/ssh-shell'
-import type { ShellConnectRequest, OutputMessage } from '@/entities/ssh-shell'
-
 import {
   SshConnectionSheet,
   XtermTerminal,
   INITIAL_FORM_DATA,
-  validateSshConnectionForm,
-  useSshShellWebSocket,
+  useSshShell,
   type XtermTerminalHandle,
 } from '@/features/ssh-shell'
 import type { SshConnectionFormData } from '@/features/ssh-shell'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,165 +27,35 @@ import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
 
 export function SshShellPage() {
-  // 상태 관리
+  // 로컬 UI 상태
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false)
   const [formData, setFormData] = useState<SshConnectionFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [host, setHost] = useState<string | null>(null)
-  const [username, setUsername] = useState<string | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
 
   const terminalRef = useRef<XtermTerminalHandle>(null)
 
-  const { toast } = useToast()
-  const connectMutation = useConnectShell()
-  const disconnectMutation = useDisconnectShell()
+  // SSH Shell 비즈니스 로직 (Custom Hook)
+  const { session, isConnected, isConnecting, connect, disconnect, sendCommand } =
+    useSshShell(terminalRef)
 
-  // WebSocket 메시지 핸들러 - xterm에 직접 출력
-  const handleWebSocketMessage = useCallback((message: OutputMessage) => {
-    // 상태 메시지 처리
-    if (message.type === 'STATUS') {
-      if (message.status === 'CONNECTED') {
-        setIsConnected(true)
-      } else if (message.status === 'ERROR' || message.status === 'DISCONNECTED') {
-        setIsConnected(false)
-      }
-      return
-    }
-
-    // 에러 메시지 처리
-    if (message.type === 'ERROR') {
-      const errorMsg = message.data || message.message || ''
-      if (errorMsg && terminalRef.current) {
-        terminalRef.current.write(`\x1b[31m${errorMsg}\x1b[0m\r\n`)
-      }
-      return
-    }
-
-    // 일반 출력 처리
-    const output = message.data || message.message || ''
-    if (output && terminalRef.current) {
-      // xterm에 직접 쓰기 (ANSI 이스케이프 시퀀스 포함)
-      terminalRef.current.write(output)
-    }
-  }, [])
-
-  const handleWebSocketConnect = useCallback(() => {
-    // WebSocket 연결 완료
-  }, [])
-
-  const handleWebSocketDisconnect = useCallback(() => {
-    setIsConnected(false)
-  }, [])
-
-  const handleWebSocketError = useCallback(
-    (error: Error) => {
-      console.error('WebSocket error:', error)
-      toast({
-        title: 'WebSocket 오류',
-        description: error.message,
-        variant: 'destructive',
-      })
-    },
-    [toast]
-  )
-
-  // WebSocket 연결
-  const { sendCommand, disconnect: wsDisconnect } = useSshShellWebSocket({
-    sessionId,
-    onMessage: handleWebSocketMessage,
-    onConnect: handleWebSocketConnect,
-    onDisconnect: handleWebSocketDisconnect,
-    onError: handleWebSocketError,
-  })
-
-  // SSH 연결
+  // SSH 연결 핸들러
   const handleConnect = useCallback(async () => {
-    // 유효성 검증
-    const validation = validateSshConnectionForm(formData)
-    if (!validation.isValid) {
-      setErrors(validation.errors)
-      return
-    }
+    const result = await connect(formData)
 
-    setErrors({})
-
-    // 연결 요청
-    const request: ShellConnectRequest = {
-      host: formData.host,
-      port: formData.port,
-      username: formData.username,
-      password: formData.password,
-    }
-
-    try {
-      const response = await connectMutation.mutateAsync(request)
-
-      // 셸 상태 업데이트
-      setSessionId(response.terminalId)
-      setHost(response.host)
-      setUsername(formData.username)
-
-      // Sheet 닫기
+    if (result.success) {
+      // 연결 성공
       setConnectionSheetOpen(false)
-
-      toast({
-        title: 'SSH 연결 성공',
-        description: `세션 ${response.terminalId}이(가) 시작되었습니다.`,
-      })
-    } catch (error) {
-      console.error('Failed to connect:', error)
-      toast({
-        title: '연결 실패',
-        description: error instanceof Error ? error.message : 'SSH 연결에 실패했습니다.',
-        variant: 'destructive',
-      })
+      setErrors({})
+    } else if (result.errors) {
+      // 유효성 검증 실패
+      setErrors(result.errors)
     }
-  }, [formData, connectMutation, toast])
+  }, [formData, connect])
 
-  // SSH 연결 종료
+  // SSH 연결 종료 핸들러
   const handleDisconnect = useCallback(async () => {
-    if (!sessionId) return
-
-    try {
-      // WebSocket 먼저 종료
-      wsDisconnect()
-
-      // REST API로 세션 종료
-      await disconnectMutation.mutateAsync(sessionId)
-
-      // 상태 초기화
-      setSessionId(null)
-      setHost(null)
-      setUsername(null)
-      setIsConnected(false)
-
-      // 터미널 초기화
-      terminalRef.current?.clear()
-
-      toast({
-        title: '연결 종료',
-        description: 'SSH 연결이 종료되었습니다.',
-      })
-    } catch (error) {
-      console.error('Failed to disconnect:', error)
-      toast({
-        title: '종료 실패',
-        description: error instanceof Error ? error.message : '연결 종료에 실패했습니다.',
-        variant: 'destructive',
-      })
-    }
-  }, [sessionId, wsDisconnect, disconnectMutation, toast])
-
-  // xterm 사용자 입력 처리 (onData 콜백)
-  const handleTerminalData = useCallback(
-    (data: string) => {
-      // xterm의 사용자 입력을 WebSocket으로 전송
-      sendCommand(data)
-    },
-    [sendCommand]
-  )
+    await disconnect()
+  }, [disconnect])
 
   return (
     <div className="flex flex-col space-y-6">
@@ -220,28 +85,28 @@ export function SshShellPage() {
         icon={<Terminal className="h-5 w-5 text-primary" />}
         title="SSH 터미널"
         description="SSH를 통해 원격 서버에 연결하여 터미널을 사용합니다."
-          actions={
-            <>
-              {sessionId ? (
-                <Button onClick={handleDisconnect} variant="outline">
-                  연결 종료
-                </Button>
-              ) : (
-                <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
-                  <Plus className="h-4 w-4" />
-                  연결
-                </Button>
-              )}
-            </>
-          }
-        />
+        actions={
+          <>
+            {session ? (
+              <Button onClick={handleDisconnect} variant="outline">
+                연결 종료
+              </Button>
+            ) : (
+              <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
+                <Plus className="h-4 w-4" />
+                연결
+              </Button>
+            )}
+          </>
+        }
+      />
 
       {/* 연결 Sheet */}
       <SshConnectionSheet
         open={connectionSheetOpen}
         formData={formData}
         errors={errors}
-        isConnecting={connectMutation.isPending}
+        isConnecting={isConnecting}
         onFormDataChange={setFormData}
         onConnect={handleConnect}
         onClose={() => {
@@ -253,13 +118,13 @@ export function SshShellPage() {
       {/* xterm.js 터미널 */}
       <div className="h-[calc(100vh-300px)]">
         <XtermTerminal
-          key={sessionId || 'no-session'}
+          key={session?.sessionId || 'no-session'}
           ref={terminalRef}
-          sessionId={sessionId}
-          host={host}
-          username={username}
+          sessionId={session?.sessionId || null}
+          host={session?.host || null}
+          username={session?.username || null}
           isConnected={isConnected}
-          onData={handleTerminalData}
+          onData={sendCommand}
         />
       </div>
     </div>
