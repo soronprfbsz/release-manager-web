@@ -309,24 +309,20 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                   <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <ScrollArea className="h-[400px] w-full rounded-md border p-2">
-                    <div>
-                      {[...fileStructure.files.children!].sort((a, b) => {
-                        if (a.type === 'directory' && b.type === 'file') return -1
-                        if (a.type === 'file' && b.type === 'directory') return 1
-                        return a.name.localeCompare(b.name)
-                      }).map((node, index) => (
-                        <FileNode
-                          key={`${node.path}-${index}`}
-                          node={node}
-                          level={0}
-                          onFileClick={handleViewFile}
-                          onDownload={handleDownload}
-                        />
-                      ))}
-                    </div>
-                  </ScrollArea>
+                <div>
+                  {[...fileStructure.files.children!].sort((a, b) => {
+                    if (a.type === 'directory' && b.type === 'file') return -1
+                    if (a.type === 'file' && b.type === 'directory') return 1
+                    return a.name.localeCompare(b.name)
+                  }).map((node, index) => (
+                    <FileNode
+                      key={`${node.path}-${index}`}
+                      node={node}
+                      level={0}
+                      onFileClick={handleViewFile}
+                      onDownload={handleDownload}
+                    />
+                  ))}
                 </div>
               )}
             </CardContent>

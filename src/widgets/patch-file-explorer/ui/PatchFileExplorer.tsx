@@ -176,49 +176,47 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
             </div>
           </DialogHeader>
 
-          <div className="relative">
-            <ScrollArea className="h-[65vh] w-full rounded-md border">
-              {isLoading && (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-muted-foreground">로딩 중...</div>
-                </div>
-              )}
+          <ScrollArea className="h-[65vh] w-full">
+            {isLoading && (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-muted-foreground">로딩 중...</div>
+              </div>
+            )}
 
-              {error && (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-destructive">
-                    파일 구조를 불러오는데 실패했습니다.
-                    {error instanceof Error && <div className="text-sm mt-2">{error.message}</div>}
+            {error && (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-destructive">
+                  파일 구조를 불러오는데 실패했습니다.
+                  {error instanceof Error && <div className="text-sm mt-2">{error.message}</div>}
+                </div>
+              </div>
+            )}
+
+            {fileStructure && !isLoading && !error && (
+              <div>
+                {!hasContent ? (
+                  <div className="flex items-center justify-center p-8 text-muted-foreground">
+                    파일이 없습니다.
                   </div>
-                </div>
-              )}
-
-              {fileStructure && !isLoading && !error && (
-                <div className="p-2">
-                  {!hasContent ? (
-                    <div className="flex items-center justify-center p-8 text-muted-foreground">
-                      파일이 없습니다.
-                    </div>
-                  ) : (
-                    <div>
-                      {[...fileStructure.root.children!].sort((a, b) => {
-                        if (a.type === 'directory' && b.type === 'file') return -1
-                        if (a.type === 'file' && b.type === 'directory') return 1
-                        return a.name.localeCompare(b.name)
-                      }).map((node, index) => (
-                        <FileNode
-                          key={`${node.path}-${index}`}
-                          node={node}
-                          level={0}
-                          onFileClick={handleFileClick}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
+                ) : (
+                  <div>
+                    {[...fileStructure.root.children!].sort((a, b) => {
+                      if (a.type === 'directory' && b.type === 'file') return -1
+                      if (a.type === 'file' && b.type === 'directory') return 1
+                      return a.name.localeCompare(b.name)
+                    }).map((node, index) => (
+                      <FileNode
+                        key={`${node.path}-${index}`}
+                        node={node}
+                        level={0}
+                        onFileClick={handleFileClick}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
