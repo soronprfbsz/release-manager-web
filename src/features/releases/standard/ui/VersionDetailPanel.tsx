@@ -28,7 +28,6 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
 interface VersionDetailPanelProps {
