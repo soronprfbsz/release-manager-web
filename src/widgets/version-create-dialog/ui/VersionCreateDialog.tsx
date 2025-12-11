@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Upload, X, FileArchive, Info, Loader2, Package } from 'lucide-react'
+import { Upload, X, FileArchive, Info, Loader2, Tag } from 'lucide-react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/code'
 import { useProjectStore } from '@/shared/store'
@@ -234,7 +234,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
       <SheetContent className="w-[500px] sm:max-w-[500px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+            <Tag className="h-5 w-5" />
             버전 생성
           </SheetTitle>
           <SheetDescription>
@@ -458,7 +458,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                   </>
                 ) : (
                   <>
-                    <Package className="h-4 w-4 mr-2" />
+                    <Tag className="h-4 w-4 mr-2" />
                     생성
                   </>
                 )}

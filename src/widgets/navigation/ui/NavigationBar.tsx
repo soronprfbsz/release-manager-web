@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { LogOut, Package } from 'lucide-react'
+import { LogOut, Rocket } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useMenus } from '@/entities/menu'
@@ -59,9 +59,9 @@ export function NavigationBar() {
           <a
             href={ROUTES.HOME}
             onClick={handleLogoClick}
-            className="flex items-center gap-2 w-fit group cursor-pointer"
+            className="flex items-center gap-2 w-fit cursor-pointer"
           >
-            <Package className="h-6 w-6 group-hover:animate-spin-slow" />
+            <Rocket className="h-6 w-6" />
             <span className="font-bold text-lg">Release Manager</span>
           </a>
         </div>

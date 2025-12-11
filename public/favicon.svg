@@ -1,13 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <style>
-    @media (prefers-color-scheme: dark) {
-      :root { color: #fff; }
-    }
-    @media (prefers-color-scheme: light) {
-      :root { color: #1a1a1a; }
-    }
-  </style>
-  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-  <line x1="12" y1="22.08" x2="12" y2="12"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="rocketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rocket body -->
+  <path d="M4.5 16.5c-1.5 1.5-2 5-2 5s3.5-.5 5-2c.5-.5.5-1 .5-1.5V17c0-1.5-1-2.5-2.5-2.5H5c-.5 0-1 0-1.5.5z"
+        fill="#4A90E2" stroke="#2E5C8A" stroke-width="1.5"/>
+
+  <!-- Main rocket -->
+  <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+        fill="url(#rocketGradient)" stroke="#C44622" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Window -->
+  <circle cx="15" cy="9" r="1.5" fill="#FFE66D" stroke="#D4AF37" stroke-width="1"/>
+
+  <!-- Flame -->
+  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"
+        fill="#FF4757" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"
+        fill="#FF6348" stroke="#E84118" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

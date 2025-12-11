@@ -1,24 +1,22 @@
 import { useState } from 'react'
 
-import { Folder, FolderOpen, File, ChevronRight, ChevronDown, Download } from 'lucide-react'
+import { Folder, FolderOpen, File, ChevronRight, ChevronDown, Package } from 'lucide-react'
 
 import {
-  patchApi,
   usePatchFileStructure,
   usePatchFileContent,
   type PatchFileNode,
 } from '@/entities/patch'
 
-import { Button } from '@/shared/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/shared/ui/dialog'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/shared/ui/sheet'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 interface PatchFileExplorerProps {
@@ -134,49 +132,26 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
     fileViewerOpen && patchId !== null && selectedFile !== null
   )
 
-  const handleDownload = () => {
-    if (!patchId) return
-    const fileName = `${patchName}.zip`
-    patchApi.download(patchId, fileName)
-  }
-
   const handleFileClick = (node: PatchFileNode) => {
     setSelectedFile({ path: node.path, name: node.name, size: node.size })
     setFileViewerOpen(true)
-  }
-
-  const handleDownloadFile = () => {
-    if (!patchId || !selectedFile) return
-    // 개별 파일 다운로드는 전체 패치 다운로드로 대체
-    const fileName = `${patchName}.zip`
-    patchApi.download(patchId, fileName)
   }
 
   const hasContent = fileStructure?.root?.children && fileStructure.root.children.length > 0
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col gap-4">
-          <DialogHeader>
-            <DialogTitle>{patchName}</DialogTitle>
-            <DialogDescription>패치 파일 구조</DialogDescription>
-            {/* X 버튼 왼쪽에 배치되는 다운로드 버튼 */}
-            <div className="absolute top-0 right-10 flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDownload}
-                disabled={!patchId}
-                className="h-8 w-8"
-                title="전체 다운로드"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-          </DialogHeader>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent className="w-[800px] sm:max-w-[800px] flex flex-col gap-4">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {patchName}
+            </SheetTitle>
+            <SheetDescription>패치 파일 구조를 확인합니다.</SheetDescription>
+          </SheetHeader>
 
-          <ScrollArea className="h-[65vh] w-full">
+          <ScrollArea className="h-[calc(100vh-8rem)] w-full">
             {isLoading && (
               <div className="flex items-center justify-center p-8">
                 <div className="text-muted-foreground">로딩 중...</div>
@@ -217,8 +192,8 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
               </div>
             )}
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       <FileContentViewerModal
         open={fileViewerOpen}
@@ -229,7 +204,6 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
         error={contentError as Error | null}
         description="파일 내용"
         fileSize={selectedFile?.size}
-        onDownload={handleDownloadFile}
       />
     </>
   )

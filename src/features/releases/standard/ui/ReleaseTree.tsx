@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Package } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag } from 'lucide-react'
 
 import type { MajorMinorNode, VersionNode } from '@/entities/release'
 
@@ -42,7 +42,7 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
   if (majorMinorGroups.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-        <Package className="h-12 w-12 mb-2 opacity-50" />
+        <Tag className="h-12 w-12 mb-2 opacity-50" />
         <p className="text-sm">릴리즈 버전이 없습니다.</p>
       </div>
     )

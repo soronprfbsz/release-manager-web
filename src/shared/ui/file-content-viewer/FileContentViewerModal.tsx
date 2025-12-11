@@ -1,11 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 
-import { Clipboard, ClipboardCheck, Loader2, AlertTriangle, Download } from 'lucide-react'
+import { Loader2, AlertTriangle, Download, Maximize2, Minimize2 } from 'lucide-react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { copyToClipboard } from '@/shared/lib/utils/clipboard'
+import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -84,9 +83,9 @@ export function FileContentViewerModal({
   fileSize,
   onDownload,
 }: FileContentViewerModalProps) {
-  const [copied, setCopied] = useState(false)
-  const { toast } = useToast()
   const language = getLanguageFromFileName(fileName)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
 
   // 콘텐츠 크기 계산 및 미리보기 처리
   const { displayContent, isTruncated, totalLines, displayedLines, contentSize } = useMemo(() => {
@@ -128,30 +127,12 @@ export function FileContentViewerModal({
     }
   }, [content])
 
-  const handleCopy = async () => {
-    if (!content) return
-
-    const success = await copyToClipboard(content)
-    if (success) {
-      setCopied(true)
-      toast({
-        title: '복사 완료',
-        description: '파일 내용이 클립보드에 복사되었습니다.',
-      })
-      setTimeout(() => setCopied(false), 2000)
-    } else {
-      toast({
-        title: '복사 실패',
-        description: '클립보드 복사 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    }
-  }
-
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col gap-4">
+      <DialogContent
+        ref={containerRef}
+        className={`max-w-4xl flex flex-col gap-4 ${isFullscreen ? 'h-screen max-h-screen' : 'max-h-[85vh]'}`}
+      >
         <DialogHeader>
           <DialogTitle className="font-mono text-base">{fileName}</DialogTitle>
           <DialogDescription className="flex items-center gap-2">
@@ -183,15 +164,14 @@ export function FileContentViewerModal({
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleCopy}
-              disabled={!content || isLoading}
+              onClick={toggleFullscreen}
               className="h-8 w-8"
-              title={copied ? '복사됨' : '클립보드에 복사'}
+              title={isFullscreen ? '전체화면 종료' : '전체화면'}
             >
-              {copied ? (
-                <ClipboardCheck className="h-4 w-4" />
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
               ) : (
-                <Clipboard className="h-4 w-4" />
+                <Maximize2 className="h-4 w-4" />
               )}
             </Button>
           </div>
@@ -209,7 +189,7 @@ export function FileContentViewerModal({
 
         <div className="relative flex-1 min-h-0">
 
-          <ScrollArea className="h-[55vh] w-full rounded-md border">
+          <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[55vh]'}`}>
             <div className="min-w-max">
               {isLoading && (
                 <div className="flex items-center justify-center p-8 gap-2">

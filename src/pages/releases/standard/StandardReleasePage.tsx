@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { Package, RefreshCw, Plus } from 'lucide-react'
+import { Tag, RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
 import { VersionCreateDialog } from '@/widgets/version-create-dialog'
@@ -78,7 +78,7 @@ export function StandardReleasePage() {
         { label: '버전 관리' },
         { label: 'Standard', isCurrentPage: true },
       ]}
-      icon={<Package className="h-5 w-5 text-primary" />}
+      icon={<Tag className="h-5 w-5 text-primary" />}
       title="Standard 버전 관리"
       description="표준 릴리즈 버전 정보를 생성하고 관리합니다."
       actions={
@@ -101,7 +101,7 @@ export function StandardReleasePage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Package className="h-4 w-4" />
+                <Tag className="h-4 w-4" />
                 버전 트리
                 {treeData && (
                   <span className="text-xs text-muted-foreground font-normal ml-auto">
