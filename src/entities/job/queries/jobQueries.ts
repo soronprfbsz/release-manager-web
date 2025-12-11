@@ -179,9 +179,10 @@ export function useDeleteBackupFile(options?: UseMutationOptions<void, Error, nu
 
   return useMutation({
     mutationFn: (id: number) => jobApi.deleteBackupFile(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: jobKeys.all })
-    },
     ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: jobKeys.all })
+      options?.onSuccess?.(...args)
+    },
   })
 }

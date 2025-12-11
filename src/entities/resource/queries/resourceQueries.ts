@@ -77,10 +77,11 @@ export function useUploadResource(
   return useMutation({
     mutationFn: async ({ file, fileCategory, subCategory, description, onProgress }) =>
       resourceApi.upload(file, fileCategory, subCategory, description, onProgress),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: resourceKeys.all })
-    },
     ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: resourceKeys.all })
+      options?.onSuccess?.(...args)
+    },
   })
 }
 
@@ -92,9 +93,10 @@ export function useDeleteResource(options?: UseMutationOptions<void, Error, numb
 
   return useMutation({
     mutationFn: (id: number) => resourceApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: resourceKeys.all })
-    },
     ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: resourceKeys.all })
+      options?.onSuccess?.(...args)
+    },
   })
 }
