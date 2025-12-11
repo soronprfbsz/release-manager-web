@@ -15,7 +15,6 @@ import { TypographyMuted } from '@/shared/ui/typography'
 import type { AccountFormData } from '../model/types'
 
 interface AccountFormProps {
-  accountName: string
   email: string
   formData: AccountFormData
   isSubmitting: boolean
@@ -31,7 +30,6 @@ const ROLE_OPTIONS = [
 ]
 
 export function AccountForm({
-  accountName,
   email,
   formData,
   isSubmitting,
@@ -53,16 +51,6 @@ export function AccountForm({
       onClose={onClose}
     >
       <div className="space-y-2">
-        <Label>계정명</Label>
-        <Input
-          value={accountName}
-          disabled
-        />
-        <TypographyMuted className="text-xs">
-          계정명은 수정할 수 없습니다.
-        </TypographyMuted>
-      </div>
-      <div className="space-y-2">
         <Label>이메일</Label>
         <Input
           type="email"
@@ -72,6 +60,16 @@ export function AccountForm({
         <TypographyMuted className="text-xs">
           이메일은 수정할 수 없습니다.
         </TypographyMuted>
+      </div>
+      <div className="space-y-2">
+        <Label>계정명</Label>
+        <Input
+          value={formData.accountName}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, accountName: e.target.value })
+          }
+          placeholder="기본 사용자"
+        />
       </div>
       <div className="space-y-2">
         <Label>권한</Label>

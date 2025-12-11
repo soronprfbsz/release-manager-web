@@ -8,6 +8,7 @@ import type { Account } from '@/entities/account'
 export type AccountFormMode = 'edit'
 
 export interface AccountFormData {
+  accountName: string
   role: string
   status: string
 }
@@ -15,12 +16,14 @@ export interface AccountFormData {
 export function createAccountFormData(account?: Account): AccountFormData {
   if (!account) {
     return {
+      accountName: '',
       role: '',
       status: 'ACTIVE',
     }
   }
 
   return {
+    accountName: account.accountName,
     role: account.role,
     status: account.status,
   }

@@ -51,13 +51,28 @@ export function EngineerForm({
       onClose={onClose}
     >
       <div className="space-y-2">
+        <Label>소속팀</Label>
+        <Combobox
+          options={departments.map((dept) => ({
+            value: dept.departmentId.toString(),
+            label: dept.departmentName,
+          }))}
+          value={formData.departmentId}
+          onValueChange={(value) =>
+            onFormDataChange({ ...formData, departmentId: value })
+          }
+          placeholder="소속팀을 선택하세요"
+          searchPlaceholder="소속팀 검색..."
+        />
+      </div>
+      <div className="space-y-2">
         <Label required>이름</Label>
         <Input
           value={formData.engineerName}
           onChange={(e) =>
             onFormDataChange({ ...formData, engineerName: e.target.value })
           }
-          placeholder="예: 홍길동"
+          placeholder="예: 신성수"
           maxLength={50}
         />
       </div>
@@ -84,23 +99,8 @@ export function EngineerForm({
           onChange={(e) =>
             onFormDataChange({ ...formData, engineerEmail: e.target.value })
           }
-          placeholder="예: engineer@company.com"
+          placeholder="예: shinss@tscientific.co.kr"
           maxLength={100}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>소속팀</Label>
-        <Combobox
-          options={departments.map((dept) => ({
-            value: dept.departmentId.toString(),
-            label: dept.departmentName,
-          }))}
-          value={formData.departmentId}
-          onValueChange={(value) =>
-            onFormDataChange({ ...formData, departmentId: value })
-          }
-          placeholder="소속팀을 선택하세요"
-          searchPlaceholder="소속팀 검색..."
         />
       </div>
       <div className="space-y-2">

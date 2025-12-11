@@ -15,6 +15,7 @@ export interface Account {
 }
 
 export interface AccountUpdateRequest {
+  accountName?: string
   role?: string
   status?: string
 }

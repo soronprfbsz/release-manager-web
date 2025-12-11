@@ -62,7 +62,7 @@ export function CustomerForm({
           onChange={(e) =>
             onFormDataChange({ ...formData, customerCode: e.target.value })
           }
-          placeholder="예: CUSTOMER_A"
+          placeholder="예: customerA"
           disabled={mode === 'edit'}
         />
         {mode === 'edit' && (
@@ -70,27 +70,6 @@ export function CustomerForm({
             고객사 코드는 수정할 수 없습니다.
           </TypographyMuted>
         )}
-      </div>
-      <div className="space-y-2">
-        <Label required>고객사명</Label>
-        <Input
-          value={formData.customerName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, customerName: e.target.value })
-          }
-          placeholder="예: A회사"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>설명</Label>
-        <Textarea
-          value={formData.description}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, description: e.target.value })
-          }
-          placeholder="고객사에 대한 설명을 입력하세요"
-          className="min-h-[80px]"
-        />
       </div>
 
       {/* 프로젝트 선택 */}
@@ -121,6 +100,28 @@ export function CustomerForm({
             고객사에서 사용하는 프로젝트를 선택하세요.
           </TypographyMuted>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label required>고객사명</Label>
+        <Input
+          value={formData.customerName}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, customerName: e.target.value })
+          }
+          placeholder="예: B회사"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>설명</Label>
+        <Textarea
+          value={formData.description}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, description: e.target.value })
+          }
+          placeholder="고객사에 대한 설명을 입력하세요"
+          className="min-h-[80px]"
+        />
       </div>
 
       {/* 활성 상태 토글 */}

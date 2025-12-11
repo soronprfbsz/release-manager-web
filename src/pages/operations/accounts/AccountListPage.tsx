@@ -92,6 +92,7 @@ export function AccountListPage() {
     if (!editingAccount) return
 
     const request: AccountUpdateRequest = {
+      accountName: formData.accountName || undefined,
       role: formData.role || undefined,
       status: formData.status,
     }
@@ -207,7 +208,6 @@ export function AccountListPage() {
       {/* Form Sheet */}
       {isFormOpen && editingAccount && (
         <AccountForm
-          accountName={editingAccount.accountName}
           email={editingAccount.email}
           formData={formData}
           isSubmitting={updateMutation.isPending}
