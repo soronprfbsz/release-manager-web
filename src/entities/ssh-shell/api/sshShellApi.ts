@@ -35,4 +35,36 @@ export const sshShellApi = {
   disconnect: async (sessionId: string): Promise<void> => {
     await apiClient.delete(`${BASE_URL}/${sessionId}`)
   },
+
+  /**
+   * 파일 업로드 (원격 호스트로 전송)
+   * POST /api/terminal/{id}/files
+   */
+  uploadFile: async (
+    sessionId: string,
+    file: File,
+    remotePath?: string,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (remotePath) {
+      formData.append('remotePath', remotePath)
+    }
+
+    await apiClient.upload(`${BASE_URL}/${sessionId}/files`, formData, {
+      onUploadProgress,
+    })
+  },
+
+  /**
+   * 패치 파일 배포
+   * POST /api/terminal/{id}/patches
+   */
+  deployPatch: async (sessionId: string, patchId: number, remotePath?: string): Promise<void> => {
+    await apiClient.post(`${BASE_URL}/${sessionId}/patches`, {
+      patchId,
+      remotePath,
+    })
+  },
 }

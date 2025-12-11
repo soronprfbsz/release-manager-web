@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react'
-import { Plus, Terminal } from 'lucide-react'
+import { PlugZap, Unplug, Terminal, Upload } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import {
@@ -12,8 +12,10 @@ import {
   XtermTerminal,
   INITIAL_FORM_DATA,
   useSshShell,
+  useSshConnectionHistory,
   type XtermTerminalHandle,
 } from '@/features/ssh-shell'
+import { FileTransferSheet } from '@/features/ssh-shell/ui/FileTransferSheet'
 import type { SshConnectionFormData } from '@/features/ssh-shell'
 import {
   Breadcrumb,
@@ -29,6 +31,7 @@ import { PageHeader } from '@/shared/ui/page-header'
 export function SshShellPage() {
   // 로컬 UI 상태
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false)
+  const [fileTransferSheetOpen, setFileTransferSheetOpen] = useState(false)
   const [formData, setFormData] = useState<SshConnectionFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -38,19 +41,23 @@ export function SshShellPage() {
   const { session, isConnected, isConnecting, connect, disconnect, sendCommand } =
     useSshShell(terminalRef)
 
+  // SSH 연결 히스토리
+  const { saveToHistory } = useSshConnectionHistory()
+
   // SSH 연결 핸들러
   const handleConnect = useCallback(async () => {
     const result = await connect(formData)
 
     if (result.success) {
-      // 연결 성공
+      // 연결 성공 - 히스토리 저장 (비밀번호 제외)
+      saveToHistory(formData.host, formData.port, formData.username)
       setConnectionSheetOpen(false)
       setErrors({})
     } else if (result.errors) {
       // 유효성 검증 실패
       setErrors(result.errors)
     }
-  }, [formData, connect])
+  }, [formData, connect, saveToHistory])
 
   // SSH 연결 종료 핸들러
   const handleDisconnect = useCallback(async () => {
@@ -89,11 +96,12 @@ export function SshShellPage() {
           <>
             {session ? (
               <Button onClick={handleDisconnect} variant="outline">
+                <Unplug className="h-4 w-4" />
                 연결 종료
               </Button>
             ) : (
               <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
-                <Plus className="h-4 w-4" />
+                <PlugZap className="h-4 w-4" />
                 연결
               </Button>
             )}
@@ -115,6 +123,14 @@ export function SshShellPage() {
         }}
       />
 
+      {/* 파일 전송 Sheet */}
+      <FileTransferSheet
+        open={fileTransferSheetOpen}
+        onOpenChange={setFileTransferSheetOpen}
+        shellSessionId={session?.sessionId || null}
+        isConnected={isConnected}
+      />
+
       {/* xterm.js 터미널 */}
       <div className="h-[calc(100vh-300px)]">
         <XtermTerminal
@@ -125,6 +141,19 @@ export function SshShellPage() {
           username={session?.username || null}
           isConnected={isConnected}
           onData={sendCommand}
+          headerActions={
+            isConnected && session?.sessionId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs flex items-center gap-1.5 border border-transparent hover:border-border"
+                onClick={() => setFileTransferSheetOpen(true)}
+              >
+                <Upload className="h-3 w-3" />
+                파일 전송
+              </Button>
+            )
+          }
         />
       </div>
     </div>

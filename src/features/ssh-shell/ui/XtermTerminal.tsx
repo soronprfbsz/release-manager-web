@@ -15,6 +15,7 @@ import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
 import { Button } from '@/shared/ui/button'
 import { useThemeStore } from '@/shared/store/useThemeStore'
 import type { Theme } from '@/shared/store/useThemeStore'
+import { useSshSessionStore } from '@/shared/store/useSshSessionStore'
 import { XTERM_THEMES } from '../config/xterm-themes'
 
 interface XtermTerminalProps {
@@ -23,6 +24,7 @@ interface XtermTerminalProps {
   username: string | null
   isConnected: boolean
   onData: (data: string) => void
+  headerActions?: React.ReactNode
 }
 
 export interface XtermTerminalHandle {
@@ -32,7 +34,7 @@ export interface XtermTerminalHandle {
 }
 
 export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>(
-  function XtermTerminal({ sessionId, host, username, isConnected, onData }, ref) {
+  function XtermTerminal({ sessionId, host, username, isConnected, onData, headerActions }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
@@ -40,6 +42,10 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
 
     // 전체화면 훅
     const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
+
+    // SSH 세션 store
+    const appendOutput = useSshSessionStore((state) => state.appendOutput)
+    const terminalHistory = useSshSessionStore((state) => state.terminalHistory)
 
     // 연결 상태를 ref로 관리 (onData 핸들러에서 최신 값 참조용)
     const isConnectedRef = useRef(isConnected)
@@ -55,6 +61,10 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
         xtermRef.current?.write(data)
+        // 출력을 store에 저장
+        if (sessionId) {
+          appendOutput(sessionId, data)
+        }
       },
       clear: () => {
         xtermRef.current?.clear()
@@ -62,7 +72,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       focus: () => {
         xtermRef.current?.focus()
       },
-    }))
+    }), [sessionId, appendOutput])
 
     // Theme 관리
     const theme = useThemeStore((state) => state.theme)
@@ -155,6 +165,14 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       xtermRef.current = term
       fitAddonRef.current = fitAddon
 
+      // 저장된 터미널 히스토리 복원 (sessionId가 있는 경우)
+      if (sessionId && terminalHistory[sessionId]) {
+        const history = terminalHistory[sessionId]
+        history.forEach((output) => {
+          term.write(output)
+        })
+      }
+
       // Window resize 처리
       const handleResize = () => {
         fitAddon.fit()
@@ -169,7 +187,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         fitAddonRef.current = null
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []) // 마운트 시 한 번만 실행 (테마 변경은 별도 useEffect에서 처리)
+    }, [sessionId]) // sessionId 변경 시 터미널 재생성 및 히스토리 복원
 
     // 전체화면 상태 변경 시 터미널 크기 조정
     useEffect(() => {
@@ -232,9 +250,18 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Header Actions Injection */}
+            {headerActions}
+
             {isConnected && (
-              <div className="flex items-center gap-1.5 text-xs text-green-400">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <div
+                className="flex items-center gap-1.5 text-xs"
+                style={{ color: activeTheme.green || activeTheme.brightGreen }}
+              >
+                <div
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ backgroundColor: activeTheme.green || activeTheme.brightGreen }}
+                />
                 <span>연결됨</span>
               </div>
             )}

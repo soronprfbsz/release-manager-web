@@ -6,3 +6,4 @@
 export { useAuthStore, initializeAuth } from './useAuthStore'
 export { useProjectStore } from './useProjectStore'
 export { useThemeStore, type Theme } from './useThemeStore'
+export { useSshSessionStore, type SshSession } from './useSshSessionStore'

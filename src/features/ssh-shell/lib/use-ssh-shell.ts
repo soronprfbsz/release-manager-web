@@ -3,25 +3,17 @@
  * SSH 터미널 세션 관리 및 비즈니스 로직
  */
 
-import { useState, useCallback, type RefObject } from 'react'
+import { useCallback, type RefObject } from 'react'
 
 import { useConnectShell, useDisconnectShell } from '@/entities/ssh-shell'
 import type { ShellConnectRequest, OutputMessage } from '@/entities/ssh-shell'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useSshSessionStore, type SshSession } from '@/shared/store/useSshSessionStore'
 
 import { useSshShellWebSocket } from './use-ssh-shell-websocket'
 import { validateSshConnectionForm } from '../model/validation'
 import type { SshConnectionFormData } from '../model/types'
 import type { XtermTerminalHandle } from '../ui/XtermTerminal'
-
-/**
- * SSH 세션 정보
- */
-export interface SshSession {
-  sessionId: string
-  host: string
-  username: string
-}
 
 /**
  * useSshShell Hook 반환 타입
@@ -50,44 +42,52 @@ export interface UseSshShellReturn {
 export function useSshShell(
   terminalRef: RefObject<XtermTerminalHandle>
 ): UseSshShellReturn {
-  const [session, setSession] = useState<SshSession | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
+  // 전역 상태 사용 (페이지 이동 시에도 유지)
+  const session = useSshSessionStore((state) => state.session)
+  const isConnected = useSshSessionStore((state) => state.isConnected)
+  const setSession = useSshSessionStore((state) => state.setSession)
+  const setConnected = useSshSessionStore((state) => state.setConnected)
+  const clearSession = useSshSessionStore((state) => state.disconnect)
+  const clearHistory = useSshSessionStore((state) => state.clearHistory)
 
   const { toast } = useToast()
   const connectMutation = useConnectShell()
   const disconnectMutation = useDisconnectShell()
 
   // WebSocket 메시지 핸들러
-  const handleWebSocketMessage = useCallback((message: OutputMessage) => {
-    // 상태 메시지 처리
-    if (message.type === 'STATUS') {
-      if (message.status === 'CONNECTED') {
-        setIsConnected(true)
-      } else if (message.status === 'ERROR' || message.status === 'DISCONNECTED') {
-        setIsConnected(false)
+  const handleWebSocketMessage = useCallback(
+    (message: OutputMessage) => {
+      // 상태 메시지 처리
+      if (message.type === 'STATUS') {
+        if (message.status === 'CONNECTED') {
+          setConnected(true)
+        } else if (message.status === 'ERROR' || message.status === 'DISCONNECTED') {
+          setConnected(false)
+        }
+        return
       }
-      return
-    }
 
-    // 에러 메시지 처리
-    if (message.type === 'ERROR') {
-      const errorMsg = message.data || message.message || ''
-      if (errorMsg && terminalRef.current) {
-        terminalRef.current.write(`\x1b[31m${errorMsg}\x1b[0m\r\n`)
+      // 에러 메시지 처리
+      if (message.type === 'ERROR') {
+        const errorMsg = message.data || message.message || ''
+        if (errorMsg && terminalRef.current) {
+          terminalRef.current.write(`\x1b[31m${errorMsg}\x1b[0m\r\n`)
+        }
+        return
       }
-      return
-    }
 
-    // 일반 출력 처리
-    const output = message.data || message.message || ''
-    if (output && terminalRef.current) {
-      terminalRef.current.write(output)
-    }
-  }, [terminalRef])
+      // 일반 출력 처리
+      const output = message.data || message.message || ''
+      if (output && terminalRef.current) {
+        terminalRef.current.write(output)
+      }
+    },
+    [terminalRef, setConnected]
+  )
 
   const handleWebSocketDisconnect = useCallback(() => {
-    setIsConnected(false)
-  }, [])
+    setConnected(false)
+  }, [setConnected])
 
   const handleWebSocketError = useCallback(
     (error: Error) => {
@@ -166,9 +166,11 @@ export function useSshShell(
       // REST API로 세션 종료
       await disconnectMutation.mutateAsync(session.sessionId)
 
-      // 상태 초기화
-      setSession(null)
-      setIsConnected(false)
+      // 터미널 히스토리 정리
+      clearHistory(session.sessionId)
+
+      // 전역 상태 초기화
+      clearSession()
 
       // 터미널 초기화
       terminalRef.current?.clear()
@@ -185,7 +187,7 @@ export function useSshShell(
         variant: 'destructive',
       })
     }
-  }, [session, wsDisconnect, disconnectMutation, terminalRef, toast])
+  }, [session, wsDisconnect, disconnectMutation, clearHistory, clearSession, terminalRef, toast])
 
   return {
     session,

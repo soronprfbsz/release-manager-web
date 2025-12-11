@@ -18,5 +18,6 @@ export { validateSshConnectionForm } from './model/validation'
 
 // Hooks
 export { useSshShell } from './lib/use-ssh-shell'
-export type { SshSession, UseSshShellReturn } from './lib/use-ssh-shell'
+export type { UseSshShellReturn } from './lib/use-ssh-shell'
 export { useSshShellWebSocket } from './lib/use-ssh-shell-websocket'
+export { useSshConnectionHistory } from './lib/use-ssh-connection-history'
