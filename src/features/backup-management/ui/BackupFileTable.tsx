@@ -16,7 +16,6 @@ import {
 import type { BackupFile } from '@/entities/job'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { Button } from '@/shared/ui/button'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import {
@@ -28,6 +27,11 @@ import {
   TableRow,
   SortableTableHead,
 } from '@/shared/ui/table'
+import {
+  TableActionMenu,
+  TableActionMenuItem,
+  TableActionMenuSeparator,
+} from '@/shared/ui/table-action-menu'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 
@@ -108,7 +112,7 @@ export function BackupFileTable({
             >
               생성일시
             </SortableTableHead>
-            <TableHead className="w-32 text-center">작업</TableHead>
+            <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -153,34 +157,26 @@ export function BackupFileTable({
                   </span>
                 </TruncatedCell>
               </TableCell>
-              <TableCell className="text-center">
-                <div className="flex items-center justify-center gap-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onLogsClick(file)}
-                    title="로그 조회"
-                  >
-                    <ScrollText className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDownload(file)}
-                    title="다운로드"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
+              <TableCell>
+                <TableActionMenu>
+                  <TableActionMenuItem onClick={() => onLogsClick(file)}>
+                    <ScrollText className="mr-2 h-4 w-4" />
+                    로그 조회
+                  </TableActionMenuItem>
+                  <TableActionMenuItem onClick={() => onDownload(file)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    다운로드
+                  </TableActionMenuItem>
+                  <TableActionMenuSeparator />
+                  <TableActionMenuItem
                     onClick={() => onDelete(file)}
                     disabled={isDeleting}
-                    title="삭제"
+                    className="text-red-600 focus:text-red-600"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    삭제
+                  </TableActionMenuItem>
+                </TableActionMenu>
               </TableCell>
             </TableRow>
           ))}

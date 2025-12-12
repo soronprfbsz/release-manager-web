@@ -283,7 +283,14 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         </div>
 
         {/* xterm.js 터미널 영역 */}
-        <div className="flex-1 p-2 overflow-hidden min-h-0">
+        <div
+          className="flex-1 p-2 overflow-hidden min-h-0 cursor-text"
+          onMouseDown={() => {
+            // 터미널 영역 클릭 시 즉시 포커스
+            // onMouseDown은 브라우저가 포커스를 받기 전에도 발생
+            xtermRef.current?.focus()
+          }}
+        >
           <div ref={terminalRef} className="h-full w-full" />
         </div>
       </div>

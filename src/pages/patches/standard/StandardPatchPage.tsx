@@ -261,7 +261,7 @@ export function StandardPatchPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Package className="h-5 w-5 text-primary" />}
-        title="Standard 패치"
+        title="패치 관리 (Standard)"
         description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
         actions={
           <>

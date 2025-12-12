@@ -310,12 +310,12 @@ export function FileTransferSheet({
                   <Label htmlFor="patchRemotePath">원격 경로 (선택사항)</Label>
                   <Input
                     id="patchRemotePath"
-                    placeholder="예: /release-manager/patches"
+                    placeholder="기본경로: /release-manager/patches"
                     value={patchRemotePath}
                     onChange={(e) => setPatchRemotePath(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    미입력 시, 서버가 생성한 임시 경로에 저장됩니다.
+                    미입력 시, 기본 경로에 저장됩니다.
                   </p>
                 </div>
 
@@ -441,7 +441,7 @@ export function FileTransferSheet({
                     onChange={(e) => setRemotePath(e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    미입력 시, 서버가 생성한 임시 경로에 저장됩니다.
+                    미입력 시, 기본 경로에 저장됩니다.
                   </p>
                 </div>
 

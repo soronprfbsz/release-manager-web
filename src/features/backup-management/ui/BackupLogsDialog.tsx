@@ -1,6 +1,6 @@
 /**
- * Backup Logs Dialog Component
- * 백업 파일 로그 목록 조회 다이얼로그
+ * Backup Logs Sheet Component
+ * 백업 파일 로그 목록 조회 Sheet
  */
 
 import { Download, FileText, ScrollText } from 'lucide-react'
@@ -9,14 +9,14 @@ import type { LogFile } from '@/entities/job'
 
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/shared/ui/dialog'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
 
 interface BackupLogsDialogProps {
   isOpen: boolean
@@ -40,17 +40,17 @@ export function BackupLogsDialog({
   onClose,
 }: BackupLogsDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent className="w-[600px] sm:max-w-[600px]">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
             <ScrollText className="h-5 w-5" />
             로그 목록
-          </DialogTitle>
-          <DialogDescription>{fileName}의 백업/복원 로그</DialogDescription>
-        </DialogHeader>
+          </SheetTitle>
+          <SheetDescription>{fileName}의 백업/복원 로그</SheetDescription>
+        </SheetHeader>
 
-        <ScrollArea className="max-h-[400px]">
+        <ScrollArea className="h-[calc(100vh-140px)] mt-6 pr-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -104,7 +104,7 @@ export function BackupLogsDialog({
             </div>
           )}
         </ScrollArea>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

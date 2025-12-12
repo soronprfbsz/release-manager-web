@@ -218,7 +218,7 @@ export function MariaDBJobPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>MariaDB 백업 및 복원</BreadcrumbPage>
+            <BreadcrumbPage>MariaDB</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -226,8 +226,8 @@ export function MariaDBJobPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Database className="h-5 w-5 text-primary" />}
-        title="MariaDB 작업"
-        description="MariaDB 백업 및 복원 작업을 수행합니다."
+        title="MariaDB"
+        description="MariaDB 백업 및 복원 등의 작업을 수행합니다."
         actions={
           <>
             <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">

@@ -37,7 +37,7 @@ export function CustomPatchPage() {
       {/* Page Header */}
       <PageHeader
         icon={<GitBranch className="h-5 w-5 text-primary" />}
-        title="Custom 패치"
+        title="패치 관리 (Custom)"
         description="고객사별 커스텀 패치를 생성하고 관리합니다."
       />
 

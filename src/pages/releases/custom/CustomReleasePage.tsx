@@ -37,7 +37,7 @@ export function CustomReleasePage() {
       {/* Page Header */}
       <PageHeader
         icon={<GitBranch className="h-5 w-5 text-primary" />}
-        title="Custom 버전 관리"
+        title="버전 관리 (Custom)"
         description="고객사별 커스텀 릴리즈 버전 정보를  생성하고 관리합니다."
       />
 

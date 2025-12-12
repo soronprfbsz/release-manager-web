@@ -81,7 +81,7 @@ export function SshShellPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>SSH 터미널</BreadcrumbPage>
+              <BreadcrumbPage>터미널</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -90,8 +90,8 @@ export function SshShellPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Terminal className="h-5 w-5 text-primary" />}
-        title="SSH 터미널"
-        description="SSH를 통해 원격 서버에 연결하여 터미널을 사용합니다."
+        title="터미널"
+        description="SSH를 통해 원격 서버에 터미널로 연결합니다."
         actions={
           <>
             {session ? (

@@ -79,7 +79,7 @@ export function StandardReleasePage() {
         { label: 'Standard', isCurrentPage: true },
       ]}
       icon={<Tag className="h-5 w-5 text-primary" />}
-      title="Standard 버전 관리"
+      title="버전 관리 (Standard)"
       description="표준 릴리즈 버전 정보를 생성하고 관리합니다."
       actions={
         <>
