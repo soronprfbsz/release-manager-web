@@ -96,6 +96,7 @@ export function BackupFileTable({
             >
               파일 크기
             </SortableTableHead>
+            <TableHead className="w-64">설명</TableHead>
             <SortableTableHead
               id="createdBy"
               currentSort={sort}
@@ -136,6 +137,18 @@ export function BackupFileTable({
               </TableCell>
               <TableCell>
                 <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
+              </TableCell>
+              <TableCell>
+                {file.description ? (
+                  <TruncatedCell
+                    tooltipText={file.description}
+                    className="text-sm text-muted-foreground"
+                  >
+                    {file.description}
+                  </TruncatedCell>
+                ) : (
+                  <TypographyMuted className="text-sm">-</TypographyMuted>
+                )}
               </TableCell>
               <TableCell>
                 <TruncatedCell
