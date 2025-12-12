@@ -37,3 +37,5 @@ export type MenuId =
   | 'job_terminal'
   // 리소스 관리
   | 'resource_management'
+  // 서비스 관리
+  | 'service_management'

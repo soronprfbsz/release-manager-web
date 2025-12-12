@@ -1,0 +1,113 @@
+/**
+ * Service Form Sheet
+ * 서비스 생성/수정 폼
+ */
+
+import { Server } from 'lucide-react'
+import { FormSheet } from '@/shared/ui/form-sheet'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Textarea } from '@/shared/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
+import { Switch } from '@/shared/ui/switch'
+import type { ServiceFormData, ServiceFormMode } from '../model/types'
+
+interface ServiceFormProps {
+  mode: ServiceFormMode
+  formData: ServiceFormData
+  isSubmitting: boolean
+  onFormDataChange: (data: ServiceFormData) => void
+  onSubmit: () => void
+  onCancel: () => void
+}
+
+export function ServiceForm({
+  mode,
+  formData,
+  isSubmitting,
+  onFormDataChange,
+  onSubmit,
+  onCancel,
+}: ServiceFormProps) {
+  return (
+    <FormSheet
+      mode={mode}
+      icon={Server}
+      title={{ create: '서비스 생성', edit: '서비스 수정' }}
+      description={{
+        create: '새 서비스 정보를 입력하세요.',
+        edit: '서비스 정보를 수정하세요.',
+      }}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+      onClose={onCancel}
+    >
+      <div className="space-y-2">
+        <Label required>서비스명</Label>
+        <Input
+          value={formData.serviceName}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, serviceName: e.target.value })
+          }
+          placeholder="서비스명 입력"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label required>서비스 타입</Label>
+        <Select
+          value={formData.serviceType}
+          onValueChange={(value) =>
+            onFormDataChange({
+              ...formData,
+              serviceType: value as ServiceFormData['serviceType'],
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="서비스 타입 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="infraeye1">InfraEye 1</SelectItem>
+            <SelectItem value="infraeye2">InfraEye 2</SelectItem>
+            <SelectItem value="infra">Infra</SelectItem>
+            <SelectItem value="etc">기타</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>설명</Label>
+        <Textarea
+          value={formData.description}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, description: e.target.value })
+          }
+          placeholder="서비스 설명"
+          className="min-h-[80px]"
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label className="text-sm font-medium">활성화</Label>
+          <p className="text-xs text-muted-foreground">
+            비활성화 시 관리 대상에서 제외됩니다.
+          </p>
+        </div>
+        <Switch
+          checked={formData.isActive}
+          onCheckedChange={(checked) =>
+            onFormDataChange({ ...formData, isActive: checked })
+          }
+        />
+      </div>
+    </FormSheet>
+  )
+}

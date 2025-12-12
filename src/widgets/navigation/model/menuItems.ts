@@ -63,4 +63,8 @@ export const menuItems: MenuItem[] = [
     label: '리소스 관리',
     path: ROUTES.RESOURCES.ROOT,
   },
+  {
+    label: '서비스 관리',
+    path: ROUTES.OPERATIONS.SERVICES,
+  },
 ]

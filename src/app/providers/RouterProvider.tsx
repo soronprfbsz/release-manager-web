@@ -9,6 +9,7 @@ import { SshShellPage } from '@/pages/job/ssh-shell/SshShellPage'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
+import { ServiceListPage } from '@/pages/operations/services/ServiceListPage'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
@@ -104,6 +105,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <AccountListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.OPERATIONS.SERVICES,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <ServiceListPage />
         </MainLayout>
       </ProtectedRoute>
     ),

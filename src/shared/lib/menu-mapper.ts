@@ -35,6 +35,9 @@ export function menuIdToPath(menuId: string): string | undefined {
 
     // 리소스 관리
     resource_management: ROUTES.RESOURCES.ROOT,
+
+    // 서비스 관리
+    service_management: ROUTES.OPERATIONS.SERVICES,
   }
 
   return menuIdMap[menuId as MenuId]
