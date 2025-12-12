@@ -8,9 +8,7 @@ import { FolderOpen } from 'lucide-react'
 import type { CodeSimpleResponse } from '@/entities/code'
 import type { ResourceFile } from '@/entities/resource'
 
-import { TypographyLarge, TypographyMuted } from '@/shared/ui/typography'
-
-import { getGroupColorClass, getGroupIcon } from '../lib/resourceHelpers'
+import { getGroupIcon } from '../lib/resourceHelpers'
 import { ResourceCard } from './ResourceCard'
 
 interface ResourceGroupListProps {
@@ -46,8 +44,7 @@ export function ResourceGroupList({
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
         <FolderOpen className="h-16 w-16 mb-4 opacity-50" />
-        <TypographyLarge>등록된 리소스가 없습니다.</TypographyLarge>
-        <TypographyMuted>관리자에게 문의하세요.</TypographyMuted>
+        <p className="text-lg font-semibold">등록된 리소스가 없습니다.</p>
       </div>
     )
   }
@@ -55,8 +52,6 @@ export function ResourceGroupList({
   return (
     <div>
       {Object.entries(groupedResources).map(([category, files]) => {
-        const groupColorClass = getGroupColorClass(category)
-
         return (
           <div
             key={category}
@@ -64,7 +59,7 @@ export function ResourceGroupList({
           >
             {/* Group Header */}
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${groupColorClass.icon}`}>
+              <div className="p-2 rounded-lg bg-primary/10">
                 {getGroupIcon(category)}
               </div>
               <div>

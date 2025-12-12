@@ -6,9 +6,11 @@
 import { Server } from 'lucide-react'
 
 import type { Service } from '@/entities/service'
+import { useReorderServices } from '@/entities/service'
+import { SortableList } from '@/shared/ui/sortable'
 
 import { getServiceTypeIcon } from '../lib/serviceHelpers'
-import { ServiceCard } from './ServiceCard'
+import { SortableServiceCard } from './SortableServiceCard'
 
 interface ServiceGroupListProps {
   services: Service[]
@@ -30,6 +32,8 @@ export function ServiceGroupList({
   onDelete,
   onManageComponents,
 }: ServiceGroupListProps) {
+  const reorderMutation = useReorderServices()
+
   // Group services by serviceType
   const groupedServices = services.reduce(
     (acc, service) => {
@@ -40,6 +44,22 @@ export function ServiceGroupList({
     },
     {} as Record<string, Service[]>
   )
+
+  // 각 그룹별로 독립적인 handleReorder 생성
+  const createHandleReorder = (serviceType: string) => (reorderedServices: Service[]) => {
+    // 전체 목록에서의 원래 순서를 유지하면서 해당 타입만 재정렬
+    const allServices = [...services]
+    const firstIndexOfType = allServices.findIndex((s) => (s.serviceType || 'etc') === serviceType)
+
+    // 해당 타입의 서비스들을 재정렬된 순서로 교체
+    reorderedServices.forEach((service, index) => {
+      const targetIndex = firstIndexOfType + index
+      allServices[targetIndex] = service
+    })
+
+    const serviceIds = allServices.map((s) => s.serviceId)
+    reorderMutation.mutate(serviceIds)
+  }
 
   if (services.length === 0) {
     return (
@@ -72,18 +92,22 @@ export function ServiceGroupList({
               </div>
             </div>
 
-            {/* Card Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {serviceList.map((service) => (
-                <ServiceCard
-                  key={service.serviceId}
+            {/* Card Grid with Sortable */}
+            <SortableList
+              items={serviceList}
+              onReorder={createHandleReorder(type)}
+              keyExtractor={(service) => service.serviceId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(service) => (
+                <SortableServiceCard
                   service={service}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onManageComponents={onManageComponents}
                 />
-              ))}
-            </div>
+              )}
+            />
           </div>
         )
       })}

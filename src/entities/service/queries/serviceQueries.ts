@@ -150,3 +150,33 @@ export const useDeleteComponent = () => {
     },
   })
 }
+
+/**
+ * 서비스 순서 변경 뮤테이션 훅
+ */
+export const useReorderServices = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (serviceIds: number[]) => serviceApi.reorderServices(serviceIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: serviceKeys.lists() })
+    },
+  })
+}
+
+/**
+ * 컴포넌트 순서 변경 뮤테이션 훅
+ */
+export const useReorderComponents = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ serviceId, componentIds }: { serviceId: number; componentIds: number[] }) =>
+      serviceApi.reorderComponents(serviceId, componentIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: serviceKeys.detail(variables.serviceId) })
+      queryClient.invalidateQueries({ queryKey: serviceKeys.lists() })
+    },
+  })
+}

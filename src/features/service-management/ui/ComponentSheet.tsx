@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, Settings } from 'lucide-react'
+import { Plus, Settings } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -12,11 +12,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/shared/ui/sheet'
-import { Button } from '@/shared/ui/button'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import type { Service, ServiceComponent } from '@/entities/service'
-import { getComponentTypeIcon, getComponentDisplayInfo, maskPassword } from '../lib/serviceHelpers'
+import { useReorderComponents } from '@/entities/service'
+import { SortableList } from '@/shared/ui/sortable'
 import { ComponentForm } from './ComponentForm'
+import { SortableComponentCard } from './SortableComponentCard'
 import type { ComponentFormData, ComponentFormMode, DeleteTarget } from '../model/types'
 
 interface ComponentSheetProps {
@@ -55,7 +56,14 @@ export function ComponentSheet({
   const [formData, setFormData] = useState<ComponentFormData>(INITIAL_COMPONENT_FORM)
   const [editingComponentId, setEditingComponentId] = useState<number | null>(null)
 
+  const reorderMutation = useReorderComponents()
   const components = service?.components || []
+
+  const handleReorder = (reorderedComponents: ServiceComponent[]) => {
+    if (!service) return
+    const componentIds = reorderedComponents.map((c) => c.componentId)
+    reorderMutation.mutate({ serviceId: service.serviceId, componentIds })
+  }
 
   const handleAddClick = () => {
     setFormData(INITIAL_COMPONENT_FORM)
@@ -110,7 +118,7 @@ export function ComponentSheet({
   return (
     <>
       <Sheet open={!!service} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent className="w-[400px] sm:max-w-[400px]">
+        <SheetContent className="w-[600px] sm:max-w-[600px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -122,87 +130,25 @@ export function ComponentSheet({
           </SheetHeader>
 
           <ScrollArea className="h-[calc(100vh-160px)] mt-6 pr-4">
-            <div className="space-y-3">
-              {/* 컴포넌트 목록 */}
-              {components.map((component) => {
-                    const Icon = getComponentTypeIcon(component.componentType)
-                    const displayInfo = getComponentDisplayInfo(component)
-
-                    return (
-                      <div
-                        key={component.componentId}
-                        className={`border rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors relative ${
-                          !component.isActive ? 'bg-muted/30' : ''
-                        }`}
-                      >
-                        {!component.isActive && (
-                          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,hsl(var(--muted))_10px,hsl(var(--muted))_11px)] rounded-lg pointer-events-none opacity-30" />
-                        )}
-                        <div className="flex items-start justify-between gap-2 relative z-10">
-                          <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <Icon className="h-5 w-5 mt-0.5 text-muted-foreground flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium truncate">
-                                {component.componentName}
-                              </h4>
-                            </div>
-                          </div>
-                          <div className="flex gap-0 flex-shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditClick(component)}
-                              className="h-8 w-8"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(component)}
-                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-1 text-sm relative z-10">
-                          <div className="flex gap-2">
-                            <span className="text-muted-foreground w-20 flex-shrink-0">
-                              접속 정보:
-                            </span>
-                            <span className="break-all">{displayInfo}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-muted-foreground w-20 flex-shrink-0">
-                              계정 ID:
-                            </span>
-                            <span>{component.accountId || '-'}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-muted-foreground w-20 flex-shrink-0">
-                              비밀번호:
-                            </span>
-                            <span>{component.password ? maskPassword(component.password) : '-'}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-muted-foreground w-20 flex-shrink-0">
-                              설명:
-                            </span>
-                            <span className="text-muted-foreground">
-                              {component.description || '-'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+            <div>
+              {/* 컴포넌트 목록 - Sortable */}
+              <SortableList
+                items={components}
+                onReorder={handleReorder}
+                keyExtractor={(component) => component.componentId}
+                renderItem={(component) => (
+                  <SortableComponentCard
+                    component={component}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                  />
+                )}
+              />
 
               {/* 추가 버튼 카드 - 최하단 */}
               <button
                 onClick={handleAddClick}
-                className="w-full border-2 border-dashed rounded-lg p-4 hover:bg-muted/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 min-h-[156px]"
+                className="w-full border-2 border-dashed rounded-lg p-4 hover:bg-muted/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 min-h-[156px] mt-3"
               >
                 <Plus className="h-5 w-5" />
                 <span className="text-sm font-medium">컴포넌트 추가</span>

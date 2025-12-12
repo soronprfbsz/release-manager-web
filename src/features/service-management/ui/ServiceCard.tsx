@@ -3,7 +3,7 @@
  * 서비스 카드 컴포넌트
  */
 
-import { Pencil, Trash2, Settings } from 'lucide-react'
+import { Pencil, Trash2, Settings, GripVertical } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import type { Service } from '@/entities/service'
@@ -15,6 +15,7 @@ interface ServiceCardProps {
   onEdit: (service: Service) => void
   onDelete: (service: Service) => void
   onManageComponents: (service: Service) => void
+  dragHandleProps?: any
 }
 
 export function ServiceCard({
@@ -22,6 +23,7 @@ export function ServiceCard({
   onEdit,
   onDelete,
   onManageComponents,
+  dragHandleProps,
 }: ServiceCardProps) {
   const colorClasses = getServiceTypeColor(service.serviceType)
 
@@ -34,9 +36,26 @@ export function ServiceCard({
       {!service.isActive && (
         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,hsl(var(--muted))_10px,hsl(var(--muted))_11px)] rounded-lg pointer-events-none opacity-30" />
       )}
+
       <CardHeader className="pb-3 relative z-10">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg truncate flex-1 min-w-0">{service.serviceName}</h3>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* 드래그 핸들 */}
+            {dragHandleProps && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 cursor-grab active:cursor-grabbing flex-shrink-0"
+                {...dragHandleProps}
+              >
+                <GripVertical className="h-4 w-4" />
+              </Button>
+            )}
+
+            {/* 서비스명 */}
+            <h3 className="font-semibold text-lg truncate flex-1 min-w-0">{service.serviceName}</h3>
+          </div>
+
           {/* 액션 버튼 - 우측 상단 */}
           <div className="flex gap-1 flex-shrink-0">
             <Button
@@ -73,7 +92,7 @@ export function ServiceCard({
         )}
       </CardHeader>
 
-      <CardContent className="relative z-10">
+      <CardContent className="relative z-10 min-h-[120px]">
         {/* 컴포넌트 미리보기 */}
         <ComponentList components={service.components} />
       </CardContent>

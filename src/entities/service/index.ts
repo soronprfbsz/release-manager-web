@@ -28,4 +28,6 @@ export {
   useAddComponent,
   useUpdateComponent,
   useDeleteComponent,
+  useReorderServices,
+  useReorderComponents,
 } from './queries/serviceQueries'

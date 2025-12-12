@@ -18,6 +18,8 @@ const ENDPOINTS = {
   components: (serviceId: number) => `/api/services/${serviceId}/components`,
   componentById: (serviceId: number, componentId: number) =>
     `/api/services/${serviceId}/components/${componentId}`,
+  reorderServices: '/api/services/order',
+  reorderComponents: (serviceId: number) => `/api/services/${serviceId}/components/order`,
 } as const
 
 export const serviceApi = {
@@ -118,5 +120,22 @@ export const serviceApi = {
    */
   deleteComponent: async (serviceId: number, componentId: number): Promise<void> => {
     await apiClient.delete(ENDPOINTS.componentById(serviceId, componentId))
+  },
+
+  /**
+   * 서비스 순서 변경
+   * @param serviceIds 정렬할 서비스 ID 목록 (순서대로)
+   */
+  reorderServices: async (serviceIds: number[]): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.reorderServices, { serviceIds })
+  },
+
+  /**
+   * 컴포넌트 순서 변경
+   * @param serviceId 서비스 ID
+   * @param componentIds 정렬할 컴포넌트 ID 목록 (순서대로)
+   */
+  reorderComponents: async (serviceId: number, componentIds: number[]): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.reorderComponents(serviceId), { componentIds })
   },
 }
