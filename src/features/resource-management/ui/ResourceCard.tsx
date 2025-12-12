@@ -3,7 +3,7 @@
  * 리소스 카드 컴포넌트
  */
 
-import { Download, Trash2 } from 'lucide-react'
+import { Download, Trash2, GripVertical } from 'lucide-react'
 
 import type { ResourceFile } from '@/entities/resource'
 
@@ -16,9 +16,10 @@ interface ResourceCardProps {
   resource: ResourceFile
   onDownload: (resource: ResourceFile) => void
   onDelete: (resource: ResourceFile) => void
+  dragHandleProps?: any
 }
 
-export function ResourceCard({ resource, onDownload, onDelete }: ResourceCardProps) {
+export function ResourceCard({ resource, onDownload, onDelete, dragHandleProps }: ResourceCardProps) {
   const colorClass = getCardColorClass(resource.fileCategory)
   const icon = getSubCategoryIcon(resource.subCategory)
 
@@ -27,8 +28,19 @@ export function ResourceCard({ resource, onDownload, onDelete }: ResourceCardPro
       className={`group relative overflow-hidden transition-all duration-200 hover:shadow-md ${colorClass}`}
     >
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* 드래그 핸들 */}
+            {dragHandleProps && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 cursor-grab active:cursor-grabbing flex-shrink-0"
+                {...dragHandleProps}
+              >
+                <GripVertical className="h-4 w-4" />
+              </Button>
+            )}
             <div className="p-2 rounded-lg bg-muted/50 flex-shrink-0">{icon}</div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-base truncate">

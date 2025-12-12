@@ -100,3 +100,17 @@ export function useDeleteResource(options?: UseMutationOptions<void, Error, numb
     },
   })
 }
+
+/**
+ * 리소스 파일 순서 변경 훅
+ */
+export function useReorderResources() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (resourceFileIds: number[]) => resourceApi.reorderResources(resourceFileIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: resourceKeys.lists() })
+    },
+  })
+}

@@ -14,4 +14,5 @@ export {
   useResource,
   useUploadResource,
   useDeleteResource,
+  useReorderResources,
 } from './queries/resourceQueries'

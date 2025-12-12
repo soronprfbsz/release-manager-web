@@ -86,13 +86,13 @@ export function getCardColorClass(category: string) {
 
   switch (cat) {
     case 'SCRIPT':
-      return 'border-cyan-500/20 hover:border-cyan-500/40'
+      return 'border-[hsl(var(--chart-1)/0.3)] bg-[hsl(var(--chart-1)/0.1)] hover:border-[hsl(var(--chart-1)/0.5)]'
     case 'DOCUMENT':
-      return 'border-red-500/20 hover:border-red-500/40'
+      return 'border-[hsl(var(--chart-2)/0.3)] bg-[hsl(var(--chart-2)/0.1)] hover:border-[hsl(var(--chart-2)/0.5)]'
     case 'SQL':
-      return 'border-amber-500/20 hover:border-amber-500/40'
+      return 'border-[hsl(var(--chart-3)/0.3)] bg-[hsl(var(--chart-3)/0.1)] hover:border-[hsl(var(--chart-3)/0.5)]'
     default:
-      return 'border-slate-500/20 hover:border-slate-500/40'
+      return 'border-border bg-muted/50 hover:border-border'
   }
 }
 

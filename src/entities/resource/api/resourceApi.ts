@@ -6,6 +6,7 @@ const ENDPOINTS = {
   list: '/api/resources',
   detail: (id: number) => `/api/resources/${id}`,
   download: (id: number) => `/api/resources/${id}/download`,
+  reorder: '/api/resources/order',
 } as const
 
 export const resourceApi = {
@@ -61,5 +62,10 @@ export const resourceApi = {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  },
+
+  /** 리소스 파일 순서 변경 */
+  reorderResources: async (resourceFileIds: number[]): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.reorder, { resourceFileIds })
   },
 }

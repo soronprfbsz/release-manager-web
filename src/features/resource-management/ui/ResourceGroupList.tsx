@@ -7,9 +7,11 @@ import { FolderOpen } from 'lucide-react'
 
 import type { CodeSimpleResponse } from '@/entities/code'
 import type { ResourceFile } from '@/entities/resource'
+import { useReorderResources } from '@/entities/resource'
+import { SortableList } from '@/shared/ui/sortable'
 
 import { getGroupIcon } from '../lib/resourceHelpers'
-import { ResourceCard } from './ResourceCard'
+import { SortableResourceCard } from './SortableResourceCard'
 
 interface ResourceGroupListProps {
   resources: ResourceFile[]
@@ -24,6 +26,8 @@ export function ResourceGroupList({
   onDownload,
   onDelete,
 }: ResourceGroupListProps) {
+  const reorderMutation = useReorderResources()
+
   const getCategoryLabel = (categoryValue: string) => {
     const category = categories.find((c) => c.value === categoryValue)
     return category?.name || categoryValue
@@ -39,6 +43,24 @@ export function ResourceGroupList({
     },
     {} as Record<string, ResourceFile[]>
   )
+
+  // 각 그룹별로 독립적인 handleReorder 생성
+  const createHandleReorder = (category: string) => (reorderedResources: ResourceFile[]) => {
+    // 전체 목록에서의 원래 순서를 유지하면서 해당 카테고리만 재정렬
+    const allResources = [...resources]
+    const firstIndexOfCategory = allResources.findIndex(
+      (r) => (r.fileCategory || 'ETC') === category
+    )
+
+    // 해당 카테고리의 리소스들을 재정렬된 순서로 교체
+    reorderedResources.forEach((resource, index) => {
+      const targetIndex = firstIndexOfCategory + index
+      allResources[targetIndex] = resource
+    })
+
+    const resourceFileIds = allResources.map((r) => r.resourceFileId)
+    reorderMutation.mutate(resourceFileIds)
+  }
 
   if (resources.length === 0) {
     return (
@@ -68,17 +90,21 @@ export function ResourceGroupList({
               </div>
             </div>
 
-            {/* Card Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {files.map((resource) => (
-                <ResourceCard
-                  key={resource.resourceFileId}
+            {/* Card Grid with Sortable */}
+            <SortableList
+              items={files}
+              onReorder={createHandleReorder(category)}
+              keyExtractor={(resource) => resource.resourceFileId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(resource) => (
+                <SortableResourceCard
                   resource={resource}
                   onDownload={onDownload}
                   onDelete={onDelete}
                 />
-              ))}
-            </div>
+              )}
+            />
           </div>
         )
       })}
