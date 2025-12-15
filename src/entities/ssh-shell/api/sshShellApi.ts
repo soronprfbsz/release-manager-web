@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '@/shared/api'
+import { API_TIMEOUT } from '@/shared/config/constants'
 
 import type { ShellConnectRequest, ShellConnectResponse, ShellSessionInfo } from '../model/types'
 
@@ -54,6 +55,7 @@ export const sshShellApi = {
 
     await apiClient.upload(`${BASE_URL}/${sessionId}/files`, formData, {
       onUploadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
     })
   },
 
