@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
+import { useCodesByType, CODE_TYPE } from '@/entities/code'
 import type { ServiceFormData, ServiceFormMode } from '../model/types'
 
 interface ServiceFormProps {
@@ -35,6 +36,8 @@ export function ServiceForm({
   onSubmit,
   onCancel,
 }: ServiceFormProps) {
+  const { data: serviceTypes = [], isLoading: isLoadingServiceTypes } = useCodesByType(CODE_TYPE.SERVICE_TYPE)
+
   return (
     <FormSheet
       mode={mode}
@@ -69,15 +72,17 @@ export function ServiceForm({
               serviceType: value as ServiceFormData['serviceType'],
             })
           }
+          disabled={isLoadingServiceTypes}
         >
           <SelectTrigger>
             <SelectValue placeholder="서비스 타입 선택" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="infraeye1">InfraEye 1</SelectItem>
-            <SelectItem value="infraeye2">InfraEye 2</SelectItem>
-            <SelectItem value="infra">Infra</SelectItem>
-            <SelectItem value="etc">기타</SelectItem>
+            {serviceTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

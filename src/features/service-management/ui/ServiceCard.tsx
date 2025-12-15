@@ -92,9 +92,9 @@ export function ServiceCard({
         )}
       </CardHeader>
 
-      <CardContent className="relative z-10 min-h-[120px]">
+      <CardContent className="relative z-10 min-h-[140px]">
         {/* 컴포넌트 미리보기 */}
-        <ComponentList components={service.components} />
+        <ComponentList components={service.components} maxDisplay={2} />
       </CardContent>
     </Card>
   )

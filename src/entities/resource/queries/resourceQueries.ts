@@ -108,7 +108,8 @@ export function useReorderResources() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (resourceFileIds: number[]) => resourceApi.reorderResources(resourceFileIds),
+    mutationFn: ({ fileCategory, resourceFileIds }: { fileCategory: string; resourceFileIds: number[] }) =>
+      resourceApi.reorderResources(fileCategory, resourceFileIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: resourceKeys.lists() })
     },

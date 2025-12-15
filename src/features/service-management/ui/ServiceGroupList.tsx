@@ -3,10 +3,12 @@
  * 서비스 타입별 그룹 목록 컴포넌트
  */
 
+import { useMemo } from 'react'
 import { Server } from 'lucide-react'
 
 import type { Service } from '@/entities/service'
 import { useReorderServices } from '@/entities/service'
+import { useCodesByType, CODE_TYPE } from '@/entities/code'
 import { SortableList } from '@/shared/ui/sortable'
 
 import { getServiceTypeIcon } from '../lib/serviceHelpers'
@@ -19,13 +21,6 @@ interface ServiceGroupListProps {
   onManageComponents: (service: Service) => void
 }
 
-// 서비스 타입별 라벨 매핑
-const SERVICE_TYPE_LABELS: Record<string, string> = {
-  infraeye1: 'Infraeye 1',
-  infraeye2: 'Infraeye 2',
-  infra: 'Infra',
-}
-
 export function ServiceGroupList({
   services,
   onEdit,
@@ -33,6 +28,7 @@ export function ServiceGroupList({
   onManageComponents,
 }: ServiceGroupListProps) {
   const reorderMutation = useReorderServices()
+  const { data: serviceTypes = [] } = useCodesByType(CODE_TYPE.SERVICE_TYPE)
 
   // Group services by serviceType
   const groupedServices = services.reduce(
@@ -45,20 +41,20 @@ export function ServiceGroupList({
     {} as Record<string, Service[]>
   )
 
+  // sortOrder로 정렬된 서비스 타입 목록
+  const sortedServiceTypes = useMemo(() => {
+    return [...serviceTypes]
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .filter((type) => groupedServices[type.value]) // 실제 서비스가 있는 타입만
+  }, [serviceTypes, groupedServices])
+
   // 각 그룹별로 독립적인 handleReorder 생성
   const createHandleReorder = (serviceType: string) => (reorderedServices: Service[]) => {
-    // 전체 목록에서의 원래 순서를 유지하면서 해당 타입만 재정렬
-    const allServices = [...services]
-    const firstIndexOfType = allServices.findIndex((s) => (s.serviceType || 'etc') === serviceType)
+    // 재정렬된 서비스들의 ID 목록
+    const serviceIds = reorderedServices.map((s) => s.serviceId)
 
-    // 해당 타입의 서비스들을 재정렬된 순서로 교체
-    reorderedServices.forEach((service, index) => {
-      const targetIndex = firstIndexOfType + index
-      allServices[targetIndex] = service
-    })
-
-    const serviceIds = allServices.map((s) => s.serviceId)
-    reorderMutation.mutate(serviceIds)
+    // serviceType과 함께 전달
+    reorderMutation.mutate({ serviceType, serviceIds })
   }
 
   if (services.length === 0) {
@@ -72,13 +68,13 @@ export function ServiceGroupList({
 
   return (
     <div>
-      {Object.entries(groupedServices).map(([type, serviceList]) => {
-        const Icon = getServiceTypeIcon(type as Service['serviceType'])
-        const label = SERVICE_TYPE_LABELS[type] || type.toUpperCase()
+      {sortedServiceTypes.map((serviceType) => {
+        const serviceList = groupedServices[serviceType.value]
+        const Icon = getServiceTypeIcon(serviceType.value as Service['serviceType'])
 
         return (
           <div
-            key={type}
+            key={serviceType.value}
             className="space-y-4 py-8 first:pt-0 last:pb-0 border-t first:border-t-0"
           >
             {/* Group Header */}
@@ -87,7 +83,7 @@ export function ServiceGroupList({
                 <Icon className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-base">{label}</h3>
+                <h3 className="font-semibold text-base">{serviceType.name}</h3>
                 <p className="text-xs text-muted-foreground">{serviceList.length}개의 서비스</p>
               </div>
             </div>
@@ -95,7 +91,7 @@ export function ServiceGroupList({
             {/* Card Grid with Sortable */}
             <SortableList
               items={serviceList}
-              onReorder={createHandleReorder(type)}
+              onReorder={createHandleReorder(serviceType.value)}
               keyExtractor={(service) => service.serviceId}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
               strategy="grid"

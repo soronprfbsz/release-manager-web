@@ -158,7 +158,8 @@ export const useReorderServices = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (serviceIds: number[]) => serviceApi.reorderServices(serviceIds),
+    mutationFn: ({ serviceType, serviceIds }: { serviceType: string; serviceIds: number[] }) =>
+      serviceApi.reorderServices(serviceType, serviceIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: serviceKeys.lists() })
     },

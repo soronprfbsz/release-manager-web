@@ -124,10 +124,11 @@ export const serviceApi = {
 
   /**
    * 서비스 순서 변경
+   * @param serviceType 서비스 타입 (필수)
    * @param serviceIds 정렬할 서비스 ID 목록 (순서대로)
    */
-  reorderServices: async (serviceIds: number[]): Promise<void> => {
-    await apiClient.patch(ENDPOINTS.reorderServices, { serviceIds })
+  reorderServices: async (serviceType: string, serviceIds: number[]): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.reorderServices, { serviceType, serviceIds })
   },
 
   /**

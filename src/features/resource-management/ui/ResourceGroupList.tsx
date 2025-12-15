@@ -46,20 +46,11 @@ export function ResourceGroupList({
 
   // 각 그룹별로 독립적인 handleReorder 생성
   const createHandleReorder = (category: string) => (reorderedResources: ResourceFile[]) => {
-    // 전체 목록에서의 원래 순서를 유지하면서 해당 카테고리만 재정렬
-    const allResources = [...resources]
-    const firstIndexOfCategory = allResources.findIndex(
-      (r) => (r.fileCategory || 'ETC') === category
-    )
+    // 재정렬된 리소스들의 ID 목록
+    const resourceFileIds = reorderedResources.map((r) => r.resourceFileId)
 
-    // 해당 카테고리의 리소스들을 재정렬된 순서로 교체
-    reorderedResources.forEach((resource, index) => {
-      const targetIndex = firstIndexOfCategory + index
-      allResources[targetIndex] = resource
-    })
-
-    const resourceFileIds = allResources.map((r) => r.resourceFileId)
-    reorderMutation.mutate(resourceFileIds)
+    // fileCategory와 함께 전달
+    reorderMutation.mutate({ fileCategory: category, resourceFileIds })
   }
 
   if (resources.length === 0) {

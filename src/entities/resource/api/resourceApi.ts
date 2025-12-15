@@ -65,7 +65,7 @@ export const resourceApi = {
   },
 
   /** 리소스 파일 순서 변경 */
-  reorderResources: async (resourceFileIds: number[]): Promise<void> => {
-    await apiClient.patch(ENDPOINTS.reorder, { resourceFileIds })
+  reorderResources: async (fileCategory: string, resourceFileIds: number[]): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.reorder, { fileCategory, resourceFileIds })
   },
 }

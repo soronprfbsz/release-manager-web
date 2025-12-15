@@ -3,12 +3,13 @@
  * 드래그 가능한 컴포넌트 카드
  */
 
+import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Pencil, Trash2, GripVertical } from 'lucide-react'
+import { Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react'
 import type { ServiceComponent } from '@/entities/service'
 import { Button } from '@/shared/ui/button'
-import { getComponentTypeIcon, getComponentDisplayInfo, maskPassword } from '../lib/serviceHelpers'
+import { getComponentTypeIcon, getComponentDisplayInfo, maskPassword, getComponentTypeBackgroundColor } from '../lib/serviceHelpers'
 
 interface SortableComponentCardProps {
   component: ServiceComponent
@@ -21,6 +22,9 @@ export function SortableComponentCard({
   onEdit,
   onDelete,
 }: SortableComponentCardProps) {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showSshPassword, setShowSshPassword] = useState(false)
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
     id: component.componentId,
   })
@@ -32,12 +36,13 @@ export function SortableComponentCard({
 
   const Icon = getComponentTypeIcon(component.componentType)
   const displayInfo = getComponentDisplayInfo(component)
+  const bgColor = getComponentTypeBackgroundColor(component.componentType)
 
   return (
     <div ref={setNodeRef} style={style}>
       <div
-        className={`border rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors relative ${
-          !component.isActive ? 'bg-muted/30' : ''
+        className={`border rounded-lg p-4 space-y-3 transition-colors relative ${bgColor} ${
+          !component.isActive ? 'opacity-60' : ''
         }`}
       >
         {!component.isActive && (
@@ -85,14 +90,66 @@ export function SortableComponentCard({
             <span className="text-muted-foreground w-20 flex-shrink-0">접속 정보:</span>
             <span className="break-words flex-1 min-w-0">{displayInfo}</span>
           </div>
-          <div className="flex gap-2">
-            <span className="text-muted-foreground w-20 flex-shrink-0">계정 ID:</span>
-            <span className="truncate flex-1 min-w-0">{component.accountId || '-'}</span>
+
+          {/* 계정 정보와 SSH 정보를 좌우로 배치 */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* 왼쪽: 계정 정보 */}
+            <div className="space-y-1">
+              <div className="flex gap-2">
+                <span className="text-muted-foreground w-16 flex-shrink-0">계정 ID:</span>
+                <span className="truncate flex-1 min-w-0">{component.accountId || '-'}</span>
+              </div>
+              <div className="flex gap-2 items-center">
+                <span className="text-muted-foreground w-16 flex-shrink-0">비밀번호:</span>
+                <span className="truncate flex-1 min-w-0 font-mono">
+                  {component.password ? (showPassword ? component.password : maskPassword(component.password)) : '-'}
+                </span>
+                {component.password && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 flex-shrink-0"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* 오른쪽: SSH 정보 */}
+            <div className="space-y-1">
+              <div className="flex gap-2">
+                <span className="text-muted-foreground w-16 flex-shrink-0">SSH:</span>
+                <span className="truncate flex-1 min-w-0">
+                  {component.host && component.sshPort
+                    ? `${component.host}:${component.sshPort}`
+                    : '-'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <span className="text-muted-foreground w-16 flex-shrink-0">SSH ID:</span>
+                <span className="truncate flex-1 min-w-0">{component.sshAccountId || '-'}</span>
+              </div>
+              <div className="flex gap-2 items-center">
+                <span className="text-muted-foreground w-16 flex-shrink-0">SSH PW:</span>
+                <span className="truncate flex-1 min-w-0 font-mono">
+                  {component.sshPassword ? (showSshPassword ? component.sshPassword : maskPassword(component.sshPassword)) : '-'}
+                </span>
+                {component.sshPassword && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 flex-shrink-0"
+                    onClick={() => setShowSshPassword(!showSshPassword)}
+                  >
+                    {showSshPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <span className="text-muted-foreground w-20 flex-shrink-0">비밀번호:</span>
-            <span className="truncate flex-1 min-w-0">{component.password ? maskPassword(component.password) : '-'}</span>
-          </div>
+
           <div className="flex gap-2">
             <span className="text-muted-foreground w-20 flex-shrink-0">설명:</span>
             <span className="text-muted-foreground break-words flex-1 min-w-0">{component.description || '-'}</span>

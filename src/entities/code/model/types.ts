@@ -24,6 +24,8 @@ export const CODE_TYPE = {
   RESOURCE_SUBCATEGORY_DOCUMENT: 'RESOURCE_SUBCATEGORY_DOCUMENT',
   // 엔지니어 직급
   POSITION: 'POSITION',
+  // 서비스 타입
+  SERVICE_TYPE: 'SERVICE_TYPE',
 } as const
 
 export type CodeType = typeof CODE_TYPE[keyof typeof CODE_TYPE]

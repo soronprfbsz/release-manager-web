@@ -56,6 +56,40 @@ export function getComponentTypeIcon(type: ComponentType): LucideIcon {
 }
 
 /**
+ * 컴포넌트 타입 폰트 색상 클래스 반환
+ * 서비스 카드 내 컴포넌트 목록에서 사용
+ */
+export function getComponentTypeTextColor(type: ComponentType): string {
+  switch (type) {
+    case 'WEB':
+      return 'text-[hsl(var(--chart-1))]'
+    case 'DATABASE':
+      return 'text-[hsl(var(--chart-2))]'
+    case 'ENGINE':
+      return 'text-[hsl(var(--chart-3))]'
+    default:
+      return 'text-muted-foreground'
+  }
+}
+
+/**
+ * 컴포넌트 타입 배경 색상 클래스 반환
+ * 컴포넌트 관리 Sheet에서 사용
+ */
+export function getComponentTypeBackgroundColor(type: ComponentType): string {
+  switch (type) {
+    case 'WEB':
+      return 'bg-[hsl(var(--chart-1)/0.1)] border-[hsl(var(--chart-1)/0.3)]'
+    case 'DATABASE':
+      return 'bg-[hsl(var(--chart-2)/0.1)] border-[hsl(var(--chart-2)/0.3)]'
+    case 'ENGINE':
+      return 'bg-[hsl(var(--chart-3)/0.1)] border-[hsl(var(--chart-3)/0.3)]'
+    default:
+      return 'bg-muted/30 border-border'
+  }
+}
+
+/**
  * 컴포넌트 접속 정보 표시 문자열 반환
  */
 export function getComponentDisplayInfo(component: ServiceComponent): string {

@@ -189,6 +189,19 @@ export function ComponentForm({
                 <p className="text-sm text-destructive">{errors.url}</p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">설명</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  onFormDataChange({ ...formData, description: e.target.value })
+                }
+                placeholder="컴포넌트 설명"
+                rows={2}
+              />
+            </div>
           </div>
 
           {/* 추가 정보 (선택사항) */}
@@ -196,7 +209,7 @@ export function ComponentForm({
             <div className="space-y-1.5">
               <h3 className="text-lg font-semibold leading-none">추가 정보</h3>
               <p className="text-sm text-muted-foreground">
-                계정 정보 및 설명을 입력할 수 있습니다.
+                계정 정보를 입력하세요.
               </p>
             </div>
 
@@ -226,19 +239,6 @@ export function ComponentForm({
                   autoComplete="new-password"
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">설명</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  onFormDataChange({ ...formData, description: e.target.value })
-                }
-                placeholder="컴포넌트 설명"
-                rows={2}
-              />
             </div>
           </div>
 

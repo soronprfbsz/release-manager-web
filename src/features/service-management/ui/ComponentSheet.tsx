@@ -79,10 +79,10 @@ export function ComponentSheet({
       port: component.port ? String(component.port) : '',
       url: component.url || '',
       accountId: component.accountId || '',
-      password: '',
+      password: component.password || '',
       sshPort: component.sshPort ? String(component.sshPort) : '',
       sshAccountId: component.sshAccountId || '',
-      sshPassword: '',
+      sshPassword: component.sshPassword || '',
       description: component.description || '',
       isActive: component.isActive,
     })
