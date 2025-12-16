@@ -213,7 +213,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         <div className="h-full flex items-center justify-center rounded-lg border border-dashed bg-muted/10">
           <div className="text-center text-muted-foreground">
             <TerminalIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>SSH 연결 버튼을 눌러 원격 서버에 연결하세요.</p>
+            <p>연결 버튼을 눌러 원격 서버에 연결하세요.</p>
           </div>
         </div>
       )
