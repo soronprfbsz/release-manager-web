@@ -1,4 +1,5 @@
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
 
 import type { ResourceFile } from '../model/types'
 
@@ -45,6 +46,7 @@ export const resourceApi = {
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
     })
     return response
   },

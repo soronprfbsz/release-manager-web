@@ -188,11 +188,11 @@ export function FileTransferSheet({
       return
     }
 
-    const maxSize = 1024 * 1024 * 1024 // 1GB
+    const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
     if (file.size > maxSize) {
       toast({
         title: '파일 크기 초과',
-        description: '파일 크기는 1GB를 초과할 수 없습니다.',
+        description: '파일 크기는 10GB를 초과할 수 없습니다.',
         variant: 'destructive',
       })
       return
@@ -204,11 +204,11 @@ export function FileTransferSheet({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      const maxSize = 1024 * 1024 * 1024 // 1GB
+      const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
       if (selectedFile.size > maxSize) {
         toast({
           title: '파일 크기 초과',
-          description: '파일 크기는 1GB를 초과할 수 없습니다.',
+          description: '파일 크기는 10GB를 초과할 수 없습니다.',
           variant: 'destructive',
         })
         return
@@ -234,11 +234,11 @@ export function FileTransferSheet({
 
     const droppedFile = e.dataTransfer.files[0]
     if (droppedFile) {
-      const maxSize = 1024 * 1024 * 1024 // 1GB
+      const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
       if (droppedFile.size > maxSize) {
         toast({
           title: '파일 크기 초과',
-          description: '파일 크기는 1GB를 초과할 수 없습니다.',
+          description: '파일 크기는 10GB를 초과할 수 없습니다.',
           variant: 'destructive',
         })
         return
@@ -400,7 +400,7 @@ export function FileTransferSheet({
                               ? '파일을 여기에 놓아주세요'
                               : '파일을 여기에 끌어다 놓거나 클릭하여 선택하세요'}
                           </p>
-                          <p className="text-xs text-muted-foreground">최대 파일 크기: 1GB</p>
+                          <p className="text-xs text-muted-foreground">최대 파일 크기: 10GB</p>
                         </div>
                       </div>
                     </div>
