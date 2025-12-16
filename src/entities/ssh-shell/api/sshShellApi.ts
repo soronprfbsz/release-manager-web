@@ -51,7 +51,14 @@ export const sshShellApi = {
     formData.append('file', file)
     if (remotePath) {
       formData.append('remotePath', remotePath)
+      console.log('[SSH API] FormData remotePath:', remotePath)
     }
+
+    console.log('[SSH API] Uploading file:', {
+      url: `${BASE_URL}/${sessionId}/files`,
+      fileName: file.name,
+      remotePath: remotePath || '(default)',
+    })
 
     await apiClient.upload(`${BASE_URL}/${sessionId}/files`, formData, {
       onUploadProgress,
@@ -64,6 +71,12 @@ export const sshShellApi = {
    * POST /api/terminal/{id}/patches
    */
   deployPatch: async (sessionId: string, patchId: number, remotePath?: string): Promise<void> => {
+    console.log('[SSH API] Deploying patch:', {
+      url: `${BASE_URL}/${sessionId}/patches`,
+      patchId,
+      remotePath: remotePath || '(default)',
+    })
+
     await apiClient.post(`${BASE_URL}/${sessionId}/patches`, {
       patchId,
       remotePath,

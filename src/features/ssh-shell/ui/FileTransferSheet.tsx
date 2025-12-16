@@ -72,10 +72,17 @@ export function FileTransferSheet({
         throw new Error('세션 ID 또는 패치가 선택되지 않았습니다.')
       }
 
+      const finalPatchRemotePath = patchRemotePath.trim() || undefined
+      console.log('[FileTransfer] Deploying patch:', {
+        patchId: parseInt(selectedPatchId),
+        remotePath: finalPatchRemotePath,
+        originalInput: patchRemotePath,
+      })
+
       await sshShellApi.deployPatch(
         shellSessionId,
         parseInt(selectedPatchId),
-        patchRemotePath.trim() || undefined
+        finalPatchRemotePath
       )
     },
     onSuccess: () => {
@@ -118,10 +125,17 @@ export function FileTransferSheet({
         }
       }
 
+      const finalRemotePath = remotePath.trim() || undefined
+      console.log('[FileTransfer] Uploading file:', {
+        fileName: file.name,
+        remotePath: finalRemotePath,
+        originalInput: remotePath,
+      })
+
       await sshShellApi.uploadFile(
         shellSessionId,
         file,
-        remotePath.trim() || undefined,
+        finalRemotePath,
         progressHandler
       )
       completeTransfer()
@@ -313,6 +327,8 @@ export function FileTransferSheet({
                     placeholder="기본경로: /release-manager/patches"
                     value={patchRemotePath}
                     onChange={(e) => setPatchRemotePath(e.target.value)}
+                    autoComplete="off"
+                    spellCheck={false}
                   />
                   <p className="text-xs text-muted-foreground">
                     미입력 시, 기본 경로에 저장됩니다.
@@ -439,6 +455,8 @@ export function FileTransferSheet({
                     placeholder="예: /release-manager/files"
                     value={remotePath}
                     onChange={(e) => setRemotePath(e.target.value)}
+                    autoComplete="off"
+                    spellCheck={false}
                   />
                   <p className="text-xs text-muted-foreground">
                     미입력 시, 기본 경로에 저장됩니다.
