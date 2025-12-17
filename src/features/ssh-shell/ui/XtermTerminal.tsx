@@ -8,11 +8,12 @@ import { Terminal as XTerm } from '@xterm/xterm'
 import type { ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
-import { Terminal as TerminalIcon, Maximize2, Minimize2 } from 'lucide-react'
+import { Terminal as TerminalIcon, Maximize2, Minimize2, Copy } from 'lucide-react'
 import '@xterm/xterm/css/xterm.css'
 
 import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
 import { Button } from '@/shared/ui/button'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useThemeStore } from '@/shared/store/useThemeStore'
 import type { Theme } from '@/shared/store/useThemeStore'
 import { useSshSessionStore } from '@/shared/store/useSshSessionStore'
@@ -57,6 +58,9 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       onDataRef.current = onData
     }, [isConnected, onData])
 
+    // Toast for user feedback
+    const { toast } = useToast()
+
     // 외부에서 터미널 제어 가능하도록 imperative handle 노출
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
@@ -73,6 +77,57 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         xtermRef.current?.focus()
       },
     }), [sessionId, appendOutput])
+
+    // Copy selected text handler
+    const handleCopy = useCallback(async () => {
+      if (!xtermRef.current) return
+
+      const selection = xtermRef.current.getSelection()
+      if (!selection) {
+        toast({
+          title: '복사 실패',
+          description: '선택된 텍스트가 없습니다.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      try {
+        await navigator.clipboard.writeText(selection)
+        toast({
+          title: '복사 완료',
+          description: '선택한 텍스트가 클립보드에 복사되었습니다.',
+        })
+      } catch (error) {
+        toast({
+          title: '복사 실패',
+          description: '클립보드 접근 권한을 확인해주세요.',
+          variant: 'destructive',
+        })
+      }
+    }, [toast])
+
+    // Paste from clipboard handler
+    const handlePaste = useCallback(async () => {
+      if (!xtermRef.current || !isConnectedRef.current) return
+
+      try {
+        const text = await navigator.clipboard.readText()
+        if (text) {
+          onDataRef.current(text)
+          toast({
+            title: '붙여넣기 완료',
+            description: '클립보드 내용이 터미널에 입력되었습니다.',
+          })
+        }
+      } catch (error) {
+        toast({
+          title: '붙여넣기 실패',
+          description: '클립보드 접근 권한을 확인해주세요.',
+          variant: 'destructive',
+        })
+      }
+    }, [toast])
 
     // Theme 관리
     const theme = useThemeStore((state) => state.theme)
@@ -152,6 +207,24 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         }
       })
 
+      // 키보드 이벤트 처리 (CTRL+SHIFT+C/V for copy/paste)
+      const handleKeyDown = (event: KeyboardEvent) => {
+        // CTRL+SHIFT+C: Copy selected text
+        if (event.ctrlKey && event.shiftKey && event.key === 'C') {
+          event.preventDefault()
+          handleCopy()
+        }
+        // CTRL+SHIFT+V: Paste from clipboard
+        if (event.ctrlKey && event.shiftKey && event.key === 'V') {
+          event.preventDefault()
+          handlePaste()
+        }
+      }
+
+      // 터미널 DOM에 키보드 이벤트 리스너 추가
+      const terminalElement = terminalRef.current
+      terminalElement.addEventListener('keydown', handleKeyDown)
+
       // 크기 맞추기 - DOM 렌더링 완료 후 실행
       requestAnimationFrame(() => {
         try {
@@ -182,12 +255,13 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       // Cleanup
       return () => {
         window.removeEventListener('resize', handleResize)
+        terminalElement.removeEventListener('keydown', handleKeyDown)
         term.dispose()
         xtermRef.current = null
         fitAddonRef.current = null
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sessionId]) // sessionId 변경 시 터미널 재생성 및 히스토리 복원
+    }, [sessionId, handleCopy, handlePaste]) // sessionId 변경 시 터미널 재생성 및 히스토리 복원
 
     // 전체화면 상태 변경 시 터미널 크기 조정
     useEffect(() => {
@@ -265,6 +339,16 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
                 <span>연결됨</span>
               </div>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:opacity-80 transition-opacity"
+              onClick={handleCopy}
+              title="선택한 텍스트 복사 (Ctrl+Shift+C)"
+              style={{ color: activeTheme.foreground }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

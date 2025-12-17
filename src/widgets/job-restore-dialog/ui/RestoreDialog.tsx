@@ -140,9 +140,11 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 호스트 */}
             <div className="space-y-2">
-              <Label htmlFor="restore-host" required>호스트</Label>
+              <Label htmlFor="mariadb-restore-host" required>호스트</Label>
               <Input
-                id="restore-host"
+                id="mariadb-restore-host"
+                name="mariadb-restore-host"
+                autoComplete="off"
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
                 placeholder="예: localhost 또는 192.168.0.1"
@@ -152,10 +154,12 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 포트 */}
             <div className="space-y-2">
-              <Label htmlFor="restore-port" required>포트</Label>
+              <Label htmlFor="mariadb-restore-port" required>포트</Label>
               <Input
-                id="restore-port"
+                id="mariadb-restore-port"
+                name="mariadb-restore-port"
                 type="number"
+                autoComplete="off"
                 value={port}
                 onChange={(e) => setPort(e.target.value)}
                 placeholder="3306"
@@ -165,10 +169,10 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 사용자명 */}
             <div className="space-y-2">
-              <Label htmlFor="restore-username" required>사용자명</Label>
+              <Label htmlFor="mariadb-restore-username" required>사용자명</Label>
               <Input
-                id="restore-username"
-                name="username"
+                id="mariadb-restore-username"
+                name="mariadb-restore-username"
                 autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -179,12 +183,12 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 비밀번호 */}
             <div className="space-y-2">
-              <Label htmlFor="restore-password" required>비밀번호</Label>
+              <Label htmlFor="mariadb-restore-password" required>비밀번호</Label>
               <Input
-                id="restore-password"
-                name="password"
+                id="mariadb-restore-password"
+                name="mariadb-restore-password"
                 type="password"
-                autoComplete="off"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="데이터베이스 비밀번호"

@@ -50,14 +50,14 @@ export function LoginForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
+            <label htmlFor="login-email" className="text-sm font-medium">
               이메일 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="email"
-              name="username"
+              id="login-email"
+              name="email"
               type="email"
-              autoComplete="off"
+              autoComplete="username"
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -66,14 +66,14 @@ export function LoginForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
+            <label htmlFor="login-password" className="text-sm font-medium">
               비밀번호 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="password"
+              id="login-password"
               name="password"
               type="password"
-              autoComplete="off"
+              autoComplete="current-password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -112,9 +112,11 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 호스트 */}
             <div className="space-y-2">
-              <Label htmlFor="host" required>호스트</Label>
+              <Label htmlFor="mariadb-backup-host" required>호스트</Label>
               <Input
-                id="host"
+                id="mariadb-backup-host"
+                name="mariadb-backup-host"
+                autoComplete="off"
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
                 placeholder="예: localhost 또는 192.168.0.1"
@@ -124,10 +126,12 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
 
             {/* 포트 */}
             <div className="space-y-2">
-              <Label htmlFor="port" required>포트</Label>
+              <Label htmlFor="mariadb-backup-port" required>포트</Label>
               <Input
-                id="port"
+                id="mariadb-backup-port"
+                name="mariadb-backup-port"
                 type="number"
+                autoComplete="off"
                 value={port}
                 onChange={(e) => setPort(e.target.value)}
                 placeholder="3306"
@@ -137,9 +141,11 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
 
             {/* 데이터베이스 */}
             <div className="space-y-2">
-              <Label htmlFor="database" required>데이터베이스</Label>
+              <Label htmlFor="mariadb-backup-database" required>데이터베이스</Label>
               <Input
-                id="database"
+                id="mariadb-backup-database"
+                name="mariadb-backup-database"
+                autoComplete="off"
                 value={database}
                 onChange={(e) => setDatabase(e.target.value)}
                 placeholder="데이터베이스 이름"
@@ -149,9 +155,11 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
 
             {/* 사용자명 */}
             <div className="space-y-2">
-              <Label htmlFor="username" required>사용자명</Label>
+              <Label htmlFor="mariadb-backup-username" required>사용자명</Label>
               <Input
-                id="username"
+                id="mariadb-backup-username"
+                name="mariadb-backup-username"
+                autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="데이터베이스 사용자명"
@@ -161,10 +169,12 @@ export function BackupDialog({ open, onOpenChange, onSuccess }: BackupDialogProp
 
             {/* 비밀번호 */}
             <div className="space-y-2">
-              <Label htmlFor="password" required>비밀번호</Label>
+              <Label htmlFor="mariadb-backup-password" required>비밀번호</Label>
               <Input
-                id="password"
+                id="mariadb-backup-password"
+                name="mariadb-backup-password"
                 type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="데이터베이스 비밀번호"

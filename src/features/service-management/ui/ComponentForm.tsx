@@ -218,6 +218,7 @@ export function ComponentForm({
                 <Label htmlFor="accountId">계정 ID</Label>
                 <Input
                   id="accountId"
+                  name="component-account-id"
                   value={formData.accountId}
                   onChange={(e) =>
                     onFormDataChange({ ...formData, accountId: e.target.value })
@@ -230,6 +231,7 @@ export function ComponentForm({
                 <Label htmlFor="password">비밀번호</Label>
                 <Input
                   id="password"
+                  name="component-password"
                   type="password"
                   value={formData.password}
                   onChange={(e) =>
@@ -272,6 +274,7 @@ export function ComponentForm({
                 <Label htmlFor="sshAccountId">SSH 계정 ID</Label>
                 <Input
                   id="sshAccountId"
+                  name="component-ssh-account-id"
                   value={formData.sshAccountId}
                   onChange={(e) =>
                     onFormDataChange({ ...formData, sshAccountId: e.target.value })
@@ -284,6 +287,7 @@ export function ComponentForm({
                 <Label htmlFor="sshPassword">SSH 비밀번호</Label>
                 <Input
                   id="sshPassword"
+                  name="component-ssh-password"
                   type="password"
                   value={formData.sshPassword}
                   onChange={(e) =>

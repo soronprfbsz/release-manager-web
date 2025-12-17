@@ -74,14 +74,14 @@ export function SignUpForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="accountName" className="text-sm font-medium">
+            <label htmlFor="signup-name" className="text-sm font-medium">
               이름 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="accountName"
-              name="name"
+              id="signup-name"
+              name="signup-name"
               type="text"
-              autoComplete="off"
+              autoComplete="name"
               placeholder="홍길동"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
@@ -91,14 +91,14 @@ export function SignUpForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
+            <label htmlFor="signup-email" className="text-sm font-medium">
               이메일 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="email"
-              name="username"
+              id="signup-email"
+              name="signup-email"
               type="email"
-              autoComplete="off"
+              autoComplete="email"
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -108,14 +108,14 @@ export function SignUpForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
+            <label htmlFor="signup-password" className="text-sm font-medium">
               비밀번호 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="password"
-              name="new-password"
+              id="signup-password"
+              name="signup-password"
               type="password"
-              autoComplete="off"
+              autoComplete="new-password"
               placeholder="8자 이상 입력"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -126,14 +126,14 @@ export function SignUpForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="confirmPassword" className="text-sm font-medium">
+            <label htmlFor="signup-password-confirm" className="text-sm font-medium">
               비밀번호 확인 <span className="text-destructive">*</span>
             </label>
             <Input
-              id="confirmPassword"
-              name="new-password"
+              id="signup-password-confirm"
+              name="signup-password-confirm"
               type="password"
-              autoComplete="off"
+              autoComplete="new-password"
               placeholder="비밀번호 재입력"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
