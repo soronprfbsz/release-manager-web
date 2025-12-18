@@ -1,12 +1,13 @@
 import { useState } from 'react'
 
-import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown } from 'lucide-react'
+import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2 } from 'lucide-react'
 
 import {
   releaseApi,
   useVersionFileStructure,
   useReleaseFileContent,
   useDeleteVersion,
+  useApproveVersion,
   type VersionNode,
   type ReleaseFileNode,
 } from '@/entities/release'
@@ -24,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
+import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
@@ -140,6 +142,27 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const { data: fileStructure, isLoading, error } = useVersionFileStructure(version?.versionId ?? 0)
 
   const deleteMutation = useDeleteVersion()
+  const approveMutation = useApproveVersion()
+
+  const handleApprove = () => {
+    if (!version) return
+
+    approveMutation.mutate(version.versionId, {
+      onSuccess: () => {
+        toast({
+          title: '버전 승인 완료',
+          description: `버전 ${version.version}이(가) 승인되었습니다.`,
+        })
+      },
+      onError: (error: Error) => {
+        toast({
+          title: '버전 승인 실패',
+          description: error instanceof Error ? error.message : '버전 승인 중 오류가 발생했습니다.',
+          variant: 'destructive',
+        })
+      },
+    })
+  }
 
   const handleDeleteConfirm = () => {
     if (!version) return
@@ -234,18 +257,40 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                기본 정보
-              </CardTitle>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setDeleteDialogOpen(true)}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Info className="h-4 w-4" />
+                  기본 정보
+                </CardTitle>
+                {version.isApproved ? (
+                  <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
+                ) : (
+                  <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600 dark:text-yellow-500">미승인</Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {!version.isApproved && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                    className="h-8"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                    {approveMutation.isPending ? '승인 중...' : '승인'}
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  disabled={deleteMutation.isPending}
+                  className="h-8 w-8"
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -260,6 +305,22 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                 <TypographyMuted className="text-sm">생성일시:</TypographyMuted>
                 <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
               </div>
+              {version.isApproved && version.approvedBy && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <TypographyMuted className="text-sm">승인자:</TypographyMuted>
+                    <TypographySmall>{version.approvedBy}</TypographySmall>
+                  </div>
+                  {version.approvedAt && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <TypographyMuted className="text-sm">승인일시:</TypographyMuted>
+                      <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </CardContent>
         </Card>

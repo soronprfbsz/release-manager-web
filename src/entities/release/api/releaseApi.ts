@@ -12,6 +12,7 @@ const ENDPOINTS = {
   versionDownload: (id: number) => `/api/releases/versions/${id}/download`,
   createVersion: '/api/releases/standard/versions',
   deleteVersion: (id: number) => `/api/releases/versions/${id}`,
+  approveVersion: (id: number) => `/api/releases/versions/${id}/approve`,
 } as const
 
 export const releaseApi = {
@@ -58,6 +59,7 @@ export const releaseApi = {
     comment: string,
     releaseCategory: string,
     patchFiles: File,
+    isApproved?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<void> => {
     const formData = new FormData()
@@ -66,6 +68,9 @@ export const releaseApi = {
     formData.append('comment', comment)
     formData.append('releaseCategory', releaseCategory)
     formData.append('patchFiles', patchFiles)
+    if (isApproved !== undefined) {
+      formData.append('isApproved', String(isApproved))
+    }
 
     await apiClient.upload(ENDPOINTS.createVersion, formData, {
       onUploadProgress,
@@ -92,5 +97,11 @@ export const releaseApi = {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  },
+
+  /** 버전 승인 */
+  approveVersion: async (id: number): Promise<ReleaseVersionDetail> => {
+    const response = await apiClient.patch<ReleaseVersionDetail>(ENDPOINTS.approveVersion(id))
+    return response
   },
 }

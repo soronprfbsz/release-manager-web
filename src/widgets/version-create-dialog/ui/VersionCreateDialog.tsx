@@ -33,6 +33,7 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 import { Textarea } from '@/shared/ui/textarea'
+import { Checkbox } from '@/shared/ui/checkbox'
 
 interface VersionCreateDialogProps {
   open: boolean
@@ -46,6 +47,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
   const [comment, setComment] = useState('')
   const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
   const [file, setFile] = useState<File | null>(null)
+  const [isApproved, setIsApproved] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
@@ -81,7 +83,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
         }
       }
 
-      await releaseApi.createVersion(projectId, version, comment, releaseCategory, file!, progressHandler)
+      await releaseApi.createVersion(projectId, version, comment, releaseCategory, file!, isApproved, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {
@@ -106,6 +108,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
     setVersion('')
     setComment('')
     setFile(null)
+    setIsApproved(false)
     setUploadCompleted(false)
     resetTransfer()
     onOpenChange(false)
@@ -360,6 +363,20 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
                 rows={3}
                 required
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isApproved"
+                checked={isApproved}
+                onCheckedChange={(checked) => setIsApproved(checked as boolean)}
+              />
+              <Label
+                htmlFor="isApproved"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                승인된 버전으로 생성
+              </Label>
             </div>
 
             <div className="space-y-2">

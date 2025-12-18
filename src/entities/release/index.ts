@@ -27,4 +27,5 @@ export {
   useReleaseFileContent,
   useCreateVersion,
   useDeleteVersion,
+  useApproveVersion,
 } from './queries/releaseQueries'

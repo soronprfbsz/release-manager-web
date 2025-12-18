@@ -80,6 +80,7 @@ interface CreateVersionParams {
   comment: string
   releaseCategory: string
   patchFiles: File
+  isApproved?: boolean
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
 }
 
@@ -94,6 +95,7 @@ export const useCreateVersion = () => {
         params.comment,
         params.releaseCategory,
         params.patchFiles,
+        params.isApproved,
         params.onUploadProgress
       ),
     onSuccess: () => {
@@ -110,6 +112,18 @@ export const useDeleteVersion = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
       queryClient.invalidateQueries({ queryKey: releaseKeys.versions() })
+    },
+  })
+}
+
+export const useApproveVersion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (versionId: number) => releaseApi.approveVersion(versionId),
+    onSuccess: (_, versionId) => {
+      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
+      queryClient.invalidateQueries({ queryKey: releaseKeys.version(versionId) })
     },
   })
 }

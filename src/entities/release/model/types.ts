@@ -16,6 +16,9 @@ export interface VersionNode {
   comment: string
   releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
+  isApproved: boolean
+  approvedBy: string | null
+  approvedAt: string | null
 }
 
 export interface MajorMinorNode {
@@ -54,6 +57,9 @@ export interface ReleaseVersionDetail {
   createdBy: string
   comment: string
   customVersion: string | null
+  isApproved: boolean
+  approvedBy: string | null
+  approvedAt: string | null
   createdAt: string
   updatedAt: string
   releaseFiles: ReleaseFileSimple[]

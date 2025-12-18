@@ -51,7 +51,10 @@ function getVersionsFromTree(
   const versions: string[] = []
   data.majorMinorGroups.forEach((group) => {
     group.versions.forEach((v) => {
-      versions.push(v.version)
+      // 승인된 버전만 패치 생성 대상으로 포함
+      if (v.isApproved) {
+        versions.push(v.version)
+      }
     })
   })
 
