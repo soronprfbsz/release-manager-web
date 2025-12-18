@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '@/shared/api/client'
+import { convertMenuResponseToMenuItem, type MenuItem } from '@/shared/lib/menu-mapper'
 
 import type { MenuResponse } from '../model/types'
 
@@ -15,8 +16,8 @@ export const menuApi = {
   /**
    * 메뉴 목록 조회
    */
-  getList: async (): Promise<MenuResponse[]> => {
+  getList: async (): Promise<MenuItem[]> => {
     const response = await apiClient.get<MenuResponse[]>(ENDPOINTS.list)
-    return response
+    return response.map(convertMenuResponseToMenuItem)
   },
 }

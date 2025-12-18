@@ -1,44 +1,19 @@
 import { GitBranch, Construction } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 
 export function CustomReleasePage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>버전 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Custom</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<GitBranch className="h-5 w-5 text-primary" />}
         title="버전 관리 (Custom)"
-        description="고객사별 커스텀 릴리즈 버전 정보를  생성하고 관리합니다."
       />
 
       {/* 준비 중 안내 */}

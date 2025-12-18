@@ -7,7 +7,6 @@ import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { Package, Plus, RefreshCw } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 
@@ -36,15 +35,8 @@ import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
@@ -241,23 +233,7 @@ export function StandardPatchPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>패치 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Standard</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader

@@ -26,14 +26,16 @@ export const ROUTES = {
     CUSTOMERS: '/operations/customers',
     ENGINEERS: '/operations/engineers',
     ACCOUNTS: '/operations/accounts',
-    SERVICES: '/operations/services',
   },
-  JOBS: {
-    MARIADB: '/jobs/mariadb',
-    REMOTE: '/jobs/remote',
-  },
-  RESOURCES: {
-    ROOT: '/resources',
+  DEVELOPMENT_SUPPORT: {
+    REMOTE_JOBS: {
+      MARIADB: '/development-support/remote-jobs/mariadb',
+      TERMINAL: '/development-support/remote-jobs/terminal',
+    },
+    INFRASTRUCTURE: {
+      RESOURCES: '/development-support/infrastructure/resources',
+      SERVICES: '/development-support/infrastructure/services',
+    },
   },
 } as const
 

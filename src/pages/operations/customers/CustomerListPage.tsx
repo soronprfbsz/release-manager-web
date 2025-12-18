@@ -6,7 +6,6 @@
 import { useState, useMemo } from 'react'
 
 import { Building2, Plus, RefreshCw } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import {
   CustomerTable,
@@ -31,15 +30,8 @@ import { useProjects } from '@/entities/project'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -221,29 +213,12 @@ export function CustomerListPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>운영 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>고객사</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<Building2 className="h-5 w-5 text-primary" />}
         title="고객사 관리"
-        description="고객사 정보를 등록하고 관리합니다."
         actions={
           <>
             <Tooltip>

@@ -11,3 +11,4 @@ export { useMenus, menuKeys } from './queries/menuQueries'
 
 // Types
 export type { MenuResponse, MenuId } from './model/types'
+export type { MenuItem } from '@/shared/lib/menu-mapper'

@@ -10,6 +10,10 @@
 export interface MenuResponse {
   menuId: string
   menuName: string
+  menuUrl?: string
+  description?: string
+  isDescriptionVisible?: boolean
+  isLineBreak?: boolean
   children: MenuResponse[]
 }
 
@@ -28,14 +32,16 @@ export type MenuId =
   | 'patch_custom'
   // 운영 관리
   | 'operation_management'
-  | 'operation_customer'
-  | 'operation_engineer'
-  | 'operation_account'
-  // 작업 관리
-  | 'job_management'
-  | 'job_mariadb'
-  | 'job_terminal'
-  // 리소스 관리
-  | 'resource_management'
-  // 서비스 관리
-  | 'service_management'
+  | 'operation_customers'
+  | 'operation_engineers'
+  | 'operation_accounts'
+  // 개발 지원 (1depth)
+  | 'development_support'
+  // 원격 작업 (2depth under development_support)
+  | 'remote_jobs'
+  | 'remote_mariadb'
+  | 'remote_terminal'
+  // 인프라 (2depth under development_support)
+  | 'infrastructure'
+  | 'infrastructure_resources'
+  | 'infrastructure_services'

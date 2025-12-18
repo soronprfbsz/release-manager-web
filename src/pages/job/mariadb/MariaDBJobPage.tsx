@@ -7,7 +7,6 @@ import { useState } from 'react'
 
 import { HardDrive, RefreshCw } from 'lucide-react'
 import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
-import { Link } from 'react-router-dom'
 
 import { BackupDialog } from '@/widgets/job-backup-dialog'
 import { RestoreDialog } from '@/widgets/job-restore-dialog'
@@ -32,15 +31,8 @@ import {
 } from '@/entities/job'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
@@ -207,29 +199,12 @@ export function MariaDBJobPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>작업 관리</BreadcrumbPage>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>MariaDB</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<BsDatabaseDown className="h-5 w-5 text-primary" />}
         title="MariaDB"
-        description="MariaDB 백업 및 복원 등의 작업을 수행합니다."
         actions={
           <>
             <Tooltip>

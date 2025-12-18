@@ -158,7 +158,6 @@ export function AccountListPage() {
       <PageHeader
         icon={<User className="h-5 w-5 text-primary" />}
         title="계정 관리"
-        description="계정 정보를 조회하고 관리합니다."
         actions={
           <Tooltip>
             <TooltipTrigger asChild>

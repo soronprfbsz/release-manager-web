@@ -110,7 +110,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.OPERATIONS.SERVICES,
+    path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.SERVICES,
     element: (
       <ProtectedRoute>
         <MainLayout>
@@ -120,7 +120,17 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.JOBS.MARIADB,
+    path: '/development-support/infrastructure/service',
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <ServiceListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.MARIADB,
     element: (
       <ProtectedRoute>
         <MainLayout>
@@ -130,7 +140,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.JOBS.REMOTE,
+    path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.TERMINAL,
     element: (
       <ProtectedRoute>
         <MainLayout>
@@ -140,7 +150,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.RESOURCES.ROOT,
+    path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.RESOURCES,
     element: (
       <ProtectedRoute>
         <MainLayout>

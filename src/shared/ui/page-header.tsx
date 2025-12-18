@@ -1,11 +1,12 @@
 import * as React from 'react'
 
+import { useMenuDescription } from '@/shared/lib/hooks/use-menu-description'
 import { cn } from '@/shared/lib/utils'
 
 interface PageHeaderProps {
   icon: React.ReactNode
   title: string
-  description: string
+  description?: string
   actions?: React.ReactNode
   className?: string
 }
@@ -17,6 +18,9 @@ export function PageHeader({
   actions,
   className,
 }: PageHeaderProps) {
+  const menuDescription = useMenuDescription()
+  const displayDescription = description || menuDescription
+
   return (
     <div
       className={cn(
@@ -33,7 +37,9 @@ export function PageHeader({
         </div>
         <div>
           <h1 className="text-xl font-semibold">{title}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+          {displayDescription && (
+            <p className="text-sm text-muted-foreground mt-0.5">{displayDescription}</p>
+          )}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}

@@ -5,7 +5,6 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { PlugZap, Unplug, Terminal, Upload } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import {
   SshConnectionSheet,
@@ -17,15 +16,8 @@ import {
 } from '@/features/ssh-shell'
 import { FileTransferSheet } from '@/features/ssh-shell/ui/FileTransferSheet'
 import type { SshConnectionFormData } from '@/features/ssh-shell'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
@@ -68,31 +60,12 @@ export function SshShellPage() {
   return (
     <div className="flex flex-col space-y-6">
       {/* Breadcrumb */}
-      <div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/">Home</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>작업 관리</BreadcrumbPage>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>터미널</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<Terminal className="h-5 w-5 text-primary" />}
         title="터미널"
-        description="SSH를 통해 원격 서버에 터미널로 연결합니다."
         actions={
           <>
             {session ? (

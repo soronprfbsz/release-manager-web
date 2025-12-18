@@ -6,22 +6,14 @@
 import { useState } from 'react'
 
 import { Layers, RefreshCw } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import { PatchHistoryTable } from '@/features/patch-management'
 
 import { patchApi, usePatches, type CumulativePatch } from '@/entities/patch'
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 import { TypographyMuted } from '@/shared/ui/typography'
 
@@ -56,29 +48,12 @@ export function PatchHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>패치 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>패치 조회/다운로드</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<Layers className="h-5 w-5 text-primary" />}
         title="패치 조회/다운로드"
-        description="생성된 모든 패치 이력을 조회하고 다운로드할 수 있습니다."
         actions={
           <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
             <RefreshCw className="h-4 w-4" />

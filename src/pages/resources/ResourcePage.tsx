@@ -207,7 +207,6 @@ export function ResourcePage() {
       <PageHeader
         icon={<Download className="h-5 w-5 text-primary" />}
         title="리소스 관리"
-        description="데이터베이스 백업 및 복원에 필요한 스크립트를 다운로드할 수 있습니다."
         actions={
           <>
             <Tooltip>

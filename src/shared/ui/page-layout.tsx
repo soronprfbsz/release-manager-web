@@ -1,34 +1,17 @@
-import { ReactNode, Fragment } from 'react'
+import { ReactNode } from 'react'
 
-import { Link } from 'react-router-dom'
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from './breadcrumb'
+import { DynamicBreadcrumb } from './dynamic-breadcrumb'
 import { PageHeader } from './page-header'
 
-export interface BreadcrumbItemType {
-  label: string
-  href?: string
-  isCurrentPage?: boolean
-}
-
 interface PageLayoutProps {
-  breadcrumbs: BreadcrumbItemType[]
   icon: ReactNode
   title: string
-  description: string
+  description?: string
   actions?: ReactNode
   children: ReactNode
 }
 
 export function PageLayout({
-  breadcrumbs,
   icon,
   title,
   description,
@@ -38,26 +21,7 @@ export function PageLayout({
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          {breadcrumbs.map((item, index) => (
-            <Fragment key={index}>
-              {index > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>
-                {item.isCurrentPage ? (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                ) : item.href ? (
-                  <BreadcrumbLink asChild>
-                    <Link to={item.href}>{item.label}</Link>
-                  </BreadcrumbLink>
-                ) : (
-                  <span>{item.label}</span>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader

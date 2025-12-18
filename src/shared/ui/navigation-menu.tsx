@@ -17,7 +17,7 @@ function NavigationMenu({
       data-slot="navigation-menu"
       delayDuration={delayDuration}
       className={cn(
-        "group/navigation-menu relative z-10 flex max-w-max flex-1 items-center justify-center",
+        "group/navigation-menu relative z-10 flex max-w-max items-center justify-center",
         className
       )}
       {...props}
@@ -35,7 +35,7 @@ const NavigationMenuList = React.forwardRef<
   <NavigationMenuPrimitive.List
     ref={ref}
     className={cn(
-      "group flex flex-1 list-none items-center justify-center space-x-1",
+      "group flex list-none items-center justify-center space-x-1",
       className
     )}
     {...props}
@@ -88,7 +88,7 @@ function NavigationMenuContent({
       data-slot="navigation-menu-content"
       className={cn(
         "absolute left-0 top-full mt-1.5 w-auto",
-        "origin-top-center bg-popover text-popover-foreground overflow-hidden rounded-md border shadow-lg",
+        "origin-top-left bg-popover text-popover-foreground overflow-hidden rounded-md border shadow-lg",
         "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         className

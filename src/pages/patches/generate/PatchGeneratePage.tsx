@@ -7,7 +7,6 @@ import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { Layers } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import { useAuthStore, useProjectStore } from '@/shared/store'
 
@@ -25,14 +24,7 @@ import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entitie
 import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 
 const INITIAL_FORM_DATA: PatchCreateFormData = {
@@ -142,29 +134,12 @@ export function PatchGeneratePage() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>패치 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>패치 생성</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       {/* Page Header */}
       <PageHeader
         icon={<Layers className="h-5 w-5 text-primary" />}
         title="패치 생성"
-        description="버전 범위를 선택하여 누적 패치 파일을 생성합니다."
       />
 
       {/* Two Column Layout */}

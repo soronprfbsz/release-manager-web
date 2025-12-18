@@ -3,13 +3,12 @@ import * as React from 'react'
 import { LogOut, Rocket } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
-import { useMenus } from '@/entities/menu'
+import { useMenus, type MenuItem } from '@/entities/menu'
 
 import { ProjectSelector } from '@/widgets/project-selector'
 import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
 
 import { ROUTES } from '@/shared/config/constants'
-import { convertMenuResponseToMenuItem } from '@/shared/lib/menu-mapper'
 import { cn } from '@/shared/lib/utils'
 import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
@@ -45,11 +44,8 @@ export function NavigationBar() {
     }
   }
 
-  // 메뉴 데이터를 MenuItem 형식으로 변환
-  const menuItems = React.useMemo(() => {
-    if (!menusData) return []
-    return menusData.map(convertMenuResponseToMenuItem)
-  }, [menusData])
+  // 메뉴 데이터 (이미 MenuItem[] 형식)
+  const menuItems = menusData || []
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
@@ -82,15 +78,99 @@ export function NavigationBar() {
                     <>
                       <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
                       <NavigationMenuContent>
-                        <ul className="grid w-[200px] gap-1 p-2">
-                          {item.children.map((child) => (
-                            <ListItem
-                              key={child.label}
-                              title={child.label}
-                              href={child.path!}
-                            />
-                          ))}
-                        </ul>
+                        {(() => {
+                          // description이 표시되는 아이템이 있는지 확인 (2-depth, 3-depth 모두)
+                          const hasVisibleDescription = item.children!.some((child) => {
+                            // 2-depth 자체에 description이 있는 경우
+                            if (child.isDescriptionVisible && child.description) return true
+                            // 3-depth 아이템 중에 description이 있는 경우
+                            if (child.children && child.children.length > 0) {
+                              return child.children.some(
+                                (subChild) => subChild.isDescriptionVisible && subChild.description
+                              )
+                            }
+                            return false
+                          })
+
+                          // 그리드는 항상 2열 고정
+                          const gridColsClass = 'grid-cols-2'
+                          const colSpanClass = 'col-span-2'
+
+                          // 너비 계산: description이 있으면 더 넓게, 없으면 컴팩트하게 (2열 기준)
+                          const columnWidth = hasVisibleDescription ? 280 : 100
+                          const minWidth = 2 * columnWidth
+                          // 패딩과 갭: description이 없으면 더 작게
+                          const paddingClass = hasVisibleDescription ? 'p-3' : 'p-2'
+                          const gapClass = hasVisibleDescription ? 'gap-2' : 'gap-1'
+
+                          return (
+                            <ul className={cn('grid w-auto', gridColsClass, paddingClass, gapClass)} style={{ minWidth: `${minWidth}px` }}>
+                              {item.children!.map((child) => {
+                                const hasChildren = child.children && child.children.length > 0
+
+                                if (hasChildren) {
+                                  // 3-depth가 있는 경우: 섹션 헤더 + 3-depth 아이템들을 하나로 묶음
+                                  return (
+                                    <li
+                                      key={child.label}
+                                      className={cn(
+                                        colSpanClass,
+                                        child.isLineBreak && 'col-start-1'
+                                      )}
+                                    >
+                                      <div className="rounded-lg border bg-muted/50 p-2 mb-2">
+                                        {/* 섹션 헤더 */}
+                                        <div className="px-1 py-1 text-sm font-semibold mb-1">
+                                          {child.label}
+                                          {child.isDescriptionVisible && child.description && (
+                                            <p className="text-xs font-normal mt-1 opacity-70">
+                                              {child.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                        {/* 3-depth 아이템들을 그리드로 배치 */}
+                                        <div className={cn('grid grid-cols-2', hasVisibleDescription ? 'gap-2' : 'gap-1')}>
+                                          {child.children!.filter(subChild => subChild.path).map((subChild) => {
+                                            const hasDesc = subChild.isDescriptionVisible && subChild.description
+                                            const itemPadding = hasDesc ? 'p-2' : 'py-1.5 px-2'
+                                            return (
+                                              <div
+                                                key={subChild.label}
+                                                className={cn(subChild.isLineBreak && 'col-start-1 col-span-2')}
+                                              >
+                                                <NavigationMenuLink asChild>
+                                                  <Link
+                                                    to={subChild.path!}
+                                                    className={cn(
+                                                      'group block select-none rounded-md leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground border border-transparent hover:border-border',
+                                                      itemPadding
+                                                    )}
+                                                  >
+                                                    <div className={cn('text-sm leading-tight', hasDesc && 'font-semibold mb-1')}>
+                                                      {subChild.label}
+                                                    </div>
+                                                    {hasDesc && (
+                                                      <p className="line-clamp-2 text-xs leading-snug opacity-70">
+                                                        {subChild.description}
+                                                      </p>
+                                                    )}
+                                                  </Link>
+                                                </NavigationMenuLink>
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                    </li>
+                                  )
+                                } else {
+                                  // 3-depth가 없는 일반 2-depth 아이템
+                                  return <NestedListItem key={child.label} item={child} />
+                                }
+                              })}
+                            </ul>
+                          )
+                        })()}
                       </NavigationMenuContent>
                     </>
                   ) : (
@@ -126,30 +206,35 @@ export function NavigationBar() {
   )
 }
 
-interface ListItemProps {
-  className?: string
-  title: string
-  href: string
+interface NestedListItemProps {
+  item: MenuItem
 }
 
-const ListItem = React.forwardRef<HTMLAnchorElement, ListItemProps>(
-  ({ className, title, href }, ref) => {
-    return (
-      <li>
-        <NavigationMenuLink asChild>
-          <Link
-            ref={ref}
-            to={href}
-            className={cn(
-              'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-              className
-            )}
-          >
-            <div className="text-sm font-medium leading-none">{title}</div>
-          </Link>
-        </NavigationMenuLink>
-      </li>
-    )
-  }
-)
-ListItem.displayName = 'ListItem'
+function NestedListItem({ item }: NestedListItemProps) {
+  // 일반 2depth 아이템 (path가 있어야 함)
+  if (!item.path) return null
+
+  const hasDesc = item.isDescriptionVisible && item.description
+  const itemPadding = hasDesc ? 'p-2' : 'py-1.5 px-2'
+
+  return (
+    <li className={cn(item.isLineBreak && 'col-start-1 col-span-2')}>
+      <NavigationMenuLink asChild>
+        <Link
+          to={item.path}
+          className={cn(
+            'group block select-none rounded-md leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground border border-transparent hover:border-border',
+            itemPadding
+          )}
+        >
+          <div className={cn('text-sm leading-tight', hasDesc && 'font-semibold mb-1')}>{item.label}</div>
+          {hasDesc && (
+            <p className="line-clamp-2 text-xs leading-snug opacity-70">
+              {item.description}
+            </p>
+          )}
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  )
+}

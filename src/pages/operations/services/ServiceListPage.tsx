@@ -5,17 +5,9 @@
 
 import { useState, useMemo } from 'react'
 import { Plus, RefreshCw, Server } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
+import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -291,28 +283,11 @@ export function ServiceListPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>운영 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>서비스 관리</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <DynamicBreadcrumb />
 
       <PageHeader
         icon={<Server className="h-5 w-5 text-primary" />}
-        title="서비스 관리"
-        description="서비스 및 컴포넌트를 관리합니다."
+        title="인프라 서비스 관리"
         actions={
           <>
             <Tooltip>
