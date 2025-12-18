@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 
-import { Loader2, AlertTriangle, Download, Maximize2, Minimize2 } from 'lucide-react'
+import { Loader2, AlertTriangle, Download, Maximize2, Minimize2, X } from 'lucide-react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
@@ -9,9 +9,7 @@ import { Button } from '@/shared/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
+  DialogClose,
 } from '@/shared/ui/dialog'
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 
@@ -131,25 +129,30 @@ export function FileContentViewerModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={containerRef}
+        hideClose
         className={`max-w-4xl flex flex-col gap-4 ${isFullscreen ? 'h-screen max-h-screen' : 'max-h-[85vh]'}`}
       >
-        <DialogHeader>
-          <DialogTitle className="font-mono text-base">{fileName}</DialogTitle>
-          <DialogDescription className="flex items-center gap-2">
-            {description}
-            {contentSize > 0 && (
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">
-                {formatFileSize(fileSize || contentSize)}
-              </span>
-            )}
-            {totalLines > 0 && (
-              <span className="text-xs bg-muted px-2 py-0.5 rounded">
-                {totalLines.toLocaleString()} lines
-              </span>
-            )}
-          </DialogDescription>
-          {/* X 버튼 왼쪽에 배치되는 액션 버튼 */}
-          <div className="absolute top-0 right-10 flex items-center gap-1">
+        {/* 커스텀 헤더 */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <h2 className="font-mono text-base font-semibold leading-none tracking-tight">
+              {fileName}
+            </h2>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{description}</span>
+              {contentSize > 0 && (
+                <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                  {formatFileSize(fileSize || contentSize)}
+                </span>
+              )}
+              {totalLines > 0 && (
+                <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                  {totalLines.toLocaleString()} lines
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
             {onDownload && (
               <Button
                 variant="ghost"
@@ -174,8 +177,18 @@ export function FileContentViewerModal({
                 <Maximize2 className="h-4 w-4" />
               )}
             </Button>
+            <DialogClose asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="닫기"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogClose>
           </div>
-        </DialogHeader>
+        </div>
 
         {/* 큰 파일 경고 */}
         {isTruncated && (

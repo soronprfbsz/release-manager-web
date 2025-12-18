@@ -27,6 +27,7 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function SshShellPage() {
   // 로컬 UI 상태
@@ -95,15 +96,27 @@ export function SshShellPage() {
         actions={
           <>
             {session ? (
-              <Button onClick={handleDisconnect} variant="outline">
-                <Unplug className="h-4 w-4" />
-                연결 종료
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handleDisconnect} variant="outline" size="icon">
+                    <Unplug className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>연결 종료</p>
+                </TooltipContent>
+              </Tooltip>
             ) : (
-              <Button onClick={() => setConnectionSheetOpen(true)} variant="outline">
-                <PlugZap className="h-4 w-4" />
-                연결
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={() => setConnectionSheetOpen(true)} variant="outline" size="icon">
+                    <PlugZap className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>연결</p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </>
         }

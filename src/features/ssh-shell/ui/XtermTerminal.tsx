@@ -136,9 +136,9 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     const getTerminalTheme = useCallback((currentTheme: Theme) => {
       if (currentTheme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        return isDark ? XTERM_THEMES.dark : XTERM_THEMES.light
+        return isDark ? XTERM_THEMES.black : XTERM_THEMES.white
       }
-      return XTERM_THEMES[currentTheme] || XTERM_THEMES.dark
+      return XTERM_THEMES[currentTheme] || XTERM_THEMES.black
     }, [])
 
     // 현재 제마 상태 관리

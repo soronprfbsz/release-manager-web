@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
 
@@ -83,13 +84,26 @@ export function StandardReleasePage() {
       description="표준 릴리즈 버전 정보를 생성하고 관리합니다."
       actions={
         <>
-          <Button onClick={handleRefresh} variant="outline" size="icon" title="새로고침">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => setCreateDialogOpen(true)} variant="outline">
-            <Plus className="h-4 w-4" />
-            릴리즈 생성
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleRefresh} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setCreateDialogOpen(true)} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>릴리즈 생성</p>
+            </TooltipContent>
+          </Tooltip>
         </>
       }
     >

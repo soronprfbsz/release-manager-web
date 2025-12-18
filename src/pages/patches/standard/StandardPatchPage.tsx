@@ -49,6 +49,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 interface PaginationState {
@@ -265,13 +266,26 @@ export function StandardPatchPage() {
         description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
         actions={
           <>
-            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button onClick={() => setIsFormOpen(true)} variant="outline">
-              <Plus className="h-4 w-4" />
-              패치 생성
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => refetch()} variant="outline" size="icon">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>새로고침</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => setIsFormOpen(true)} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>패치 생성</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         }
       />

@@ -30,6 +30,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
 interface VersionDetailPanelProps {
@@ -270,26 +271,39 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
               </div>
               <div className="flex items-center gap-2">
                 {!version.isApproved && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleApprove}
-                    disabled={approveMutation.isPending}
-                    className="h-8"
-                  >
-                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                    {approveMutation.isPending ? '승인 중...' : '승인'}
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleApprove}
+                        disabled={approveMutation.isPending}
+                        className="h-8 w-8"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>승인하기</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setDeleteDialogOpen(true)}
-                  disabled={deleteMutation.isPending}
-                  className="h-8 w-8"
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setDeleteDialogOpen(true)}
+                      disabled={deleteMutation.isPending}
+                      className="h-8 w-8"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>삭제</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </CardHeader>
@@ -352,13 +366,20 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                   파일
                 </CardTitle>
                 {hasFiles && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleDownloadAll}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDownloadAll}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>전체 다운로드</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             </CardHeader>

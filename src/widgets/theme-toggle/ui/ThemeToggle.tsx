@@ -57,35 +57,20 @@ export function ThemeToggle() {
         onMouseLeave={handleMouseLeave}
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        <DropdownMenuItem onClick={() => { setTheme('light'); setOpen(false) }}>
+        <DropdownMenuItem onClick={() => { setTheme('white'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
             <div className="w-4 h-4 rounded-full bg-white border-2 border-gray-300" />
             <span className="flex-1">White</span>
-            {theme === 'light' && <Check className="h-4 w-4" />}
+            {theme === 'white' && <Check className="h-4 w-4" />}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('dark'); setOpen(false) }}>
+        <DropdownMenuItem onClick={() => { setTheme('black'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
             <div className="w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700" />
             <span className="flex-1">Black</span>
-            {theme === 'dark' && <Check className="h-4 w-4" />}
+            {theme === 'black' && <Check className="h-4 w-4" />}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('solarized-dark'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#002b36', borderWidth: '2px', borderColor: '#268bd2' }} />
-            <span className="flex-1">Solarized Dark</span>
-            {theme === 'solarized-dark' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('monokai'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#272822', borderWidth: '2px', borderColor: '#fd971f' }} />
-            <span className="flex-1">Monokai</span>
-            {theme === 'monokai' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-
         <DropdownMenuItem onClick={() => { setTheme('dracula'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
             <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#282a36', borderWidth: '2px', borderColor: '#bd93f9' }} />
@@ -100,19 +85,11 @@ export function ThemeToggle() {
             {theme === 'nord' && <Check className="h-4 w-4" />}
           </div>
         </DropdownMenuItem>
-
         <DropdownMenuItem onClick={() => { setTheme('gruvbox'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
             <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#282828', borderWidth: '2px', borderColor: '#fabd2f' }} />
             <span className="flex-1">Gruvbox</span>
             {theme === 'gruvbox' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('latte'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#eff1f5', borderWidth: '2px', borderColor: '#1e66f5' }} />
-            <span className="flex-1">Latte</span>
-            {theme === 'latte' && <Check className="h-4 w-4" />}
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

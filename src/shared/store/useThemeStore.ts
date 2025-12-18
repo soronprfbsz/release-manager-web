@@ -7,14 +7,11 @@ import { create } from 'zustand'
 import { devtools, persist, createJSONStorage } from 'zustand/middleware'
 
 export type Theme =
-  | 'dark'
-  | 'light'
-  | 'solarized-dark'
-  | 'monokai'
+  | 'black'
+  | 'white'
   | 'dracula'
   | 'nord'
   | 'gruvbox'
-  | 'latte'
   | 'system'
 
 interface ThemeState {
@@ -26,9 +23,7 @@ interface ThemeState {
 }
 
 const darkThemes: Theme[] = [
-  'dark',
-  'solarized-dark',
-  'monokai',
+  'black',
   'dracula',
   'nord',
   'gruvbox',
@@ -37,30 +32,39 @@ const darkThemes: Theme[] = [
 const applyThemeToDOM = (theme: Theme) => {
   const root = window.document.documentElement
 
+  // 모든 테마 관련 클래스 제거
   root.classList.remove(
     'light',
     'dark',
-    'solarized-dark',
-    'monokai',
+    'white',
+    'black',
     'dracula',
     'nord',
-    'gruvbox',
-    'latte'
+    'gruvbox'
   )
 
   if (theme === 'system') {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
+      ? 'black'
+      : 'white'
 
+    if (systemTheme === 'black') {
+      root.classList.add('dark')
+    } else {
+      root.classList.add('light')
+    }
     root.classList.add(systemTheme)
     return
   }
 
+  // dark 계열 테마는 'dark' 클래스 추가, light 계열은 'light' 클래스 추가
   if (darkThemes.includes(theme)) {
     root.classList.add('dark')
+  } else {
+    root.classList.add('light')
   }
 
+  // 테마 이름 클래스 추가
   root.classList.add(theme)
 }
 

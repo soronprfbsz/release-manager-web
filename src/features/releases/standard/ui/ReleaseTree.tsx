@@ -87,13 +87,16 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                       selectedVersionId === version.versionId && 'bg-accent text-accent-foreground'
                     )}
                   >
-                    <FileCode className="h-4 w-4 text-blue-500 shrink-0" />
-                    <span className="flex-shrink-0">{version.version}</span>
-                    {!version.isApproved && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 leading-none border-yellow-500 text-yellow-600 dark:text-yellow-500">
-                        미승인
-                      </Badge>
-                    )}
+                    <FileCode className={cn(
+                      "h-4 w-4 shrink-0",
+                      version.isApproved ? "text-blue-500" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "flex-shrink-0",
+                      !version.isApproved && "text-muted-foreground italic opacity-60"
+                    )}>
+                      {version.version}
+                    </span>
                     {version.fileCategories && version.fileCategories.length > 0 && (
                       <div className="flex gap-1 ml-auto">
                         {version.fileCategories.map((category) => (

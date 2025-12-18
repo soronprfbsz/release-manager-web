@@ -1,18 +1,15 @@
 import type { ITheme } from '@xterm/xterm'
 
 type ThemeType =
-    | 'dark'
-    | 'light'
-    | 'solarized-dark'
-    | 'monokai'
+    | 'black'
+    | 'white'
     | 'dracula'
     | 'nord'
     | 'gruvbox'
-    | 'latte'
 
 export const XTERM_THEMES: Record<ThemeType, ITheme> = {
-    // Default Dark (Modern Dark - similar to Tokyo Night / One Dark)
-    dark: {
+    // Default Black (Modern Dark - similar to Tokyo Night / One Dark)
+    black: {
         background: '#1a1b26', // Deep dark blue-grey
         foreground: '#a9b1d6', // Soft pale blue
         cursor: '#c0caf5',
@@ -35,8 +32,8 @@ export const XTERM_THEMES: Record<ThemeType, ITheme> = {
         brightCyan: '#7dcfff',
         brightWhite: '#c0caf5',
     },
-    // Default Light (Modern Light - cleaner, higher contrast)
-    light: {
+    // Default White (Modern Light - cleaner, higher contrast)
+    white: {
         background: '#f8fafc', // Slate-50 - subtle difference from white page
         foreground: '#334155', // Slate-700
         cursor: '#0f172a', // Slate-900
@@ -58,54 +55,6 @@ export const XTERM_THEMES: Record<ThemeType, ITheme> = {
         brightMagenta: '#c084fc',
         brightCyan: '#22d3ee',
         brightWhite: '#f1f5f9',
-    },
-    // Solarized Dark
-    'solarized-dark': {
-        background: '#002b36',
-        foreground: '#839496',
-        cursor: '#93a1a1',
-        cursorAccent: '#002b36',
-        selectionBackground: '#073642',
-        black: '#073642',
-        red: '#dc322f',
-        green: '#859900',
-        yellow: '#b58900',
-        blue: '#268bd2',
-        magenta: '#d33682',
-        cyan: '#2aa198',
-        white: '#eee8d5',
-        brightBlack: '#002b36',
-        brightRed: '#cb4b16',
-        brightGreen: '#586e75',
-        brightYellow: '#657b83',
-        brightBlue: '#839496',
-        brightMagenta: '#6c71c4',
-        brightCyan: '#93a1a1',
-        brightWhite: '#fdf6e3',
-    },
-    // Monokai
-    monokai: {
-        background: '#272822',
-        foreground: '#f8f8f2',
-        cursor: '#f8f8f2',
-        cursorAccent: '#272822',
-        selectionBackground: '#49483e',
-        black: '#272822',
-        red: '#f92672',
-        green: '#a6e22e',
-        yellow: '#f4bf75',
-        blue: '#66d9ef',
-        magenta: '#ae81ff',
-        cyan: '#a1efe4',
-        white: '#f8f8f2',
-        brightBlack: '#75715e',
-        brightRed: '#f92672',
-        brightGreen: '#a6e22e',
-        brightYellow: '#f4bf75',
-        brightBlue: '#66d9ef',
-        brightMagenta: '#ae81ff',
-        brightCyan: '#a1efe4',
-        brightWhite: '#f9f8f5',
     },
     // Dracula
     dracula: {
@@ -178,29 +127,5 @@ export const XTERM_THEMES: Record<ThemeType, ITheme> = {
         brightMagenta: '#d3869b',
         brightCyan: '#8ec07c',
         brightWhite: '#ebdbb2',
-    },
-    // Catppuccin Latte (Light)
-    latte: {
-        background: '#eff1f5',
-        foreground: '#4c4f69',
-        cursor: '#dc8a78',
-        cursorAccent: '#eff1f5',
-        selectionBackground: '#acb0be',
-        black: '#5c5f77',
-        red: '#d20f39',
-        green: '#40a02b',
-        yellow: '#df8e1d',
-        blue: '#1e66f5',
-        magenta: '#ea76cb',
-        cyan: '#179299',
-        white: '#acb0be',
-        brightBlack: '#6c6f85',
-        brightRed: '#d20f39',
-        brightGreen: '#40a02b',
-        brightYellow: '#df8e1d',
-        brightBlue: '#1e66f5',
-        brightMagenta: '#ea76cb',
-        brightCyan: '#179299',
-        brightWhite: '#bcc0cc',
     },
 }

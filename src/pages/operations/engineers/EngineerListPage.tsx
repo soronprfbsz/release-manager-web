@@ -43,6 +43,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
 
@@ -232,13 +233,26 @@ export function EngineerListPage() {
         description="패치 담당 엔지니어 정보를 등록하고 관리합니다."
         actions={
           <>
-            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button onClick={openCreateModal} variant="outline">
-              <Plus className="h-4 w-4" />
-              엔지니어 등록
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => refetch()} variant="outline" size="icon">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>새로고침</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={openCreateModal} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>엔지니어 등록</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         }
       />

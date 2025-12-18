@@ -35,6 +35,7 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 const INITIAL_FORM_DATA: ResourceUploadFormData = {
   file: null,
@@ -209,13 +210,26 @@ export function ResourcePage() {
         description="데이터베이스 백업 및 복원에 필요한 스크립트를 다운로드할 수 있습니다."
         actions={
           <>
-            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button onClick={openUploadModal} variant="outline">
-              <Plus className="h-4 w-4" />
-              리소스 추가
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => refetch()} variant="outline" size="icon">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>새로고침</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={openUploadModal} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>리소스 추가</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         }
       />

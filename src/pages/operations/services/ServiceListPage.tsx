@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo } from 'react'
-import { Plus, Server } from 'lucide-react'
+import { Plus, RefreshCw, Server } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   Breadcrumb,
@@ -16,6 +16,7 @@ import {
 } from '@/shared/ui/breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
   useServices,
@@ -64,7 +65,7 @@ export function ServiceListPage() {
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
   // Queries
-  const { data: services = [], isLoading } = useServices()
+  const { data: services = [], isLoading, refetch } = useServices()
 
   // 관리 중인 서비스 (최신 데이터로 자동 갱신)
   const managingService = useMemo(
@@ -313,10 +314,28 @@ export function ServiceListPage() {
         title="서비스 관리"
         description="서비스 및 컴포넌트를 관리합니다."
         actions={
-          <Button onClick={handleAddServiceClick}>
-            <Plus className="h-4 w-4 mr-2" />
-            서비스 추가
-          </Button>
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => refetch()} variant="outline" size="icon">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>새로고침</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleAddServiceClick} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>서비스 추가</p>
+              </TooltipContent>
+            </Tooltip>
+          </>
         }
       />
 

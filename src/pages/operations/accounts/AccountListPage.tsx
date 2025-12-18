@@ -38,6 +38,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 interface PaginationState {
   pageIndex: number
@@ -159,9 +160,16 @@ export function AccountListPage() {
         title="계정 관리"
         description="계정 정보를 조회하고 관리합니다."
         actions={
-          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => refetch()} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
         }
       />
 

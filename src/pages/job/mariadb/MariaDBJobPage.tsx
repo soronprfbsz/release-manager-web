@@ -5,7 +5,8 @@
 
 import { useState } from 'react'
 
-import { Database, HardDrive, RefreshCw, RotateCcw } from 'lucide-react'
+import { HardDrive, RefreshCw } from 'lucide-react'
+import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
 
 import { BackupDialog } from '@/widgets/job-backup-dialog'
@@ -45,6 +46,7 @@ import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { PageHeader } from '@/shared/ui/page-header'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 export function MariaDBJobPage() {
@@ -225,22 +227,41 @@ export function MariaDBJobPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Database className="h-5 w-5 text-primary" />}
+        icon={<BsDatabaseDown className="h-5 w-5 text-primary" />}
         title="MariaDB"
         description="MariaDB 백업 및 복원 등의 작업을 수행합니다."
         actions={
           <>
-            <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button onClick={() => setBackupDialogOpen(true)} variant="outline">
-              <Database className="h-4 w-4" />
-              백업 실행
-            </Button>
-            <Button onClick={() => setRestoreDialogOpen(true)} variant="outline">
-              <RotateCcw className="h-4 w-4" />
-              복원 실행
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => refetch()} variant="outline" size="icon">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>새로고침</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => setBackupDialogOpen(true)} variant="outline" size="icon">
+                  <BsDatabaseDown className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>백업</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => setRestoreDialogOpen(true)} variant="outline" size="icon">
+                  <BsDatabaseUp className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>복원</p>
+              </TooltipContent>
+            </Tooltip>
           </>
         }
       />
