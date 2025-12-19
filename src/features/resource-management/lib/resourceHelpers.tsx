@@ -15,6 +15,11 @@ import {
   Database,
   Server,
   Terminal,
+  Layers,
+  BookOpen,
+  Cloud,
+  Users,
+  MoreHorizontal,
 } from 'lucide-react'
 
 // React Icons
@@ -103,18 +108,41 @@ export const getResourceColorClass = (category: string) => {
 }
 
 export const getGroupIcon = (category: string) => {
-  switch (category) {
+  const upperCategory = category?.toUpperCase()
+
+  switch (upperCategory) {
+    // File categories
     case 'SCRIPT':
-      return <Terminal className="w-5 h-5 text-primary" />
+      return <Terminal className="w-5 h-5" />
     case 'DOCUMENT':
-      return <FileText className="w-5 h-5 text-primary" />
+      return <FileText className="w-5 h-5" />
     case 'DASHBOARD':
-      return <LayoutDashboard className="w-5 h-5 text-primary" />
+      return <LayoutDashboard className="w-5 h-5" />
     case 'SHEET':
-      return <Table className="w-5 h-5 text-primary" />
+      return <Table className="w-5 h-5" />
+
+    // Link categories
+    case 'INFRAEYE1':
+    case 'INFRAEYE2':
+      // 프로젝트 느낌의 아이콘
+      return <Layers className="w-5 h-5" />
+    case 'INFRAEYE':
+      // 솔루션 공통 지식 아이콘
+      return <BookOpen className="w-5 h-5" />
+    case 'INFRA':
+      // 개발 인프라 아이콘
+      return <Cloud className="w-5 h-5" />
+    case 'TEAM':
+    case 'TEAM_MANAGEMENT':
+      // 팀 관련 아이콘
+      return <Users className="w-5 h-5" />
+
     case 'ETC':
+      // 기타 아이콘
+      return <MoreHorizontal className="w-5 h-5" />
+
     default:
-      return <FolderOpen className="w-5 h-5 text-primary" />
+      return <FolderOpen className="w-5 h-5" />
   }
 }
 
@@ -127,8 +155,14 @@ const CATEGORY_INDEX_MAP: Record<string, number> = {
   SCRIPT: 0,
   DOCUMENT: 1,
 
-  // Link categories (동일 인덱스 공유 가능)
-  // 추가 카테고리는 순서대로 인덱스 부여
+  // Link categories
+  INFRAEYE1: 0,
+  INFRAEYE2: 1,
+  INFRAEYE: 2,
+  INFRA: 3,
+  TEAM: 4,
+  TEAM_MANAGEMENT: 4,
+  ETC: 4,
 }
 
 /**

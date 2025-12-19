@@ -7,6 +7,7 @@
 export { ResourceCard } from './ui/ResourceCard'
 export { ResourceGroupList } from './ui/ResourceGroupList'
 export { ResourceUploadForm } from './ui/ResourceUploadForm'
+export { ResourceEditForm } from './ui/ResourceEditForm'
 export { ResourceDeleteDialog } from './ui/ResourceDeleteDialog'
 export { LinkResourceList } from './ui/LinkResourceList'
 export { LinkResourceForm } from './ui/LinkResourceForm'

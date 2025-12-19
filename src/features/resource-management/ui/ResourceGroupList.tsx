@@ -19,6 +19,7 @@ interface ResourceGroupListProps {
   categories: CodeSimpleResponse[]
   onDownload: (resource: ResourceFile) => void
   onDelete: (resource: ResourceFile) => void
+  onEdit?: (resource: ResourceFile) => void
 }
 
 export function ResourceGroupList({
@@ -26,6 +27,7 @@ export function ResourceGroupList({
   categories,
   onDownload,
   onDelete,
+  onEdit,
 }: ResourceGroupListProps) {
   const reorderMutation = useReorderResources()
 
@@ -96,6 +98,7 @@ export function ResourceGroupList({
                   resource={resource}
                   onDownload={onDownload}
                   onDelete={onDelete}
+                  onEdit={onEdit}
                   categoryIndex={categoryIndex}
                 />
               )}

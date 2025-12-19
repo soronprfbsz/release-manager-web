@@ -26,6 +26,14 @@ export interface ResourceFileUploadRequest {
   description?: string
 }
 
+/** 리소스 파일 수정 요청 */
+export interface ResourceFileUpdateRequest {
+  fileCategory: string
+  subCategory?: string
+  resourceFileName: string
+  description?: string
+}
+
 /** 링크 리소스 정보 */
 export interface LinkResource {
   resourceLinkId: number // API Guide says resourceLinkId

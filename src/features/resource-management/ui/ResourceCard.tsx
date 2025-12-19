@@ -3,7 +3,7 @@
  * 리소스 파일 카드 컴포넌트
  */
 
-import { Download } from 'lucide-react'
+import { Download, Edit2 } from 'lucide-react'
 
 import type { ResourceFile } from '@/entities/resource'
 
@@ -16,6 +16,7 @@ interface ResourceCardProps {
   resource: ResourceFile
   onDownload: (resource: ResourceFile) => void
   onDelete: (resource: ResourceFile) => void
+  onEdit?: (resource: ResourceFile) => void
   dragHandleProps?: any
   categoryIndex?: number
 }
@@ -24,6 +25,7 @@ export function ResourceCard({
   resource,
   onDownload,
   onDelete,
+  onEdit,
   dragHandleProps,
   categoryIndex = 0,
 }: ResourceCardProps) {
@@ -38,6 +40,18 @@ export function ResourceCard({
       categoryIndex={categoryIndex}
       dragHandleProps={dragHandleProps}
       onDelete={() => onDelete(resource)}
+      headerActions={
+        onEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(resource)}
+            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        )
+      }
       actionButton={
         <Button className="w-full" onClick={() => onDownload(resource)}>
           <Download className="h-4 w-4 mr-2" />

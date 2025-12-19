@@ -6,6 +6,7 @@ export { linkResourceApi } from './api/linkResourceApi'
 export type {
   ResourceFile,
   ResourceFileUploadRequest,
+  ResourceFileUpdateRequest,
   LinkResource,
   LinkResourceCreateRequest,
 } from './model/types'
@@ -16,6 +17,7 @@ export {
   useResources,
   useResource,
   useUploadResource,
+  useUpdateResource,
   useDeleteResource,
   useReorderResources,
 } from './queries/resourceQueries'

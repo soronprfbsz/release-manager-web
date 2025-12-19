@@ -38,6 +38,55 @@
     /* 밝은 블루 그레이 */
   }
 
+  .white {
+    /* White Theme - Clean & Professional with Teal Accents */
+    --background: 0 0% 100%;
+    --foreground: 220 15% 15%;
+    --card: 210 20% 98%;
+    /* #F8FAFC Soft gray-white */
+    --card-foreground: 220 15% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+    --primary: 177 45% 40%;
+    /* Teal - matches black theme */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 15% 93%;
+    /* Light gray */
+    --secondary-foreground: 220 15% 25%;
+    --muted: 210 15% 95%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 177 35% 45%;
+    /* Teal accent */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 177 45% 40%;
+    --radius: 0.5rem;
+    --chart-1: 177 50% 42%;
+    /* Teal */
+    --chart-2: 41 75% 50%;
+    /* Golden */
+    --chart-3: 345 55% 55%;
+    /* Rose */
+    --chart-4: 200 60% 50%;
+    /* Sky Blue */
+    --chart-5: 14 65% 55%;
+    /* Coral */
+    --theme-color-1: 177 60% 38%;
+    /* Teal */
+    --theme-color-2: 41 80% 45%;
+    /* Golden Amber */
+    --theme-color-3: 345 55% 50%;
+    /* Rose */
+    --theme-color-4: 200 65% 45%;
+    /* Sky Blue */
+    --theme-color-5: 14 70% 50%;
+    /* Coral */
+    --header-bg: 210 20% 98%;
+  }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { ResourceFile } from '../model/types'
+import type { ResourceFile, ResourceFileUpdateRequest } from '../model/types'
 
 const ENDPOINTS = {
   list: '/api/resources',
@@ -50,6 +50,12 @@ export const resourceApi = {
       onUploadProgress: onProgress,
       timeout: API_TIMEOUT.FILE_OPERATION,
     })
+    return response
+  },
+
+  /** 리소스 파일 수정 */
+  update: async (id: number, data: ResourceFileUpdateRequest): Promise<ResourceFile> => {
+    const response = await apiClient.put<ResourceFile>(ENDPOINTS.detail(id), data)
     return response
   },
 

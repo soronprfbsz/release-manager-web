@@ -11,6 +11,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import {
   ResourceGroupList,
   ResourceUploadForm,
+  ResourceEditForm,
   ResourceDeleteDialog,
   LinkResourceList,
   LinkResourceForm,
@@ -22,12 +23,14 @@ import {
   resourceApi,
   useResources,
   useUploadResource,
+  useUpdateResource,
   useDeleteResource,
   useLinkResources,
   useCreateLinkResource,
   useUpdateLinkResource,
   useDeleteLinkResource,
   type ResourceFile,
+  type ResourceFileUpdateRequest,
   type LinkResource,
   type LinkResourceCreateRequest,
 } from '@/entities/resource'
@@ -82,6 +85,7 @@ export function ResourcePage() {
 
   // Modal states
   const [isUploadOpen, setIsUploadOpen] = useState(false)
+  const [editingResource, setEditingResource] = useState<ResourceFile | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ResourceFile | null>(null)
 
   // Upload form state
@@ -128,6 +132,16 @@ export function ResourcePage() {
     },
   })
 
+  const updateMutation = useUpdateResource({
+    onSuccess: () => {
+      toast({ title: '수정 완료', description: '리소스 파일 정보가 수정되었습니다.' })
+      setEditingResource(null)
+    },
+    onError: (error: Error) => {
+      toast({ title: '수정 실패', description: error.message, variant: 'destructive' })
+    },
+  })
+
   const deleteMutation = useDeleteResource({
     onSuccess: () => {
       toast({ title: '삭제 완료', description: '리소스 파일이 삭제되었습니다.' })
@@ -141,6 +155,16 @@ export function ResourcePage() {
   // Handlers
   const handleDownload = (resource: ResourceFile) => {
     resourceApi.download(resource.resourceFileId)
+  }
+
+  const handleEditResource = (resource: ResourceFile) => {
+    setEditingResource(resource)
+  }
+
+  const handleEditResourceSubmit = (data: ResourceFileUpdateRequest) => {
+    if (editingResource) {
+      updateMutation.mutate({ resourceFileId: editingResource.resourceFileId, data })
+    }
   }
 
   const openUploadModal = () => {
@@ -401,6 +425,7 @@ export function ResourcePage() {
                 categories={fileCategoryList}
                 onDownload={handleDownload}
                 onDelete={setDeleteTarget}
+                onEdit={handleEditResource}
               />
             )}
           </TabsContent>
@@ -435,6 +460,15 @@ export function ResourcePage() {
         onFormDataChange={setFormData}
         onSubmit={handleUploadSubmit}
         onClose={closeUploadModal}
+      />
+
+      {/* File Edit Form */}
+      <ResourceEditForm
+        isOpen={editingResource !== null}
+        resource={editingResource}
+        isSubmitting={updateMutation.isPending}
+        onSubmit={handleEditResourceSubmit}
+        onClose={() => setEditingResource(null)}
       />
 
       {/* File Delete Dialog */}

@@ -12,7 +12,7 @@ import {
 } from '@tanstack/react-query'
 
 import { resourceApi } from '../api/resourceApi'
-import type { ResourceFile, ResourceFileUploadRequest } from '../model/types'
+import type { ResourceFile, ResourceFileUploadRequest, ResourceFileUpdateRequest } from '../model/types'
 
 // ============================================================================
 // Query Keys Factory
@@ -77,6 +77,28 @@ export function useUploadResource(
   return useMutation({
     mutationFn: async ({ file, fileCategory, resourceFileName, subCategory, description, onProgress }) =>
       resourceApi.upload(file, fileCategory, resourceFileName, subCategory, description, onProgress),
+    ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: resourceKeys.all })
+      options?.onSuccess?.(...args)
+    },
+  })
+}
+
+/**
+ * 리소스 파일 수정 훅
+ */
+export function useUpdateResource(
+  options?: UseMutationOptions<
+    ResourceFile,
+    Error,
+    { resourceFileId: number; data: ResourceFileUpdateRequest }
+  >
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ resourceFileId, data }) => resourceApi.update(resourceFileId, data),
     ...options,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: resourceKeys.all })
