@@ -29,6 +29,11 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --theme-color-1: 12 76% 61%;
+    --theme-color-2: 173 58% 39%;
+    --theme-color-3: 197 37% 24%;
+    --theme-color-4: 43 74% 66%;
+    --theme-color-5: 27 87% 67%;
     --header-bg: 210 40% 98%;
     /* 밝은 블루 그레이 */
   }
@@ -58,8 +63,60 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --theme-color-1: 220 70% 50%;
+    --theme-color-2: 160 60% 45%;
+    --theme-color-3: 30 80% 55%;
+    --theme-color-4: 280 65% 60%;
+    --theme-color-5: 340 75% 55%;
     --header-bg: 217.2 32.6% 12%;
     /* 진한 블루 그레이 */
+  }
+
+  .black {
+    /* Black Theme - Pure Black with Teal & Mauve Accents */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 177 32% 65%;
+    /* #A3CFCD Teal */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 260 5% 18%;
+    /* #2A272A Dark Gray */
+    --secondary-foreground: 0 0% 92%;
+    --muted: 250 5% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 179 35% 30%;
+    /* #254D4C Dark Teal */
+    --accent-foreground: 0 0% 92%;
+    --destructive: 0 55% 45%;
+    --destructive-foreground: 0 0% 92%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 177 32% 65%;
+    --chart-1: 177 32% 65%;
+    /* Teal */
+    --chart-2: 41 70% 55%;
+    /* Golden */
+    --chart-3: 345 25% 60%;
+    /* Mauve Pink */
+    --chart-4: 14 45% 50%;
+    /* Rust */
+    --chart-5: 195 30% 55%;
+    /* Blue Gray */
+    --theme-color-1: 177 55% 50%;
+    /* Teal - 메인 액센트 */
+    --theme-color-2: 41 65% 55%;
+    /* Golden Amber - 따뜻한 대비 */
+    --theme-color-3: 345 45% 60%;
+    /* Rose Mauve - 부드러운 핑크 */
+    --theme-color-4: 200 50% 55%;
+    /* Sky Blue - 시원한 블루 */
+    --theme-color-5: 14 55% 55%;
+    /* Coral Rust - 따뜻한 코랄 */
+    --header-bg: 0 0% 4%;
   }
 
   .gruvbox {
@@ -101,6 +158,11 @@
     /* Orange #fe8019 */
     --chart-5: 315 40% 60%;
     /* Purple #d3869b */
+    --theme-color-1: 45 93% 58%;
+    --theme-color-2: 142 61% 44%;
+    --theme-color-3: 208 60% 55%;
+    --theme-color-4: 16 70% 55%;
+    --theme-color-5: 315 40% 60%;
     --header-bg: 0 0% 22%;
   }
 
@@ -143,102 +205,14 @@
     /* Green #40a02b */
     --chart-5: 29 93% 58%;
     /* Peach #fe640b */
+    --theme-color-1: 226 50% 65%;
+    --theme-color-2: 267 40% 70%;
+    --theme-color-3: 174 45% 44%;
+    --theme-color-4: 115 54% 48%;
+    --theme-color-5: 29 93% 58%;
     --header-bg: 231 15% 90%;
     /* #dce0e8 */
   }
-
-  .solarized-dark {
-    /* Solarized Dark base colors */
-    --background: 192 100% 11%;
-    /* #002b36 base03 */
-    --foreground: 44 87% 90%;
-    /* #eee8d5 base2 - 거의 흰색에 가까운 베이지 */
-    --card: 193 100% 13%;
-    /* #073642 base02 */
-    --card-foreground: 44 87% 90%;
-    --popover: 193 100% 13%;
-    --popover-foreground: 44 87% 90%;
-    --primary: 205 69% 49%;
-    /* #268bd2 blue */
-    --primary-foreground: 44 87% 94%;
-    --secondary: 192 81% 18%;
-    /* #073642 darker */
-    --secondary-foreground: 44 87% 90%;
-    --muted: 194 14% 40%;
-    /* #586e75 base01 */
-    --muted-foreground: 186 8% 70%;
-    /* #93a1a1 base1 - 더 밝게 */
-    --accent: 45 100% 51%;
-    /* #b58900 yellow */
-    --accent-foreground: 192 100% 11%;
-    --destructive: 1 71% 52%;
-    /* #dc322f red */
-    --destructive-foreground: 44 87% 94%;
-    --border: 194 14% 30%;
-    /* 테두리를 더 어둡게 */
-    --input: 194 14% 30%;
-    --ring: 205 69% 49%;
-    --chart-1: 205 69% 49%;
-    /* blue */
-    --chart-2: 175 59% 40%;
-    /* cyan */
-    --chart-3: 68 100% 30%;
-    /* green */
-    --chart-4: 45 100% 51%;
-    /* yellow */
-    --chart-5: 18 89% 50%;
-    /* orange */
-    --header-bg: 193 100% 16%;
-    /* #073642보다 약간 밝은 청록색 */
-  }
-
-  .monokai {
-    /* Monokai theme - 어두운 배경에 주황색 강조 */
-    --background: 55 7% 16%;
-    /* #272822 어두운 올리브 그린 */
-    --foreground: 60 30% 96%;
-    /* #f8f8f2 밝은 회색 */
-    --card: 55 7% 20%;
-    /* #2e2e28 약간 밝은 배경 */
-    --card-foreground: 60 30% 96%;
-    --popover: 55 7% 20%;
-    --popover-foreground: 60 30% 96%;
-    --primary: 31 100% 71%;
-    /* #fd971f 주황색 */
-    --primary-foreground: 55 7% 16%;
-    --secondary: 55 7% 25%;
-    /* 더 밝은 배경 */
-    --secondary-foreground: 60 30% 96%;
-    --muted: 55 7% 30%;
-    /* 중간 톤 */
-    --muted-foreground: 60 10% 70%;
-    /* #a59f85 흐린 텍스트 */
-    --accent: 81 100% 70%;
-    /* #a6e22e 연두색 */
-    --accent-foreground: 55 7% 16%;
-    --destructive: 0 74% 65%;
-    /* #f92672 핑크/레드 */
-    --destructive-foreground: 60 30% 96%;
-    --border: 55 7% 35%;
-    /* 테두리 */
-    --input: 55 7% 35%;
-    --ring: 31 100% 71%;
-    /* 주황색 링 */
-    --chart-1: 31 100% 71%;
-    /* orange */
-    --chart-2: 81 100% 70%;
-    /* green */
-    --chart-3: 186 100% 69%;
-    /* cyan #66d9ef */
-    --chart-4: 330 100% 71%;
-    /* magenta #f92672 */
-    --chart-5: 54 70% 68%;
-    /* yellow #e6db74 */
-    --header-bg: 55 7% 23%;
-    /* 헤더용 약간 밝은 배경 */
-  }
-
-
 
   .dracula {
     /* Dracula Theme */
@@ -278,6 +252,11 @@
     /* Orange #ffb86c */
     --chart-5: 191 97% 77%;
     /* Cyan #8be9fd */
+    --theme-color-1: 265 89% 78%;
+    --theme-color-2: 326 100% 74%;
+    --theme-color-3: 135 94% 65%;
+    --theme-color-4: 31 100% 71%;
+    --theme-color-5: 191 97% 77%;
     --header-bg: 231 15% 25%;
   }
 
@@ -320,92 +299,12 @@
     /* Orange #d08770 */
     --chart-5: 354 42% 56%;
     /* Red #bf616a */
+    --theme-color-1: 193 43% 67%;
+    --theme-color-2: 311 30% 63%;
+    --theme-color-3: 92 28% 65%;
+    --theme-color-4: 28 38% 63%;
+    --theme-color-5: 354 42% 56%;
     --header-bg: 220 16% 28%;
-  }
-
-
-
-  .coffee {
-    /* Coffee Theme */
-    --background: 30 15% 15%;
-    /* #2c241b Dark Brown */
-    --foreground: 35 30% 90%;
-    /* #f0e6d2 Cream */
-    --card: 30 15% 19%;
-    /* #382e24 */
-    --card-foreground: 35 30% 90%;
-    --popover: 30 15% 19%;
-    --popover-foreground: 35 30% 90%;
-    --primary: 30 40% 60%;
-    /* #a68a6d Latte */
-    --primary-foreground: 30 15% 15%;
-    --secondary: 30 20% 25%;
-    /* #4a3c31 */
-    --secondary-foreground: 35 30% 90%;
-    --muted: 30 15% 30%;
-    --muted-foreground: 30 10% 65%;
-    --accent: 15 40% 50%;
-    /* #b36d5b Cinnamon */
-    --accent-foreground: 35 30% 90%;
-    --destructive: 0 40% 40%;
-    /* #8f3d3d Muted Red */
-    --destructive-foreground: 35 30% 90%;
-    --border: 30 15% 35%;
-    --input: 30 15% 35%;
-    --ring: 30 40% 60%;
-    --chart-1: 30 40% 60%;
-    /* Latte */
-    --chart-2: 15 40% 50%;
-    /* Cinnamon */
-    --chart-3: 45 40% 50%;
-    /* Gold */
-    --chart-4: 160 30% 45%;
-    /* Sage */
-    --chart-5: 200 30% 45%;
-    /* Slate Blue */
-    --header-bg: 30 15% 22%;
-  }
-
-  .oceanic {
-    /* Oceanic Theme */
-    --background: 222 47% 11%;
-    /* #0f172a Slate 900 */
-    --foreground: 210 40% 98%;
-    /* Slate 50 */
-    --card: 222 47% 15%;
-    /* Slightly lighter slate */
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 15%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 199 89% 48%;
-    /* #0ea5e9 Sky 500 */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
-    /* Slate 800 */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 25%;
-    /* Slate 700 */
-    --muted-foreground: 215 20% 65%;
-    --accent: 175 84% 32%;
-    /* #0d9488 Teal 600 */
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84% 60%;
-    /* Red 500 */
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 199 89% 48%;
-    --chart-1: 199 89% 48%;
-    /* Sky */
-    --chart-2: 175 84% 32%;
-    /* Teal */
-    --chart-3: 243 75% 59%;
-    /* Indigo */
-    --chart-4: 270 50% 40%;
-    /* Purple */
-    --chart-5: 320 60% 50%;
-    /* Pink */
-    --header-bg: 222 47% 18%;
   }
 }
 

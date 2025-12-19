@@ -5,6 +5,18 @@ export default {
     './index.html',
     './src/**/*.{ts,tsx,js,jsx}',
   ],
+  safelist: [
+    // theme-color 동적 클래스 safelist
+    ...['1', '2', '3', '4', '5'].flatMap((n) => [
+      `bg-theme-color-${n}/10`,
+      `bg-theme-color-${n}/15`,
+      `border-theme-color-${n}/30`,
+      `border-theme-color-${n}/50`,
+      `text-theme-color-${n}`,
+      `hover:bg-theme-color-${n}/15`,
+      `hover:border-theme-color-${n}/50`,
+    ]),
+  ],
   theme: {
     extend: {
       animation: {
@@ -55,6 +67,13 @@ export default {
           3: 'hsl(var(--chart-3))',
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
+        },
+        'theme-color': {
+          1: 'hsl(var(--theme-color-1) / <alpha-value>)',
+          2: 'hsl(var(--theme-color-2) / <alpha-value>)',
+          3: 'hsl(var(--theme-color-3) / <alpha-value>)',
+          4: 'hsl(var(--theme-color-4) / <alpha-value>)',
+          5: 'hsl(var(--theme-color-5) / <alpha-value>)',
         },
       },
     },

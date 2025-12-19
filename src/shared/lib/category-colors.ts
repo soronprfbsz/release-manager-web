@@ -1,28 +1,29 @@
 /**
  * Category Color Utilities
- * 카테고리별 색상 유틸리티 - chart 변수 기반으로 테마 대응
+ * 카테고리별 색상 유틸리티 - theme-color 변수 기반으로 테마 대응
  *
- * chart-1 ~ chart-5 CSS 변수를 순환하여 카테고리별 색상 적용
+ * theme-color-1 ~ theme-color-5 CSS 변수를 순환하여 카테고리별 색상 적용
  * 테마(light/dark)에 따라 자동으로 적절한 색상 적용됨
+ * 차트 색상(chart-1~5)과 분리되어 독립적으로 관리 가능
  */
 
-const CHART_COLORS = [
-  'chart-1',
-  'chart-2',
-  'chart-3',
-  'chart-4',
-  'chart-5',
+const THEME_COLORS = [
+  'theme-color-1',
+  'theme-color-2',
+  'theme-color-3',
+  'theme-color-4',
+  'theme-color-5',
 ] as const
 
-type ChartColor = (typeof CHART_COLORS)[number]
+type ThemeColor = (typeof THEME_COLORS)[number]
 
 /**
- * 인덱스 기반 chart 색상 변수 반환
+ * 인덱스 기반 theme-color 색상 변수 반환
  * @param index - 카테고리 인덱스 (0부터 시작)
- * @returns chart 색상 변수명 (예: 'chart-1')
+ * @returns theme-color 색상 변수명 (예: 'theme-color-1')
  */
-export function getChartColorByIndex(index: number): ChartColor {
-  return CHART_COLORS[index % CHART_COLORS.length]
+export function getThemeColorByIndex(index: number): ThemeColor {
+  return THEME_COLORS[index % THEME_COLORS.length]
 }
 
 /**
@@ -31,8 +32,8 @@ export function getChartColorByIndex(index: number): ChartColor {
  * @returns Tailwind CSS 클래스 문자열
  */
 export function getCategoryCardColorClass(index: number): string {
-  const chartColor = getChartColorByIndex(index)
-  return `border-[hsl(var(--${chartColor})/0.3)] bg-[hsl(var(--${chartColor})/0.1)] hover:border-[hsl(var(--${chartColor})/0.5)] hover:bg-[hsl(var(--${chartColor})/0.15)]`
+  const colorNumber = (index % 5) + 1 // 1-5
+  return `border-theme-color-${colorNumber}/30 bg-theme-color-${colorNumber}/10 hover:border-theme-color-${colorNumber}/50 hover:bg-theme-color-${colorNumber}/15`
 }
 
 /**
@@ -59,8 +60,8 @@ export function getCategoryCardColorByName(
  * @returns Tailwind CSS 클래스 문자열
  */
 export function getCategoryTextColorClass(index: number): string {
-  const chartColor = getChartColorByIndex(index)
-  return `text-[hsl(var(--${chartColor}))]`
+  const colorNumber = (index % 5) + 1
+  return `text-theme-color-${colorNumber}`
 }
 
 /**
@@ -69,8 +70,8 @@ export function getCategoryTextColorClass(index: number): string {
  * @returns Tailwind CSS 클래스 문자열
  */
 export function getCategoryBadgeColorClass(index: number): string {
-  const chartColor = getChartColorByIndex(index)
-  return `bg-[hsl(var(--${chartColor})/0.1)] text-[hsl(var(--${chartColor}))] border-[hsl(var(--${chartColor})/0.3)]`
+  const colorNumber = (index % 5) + 1
+  return `bg-theme-color-${colorNumber}/10 text-theme-color-${colorNumber} border-theme-color-${colorNumber}/30`
 }
 
 /**
@@ -79,8 +80,8 @@ export function getCategoryBadgeColorClass(index: number): string {
  * @returns Tailwind CSS 클래스 문자열
  */
 export function getCategoryIconBgColorClass(index: number): string {
-  const chartColor = getChartColorByIndex(index)
-  return `bg-[hsl(var(--${chartColor})/0.1)]`
+  const colorNumber = (index % 5) + 1
+  return `bg-theme-color-${colorNumber}/10`
 }
 
 /**
@@ -89,6 +90,6 @@ export function getCategoryIconBgColorClass(index: number): string {
  * @returns Tailwind CSS 클래스 문자열
  */
 export function getCategoryIconColorClass(index: number): string {
-  const chartColor = getChartColorByIndex(index)
-  return `text-[hsl(var(--${chartColor}))]`
+  const colorNumber = (index % 5) + 1
+  return `text-theme-color-${colorNumber}`
 }
