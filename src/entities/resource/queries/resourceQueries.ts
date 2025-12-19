@@ -75,8 +75,8 @@ export function useUploadResource(
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ file, fileCategory, subCategory, description, onProgress }) =>
-      resourceApi.upload(file, fileCategory, subCategory, description, onProgress),
+    mutationFn: async ({ file, fileCategory, resourceFileName, subCategory, description, onProgress }) =>
+      resourceApi.upload(file, fileCategory, resourceFileName, subCategory, description, onProgress),
     ...options,
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: resourceKeys.all })

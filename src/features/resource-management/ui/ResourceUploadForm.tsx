@@ -150,6 +150,18 @@ export function ResourceUploadForm({
               )}
             </div>
 
+            {/* Resource Name Input */}
+            <div className="space-y-2">
+              <Label required>리소스명</Label>
+              <Input
+                value={formData.resourceFileName}
+                onChange={(e) =>
+                  onFormDataChange({ ...formData, resourceFileName: e.target.value })
+                }
+                placeholder="리소스의 이름을 입력하세요"
+              />
+            </div>
+
             {/* Description Input */}
             <div className="space-y-2">
               <Label>설명</Label>
@@ -158,7 +170,7 @@ export function ResourceUploadForm({
                 onChange={(e) =>
                   onFormDataChange({ ...formData, description: e.target.value })
                 }
-                placeholder="리소스에 대한 설명을 입력하세요"
+                placeholder="리소스에 대한 상세 설명을 입력하세요"
               />
             </div>
 
@@ -190,7 +202,7 @@ export function ResourceUploadForm({
               </Button>
               <Button
                 onClick={onSubmit}
-                disabled={isUploading || !formData.file || !formData.fileCategory}
+                disabled={isUploading || !formData.file || !formData.fileCategory || !formData.resourceFileName.trim()}
                 className="flex-1"
               >
                 {isUploading ? (

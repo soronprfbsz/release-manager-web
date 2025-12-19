@@ -7,6 +7,7 @@ export interface ResourceUploadFormData {
   file: File | null
   fileCategory: string
   subCategory: string
+  resourceFileName: string // 리소스명 (필수)
   description: string
 }
 

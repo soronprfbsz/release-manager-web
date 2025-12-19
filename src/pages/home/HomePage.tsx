@@ -218,17 +218,19 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingTopCustomers ? (
-                <div className="animate-pulse h-[200px] bg-muted rounded" />
+                <div className="animate-pulse h-[25vh] bg-muted rounded" />
               ) : topCustomers && topCustomers.length > 0 ? (
-                <HorizontalBarChart
-                  data={topCustomers}
-                  categoryKey="customerName"
-                  valueKey="patchCount"
-                  height={200}
-                  tooltipFormatter={(value) => [`${value}건`, '패치 수']}
-                />
+                <div className="h-[25vh]">
+                  <HorizontalBarChart
+                    data={topCustomers}
+                    categoryKey="customerName"
+                    valueKey="patchCount"
+                    height="100%"
+                    tooltipFormatter={(value) => [`${value}건`, '패치 수']}
+                  />
+                </div>
               ) : (
-                <div className="h-[200px] flex items-center justify-center">
+                <div className="h-[25vh] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -246,18 +248,20 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {isLoadingMonthly ? (
-                <div className="animate-pulse h-[200px] bg-muted rounded" />
+                <div className="animate-pulse h-[25vh] bg-muted rounded" />
               ) : formattedMonthlyData.length > 0 ? (
-                <StackedBarChart
-                  data={formattedMonthlyData}
-                  xAxisKey="displayMonth"
-                  stackKeys={monthlyCustomers}
-                  height={200}
-                  tooltipValueFormatter={(value) => `${value}건`}
-                  tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
-                />
+                <div className="h-[25vh]">
+                  <StackedBarChart
+                    data={formattedMonthlyData}
+                    xAxisKey="displayMonth"
+                    stackKeys={monthlyCustomers}
+                    height="100%"
+                    tooltipValueFormatter={(value) => `${value}건`}
+                    tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
+                  />
+                </div>
               ) : (
-                <div className="h-[200px] flex items-center justify-center">
+                <div className="h-[25vh] flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -278,7 +282,6 @@ export function HomePage() {
               <div className="space-y-1">
                 <TypographyMuted>1. <strong>버전 관리</strong>에서 표준/커스텀 버전의 릴리즈를 생성 및 관리합니다.</TypographyMuted>
                 <TypographyMuted>2. <strong>패치 관리</strong>에서 버전 간 누적 패치를 생성하여 배포합니다.</TypographyMuted>
-                <TypographyMuted>3. <strong>다운로드</strong>에서 백업/복구용 스크립트를 다운로드합니다.</TypographyMuted>
               </div>
             </div>
           </CardContent>

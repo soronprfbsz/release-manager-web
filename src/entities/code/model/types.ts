@@ -26,6 +26,9 @@ export const CODE_TYPE = {
   POSITION: 'POSITION',
   // 서비스 타입
   SERVICE_TYPE: 'SERVICE_TYPE',
+  // 리소스 링크 카테고리
+  LINK_CATEGORY: 'LINK_CATEGORY',
+  LINK_SUBCATEGORY: 'LINK_SUBCATEGORY',
 } as const
 
 export type CodeType = typeof CODE_TYPE[keyof typeof CODE_TYPE]

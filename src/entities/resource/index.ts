@@ -1,10 +1,13 @@
 // API
 export { resourceApi } from './api/resourceApi'
+export { linkResourceApi } from './api/linkResourceApi'
 
 // Types
 export type {
   ResourceFile,
   ResourceFileUploadRequest,
+  LinkResource,
+  LinkResourceCreateRequest,
 } from './model/types'
 
 // Queries
@@ -16,3 +19,11 @@ export {
   useDeleteResource,
   useReorderResources,
 } from './queries/resourceQueries'
+
+export {
+  linkResourceKeys,
+  useLinkResources,
+  useCreateLinkResource,
+  useUpdateLinkResource,
+  useDeleteLinkResource,
+} from './queries/linkResourceQueries'

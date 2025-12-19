@@ -24,8 +24,8 @@ interface HorizontalBarChartProps<T extends object> {
   categoryKey: keyof T
   /** 막대 값에 해당하는 데이터 키 */
   valueKey: keyof T
-  /** 차트 높이 (기본: 200) */
-  height?: number
+  /** 차트 높이 (기본: 200, 숫자 또는 "100%" 등 퍼센트 문자열) */
+  height?: number | `${number}%`
   /** Y축 너비 (기본: 100) */
   yAxisWidth?: number
   /** 툴팁 값 포맷터 */

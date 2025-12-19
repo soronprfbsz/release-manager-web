@@ -24,8 +24,8 @@ interface StackedBarChartProps {
   xAxisKey: string
   /** 스택으로 쌓을 키 목록 (고객사명 등) */
   stackKeys: string[]
-  /** 차트 높이 (기본: 200) */
-  height?: number
+  /** 차트 높이 (기본: 200, 숫자 또는 "100%" 등 퍼센트 문자열) */
+  height?: number | `${number}%`
   /** 툴팁 값 포맷터 */
   tooltipValueFormatter?: (value: number) => string
   /** 툴팁 라벨 포맷터 */

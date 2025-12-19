@@ -1,177 +1,187 @@
 /**
- * Resource Helpers
- * 리소스 아이콘 및 색상 관련 유틸리티 함수
+ * Resource Helper Functions
  */
 
-import { FileCode, FileText, FolderOpen, HardDrive, RotateCcw, Server, Cloud } from 'lucide-react'
 import {
-  SiMariadb,
-  SiMysql,
-  SiPostgresql,
-  SiMongodb,
-  SiRedis,
-  SiElasticsearch,
-  SiCratedb,
-  SiNotion,
-  SiConfluence,
-  SiJira,
-  SiGithub,
-  SiGitlab,
-  SiBitbucket,
-  SiDocker,
-  SiKubernetes,
-  SiJenkins,
-  SiApache,
-  SiNginx,
-  SiLinux,
-  SiAmazon,
-  SiGooglecloud,
-} from 'react-icons/si'
+  FileText,
+  FileCode,
+  FileArchive,
+  FileImage,
+  FolderOpen,
+  LayoutDashboard,
+  Table,
+  Link as LinkIcon,
+  Globe,
+  Database,
+  Server,
+  Terminal,
+} from 'lucide-react'
 
-import type { ResourceFile } from '@/entities/resource'
+// React Icons
+import { SiNotion } from "react-icons/si";
+import { RiFileExcel2Line } from "react-icons/ri";
+import { SlSocialDropbox } from "react-icons/sl";
 
-/** fileType 및 description 기반 아이콘 매핑 */
-export function getResourceIcon(resource: ResourceFile) {
-  const desc = resource.description?.toLowerCase() || ''
-  const fileType = resource.fileType?.toUpperCase()
+import {
+  getCategoryCardColorClass,
+  getCategoryIconBgColorClass,
+  getCategoryIconColorClass,
+} from '@/shared/lib/category-colors'
 
-  if (desc.includes('백업') || desc.includes('backup')) {
-    return <HardDrive className="h-8 w-8" />
-  }
-  if (desc.includes('복원') || desc.includes('restore') || desc.includes('recovery')) {
-    return <RotateCcw className="h-8 w-8" />
-  }
-  if (fileType === 'PDF') {
-    return <FileText className="h-8 w-8" />
-  }
-  return <FileCode className="h-8 w-8" />
-}
+// ============================================================================
+// File Resources
+// ============================================================================
 
-/** fileType 및 description 기반 색상 클래스 */
-export function getResourceColorClass(resource: ResourceFile) {
-  const desc = resource.description?.toLowerCase() || ''
-  const fileType = resource.fileType?.toUpperCase()
-
-  if (desc.includes('백업') || desc.includes('backup')) {
-    return 'text-blue-500 bg-blue-500/10 border-blue-500/20'
-  }
-  if (desc.includes('복원') || desc.includes('restore') || desc.includes('recovery')) {
-    return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'
-  }
-  if (fileType === 'PDF') {
-    return 'text-red-500 bg-red-500/10 border-red-500/20'
-  }
-  return 'text-slate-500 bg-slate-500/10 border-slate-500/20'
-}
-
-/** fileCategory별 그룹 색상 클래스 */
-export function getGroupColorClass(category: string) {
-  const cat = category.toUpperCase()
-
-  switch (cat) {
-    case 'SCRIPT':
-      return { icon: 'bg-cyan-500/10 text-cyan-500' }
-    case 'DOCUMENT':
-      return { icon: 'bg-red-500/10 text-red-500' }
-    case 'SQL':
-      return { icon: 'bg-amber-500/10 text-amber-500' }
+export const getResourceIcon = (fileType: string) => {
+  switch (fileType?.toLowerCase()) {
+    case 'sh':
+    case 'bash':
+      return <Terminal className="w-5 h-5 text-slate-600" />
+    case 'pdf':
+      return <FileText className="w-5 h-5 text-red-500" />
+    case 'doc':
+    case 'docx':
+      return <FileText className="w-5 h-5 text-blue-500" />
+    case 'xls':
+    case 'xlsx':
+      return <Table className="w-5 h-5 text-green-500" />
+    case 'zip':
+    case 'tar':
+    case 'gz':
+      return <FileArchive className="w-5 h-5 text-yellow-500" />
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif':
+      return <FileImage className="w-5 h-5 text-purple-500" />
     default:
-      return { icon: 'bg-slate-500/10 text-slate-500' }
+      return <FileCode className="w-5 h-5 text-gray-400" />
   }
 }
 
-/** fileCategory별 카드 배경 색상 클래스 */
-export function getCardColorClass(category: string) {
-  const cat = category.toUpperCase()
+export const getSubCategoryIcon = (subCategory: string | null) => {
+  // Common icons for both File and Link resources
+  const upperSubCategory = subCategory?.toUpperCase();
 
-  switch (cat) {
-    case 'SCRIPT':
-      return 'border-[hsl(var(--chart-1)/0.3)] bg-[hsl(var(--chart-1)/0.1)] hover:border-[hsl(var(--chart-1)/0.5)]'
-    case 'DOCUMENT':
-      return 'border-[hsl(var(--chart-2)/0.3)] bg-[hsl(var(--chart-2)/0.1)] hover:border-[hsl(var(--chart-2)/0.5)]'
-    case 'SQL':
-      return 'border-[hsl(var(--chart-3)/0.3)] bg-[hsl(var(--chart-3)/0.1)] hover:border-[hsl(var(--chart-3)/0.5)]'
+  switch (upperSubCategory) {
+    // Files
+    case 'BACKUP':
+      return <Database className="w-5 h-5 text-blue-500" />
+    case 'RESTORE':
+      return <Database className="w-5 h-5 text-green-500" />
+    case 'INSTALL':
+      return <Server className="w-5 h-5 text-purple-500" />
+    case 'GUIDE':
+      return <FileText className="w-5 h-5 text-orange-500" />
+
+    // Links
+    case 'NOTION':
+      return <SiNotion className="w-5 h-5 text-black dark:text-white" />
+    case 'SHARED-EXCEL': // Updated to match user request "SHARED-EXCEL" and "엑셀아이콘"
+    case 'GOOGLE_SHEET':
+      return <RiFileExcel2Line className="w-5 h-5 text-green-600" />
+    case 'JIRA':
+      return <LayoutDashboard className="w-5 h-5 text-blue-600" />
+    case 'CONFLUENCE':
+      return <Globe className="w-5 h-5 text-blue-500" />
+    case 'DROPBOX':
+      return <SlSocialDropbox className="w-5 h-5 text-blue-500" />
+    case 'ETC':
+      return <FileText className="w-5 h-5 text-gray-500" />
     default:
-      return 'border-border bg-muted/50 hover:border-border'
+      // Default to document icon for ETC or unknown, per requirement "ETC면 일반문서 아이콘" if it falls through,
+      // but explicitly handling ETC above.
+      // If null or unknown, generic link or file text
+      if (!subCategory) return <LinkIcon className="w-5 h-5 text-gray-400" />
+      return <FileText className="w-5 h-5 text-gray-400" />
   }
 }
 
-/** fileCategory별 그룹 아이콘 */
-export function getGroupIcon(category: string) {
-  const cat = category.toUpperCase()
+export const getResourceColorClass = (category: string) => {
+  const index = getCategoryIndex(category)
+  return getCategoryCardColorClass(index)
+}
 
-  switch (cat) {
+export const getGroupIcon = (category: string) => {
+  switch (category) {
     case 'SCRIPT':
-      return <FileCode className="h-5 w-5 text-primary" />
+      return <Terminal className="w-5 h-5 text-primary" />
     case 'DOCUMENT':
-      return <FileText className="h-5 w-5 text-primary" />
-    case 'SQL':
-      return <HardDrive className="h-5 w-5 text-primary" />
+      return <FileText className="w-5 h-5 text-primary" />
+    case 'DASHBOARD':
+      return <LayoutDashboard className="w-5 h-5 text-primary" />
+    case 'SHEET':
+      return <Table className="w-5 h-5 text-primary" />
+    case 'ETC':
     default:
-      return <FolderOpen className="h-5 w-5 text-primary" />
+      return <FolderOpen className="w-5 h-5 text-primary" />
   }
 }
 
-/** subCategory별 아이콘 매핑 */
-export function getSubCategoryIcon(subCategory: string | null) {
-  if (!subCategory) {
-    return <FileCode className="h-8 w-8" />
-  }
+/**
+ * 카테고리 인덱스 매핑
+ * 파일/링크 카테고리에 따라 chart 색상 인덱스 반환
+ */
+const CATEGORY_INDEX_MAP: Record<string, number> = {
+  // File categories
+  SCRIPT: 0,
+  DOCUMENT: 1,
 
-  const category = subCategory.toLowerCase()
-
-  // 데이터베이스
-  if (category.includes('mariadb')) return <SiMariadb className="h-8 w-8" />
-  if (category.includes('mysql')) return <SiMysql className="h-8 w-8" />
-  if (category.includes('postgresql') || category.includes('postgres'))
-    return <SiPostgresql className="h-8 w-8" />
-  if (category.includes('mongodb') || category.includes('mongo'))
-    return <SiMongodb className="h-8 w-8" />
-  if (category.includes('redis')) return <SiRedis className="h-8 w-8" />
-  if (category.includes('elasticsearch') || category.includes('elastic'))
-    return <SiElasticsearch className="h-8 w-8" />
-  if (category.includes('cratedb') || category.includes('crate'))
-    return <SiCratedb className="h-8 w-8" />
-
-  // 협업 도구
-  if (category.includes('notion')) return <SiNotion className="h-8 w-8" />
-  if (category.includes('confluence')) return <SiConfluence className="h-8 w-8" />
-  if (category.includes('jira')) return <SiJira className="h-8 w-8" />
-
-  // 버전 관리
-  if (category.includes('github')) return <SiGithub className="h-8 w-8" />
-  if (category.includes('gitlab')) return <SiGitlab className="h-8 w-8" />
-  if (category.includes('bitbucket')) return <SiBitbucket className="h-8 w-8" />
-
-  // 인프라 & DevOps
-  if (category.includes('docker')) return <SiDocker className="h-8 w-8" />
-  if (category.includes('kubernetes') || category.includes('k8s'))
-    return <SiKubernetes className="h-8 w-8" />
-  if (category.includes('jenkins')) return <SiJenkins className="h-8 w-8" />
-
-  // 웹 서버
-  if (category.includes('apache')) return <SiApache className="h-8 w-8" />
-  if (category.includes('nginx')) return <SiNginx className="h-8 w-8" />
-
-  // OS
-  if (category.includes('linux')) return <SiLinux className="h-8 w-8" />
-  if (category.includes('windows')) return <Server className="h-8 w-8" />
-
-  // 클라우드
-  if (category.includes('aws') || category.includes('amazon'))
-    return <SiAmazon className="h-8 w-8" />
-  if (category.includes('azure')) return <Cloud className="h-8 w-8" />
-  if (category.includes('gcp') || category.includes('google')) return <SiGooglecloud className="h-8 w-8" />
-
-  // 기본 아이콘 (매칭되지 않은 경우)
-  return <FileCode className="h-8 w-8" />
+  // Link categories (동일 인덱스 공유 가능)
+  // 추가 카테고리는 순서대로 인덱스 부여
 }
 
-/** 파일 크기 포맷팅 */
-export function formatFileSize(bytes: number) {
+/**
+ * 카테고리 인덱스 계산
+ * 매핑에 없는 카테고리는 이름 기반 해시로 인덱스 생성
+ */
+function getCategoryIndex(category: string): number {
+  const upperCategory = category?.toUpperCase()
+
+  // 매핑에 있으면 해당 인덱스 반환
+  if (upperCategory in CATEGORY_INDEX_MAP) {
+    return CATEGORY_INDEX_MAP[upperCategory]
+  }
+
+  // 없으면 문자열 해시로 인덱스 생성 (일관성 보장)
+  let hash = 0
+  for (let i = 0; i < category.length; i++) {
+    hash = ((hash << 5) - hash) + category.charCodeAt(i)
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return Math.abs(hash) % 5 // chart-1 ~ chart-5 순환
+}
+
+export const getCardColorClass = (category: string) => {
+  const index = getCategoryIndex(category)
+  return getCategoryCardColorClass(index)
+}
+
+export const getGroupColorClass = (category: string) => {
+  const index = getCategoryIndex(category)
+  return getCategoryCardColorClass(index)
+}
+
+/**
+ * 그룹 헤더 아이콘 배경 색상 클래스 반환 (chart 변수 기반)
+ */
+export const getGroupIconBgClass = (category: string) => {
+  const index = getCategoryIndex(category)
+  return getCategoryIconBgColorClass(index)
+}
+
+/**
+ * 그룹 헤더 아이콘 색상 클래스 반환 (chart 변수 기반)
+ */
+export const getGroupIconColorClass = (category: string) => {
+  const index = getCategoryIndex(category)
+  return getCategoryIconColorClass(index)
+}
+
+export const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }

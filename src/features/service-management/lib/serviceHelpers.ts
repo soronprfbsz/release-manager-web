@@ -5,6 +5,11 @@
 
 import { Server, Globe, Database, Cog, Package, Box, type LucideIcon } from 'lucide-react'
 import type { ServiceType, ComponentType, ServiceComponent } from '@/entities/service'
+import {
+  getCategoryCardColorClass,
+  getCategoryIconBgColorClass,
+  getCategoryIconColorClass,
+} from '@/shared/lib/category-colors'
 
 /**
  * 서비스 타입 아이콘 반환
@@ -22,21 +27,53 @@ export function getServiceTypeIcon(type: ServiceType): LucideIcon {
 }
 
 /**
+ * 서비스 타입 인덱스 매핑
+ */
+const SERVICE_TYPE_INDEX_MAP: Record<string, number> = {
+  infraeye1: 0,
+  infraeye2: 1,
+  infra: 2,
+}
+
+/**
+ * 서비스 타입 인덱스 계산
+ */
+function getServiceTypeIndex(type: ServiceType): number {
+  if (type in SERVICE_TYPE_INDEX_MAP) {
+    return SERVICE_TYPE_INDEX_MAP[type]
+  }
+  // 없으면 문자열 해시로 인덱스 생성
+  let hash = 0
+  for (let i = 0; i < type.length; i++) {
+    hash = ((hash << 5) - hash) + type.charCodeAt(i)
+    hash = hash & hash
+  }
+  return Math.abs(hash) % 5
+}
+
+/**
  * 서비스 타입 컬러 클래스 반환
- * 테마별 chart 색상 변수 활용 (테마마다 자동으로 다른 색상 적용)
- * infraeye1 → chart-1, infraeye2 → chart-2, infra → chart-3
+ * 공통 chart 색상 변수 활용 (테마마다 자동으로 다른 색상 적용)
  */
 export function getServiceTypeColor(type: ServiceType): string {
-  switch (type) {
-    case 'infraeye1':
-      return 'border-[hsl(var(--chart-1)/0.3)] bg-[hsl(var(--chart-1)/0.1)] text-[hsl(var(--chart-1))] hover:border-[hsl(var(--chart-1)/0.5)]'
-    case 'infraeye2':
-      return 'border-[hsl(var(--chart-2)/0.3)] bg-[hsl(var(--chart-2)/0.1)] text-[hsl(var(--chart-2))] hover:border-[hsl(var(--chart-2)/0.5)]'
-    case 'infra':
-      return 'border-[hsl(var(--chart-3)/0.3)] bg-[hsl(var(--chart-3)/0.1)] text-[hsl(var(--chart-3))] hover:border-[hsl(var(--chart-3)/0.5)]'
-    default:
-      return 'border-border bg-muted/50 text-muted-foreground hover:border-border'
-  }
+  const index = getServiceTypeIndex(type)
+  return getCategoryCardColorClass(index)
+}
+
+/**
+ * 서비스 타입 아이콘 배경 색상 클래스 반환
+ */
+export function getServiceTypeIconBgClass(type: ServiceType): string {
+  const index = getServiceTypeIndex(type)
+  return getCategoryIconBgColorClass(index)
+}
+
+/**
+ * 서비스 타입 아이콘 색상 클래스 반환
+ */
+export function getServiceTypeIconColorClass(type: ServiceType): string {
+  const index = getServiceTypeIndex(type)
+  return getCategoryIconColorClass(index)
 }
 
 /**

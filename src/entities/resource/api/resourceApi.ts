@@ -27,6 +27,7 @@ export const resourceApi = {
   upload: async (
     file: File,
     fileCategory: string,
+    resourceFileName: string,
     subCategory?: string,
     description?: string,
     onProgress?: (progressEvent: { loaded: number; total?: number }) => void
@@ -34,6 +35,7 @@ export const resourceApi = {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('fileCategory', fileCategory)
+    formData.append('resourceFileName', resourceFileName)
     if (subCategory) {
       formData.append('subCategory', subCategory)
     }

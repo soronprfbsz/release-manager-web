@@ -7,7 +7,7 @@ import { Pencil, Trash2, Settings, GripVertical } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import type { Service } from '@/entities/service'
-import { getServiceTypeColor } from '../lib/serviceHelpers'
+import { getCategoryCardColorClass } from '@/shared/lib/category-colors'
 import { ComponentList } from './ComponentList'
 
 interface ServiceCardProps {
@@ -16,6 +16,7 @@ interface ServiceCardProps {
   onDelete: (service: Service) => void
   onManageComponents: (service: Service) => void
   dragHandleProps?: any
+  categoryIndex?: number // 순서 기반 카테고리 인덱스
 }
 
 export function ServiceCard({
@@ -24,8 +25,9 @@ export function ServiceCard({
   onDelete,
   onManageComponents,
   dragHandleProps,
+  categoryIndex = 0,
 }: ServiceCardProps) {
-  const colorClasses = getServiceTypeColor(service.serviceType)
+  const colorClasses = getCategoryCardColorClass(categoryIndex)
 
   return (
     <Card

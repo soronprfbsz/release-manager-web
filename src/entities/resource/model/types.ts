@@ -9,7 +9,8 @@ export interface ResourceFile {
   fileType: string // 확장자 (sh, pdf 등)
   fileCategory: string // 대분류 (SCRIPT, DOCUMENT 등)
   subCategory: string | null // 소분류
-  fileName: string
+  resourceFileName: string // 리소스명 (사용자 지정 이름)
+  fileName: string // 실제 파일명
   filePath: string
   fileSize: number
   description: string | null
@@ -21,5 +22,29 @@ export interface ResourceFileUploadRequest {
   file: File
   fileCategory: string
   subCategory?: string
+  resourceFileName: string // 리소스명 (필수)
   description?: string
+}
+
+/** 링크 리소스 정보 */
+export interface LinkResource {
+  resourceLinkId: number // API Guide says resourceLinkId
+  linkCategory: string // 대분류
+  subCategory: string | null // 소분류
+  linkName: string // API Guide says linkName (not title)
+  linkUrl: string // API Guide says linkUrl (not url)
+  description: string | null
+  sortOrder: number // API Guide says sortOrder
+  createdAt: string
+  updatedAt?: string
+}
+
+/** 링크 리소스 생성 요청 */
+export interface LinkResourceCreateRequest {
+  linkCategory: string
+  subCategory?: string
+  linkName: string
+  linkUrl: string
+  description?: string
+  createdBy?: string // API Guide includes this
 }
