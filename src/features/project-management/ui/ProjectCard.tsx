@@ -34,7 +34,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
                 <CardTitle className="text-base truncate">
                   {project.projectName}
                 </CardTitle>
-                {!project.isActive && (
+                {!project.isEnabled && (
                   <Badge variant="secondary" className="text-xs">
                     비활성
                   </Badge>

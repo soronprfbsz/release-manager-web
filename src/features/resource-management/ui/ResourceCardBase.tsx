@@ -38,7 +38,6 @@ export function ResourceCardBase({
   subtitle,
   description,
   icon,
-  categoryIndex = 0,
   dragHandleProps,
   actionButton,
   headerActions,

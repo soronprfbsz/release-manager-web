@@ -7,7 +7,7 @@ export interface Project {
   projectId: string
   projectName: string
   description: string | null
-  isActive: boolean
+  isEnabled: boolean
   createdAt: string
   updatedAt: string
 }
@@ -21,7 +21,7 @@ export interface ProjectCreateRequest {
 export interface ProjectUpdateRequest {
   projectName?: string
   description?: string
-  isActive?: boolean
+  isEnabled?: boolean
 }
 
 /** 기본 프로젝트 ID */

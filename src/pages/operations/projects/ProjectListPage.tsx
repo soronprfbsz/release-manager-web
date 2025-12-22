@@ -44,7 +44,7 @@ export function ProjectListPage() {
   const [formData, setFormData] = useState<ProjectFormData>(INITIAL_FORM_DATA)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [isActive, setIsActive] = useState(true)
+  const [isEnabled, setIsEnabled] = useState(true)
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null)
@@ -60,7 +60,7 @@ export function ProjectListPage() {
     setFormData(INITIAL_FORM_DATA)
     setFormErrors({})
     setEditingProject(null)
-    setIsActive(true)
+    setIsEnabled(true)
     setFormMode('create')
   }
 
@@ -72,7 +72,7 @@ export function ProjectListPage() {
     })
     setFormErrors({})
     setEditingProject(project)
-    setIsActive(project.isActive)
+    setIsEnabled(project.isEnabled)
     setFormMode('edit')
   }
 
@@ -118,7 +118,7 @@ export function ProjectListPage() {
       const request: ProjectUpdateRequest = {
         projectName: formData.projectName.trim(),
         description: formData.description.trim() || undefined,
-        isActive,
+        isEnabled,
       }
 
       updateMutation.mutate(
@@ -209,11 +209,11 @@ export function ProjectListPage() {
       <ProjectForm
         mode={formMode}
         formData={formData}
-        isActive={isActive}
+        isEnabled={isEnabled}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
         errors={formErrors}
         onFormDataChange={setFormData}
-        onActiveChange={setIsActive}
+        onEnabledChange={setIsEnabled}
         onSubmit={handleFormSubmit}
         onClose={handleFormClose}
       />

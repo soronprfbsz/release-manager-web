@@ -24,11 +24,11 @@ import type { ProjectFormData, ProjectFormMode } from '../model/types'
 interface ProjectFormProps {
   mode: ProjectFormMode
   formData: ProjectFormData
-  isActive?: boolean
+  isEnabled?: boolean
   isSubmitting: boolean
   errors?: Record<string, string>
   onFormDataChange: (data: ProjectFormData) => void
-  onActiveChange?: (isActive: boolean) => void
+  onEnabledChange?: (isEnabled: boolean) => void
   onSubmit: () => void
   onClose: () => void
 }
@@ -36,11 +36,11 @@ interface ProjectFormProps {
 export function ProjectForm({
   mode,
   formData,
-  isActive = true,
+  isEnabled = true,
   isSubmitting,
   errors = {},
   onFormDataChange,
-  onActiveChange,
+  onEnabledChange,
   onSubmit,
   onClose,
 }: ProjectFormProps) {
@@ -130,18 +130,18 @@ export function ProjectForm({
           </div>
 
           {/* 활성 상태 (수정 모드에서만) */}
-          {isEditMode && onActiveChange && (
+          {isEditMode && onEnabledChange && (
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="isActive">활성 상태</Label>
+                <Label htmlFor="isEnabled">활성 상태</Label>
                 <p className="text-xs text-muted-foreground">
                   비활성화하면 프로젝트 선택 목록에서 제외됩니다.
                 </p>
               </div>
               <Switch
-                id="isActive"
-                checked={isActive}
-                onCheckedChange={onActiveChange}
+                id="isEnabled"
+                checked={isEnabled}
+                onCheckedChange={onEnabledChange}
               />
             </div>
           )}
