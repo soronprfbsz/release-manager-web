@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 relative">
+    <div className="min-h-screen flex items-center justify-center bg-background relative">
       {/* 테마 토글 - 우측 상단 */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />

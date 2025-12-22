@@ -3,10 +3,10 @@
  * 프로젝트 관련 React Query 키 팩토리 및 훅
  */
 
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 
 import { projectApi } from '../api/projectApi'
-import type { Project } from '../model/types'
+import type { Project, ProjectCreateRequest, ProjectUpdateRequest } from '../model/types'
 
 // ============================================================================
 // Query Keys Factory
@@ -50,5 +50,49 @@ export function useProject(
     queryFn: () => projectApi.getById(id),
     enabled: !!id,
     ...options,
+  })
+}
+
+// ============================================================================
+// Mutation Hooks
+// ============================================================================
+
+/**
+ * 프로젝트 생성 훅
+ */
+export function useCreateProject() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ProjectCreateRequest) => projectApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() })
+    },
+  })
+}
+
+/**
+ * 프로젝트 수정 훅
+ */
+export function useUpdateProject() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ProjectUpdateRequest }) =>
+      projectApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() })
+    },
+  })
+}
+
+/**
+ * 프로젝트 삭제 훅
+ */
+export function useDeleteProject() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => projectApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() })
+    },
   })
 }

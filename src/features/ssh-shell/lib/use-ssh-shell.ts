@@ -31,6 +31,8 @@ export interface UseSshShellReturn {
   disconnect: () => Promise<void>
   /** 터미널 명령어 전송 */
   sendCommand: (data: string) => void
+  /** 터미널 크기 변경 전송 */
+  sendResize: (cols: number, rows: number) => void
 }
 
 /**
@@ -102,7 +104,7 @@ export function useSshShell(
   )
 
   // WebSocket 연결
-  const { sendCommand, disconnect: wsDisconnect } = useSshShellWebSocket({
+  const { sendCommand, sendResize, disconnect: wsDisconnect } = useSshShellWebSocket({
     sessionId: session?.sessionId || null,
     onMessage: handleWebSocketMessage,
     onDisconnect: handleWebSocketDisconnect,
@@ -196,5 +198,6 @@ export function useSshShell(
     connect,
     disconnect,
     sendCommand,
+    sendResize,
   }
 }

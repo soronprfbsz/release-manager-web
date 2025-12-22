@@ -7,7 +7,6 @@ import { Pencil, Trash2, Settings, GripVertical } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 import type { Service } from '@/entities/service'
-import { getCategoryCardColorClass } from '@/shared/lib/category-colors'
 import { ComponentList } from './ComponentList'
 
 interface ServiceCardProps {
@@ -27,16 +26,14 @@ export function ServiceCard({
   dragHandleProps,
   categoryIndex = 0,
 }: ServiceCardProps) {
-  const colorClasses = getCategoryCardColorClass(categoryIndex)
 
   return (
     <Card
-      className={`transition-all duration-200 hover:shadow-md hover:border-primary/30 ${colorClasses} relative ${
-        !service.isActive ? 'bg-muted/30' : ''
-      }`}
+      className={`transition-all duration-200 hover:shadow-md bg-[hsl(var(--header-bg))] border-border hover:border-primary/50 relative ${!service.isActive ? 'bg-muted/30' : ''
+        }`}
     >
       {!service.isActive && (
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,hsl(var(--muted))_10px,hsl(var(--muted))_11px)] rounded-lg pointer-events-none opacity-30" />
+        <div className="absolute inset-0 bg-muted/50 rounded-lg pointer-events-none" />
       )}
 
       <CardHeader className="pb-3 relative z-10">

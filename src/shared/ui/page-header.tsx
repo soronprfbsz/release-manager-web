@@ -24,12 +24,9 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-6 rounded-lg border border-border bg-gradient-to-r',
+        'flex items-center justify-between p-6 rounded-lg border border-border bg-[hsl(var(--header-bg))]',
         className
       )}
-      style={{
-        backgroundImage: `linear-gradient(to right, hsl(var(--header-bg)), hsl(var(--header-bg) / 0.5))`
-      }}
     >
       <div className="flex items-center gap-4">
         <div className="p-3 rounded-lg bg-primary/10">

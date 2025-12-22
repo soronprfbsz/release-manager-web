@@ -11,7 +11,6 @@ import { useReorderResources } from '@/entities/resource'
 import { SortableList } from '@/shared/ui/sortable'
 
 import { getGroupIcon } from '../lib/resourceHelpers'
-import { getCategoryIconBgColorClass, getCategoryIconColorClass } from '@/shared/lib/category-colors'
 import { SortableResourceCard } from './SortableResourceCard'
 
 interface ResourceGroupListProps {
@@ -67,7 +66,7 @@ export function ResourceGroupList({
 
   return (
     <div>
-      {Object.entries(groupedResources).map(([category, files], categoryIndex) => {
+      {Object.entries(groupedResources).map(([category, files]) => {
         return (
           <div
             key={category}
@@ -75,8 +74,8 @@ export function ResourceGroupList({
           >
             {/* Group Header */}
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${getCategoryIconBgColorClass(categoryIndex)}`}>
-                <div className={getCategoryIconColorClass(categoryIndex)}>
+              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
+                <div className="text-foreground">
                   {getGroupIcon(category)}
                 </div>
               </div>
@@ -99,7 +98,7 @@ export function ResourceGroupList({
                   onDownload={onDownload}
                   onDelete={onDelete}
                   onEdit={onEdit}
-                  categoryIndex={categoryIndex}
+                  categoryIndex={0}
                 />
               )}
             />

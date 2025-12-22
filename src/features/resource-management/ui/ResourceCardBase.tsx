@@ -11,7 +11,6 @@ import { GripVertical, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { getCategoryCardColorClass } from '@/shared/lib/category-colors'
 
 interface ResourceCardBaseProps {
   /** 카드 제목 */
@@ -45,7 +44,6 @@ export function ResourceCardBase({
   headerActions,
   onDelete,
 }: ResourceCardBaseProps) {
-  const colorClass = getCategoryCardColorClass(categoryIndex)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
   const [isTruncated, setIsTruncated] = useState(false)
 
@@ -68,7 +66,7 @@ export function ResourceCardBase({
   }, [description])
 
   return (
-    <Card className={`group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col ${colorClass}`}>
+    <Card className={`group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-card border-border hover:border-primary/50`}>
       <CardHeader className="pb-3 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -117,26 +115,28 @@ export function ResourceCardBase({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 mt-auto">
-        {/* 설명 (툴팁 처리) */}
-        {description && (
-          isTruncated ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <p ref={descriptionRef} className="text-sm text-muted-foreground mb-3 line-clamp-2 cursor-default">
+      <CardContent className="pt-4 mt-auto">
+        {/* 설명 영역 (최소 높이 확보) */}
+        <div className="min-h-[2.75rem] mb-3">
+          {description ? (
+            isTruncated ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p ref={descriptionRef} className="text-sm text-muted-foreground line-clamp-2 cursor-default">
+                    {description}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs whitespace-pre-wrap">
                   {description}
-                </p>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs whitespace-pre-wrap">
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <p ref={descriptionRef} className="text-sm text-muted-foreground line-clamp-2">
                 {description}
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <p ref={descriptionRef} className="text-sm text-muted-foreground mb-3 line-clamp-2">
-              {description}
-            </p>
-          )
-        )}
+              </p>
+            )
+          ) : null}
+        </div>
 
         {/* 메인 액션 버튼 */}
         {actionButton}

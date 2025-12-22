@@ -9,7 +9,6 @@ import { devtools, persist, createJSONStorage } from 'zustand/middleware'
 export type Theme =
   | 'black'
   | 'white'
-  | 'dracula'
   | 'nord'
   | 'gruvbox'
   | 'system'
@@ -24,7 +23,6 @@ interface ThemeState {
 
 const darkThemes: Theme[] = [
   'black',
-  'dracula',
   'nord',
   'gruvbox',
 ]
@@ -38,7 +36,6 @@ const applyThemeToDOM = (theme: Theme) => {
     'dark',
     'white',
     'black',
-    'dracula',
     'nord',
     'gruvbox'
   )

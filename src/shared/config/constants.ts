@@ -26,6 +26,8 @@ export const ROUTES = {
     CUSTOMERS: '/operations/customers',
     ENGINEERS: '/operations/engineers',
     ACCOUNTS: '/operations/accounts',
+    PROJECTS: '/operations/projects',
+    FILE_SYNC: '/operations/file-sync',
   },
   DEVELOPMENT_SUPPORT: {
     REMOTE_JOBS: {

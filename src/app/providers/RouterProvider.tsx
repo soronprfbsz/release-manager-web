@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'reac
 
 import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
+import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { ResourcePage } from '@/pages/resources'
 import { HomePage } from '@/pages/home'
 import { MariaDBJobPage } from '@/pages/job'
@@ -9,11 +10,13 @@ import { SshShellPage } from '@/pages/job/ssh-shell/SshShellPage'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
+import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
 import { ServiceListPage } from '@/pages/operations/services/ServiceListPage'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
 import { StandardReleasePage } from '@/pages/releases/standard'
+import { FileSyncPage } from '@/pages/operations/file-sync/FileSyncPage'
 
 import { ROUTES } from '@/shared/config/constants'
 
@@ -110,6 +113,26 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: ROUTES.OPERATIONS.PROJECTS,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <ProjectListPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.OPERATIONS.FILE_SYNC,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <FileSyncPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.SERVICES,
     element: (
       <ProtectedRoute>
@@ -158,6 +181,11 @@ const router = createBrowserRouter([
         </MainLayout>
       </ProtectedRoute>
     ),
+  },
+  // 404 Not Found - 모든 미정의 경로
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ])
 

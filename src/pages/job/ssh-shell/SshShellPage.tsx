@@ -31,7 +31,7 @@ export function SshShellPage() {
   const terminalRef = useRef<XtermTerminalHandle>(null)
 
   // SSH Shell 비즈니스 로직 (Custom Hook)
-  const { session, isConnected, isConnecting, connect, disconnect, sendCommand } =
+  const { session, isConnected, isConnecting, connect, disconnect, sendCommand, sendResize } =
     useSshShell(terminalRef)
 
   // SSH 연결 히스토리
@@ -127,6 +127,7 @@ export function SshShellPage() {
           username={session?.username || null}
           isConnected={isConnected}
           onData={sendCommand}
+          onResize={sendResize}
           headerActions={
             isConnected && session?.sessionId && (
               <Button

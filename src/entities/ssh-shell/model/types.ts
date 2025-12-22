@@ -59,6 +59,15 @@ export interface CommandMessage {
 }
 
 /**
+ * 리사이즈 메시지 (WebSocket - 클라이언트 → 서버)
+ * PTY 크기 변경 시 전송
+ */
+export interface ResizeMessage {
+  cols: number
+  rows: number
+}
+
+/**
  * 출력 메시지 (WebSocket - 서버 → 클라이언트)
  */
 export interface OutputMessage {

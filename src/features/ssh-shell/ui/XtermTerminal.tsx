@@ -25,6 +25,7 @@ interface XtermTerminalProps {
   username: string | null
   isConnected: boolean
   onData: (data: string) => void
+  onResize?: (cols: number, rows: number) => void
   headerActions?: React.ReactNode
 }
 
@@ -35,7 +36,7 @@ export interface XtermTerminalHandle {
 }
 
 export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>(
-  function XtermTerminal({ sessionId, host, username, isConnected, onData, headerActions }, ref) {
+  function XtermTerminal({ sessionId, host, username, isConnected, onData, onResize, headerActions }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
@@ -51,12 +52,14 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     // 연결 상태를 ref로 관리 (onData 핸들러에서 최신 값 참조용)
     const isConnectedRef = useRef(isConnected)
     const onDataRef = useRef(onData)
+    const onResizeRef = useRef(onResize)
 
     // ref 업데이트
     useEffect(() => {
       isConnectedRef.current = isConnected
       onDataRef.current = onData
-    }, [isConnected, onData])
+      onResizeRef.current = onResize
+    }, [isConnected, onData, onResize])
 
     // Toast for user feedback
     const { toast } = useToast()
@@ -178,6 +181,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       setActiveTheme(initialTheme)
 
       // Terminal 인스턴스 생성
+      // cols/rows는 fitAddon이 컨테이너에 맞춰 자동 계산하므로 지정하지 않음
       const term = new XTerm({
         cursorBlink: true,
         cursorStyle: 'block',
@@ -185,8 +189,6 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
         fontSize: 14,
         convertEol: true, // 개행 문자 자동 변환
         theme: initialTheme, // 초기 테마 적용
-        rows: 30,
-        cols: 100,
         scrollback: 1000,
       })
 
@@ -229,6 +231,10 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       requestAnimationFrame(() => {
         try {
           fitAddon.fit()
+          // 리사이즈 후 서버에 새로운 크기 전송
+          if (onResizeRef.current && term.cols && term.rows) {
+            onResizeRef.current(term.cols, term.rows)
+          }
         } catch (error) {
           console.error('Failed to fit terminal:', error)
         }
@@ -248,7 +254,15 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
 
       // Window resize 처리
       const handleResize = () => {
-        fitAddon.fit()
+        try {
+          fitAddon.fit()
+          // 리사이즈 후 서버에 새로운 크기 전송
+          if (onResizeRef.current && term.cols && term.rows) {
+            onResizeRef.current(term.cols, term.rows)
+          }
+        } catch (error) {
+          console.error('Failed to fit terminal on resize:', error)
+        }
       }
       window.addEventListener('resize', handleResize)
 
@@ -265,13 +279,18 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
 
     // 전체화면 상태 변경 시 터미널 크기 조정
     useEffect(() => {
-      if (!fitAddonRef.current) return
+      if (!fitAddonRef.current || !xtermRef.current) return
 
       // 전체화면 전환 시 DOM 렌더링 완료 후 크기 조정
       const timer = setTimeout(() => {
         requestAnimationFrame(() => {
           try {
             fitAddonRef.current?.fit()
+            // 리사이즈 후 서버에 새로운 크기 전송
+            const term = xtermRef.current
+            if (onResizeRef.current && term?.cols && term?.rows) {
+              onResizeRef.current(term.cols, term.rows)
+            }
           } catch (error) {
             console.error('Failed to fit terminal on fullscreen change:', error)
           }
@@ -280,6 +299,29 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
 
       return () => clearTimeout(timer)
     }, [isFullscreen])
+
+    // SSH 연결 완료 시 터미널 크기를 서버에 전송
+    // PTY가 올바른 크기로 설정되도록 보장
+    useEffect(() => {
+      if (!isConnected || !xtermRef.current || !fitAddonRef.current) return
+
+      // 연결 완료 후 약간의 지연을 두고 크기 전송
+      const timer = setTimeout(() => {
+        try {
+          // 먼저 fit을 수행하여 최신 크기 계산
+          fitAddonRef.current?.fit()
+          const term = xtermRef.current
+          if (onResizeRef.current && term?.cols && term?.rows) {
+            console.log(`Sending initial resize: ${term.cols}x${term.rows}`)
+            onResizeRef.current(term.cols, term.rows)
+          }
+        } catch (error) {
+          console.error('Failed to send initial resize:', error)
+        }
+      }, 200)
+
+      return () => clearTimeout(timer)
+    }, [isConnected])
 
     // 연결되지 않은 경우
     if (!sessionId) {

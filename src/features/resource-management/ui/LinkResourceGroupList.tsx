@@ -13,7 +13,6 @@ import { linkResourceKeys } from '@/entities/resource/queries/linkResourceQuerie
 import { CODE_TYPE, useCodesByType } from '@/entities/code'
 
 import { getGroupIcon } from '../lib/resourceHelpers'
-import { getCategoryIconBgColorClass, getCategoryIconColorClass } from '@/shared/lib/category-colors'
 import { SortableLinkResourceCard } from './SortableLinkResourceCard'
 
 interface LinkResourceGroupListProps {
@@ -74,7 +73,7 @@ export function LinkResourceGroupList({
 
     return (
         <div>
-            {Object.entries(groupedResources).map(([category, links], categoryIndex) => {
+            {Object.entries(groupedResources).map(([category, links]) => {
                 // Sort links by sortOrder if available
                 const sortedLinks = [...links].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
                 const categoryName = getCategoryName(category)
@@ -86,8 +85,8 @@ export function LinkResourceGroupList({
                     >
                         {/* Group Header */}
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${getCategoryIconBgColorClass(categoryIndex)}`}>
-                                <div className={getCategoryIconColorClass(categoryIndex)}>
+                            <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
+                                <div className="text-foreground">
                                     {getGroupIcon(category)}
                                 </div>
                             </div>
@@ -109,7 +108,7 @@ export function LinkResourceGroupList({
                                     resource={resource}
                                     onDelete={onDelete}
                                     onEdit={onEdit}
-                                    categoryIndex={categoryIndex}
+                                    categoryIndex={0}
                                 />
                             )}
                         />

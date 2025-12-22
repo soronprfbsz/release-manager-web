@@ -12,7 +12,6 @@ import { useCodesByType, CODE_TYPE } from '@/entities/code'
 import { SortableList } from '@/shared/ui/sortable'
 
 import { getServiceTypeIcon } from '../lib/serviceHelpers'
-import { getCategoryIconBgColorClass, getCategoryIconColorClass } from '@/shared/lib/category-colors'
 import { SortableServiceCard } from './SortableServiceCard'
 
 interface ServiceGroupListProps {
@@ -69,7 +68,7 @@ export function ServiceGroupList({
 
   return (
     <div>
-      {sortedServiceTypes.map((serviceType, categoryIndex) => {
+      {sortedServiceTypes.map((serviceType) => {
         const serviceList = groupedServices[serviceType.value]
         const Icon = getServiceTypeIcon(serviceType.value as Service['serviceType'])
 
@@ -80,8 +79,8 @@ export function ServiceGroupList({
           >
             {/* Group Header */}
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${getCategoryIconBgColorClass(categoryIndex)}`}>
-                <Icon className={`h-5 w-5 ${getCategoryIconColorClass(categoryIndex)}`} />
+              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
+                <Icon className="h-5 w-5 text-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold text-base">{serviceType.name}</h3>
@@ -102,7 +101,7 @@ export function ServiceGroupList({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onManageComponents={onManageComponents}
-                  categoryIndex={categoryIndex}
+                  categoryIndex={0}
                 />
               )}
             />

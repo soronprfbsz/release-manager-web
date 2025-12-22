@@ -71,13 +71,6 @@ export function ThemeToggle() {
             {theme === 'black' && <Check className="h-4 w-4" />}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('dracula'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#282a36', borderWidth: '2px', borderColor: '#bd93f9' }} />
-            <span className="flex-1">Dracula</span>
-            {theme === 'dracula' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => { setTheme('nord'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
             <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#2e3440', borderWidth: '2px', borderColor: '#88c0d0' }} />

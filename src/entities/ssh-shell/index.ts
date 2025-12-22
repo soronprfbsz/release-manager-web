@@ -15,5 +15,6 @@ export type {
   ShellConnectResponse,
   ShellSessionInfo,
   CommandMessage,
+  ResizeMessage,
   OutputMessage,
 } from './model/types'

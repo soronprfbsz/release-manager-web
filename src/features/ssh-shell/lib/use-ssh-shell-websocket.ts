@@ -19,6 +19,7 @@ interface UseSshShellWebSocketProps {
 
 interface UseSshShellWebSocketReturn {
   sendCommand: (command: string) => void
+  sendResize: (cols: number, rows: number) => void
   disconnect: () => void
 }
 
@@ -40,6 +41,18 @@ export function useSshShellWebSocket({
       }
 
       sshWebSocketManager.sendCommand(sessionId, command)
+    },
+    [sessionId]
+  )
+
+  const sendResize = useCallback(
+    (cols: number, rows: number) => {
+      if (!sessionId) {
+        console.warn('No session ID')
+        return
+      }
+
+      sshWebSocketManager.sendResize(sessionId, cols, rows)
     },
     [sessionId]
   )
@@ -87,6 +100,7 @@ export function useSshShellWebSocket({
 
   return {
     sendCommand,
+    sendResize,
     disconnect,
   }
 }

@@ -6,7 +6,7 @@
 import { Client, IMessage } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 
-import type { OutputMessage, CommandMessage } from '@/entities/ssh-shell'
+import type { OutputMessage, CommandMessage, ResizeMessage } from '@/entities/ssh-shell'
 
 type MessageHandler = (message: OutputMessage) => void
 type DisconnectHandler = () => void
@@ -130,6 +130,35 @@ class SshWebSocketManager {
     } catch (error) {
       console.error('Failed to send command:', error)
       const err = error instanceof Error ? error : new Error('Failed to send command')
+      this.errorHandlers.forEach((handler) => handler(err))
+    }
+  }
+
+  /**
+   * 터미널 크기 변경 전송
+   * PTY 리사이즈를 위해 서버에 cols, rows 전달
+   */
+  sendResize(sessionId: string, cols: number, rows: number): void {
+    if (!this.client || !this.isConnected) {
+      console.warn('WebSocket not connected')
+      return
+    }
+
+    if (this.currentSessionId !== sessionId) {
+      console.warn('Session ID mismatch')
+      return
+    }
+
+    const message: ResizeMessage = { cols, rows }
+
+    try {
+      this.client.publish({
+        destination: `/app/terminal/${sessionId}/resize`,
+        body: JSON.stringify(message),
+      })
+    } catch (error) {
+      console.error('Failed to send resize:', error)
+      const err = error instanceof Error ? error : new Error('Failed to send resize')
       this.errorHandlers.forEach((handler) => handler(err))
     }
   }

@@ -385,7 +385,7 @@ export function ResourcePage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
           icon={<Download className="h-5 w-5 text-primary" />}
@@ -411,7 +411,7 @@ export function ResourcePage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="files" className="mt-6">
+          <TabsContent value="files" className="mt-8">
             {isResourcesLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="flex flex-col items-center gap-3">
@@ -430,7 +430,7 @@ export function ResourcePage() {
             )}
           </TabsContent>
 
-          <TabsContent value="links" className="mt-6">
+          <TabsContent value="links" className="mt-8">
             {isLinksLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="flex flex-col items-center gap-3">

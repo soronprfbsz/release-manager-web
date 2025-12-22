@@ -4,14 +4,88 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Default Dark Theme (matches .dark) */
+    --background: 222.2 47.4% 11.2%;
+    /* Deep Blue-Gray Base */
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    /* Slightly darker/richer for cards? No, usually lighter. Let's make cards distinct. */
+    /* Modern Dark: BG is Dark, Surface is Lighter */
+    /* Let's try: BG = Very Dark (Slate 950), Card = Dark (Slate 900) */
+    --background: 222.2 84% 4.9%;
+    /* Slate 950 #020617 */
+    --foreground: 210 40% 98%;
+    --card: 222.2 47.4% 11.2%;
+    /* Slate 900 #1e293b? Or slightly different. Let's use standard Shadcn Dark */
+    --card: 222.2 84% 4.9%;
+    /* Actually Shadcn uses same for bg and card by default and uses border. 
+       User wants DISTINCTION. 
+       Let's make BG darker, Card lighter. 
+    */
+    --background: 224 71% 4%;
+    /* #02040a Very dark */
+    --card: 222.2 84% 4.9%;
+    /* #020817 (Current default) */
+    /* Wait, current default is 222.2 84 4.9 for BOTH.
+       Let's Change default to:
+       BG: 224 71% 4%
+       Card: 222.2 84% 6.5% (Slightly lighter)
+       Header: 222.2 84% 6.5%
+    */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 47% 11%;
+    /* #0f172a Slate 900 - distinct surface */
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    --radius: 0.5rem;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --theme-color-1: 12 76% 61%;
+    --theme-color-2: 173 58% 39%;
+    --theme-color-3: 197 37% 24%;
+    --theme-color-4: 43 74% 66%;
+    --theme-color-5: 27 87% 67%;
+    --header-bg: 222.2 47% 11%;
+    /* Matches Card */
+    /* 밝은 블루 그레이 */
+  }
+
+  .white {
+    /* White Theme - Clean & Professional */
+    /* Modern Light: BG = Gray/Slate 50, Card = White */
+    --background: 210 40% 96.1%;
+    /* Slate 100 #f1f5f9 - Distinct Surface */
+    --foreground: 222.2 47.4% 11.2%;
+    /* Slate 900 */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* White */
+    --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 222.2 47.4% 11.2%;
+    /* Slate 900 for Primary in light mode? Or keep Teal. User had Teal. 
+       Let's stick to Teal primary but fix surfaces.
+    */
+    --primary: 177 45% 40%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
@@ -22,77 +96,29 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --theme-color-1: 12 76% 61%;
-    --theme-color-2: 173 58% 39%;
-    --theme-color-3: 197 37% 24%;
-    --theme-color-4: 43 74% 66%;
-    --theme-color-5: 27 87% 67%;
-    --header-bg: 210 40% 98%;
-    /* 밝은 블루 그레이 */
-  }
-
-  .white {
-    /* White Theme - Clean & Professional with Teal Accents */
-    --background: 0 0% 100%;
-    --foreground: 220 15% 15%;
-    --card: 210 20% 98%;
-    /* #F8FAFC Soft gray-white */
-    --card-foreground: 220 15% 15%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
-    --primary: 177 45% 40%;
-    /* Teal - matches black theme */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 15% 93%;
-    /* Light gray */
-    --secondary-foreground: 220 15% 25%;
-    --muted: 210 15% 95%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 177 35% 45%;
-    /* Teal accent */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 214 20% 88%;
-    --input: 214 20% 88%;
     --ring: 177 45% 40%;
     --radius: 0.5rem;
     --chart-1: 177 50% 42%;
-    /* Teal */
     --chart-2: 41 75% 50%;
-    /* Golden */
     --chart-3: 345 55% 55%;
-    /* Rose */
     --chart-4: 200 60% 50%;
-    /* Sky Blue */
     --chart-5: 14 65% 55%;
-    /* Coral */
     --theme-color-1: 177 60% 38%;
-    /* Teal */
     --theme-color-2: 41 80% 45%;
-    /* Golden Amber */
     --theme-color-3: 345 55% 50%;
-    /* Rose */
     --theme-color-4: 200 65% 45%;
-    /* Sky Blue */
     --theme-color-5: 14 70% 50%;
-    /* Coral */
-    --header-bg: 210 20% 98%;
+    --header-bg: 0 0% 100%;
+    /* White Header on Gray BG */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Matches Root/Default */
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 222.2 47% 11%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 222.2 47% 11%;
     --popover-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -117,28 +143,25 @@
     --theme-color-3: 30 80% 55%;
     --theme-color-4: 280 65% 60%;
     --theme-color-5: 340 75% 55%;
-    --header-bg: 217.2 32.6% 12%;
-    /* 진한 블루 그레이 */
+    --header-bg: 222.2 47% 11%;
   }
 
   .black {
-    /* Black Theme - Pure Black with Teal & Mauve Accents */
+    /* Black Theme */
     --background: 0 0% 0%;
     --foreground: 0 0% 92%;
-    --card: 0 0% 7%;
+    --card: 0 0% 9%;
+    /* Dark Gray Card */
     --card-foreground: 0 0% 92%;
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 92%;
     --primary: 177 32% 65%;
-    /* #A3CFCD Teal */
     --primary-foreground: 0 0% 0%;
     --secondary: 260 5% 18%;
-    /* #2A272A Dark Gray */
     --secondary-foreground: 0 0% 92%;
     --muted: 250 5% 15%;
     --muted-foreground: 0 0% 60%;
     --accent: 179 35% 30%;
-    /* #254D4C Dark Teal */
     --accent-foreground: 0 0% 92%;
     --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 92%;
@@ -146,26 +169,16 @@
     --input: 0 0% 16%;
     --ring: 177 32% 65%;
     --chart-1: 177 32% 65%;
-    /* Teal */
     --chart-2: 41 70% 55%;
-    /* Golden */
     --chart-3: 345 25% 60%;
-    /* Mauve Pink */
     --chart-4: 14 45% 50%;
-    /* Rust */
     --chart-5: 195 30% 55%;
-    /* Blue Gray */
     --theme-color-1: 177 55% 50%;
-    /* Teal - 메인 액센트 */
     --theme-color-2: 41 65% 55%;
-    /* Golden Amber - 따뜻한 대비 */
     --theme-color-3: 345 45% 60%;
-    /* Rose Mauve - 부드러운 핑크 */
     --theme-color-4: 200 50% 55%;
-    /* Sky Blue - 시원한 블루 */
     --theme-color-5: 14 55% 55%;
-    /* Coral Rust - 따뜻한 코랄 */
-    --header-bg: 0 0% 4%;
+    --header-bg: 0 0% 9%;
   }
 
   .gruvbox {
@@ -173,46 +186,35 @@
     --background: 0 0% 16%;
     /* #282828 */
     --foreground: 46 22% 86%;
-    /* #ebdbb2 */
     --card: 0 0% 20%;
     /* #32302f */
     --card-foreground: 46 22% 86%;
     --popover: 0 0% 20%;
     --popover-foreground: 46 22% 86%;
     --primary: 45 93% 58%;
-    /* #fabd2f Yellow */
     --primary-foreground: 0 0% 16%;
     --secondary: 0 0% 30%;
-    /* #504945 */
     --secondary-foreground: 46 22% 86%;
     --muted: 0 0% 30%;
     --muted-foreground: 0 0% 66%;
-    /* #a89984 */
     --accent: 142 61% 44%;
-    /* #b8bb26 Green */
     --accent-foreground: 0 0% 16%;
     --destructive: 0 65% 51%;
-    /* #cc241d Red */
     --destructive-foreground: 46 22% 86%;
     --border: 0 0% 30%;
     --input: 0 0% 30%;
     --ring: 45 93% 58%;
     --chart-1: 45 93% 58%;
-    /* Yellow */
     --chart-2: 142 61% 44%;
-    /* Green */
     --chart-3: 208 60% 55%;
-    /* Blue #83a598 */
     --chart-4: 16 70% 55%;
-    /* Orange #fe8019 */
     --chart-5: 315 40% 60%;
-    /* Purple #d3869b */
     --theme-color-1: 45 93% 58%;
     --theme-color-2: 142 61% 44%;
     --theme-color-3: 208 60% 55%;
     --theme-color-4: 16 70% 55%;
     --theme-color-5: 315 40% 60%;
-    --header-bg: 0 0% 22%;
+    --header-bg: 0 0% 20%;
   }
 
   .latte {
@@ -263,51 +265,6 @@
     /* #dce0e8 */
   }
 
-  .dracula {
-    /* Dracula Theme */
-    --background: 231 15% 18%;
-    /* #282a36 */
-    --foreground: 60 30% 96%;
-    /* #f8f8f2 */
-    --card: 231 15% 22%;
-    /* #383a59 */
-    --card-foreground: 60 30% 96%;
-    --popover: 231 15% 22%;
-    --popover-foreground: 60 30% 96%;
-    --primary: 265 89% 78%;
-    /* #bd93f9 Purple */
-    --primary-foreground: 231 15% 18%;
-    --secondary: 231 15% 28%;
-    /* #44475a */
-    --secondary-foreground: 60 30% 96%;
-    --muted: 231 15% 35%;
-    --muted-foreground: 231 10% 70%;
-    --accent: 326 100% 74%;
-    /* #ff79c6 Pink */
-    --accent-foreground: 231 15% 18%;
-    --destructive: 0 100% 67%;
-    /* #ff5555 Red */
-    --destructive-foreground: 60 30% 96%;
-    --border: 231 15% 35%;
-    --input: 231 15% 35%;
-    --ring: 265 89% 78%;
-    --chart-1: 265 89% 78%;
-    /* Purple */
-    --chart-2: 326 100% 74%;
-    /* Pink */
-    --chart-3: 135 94% 65%;
-    /* Green #50fa7b */
-    --chart-4: 31 100% 71%;
-    /* Orange #ffb86c */
-    --chart-5: 191 97% 77%;
-    /* Cyan #8be9fd */
-    --theme-color-1: 265 89% 78%;
-    --theme-color-2: 326 100% 74%;
-    --theme-color-3: 135 94% 65%;
-    --theme-color-4: 31 100% 71%;
-    --theme-color-5: 191 97% 77%;
-    --header-bg: 231 15% 25%;
-  }
 
   .nord {
     /* Nord Theme */
