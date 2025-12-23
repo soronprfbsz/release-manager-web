@@ -18,11 +18,7 @@ export interface ServiceComponent {
   host: string | null
   port: number | null
   url: string | null
-  accountId: string | null
-  password?: string | null // Sensitive - optional in response
   sshPort: number | null
-  sshAccountId: string | null
-  sshPassword?: string | null // Sensitive - optional in response
   description: string | null
   sortOrder: number
   isActive: boolean
@@ -54,11 +50,7 @@ export interface ComponentRequest {
   host?: string
   port?: number
   url?: string
-  accountId?: string
-  password?: string
   sshPort?: number
-  sshAccountId?: string
-  sshPassword?: string
   description?: string
   sortOrder?: number
   isActive?: boolean

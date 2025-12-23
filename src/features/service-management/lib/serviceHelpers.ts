@@ -143,11 +143,3 @@ export function getComponentDisplayInfo(component: ServiceComponent): string {
   // 설명 또는 기본값
   return component.description || '-'
 }
-
-/**
- * 비밀번호 마스킹
- */
-export function maskPassword(password: string | null | undefined): string {
-  if (!password) return '-'
-  return '••••••••'
-}

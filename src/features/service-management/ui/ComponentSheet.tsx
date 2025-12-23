@@ -35,11 +35,7 @@ const INITIAL_COMPONENT_FORM: ComponentFormData = {
   host: '',
   port: '',
   url: '',
-  accountId: '',
-  password: '',
   sshPort: '',
-  sshAccountId: '',
-  sshPassword: '',
   description: '',
   isActive: true,
 }
@@ -78,11 +74,7 @@ export function ComponentSheet({
       host: component.host || '',
       port: component.port ? String(component.port) : '',
       url: component.url || '',
-      accountId: component.accountId || '',
-      password: component.password || '',
       sshPort: component.sshPort ? String(component.sshPort) : '',
-      sshAccountId: component.sshAccountId || '',
-      sshPassword: component.sshPassword || '',
       description: component.description || '',
       isActive: component.isActive,
     })
@@ -118,7 +110,7 @@ export function ComponentSheet({
   return (
     <>
       <Sheet open={!!service} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent className="w-[600px] sm:max-w-[600px]">
+        <SheetContent className="w-[400px] sm:max-w-[400px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -129,8 +121,8 @@ export function ComponentSheet({
             </SheetDescription>
           </SheetHeader>
 
-          <ScrollArea className="h-[calc(100vh-160px)] mt-6 pr-4">
-            <div>
+          <ScrollArea className="h-[calc(100vh-140px)] mt-6 pr-4">
+            <div className="pb-4">
               {/* 컴포넌트 목록 - Sortable */}
               <SortableList
                 items={components}

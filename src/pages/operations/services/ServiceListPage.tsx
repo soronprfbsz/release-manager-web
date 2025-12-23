@@ -220,11 +220,7 @@ export function ServiceListPage() {
       host: formData.host || undefined,
       port: formData.port ? Number(formData.port) : undefined,
       url: formData.url || undefined,
-      accountId: formData.accountId || undefined,
-      password: formData.password || undefined,
       sshPort: formData.sshPort ? Number(formData.sshPort) : undefined,
-      sshAccountId: formData.sshAccountId || undefined,
-      sshPassword: formData.sshPassword || undefined,
       description: formData.description || undefined,
       isActive: formData.isActive,
     }
@@ -256,11 +252,7 @@ export function ServiceListPage() {
       host: formData.host || undefined,
       port: formData.port ? Number(formData.port) : undefined,
       url: formData.url || undefined,
-      accountId: formData.accountId || undefined,
-      password: formData.password || undefined,
       sshPort: formData.sshPort ? Number(formData.sshPort) : undefined,
-      sshAccountId: formData.sshAccountId || undefined,
-      sshPassword: formData.sshPassword || undefined,
       description: formData.description || undefined,
       isActive: formData.isActive,
     }

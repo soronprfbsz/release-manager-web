@@ -3,13 +3,13 @@
  * 드래그 가능한 컴포넌트 카드
  */
 
-import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react'
+import { Pencil, Trash2, GripVertical } from 'lucide-react'
 import type { ServiceComponent } from '@/entities/service'
 import { Button } from '@/shared/ui/button'
-import { getComponentTypeIcon, getComponentDisplayInfo, maskPassword, getComponentTypeBackgroundColor } from '../lib/serviceHelpers'
+import { TruncatedCell } from '@/shared/ui/truncated-cell'
+import { getComponentTypeIcon, getComponentDisplayInfo, getComponentTypeBackgroundColor } from '../lib/serviceHelpers'
 
 interface SortableComponentCardProps {
   component: ServiceComponent
@@ -22,9 +22,6 @@ export function SortableComponentCard({
   onEdit,
   onDelete,
 }: SortableComponentCardProps) {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showSshPassword, setShowSshPassword] = useState(false)
-
   const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
     id: component.componentId,
   })
@@ -61,9 +58,13 @@ export function SortableComponentCard({
               <GripVertical className="h-4 w-4" />
             </Button>
             <Icon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium truncate">{component.componentName}</h4>
-            </div>
+            <TruncatedCell
+              tooltipText={component.componentName}
+              maxLines={1}
+              className="flex-1 min-w-0 font-medium"
+            >
+              {component.componentName}
+            </TruncatedCell>
           </div>
           <div className="flex gap-0 flex-shrink-0">
             <Button
@@ -85,74 +86,36 @@ export function SortableComponentCard({
           </div>
         </div>
 
-        <div className="space-y-1 text-sm relative z-10">
-          <div className="flex gap-2">
-            <span className="text-muted-foreground w-20 flex-shrink-0">접속 정보:</span>
-            <span className="break-words flex-1 min-w-0">{displayInfo}</span>
-          </div>
-
-          {/* 계정 정보와 SSH 정보를 좌우로 배치 */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* 왼쪽: 계정 정보 */}
-            <div className="space-y-1">
-              <div className="flex gap-2">
-                <span className="text-muted-foreground w-16 flex-shrink-0">계정 ID:</span>
-                <span className="truncate flex-1 min-w-0">{component.accountId || '-'}</span>
-              </div>
-              <div className="flex gap-2 items-center">
-                <span className="text-muted-foreground w-16 flex-shrink-0">비밀번호:</span>
-                <span className="truncate flex-1 min-w-0 font-mono">
-                  {component.password ? (showPassword ? component.password : maskPassword(component.password)) : '-'}
-                </span>
-                {component.password && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 flex-shrink-0"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                )}
-              </div>
+        <div className="text-sm relative z-10 space-y-3">
+          <div className="space-y-1">
+            <div className="flex gap-2">
+              <span className="text-muted-foreground w-20 flex-shrink-0">접속 정보:</span>
+              <TruncatedCell
+                tooltipText={displayInfo}
+                maxLines={1}
+                className="flex-1 min-w-0"
+              >
+                {displayInfo}
+              </TruncatedCell>
             </div>
 
-            {/* 오른쪽: SSH 정보 */}
-            <div className="space-y-1">
+            {component.sshPort && (
               <div className="flex gap-2">
-                <span className="text-muted-foreground w-16 flex-shrink-0">SSH:</span>
-                <span className="truncate flex-1 min-w-0">
-                  {component.host && component.sshPort
-                    ? `${component.host}:${component.sshPort}`
-                    : '-'}
-                </span>
+                <span className="text-muted-foreground w-20 flex-shrink-0">SSH Port:</span>
+                <span className="truncate flex-1 min-w-0">{component.sshPort}</span>
               </div>
-              <div className="flex gap-2">
-                <span className="text-muted-foreground w-16 flex-shrink-0">SSH ID:</span>
-                <span className="truncate flex-1 min-w-0">{component.sshAccountId || '-'}</span>
-              </div>
-              <div className="flex gap-2 items-center">
-                <span className="text-muted-foreground w-16 flex-shrink-0">SSH PW:</span>
-                <span className="truncate flex-1 min-w-0 font-mono">
-                  {component.sshPassword ? (showSshPassword ? component.sshPassword : maskPassword(component.sshPassword)) : '-'}
-                </span>
-                {component.sshPassword && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 flex-shrink-0"
-                    onClick={() => setShowSshPassword(!showSshPassword)}
-                  >
-                    {showSshPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                  </Button>
-                )}
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="flex gap-2">
             <span className="text-muted-foreground w-20 flex-shrink-0">설명:</span>
-            <span className="text-muted-foreground break-words flex-1 min-w-0">{component.description || '-'}</span>
+            <TruncatedCell
+              tooltipText={component.description || ''}
+              maxLines={2}
+              className="text-muted-foreground flex-1 min-w-0"
+            >
+              {component.description || '-'}
+            </TruncatedCell>
           </div>
         </div>
       </div>

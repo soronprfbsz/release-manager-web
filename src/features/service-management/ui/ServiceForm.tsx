@@ -52,17 +52,6 @@ export function ServiceForm({
       onClose={onCancel}
     >
       <div className="space-y-2">
-        <Label required>서비스명</Label>
-        <Input
-          value={formData.serviceName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, serviceName: e.target.value })
-          }
-          placeholder="서비스명 입력"
-        />
-      </div>
-
-      <div className="space-y-2">
         <Label required>서비스 타입</Label>
         <Select
           value={formData.serviceType}
@@ -85,6 +74,17 @@ export function ServiceForm({
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label required>서비스명</Label>
+        <Input
+          value={formData.serviceName}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, serviceName: e.target.value })
+          }
+          placeholder="서비스명 입력"
+        />
       </div>
 
       <div className="space-y-2">

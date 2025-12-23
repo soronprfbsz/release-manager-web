@@ -26,11 +26,7 @@ export interface ComponentFormData {
   host: string
   port: string // String for form, convert to number for API
   url: string
-  accountId: string
-  password: string
   sshPort: string // String for form
-  sshAccountId: string
-  sshPassword: string
   description: string
   isActive: boolean
 }

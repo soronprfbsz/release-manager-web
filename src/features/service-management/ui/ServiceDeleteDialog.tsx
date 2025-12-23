@@ -53,7 +53,7 @@ export function ServiceDeleteDialog({
               {isService && componentCount > 0 && (
                 <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
                   <p className="text-sm text-destructive font-medium">
-                    ⚠️ CASCADE 삭제 경고
+                    ⚠️ 전체 삭제 경고
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     이 서비스에 연결된 <span className="font-medium text-foreground">{componentCount}개의 컴포넌트</span>도 함께 삭제됩니다.

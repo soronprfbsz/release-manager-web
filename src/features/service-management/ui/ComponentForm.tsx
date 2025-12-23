@@ -65,7 +65,7 @@ export function ComponentForm({
 
   return (
     <Dialog open={!!mode} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-lg max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {mode === 'create' ? (
@@ -83,16 +83,7 @@ export function ComponentForm({
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-180px)] pr-4">
-          <div className="space-y-8 py-4">
-          {/* 컴포넌트 정보 */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-semibold leading-none">컴포넌트 정보</h3>
-              <p className="text-sm text-muted-foreground">
-                기본 컴포넌트 정보를 입력하세요.
-              </p>
-            </div>
-
+          <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="componentType">
@@ -175,19 +166,36 @@ export function ComponentForm({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                value={formData.url}
-                onChange={(e) =>
-                  onFormDataChange({ ...formData, url: e.target.value })
-                }
-                placeholder="https://example.com"
-              />
-              {errors.url && (
-                <p className="text-sm text-destructive">{errors.url}</p>
-              )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="url">URL</Label>
+                <Input
+                  id="url"
+                  value={formData.url}
+                  onChange={(e) =>
+                    onFormDataChange({ ...formData, url: e.target.value })
+                  }
+                  placeholder="https://example.com"
+                />
+                {errors.url && (
+                  <p className="text-sm text-destructive">{errors.url}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sshPort">SSH Port</Label>
+                <Input
+                  id="sshPort"
+                  value={formData.sshPort}
+                  onChange={(e) =>
+                    onFormDataChange({ ...formData, sshPort: e.target.value })
+                  }
+                  placeholder="22"
+                  autoComplete="off"
+                />
+                {errors.sshPort && (
+                  <p className="text-sm text-destructive">{errors.sshPort}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -202,115 +210,17 @@ export function ComponentForm({
                 rows={2}
               />
             </div>
-          </div>
 
-          {/* 추가 정보 (선택사항) */}
-          <div className="space-y-4 border-t pt-6">
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-semibold leading-none">추가 정보</h3>
-              <p className="text-sm text-muted-foreground">
-                계정 정보를 입력하세요.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="accountId">계정 ID</Label>
-                <Input
-                  id="accountId"
-                  name="component-account-id"
-                  value={formData.accountId}
-                  onChange={(e) =>
-                    onFormDataChange({ ...formData, accountId: e.target.value })
-                  }
-                  placeholder="계정 ID"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">비밀번호</Label>
-                <Input
-                  id="password"
-                  name="component-password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    onFormDataChange({ ...formData, password: e.target.value })
-                  }
-                  placeholder="비밀번호"
-                  autoComplete="new-password"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* SSH 접속 정보 (선택사항) */}
-          <div className="space-y-4 border-t pt-6">
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-semibold leading-none">SSH 접속 정보</h3>
-              <p className="text-sm text-muted-foreground">
-                SSH 연결이 필요한 경우 접속 정보를 입력하세요.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="sshPort">SSH Port</Label>
-              <Input
-                id="sshPort"
-                value={formData.sshPort}
-                onChange={(e) =>
-                  onFormDataChange({ ...formData, sshPort: e.target.value })
+            <div className="flex items-center justify-between pt-2">
+              <Label htmlFor="isActive" className="text-base font-medium">활성 상태</Label>
+              <Switch
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) =>
+                  onFormDataChange({ ...formData, isActive: checked })
                 }
-                placeholder="22"
-                autoComplete="off"
               />
-              {errors.sshPort && (
-                <p className="text-sm text-destructive">{errors.sshPort}</p>
-              )}
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sshAccountId">SSH 계정 ID</Label>
-                <Input
-                  id="sshAccountId"
-                  name="component-ssh-account-id"
-                  value={formData.sshAccountId}
-                  onChange={(e) =>
-                    onFormDataChange({ ...formData, sshAccountId: e.target.value })
-                  }
-                  placeholder="SSH 계정 ID"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sshPassword">SSH 비밀번호</Label>
-                <Input
-                  id="sshPassword"
-                  name="component-ssh-password"
-                  type="password"
-                  value={formData.sshPassword}
-                  onChange={(e) =>
-                    onFormDataChange({ ...formData, sshPassword: e.target.value })
-                  }
-                  placeholder="SSH 비밀번호"
-                  autoComplete="new-password"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 활성 상태 */}
-          <div className="flex items-center justify-between border-t pt-6">
-            <Label htmlFor="isActive" className="text-base font-semibold">활성 상태</Label>
-            <Switch
-              id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={(checked) =>
-                onFormDataChange({ ...formData, isActive: checked })
-              }
-            />
-          </div>
           </div>
         </ScrollArea>
 

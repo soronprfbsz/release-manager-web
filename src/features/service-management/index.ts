@@ -32,5 +32,4 @@ export {
   getServiceTypeColor,
   getComponentTypeIcon,
   getComponentDisplayInfo,
-  maskPassword,
 } from './lib/serviceHelpers'
