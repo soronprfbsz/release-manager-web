@@ -40,7 +40,7 @@ export function ThemeToggle() {
     <DropdownMenu open={open} modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="ghost-icon"
           size="icon"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}

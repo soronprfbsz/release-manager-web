@@ -56,7 +56,7 @@ export function NavigationBar() {
             onClick={handleLogoClick}
             className="flex items-center w-fit cursor-pointer"
           >
-            <span className="font-bold text-lg">Release Manager</span>
+            <span className="font-bold text-lg hover:text-primary transition-colors">Release Manager</span>
           </a>
         </div>
 
@@ -207,7 +207,7 @@ export function NavigationBar() {
             </span>
           )}
           <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
+          <Button variant="ghost-icon" size="icon" onClick={handleLogout}>
             <LogOut className="h-[1.2rem] w-[1.2rem]" />
             <span className="sr-only">로그아웃</span>
           </Button>

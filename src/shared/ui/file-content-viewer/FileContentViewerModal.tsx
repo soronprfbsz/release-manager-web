@@ -2,9 +2,10 @@ import { useMemo, useRef } from 'react'
 
 import { Loader2, AlertTriangle, Download, Maximize2, Minimize2, X } from 'lucide-react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
+import { useThemeStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -84,6 +85,10 @@ export function FileContentViewerModal({
   const language = getLanguageFromFileName(fileName)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
+  const theme = useThemeStore((state) => state.theme)
+
+  // 테마에 따른 syntax highlighter 스타일 선택
+  const syntaxStyle = theme === 'white' ? vs : vscDarkPlus
 
   // 콘텐츠 크기 계산 및 미리보기 처리
   const { displayContent, isTruncated, totalLines, displayedLines, contentSize } = useMemo(() => {
@@ -225,7 +230,7 @@ export function FileContentViewerModal({
               {displayContent && !isLoading && !error && (
                 <SyntaxHighlighter
                   language={language}
-                  style={vscDarkPlus}
+                  style={syntaxStyle}
                   showLineNumbers
                   customStyle={{
                     margin: 0,
