@@ -7,6 +7,7 @@ export type FileSyncActionType =
 
 export type FileSyncStatus =
     | 'UNREGISTERED'
+    | 'SIZE_MISMATCH'
     | 'CHECKSUM_MISMATCH'
     | 'FILE_MISSING'
     | 'DB_MISSING'

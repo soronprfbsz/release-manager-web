@@ -273,11 +273,11 @@ export function HomePage() {
       {/* Quick Guide */}
       <div>
         <TypographyLarge className="mb-3">Guide</TypographyLarge>
-        <Card className="bg-muted/20">
+        <Card>
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
-              <div className="p-2 rounded-full bg-blue-500/10">
-                <Package className="h-5 w-5 text-blue-500" />
+              <div className="p-2 rounded-full bg-primary/10">
+                <Package className="h-5 w-5 text-primary" />
               </div>
               <div className="space-y-1">
                 <TypographyMuted>1. <strong>버전 관리</strong>에서 표준/커스텀 버전의 릴리즈를 생성 및 관리합니다.</TypographyMuted>

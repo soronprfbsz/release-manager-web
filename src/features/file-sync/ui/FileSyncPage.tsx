@@ -77,6 +77,8 @@ const getStatusConfig = (status: FileSyncStatus): { label: string; variant: Them
     switch (status) {
         case 'UNREGISTERED':
             return { label: '미등록', variant: 'theme-1' }
+        case 'SIZE_MISMATCH':
+            return { label: 'SIZE_MISMATCH', variant: 'theme-2' }
         case 'CHECKSUM_MISMATCH':
             return { label: '체크섬 불일치', variant: 'theme-2' }
         case 'FILE_MISSING':
@@ -96,6 +98,7 @@ const getAvailableActions = (status: FileSyncStatus): FileSyncActionType[] => {
         case 'UNREGISTERED':
         case 'DB_MISSING':
             return ['REGISTER', 'DELETE_FILE', 'IGNORE']
+        case 'SIZE_MISMATCH':
         case 'CHECKSUM_MISMATCH':
         case 'METADATA_MISMATCH':
             return ['UPDATE_METADATA', 'IGNORE']
