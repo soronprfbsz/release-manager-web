@@ -77,6 +77,11 @@ export function LinkResourceForm({
         description: '',
     }
 
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues,
+    })
+
     // Helper to find matching category code (case-insensitive)
     const getNormalizedCategory = (value: string) => {
         if (!value) return ''
@@ -84,19 +89,20 @@ export function LinkResourceForm({
         return code ? code.value : value
     }
 
-    const formValues = mode === 'update' && initialData ? {
-        linkName: initialData.linkName,
-        linkUrl: initialData.linkUrl,
-        linkCategory: getNormalizedCategory(initialData.linkCategory),
-        subCategory: initialData.subCategory || '',
-        description: initialData.description || '',
-    } : defaultValues
-
-    const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues,
-        values: isOpen ? formValues : undefined, // Only update values when open to prevent flicker or unwanted resets
-    })
+    // Reset form with data when both initialData AND categoryList are available (for update mode)
+    useEffect(() => {
+        if (isOpen && mode === 'update' && initialData && categoryList.length > 0) {
+            form.reset({
+                linkName: initialData.linkName,
+                linkUrl: initialData.linkUrl,
+                linkCategory: getNormalizedCategory(initialData.linkCategory),
+                subCategory: initialData.subCategory || '',
+                description: initialData.description || '',
+            })
+        } else if (isOpen && mode === 'create') {
+            form.reset(defaultValues)
+        }
+    }, [isOpen, mode, initialData, categoryList, form])
 
     // Reset form when closed to clear state
     useEffect(() => {

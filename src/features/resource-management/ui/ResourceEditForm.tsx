@@ -74,6 +74,11 @@ export function ResourceEditForm({
         description: '',
     }
 
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues,
+    })
+
     // Helper to find matching category code (case-insensitive)
     const getNormalizedCategory = (value: string) => {
         if (!value) return ''
@@ -81,18 +86,17 @@ export function ResourceEditForm({
         return code ? code.value : value
     }
 
-    const formValues = resource ? {
-        resourceFileName: resource.resourceFileName,
-        fileCategory: getNormalizedCategory(resource.fileCategory),
-        subCategory: resource.subCategory || '',
-        description: resource.description || '',
-    } : defaultValues
-
-    const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues,
-        values: isOpen ? formValues : undefined,
-    })
+    // Reset form with resource data when both resource AND categoryList are available
+    useEffect(() => {
+        if (isOpen && resource && categoryList.length > 0) {
+            form.reset({
+                resourceFileName: resource.resourceFileName,
+                fileCategory: getNormalizedCategory(resource.fileCategory),
+                subCategory: resource.subCategory || '',
+                description: resource.description || '',
+            })
+        }
+    }, [isOpen, resource, categoryList, form])
 
     // Get subcategory code type based on selected category
     const getSubCategoryCodeType = (category: string) => {

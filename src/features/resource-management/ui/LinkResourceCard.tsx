@@ -52,8 +52,7 @@ export function LinkResourceCard({
       }
       actionButton={
         <Button
-          className="w-full"
-          variant="outline"
+          className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
           onClick={() => window.open(resource.linkUrl, '_blank', 'noopener,noreferrer')}
         >
           <ExternalLink className="h-4 w-4 mr-2" />

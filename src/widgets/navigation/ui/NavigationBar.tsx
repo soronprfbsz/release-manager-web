@@ -121,15 +121,14 @@ export function NavigationBar() {
                                         key={child.label}
                                         className={cn(
                                           'col-span-2',
-                                          childIndex > 0 && 'pt-2'
+                                          childIndex > 0 && 'pt-3'
                                         )}
                                       >
-                                        {/* 섹션 헤더 with divider */}
-                                        <div className="mb-2 px-1 flex items-center gap-3">
-                                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                                        {/* 섹션 헤더 */}
+                                        <div className="mb-1.5 px-1">
+                                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                             {child.label}
                                           </span>
-                                          <div className="flex-1 h-px bg-border" />
                                         </div>
                                         {/* 3-depth 아이템들 */}
                                         {(() => {

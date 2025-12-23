@@ -53,7 +53,10 @@ export function ResourceCard({
         )
       }
       actionButton={
-        <Button className="w-full" onClick={() => onDownload(resource)}>
+        <Button
+          className="w-full bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+          onClick={() => onDownload(resource)}
+        >
           <Download className="h-4 w-4 mr-2" />
           다운로드
         </Button>
