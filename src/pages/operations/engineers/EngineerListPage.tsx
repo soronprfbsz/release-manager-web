@@ -5,7 +5,9 @@
 
 import { useState, useMemo } from 'react'
 
-import { Users, Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, Users } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import {
   EngineerTable,
@@ -204,7 +206,7 @@ export function EngineerListPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Users className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('operation_engineers')}
         title="엔지니어 관리"
         actions={
           <>

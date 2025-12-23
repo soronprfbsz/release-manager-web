@@ -8,6 +8,8 @@ import { useState } from 'react'
 import { HardDrive, RefreshCw } from 'lucide-react'
 import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
 
+import { getPageIconById } from '@/shared/config/menu-icons'
+
 import { BackupDialog } from '@/widgets/job-backup-dialog'
 import { RestoreDialog } from '@/widgets/job-restore-dialog'
 
@@ -203,7 +205,7 @@ export function MariaDBJobPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<BsDatabaseDown className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('remote_mariadb')}
         title="MariaDB"
         actions={
           <>

@@ -4,7 +4,9 @@
  */
 
 import { useState } from 'react'
-import { Plus, RefreshCw, FolderKanban } from 'lucide-react'
+import { Plus, RefreshCw } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import {
   useProjects,
@@ -164,7 +166,7 @@ export function ProjectListPage() {
 
       <div className="space-y-8">
         <PageHeader
-          icon={<FolderKanban className="h-5 w-5 text-primary" />}
+          icon={getPageIconById('operation_projects')}
           title="프로젝트 관리"
           actions={
             <>

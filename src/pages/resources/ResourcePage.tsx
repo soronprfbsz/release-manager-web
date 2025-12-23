@@ -5,7 +5,9 @@
 
 import { useState } from 'react'
 
-import { Download, FileText, Plus, RefreshCw, Link as LinkIcon, FolderOpen } from 'lucide-react'
+import { FileText, Plus, RefreshCw, Link as LinkIcon, FolderOpen } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import {
@@ -388,7 +390,7 @@ export function ResourcePage() {
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
-          icon={<Download className="h-5 w-5 text-primary" />}
+          icon={getPageIconById('infrastructure_resources')}
           title="리소스 관리"
           actions={getPageHeaderActions()}
         />

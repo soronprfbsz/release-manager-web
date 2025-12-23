@@ -82,7 +82,7 @@ export function ResourceCardBase({
             )}
 
             {/* 아이콘 */}
-            <div className="p-2 rounded-lg bg-muted/50 flex-shrink-0">
+            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
               {icon}
             </div>
 

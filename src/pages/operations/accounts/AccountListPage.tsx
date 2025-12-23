@@ -5,7 +5,9 @@
 
 import { useState } from 'react'
 
-import { User, RefreshCw } from 'lucide-react'
+import { RefreshCw, User } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 import { Link } from 'react-router-dom'
 
 import {
@@ -156,7 +158,7 @@ export function AccountListPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<User className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('operation_accounts')}
         title="계정 관리"
         actions={
           <Tooltip>

@@ -4,7 +4,9 @@
  */
 
 import { useState, useCallback, useRef } from 'react'
-import { PlugZap, Unplug, Terminal, Upload } from 'lucide-react'
+import { PlugZap, Unplug, Upload } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import {
   SshConnectionSheet,
@@ -64,7 +66,7 @@ export function SshShellPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Terminal className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('remote_terminal')}
         title="터미널"
         actions={
           <>

@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { LogOut, Rocket } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
@@ -9,6 +7,7 @@ import { ProjectSelector } from '@/widgets/project-selector'
 import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
 
 import { ROUTES } from '@/shared/config/constants'
+import { getMenuIconById } from '@/shared/config/menu-icons'
 import { cn } from '@/shared/lib/utils'
 import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
@@ -81,9 +80,7 @@ export function NavigationBar() {
                         {(() => {
                           // description이 표시되는 아이템이 있는지 확인 (2-depth, 3-depth 모두)
                           const hasVisibleDescription = item.children!.some((child) => {
-                            // 2-depth 자체에 description이 있는 경우
                             if (child.isDescriptionVisible && child.description) return true
-                            // 3-depth 아이템 중에 description이 있는 경우
                             if (child.children && child.children.length > 0) {
                               return child.children.some(
                                 (subChild) => subChild.isDescriptionVisible && subChild.description
@@ -92,83 +89,98 @@ export function NavigationBar() {
                             return false
                           })
 
-                          // 그리드는 항상 2열 고정
-                          const gridColsClass = 'grid-cols-2'
-                          const colSpanClass = 'col-span-2'
+                          // 실제로 2 column이 필요한지 확인
+                          // - hasVisibleDescription이 true인 그룹이 있거나
+                          // - isLineBreak이 아닌 아이템이 2개 이상 같은 그룹에 있는 경우
+                          const needsTwoColumns = item.children!.some((child) => {
+                            if (child.children && child.children.length > 0) {
+                              const filteredChildren = child.children.filter(subChild => subChild.path)
+                              const hasAnyDesc = filteredChildren.some(c => c.isDescriptionVisible && c.description)
+                              // description이 있으면 2 column 필요
+                              if (hasAnyDesc) return true
+                              // isLineBreak이 아닌 아이템이 2개 이상이면 2 column 필요
+                              const nonLineBreakItems = filteredChildren.filter(c => !c.isLineBreak)
+                              return nonLineBreakItems.length >= 2
+                            }
+                            // 2-depth 직접 아이템의 경우
+                            if (!child.isLineBreak && child.isDescriptionVisible && child.description) return true
+                            return false
+                          })
 
-                          // 너비 계산: description이 있으면 더 넓게, 없으면 컴팩트하게 (2열 기준)
-                          const columnWidth = hasVisibleDescription ? 280 : 100
-                          const minWidth = 2 * columnWidth
-                          // 패딩과 갭: description이 없으면 더 작게
-                          const paddingClass = hasVisibleDescription ? 'p-3' : 'p-2'
-                          const gapClass = hasVisibleDescription ? 'gap-2' : 'gap-1'
+                          const columnWidth = hasVisibleDescription ? 280 : 140
+                          const minWidth = needsTwoColumns ? 2 * columnWidth : columnWidth
 
                           return (
-                            <ul className={cn('grid w-auto', gridColsClass, paddingClass, gapClass)} style={{ minWidth: `${minWidth}px` }}>
-                              {item.children!.map((child) => {
-                                const hasChildren = child.children && child.children.length > 0
+                            <div className="p-3" style={{ minWidth: `${minWidth}px` }}>
+                              <div className={cn('grid gap-3', needsTwoColumns ? 'grid-cols-2' : 'grid-cols-1')}>
+                                {item.children!.map((child, childIndex) => {
+                                  const hasChildren = child.children && child.children.length > 0
 
-                                if (hasChildren) {
-                                  // 3-depth가 있는 경우: 섹션 헤더 + 3-depth 아이템들을 하나로 묶음
-                                  return (
-                                    <li
-                                      key={child.label}
-                                      className={cn(
-                                        colSpanClass,
-                                        child.isLineBreak && 'col-start-1'
-                                      )}
-                                    >
-                                      <div className="rounded-lg border bg-muted/50 p-2 mb-2">
-                                        {/* 섹션 헤더 */}
-                                        <div className="px-1 py-1 text-sm font-semibold mb-1">
-                                          {child.label}
-                                          {child.isDescriptionVisible && child.description && (
-                                            <p className="text-xs font-normal mt-1 opacity-70">
-                                              {child.description}
-                                            </p>
-                                          )}
+                                  if (hasChildren) {
+                                    return (
+                                      <div
+                                        key={child.label}
+                                        className={cn(
+                                          'col-span-2',
+                                          childIndex > 0 && 'pt-2'
+                                        )}
+                                      >
+                                        {/* 섹션 헤더 with divider */}
+                                        <div className="mb-2 px-1 flex items-center gap-3">
+                                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                                            {child.label}
+                                          </span>
+                                          <div className="flex-1 h-px bg-border" />
                                         </div>
-                                        {/* 3-depth 아이템들을 그리드로 배치 */}
-                                        <div className={cn('grid grid-cols-2', hasVisibleDescription ? 'gap-2' : 'gap-1')}>
-                                          {child.children!.filter(subChild => subChild.path).map((subChild) => {
-                                            const hasDesc = subChild.isDescriptionVisible && subChild.description
-                                            const itemPadding = hasDesc ? 'p-2' : 'py-1.5 px-2'
-                                            return (
-                                              <div
-                                                key={subChild.label}
-                                                className={cn(subChild.isLineBreak && 'col-start-1 col-span-2')}
-                                              >
-                                                <NavigationMenuLink asChild>
-                                                  <Link
-                                                    to={subChild.path!}
-                                                    className={cn(
-                                                      'group block select-none rounded-md leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground border border-transparent hover:border-border',
-                                                      itemPadding
-                                                    )}
-                                                  >
-                                                    <div className={cn('text-sm leading-tight', hasDesc && 'font-semibold mb-1')}>
-                                                      {subChild.label}
-                                                    </div>
-                                                    {hasDesc && (
-                                                      <p className="line-clamp-2 text-xs leading-snug opacity-70">
-                                                        {subChild.description}
-                                                      </p>
-                                                    )}
-                                                  </Link>
-                                                </NavigationMenuLink>
-                                              </div>
-                                            )
-                                          })}
-                                        </div>
+                                        {/* 3-depth 아이템들 */}
+                                        {(() => {
+                                          const filteredChildren = child.children!.filter(subChild => subChild.path)
+                                          const hasAnyDesc = filteredChildren.some(c => c.isDescriptionVisible && c.description)
+                                          return (
+                                            <div className={cn('grid gap-1', hasAnyDesc ? 'grid-cols-2' : 'grid-cols-1')}>
+                                              {filteredChildren.map((subChild) => {
+                                                const hasDesc = subChild.isDescriptionVisible && subChild.description
+                                                const icon = getMenuIconById(subChild.menuId)
+                                                return (
+                                                  <NavigationMenuLink key={subChild.label} asChild>
+                                                    <Link
+                                                      to={subChild.path!}
+                                                      className={cn(
+                                                        'group/item flex items-start gap-2 rounded-md transition-all duration-200',
+                                                        hasDesc ? 'p-2' : 'px-2 py-1.5',
+                                                        subChild.isLineBreak && 'col-span-2'
+                                                      )}
+                                                    >
+                                                      {hasDesc && icon && (
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
+                                                          {icon}
+                                                        </div>
+                                                      )}
+                                                      <div className="flex-1 min-w-0">
+                                                        <div className="text-sm font-medium leading-tight group-hover/item:text-primary transition-colors">
+                                                          {subChild.label}
+                                                        </div>
+                                                        {hasDesc && (
+                                                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                                            {subChild.description}
+                                                          </p>
+                                                        )}
+                                                      </div>
+                                                    </Link>
+                                                  </NavigationMenuLink>
+                                                )
+                                              })}
+                                            </div>
+                                          )
+                                        })()}
                                       </div>
-                                    </li>
-                                  )
-                                } else {
-                                  // 3-depth가 없는 일반 2-depth 아이템
-                                  return <NestedListItem key={child.label} item={child} />
-                                }
-                              })}
-                            </ul>
+                                    )
+                                  } else {
+                                    return <ModernListItem key={child.label} item={child} />
+                                  }
+                                })}
+                              </div>
+                            </div>
                           )
                         })()}
                       </NavigationMenuContent>
@@ -206,35 +218,43 @@ export function NavigationBar() {
   )
 }
 
-interface NestedListItemProps {
+interface ModernListItemProps {
   item: MenuItem
 }
 
-function NestedListItem({ item }: NestedListItemProps) {
-  // 일반 2depth 아이템 (path가 있어야 함)
+function ModernListItem({ item }: ModernListItemProps) {
   if (!item.path) return null
 
   const hasDesc = item.isDescriptionVisible && item.description
-  const itemPadding = hasDesc ? 'p-2' : 'py-1.5 px-2'
+  const icon = getMenuIconById(item.menuId)
 
   return (
-    <li className={cn(item.isLineBreak && 'col-start-1 col-span-2')}>
+    <div className={cn(item.isLineBreak && 'col-span-2')}>
       <NavigationMenuLink asChild>
         <Link
           to={item.path}
           className={cn(
-            'group block select-none rounded-md leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground border border-transparent hover:border-border',
-            itemPadding
+            'group/item flex items-start gap-2 rounded-md transition-all duration-200',
+            hasDesc ? 'p-2' : 'px-2 py-1.5'
           )}
         >
-          <div className={cn('text-sm leading-tight', hasDesc && 'font-semibold mb-1')}>{item.label}</div>
-          {hasDesc && (
-            <p className="line-clamp-2 text-xs leading-snug opacity-70">
-              {item.description}
-            </p>
+          {hasDesc && icon && (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
+              {icon}
+            </div>
           )}
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium leading-tight group-hover/item:text-primary transition-colors">
+              {item.label}
+            </div>
+            {hasDesc && (
+              <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                {item.description}
+              </p>
+            )}
+          </div>
         </Link>
       </NavigationMenuLink>
-    </li>
+    </div>
   )
 }

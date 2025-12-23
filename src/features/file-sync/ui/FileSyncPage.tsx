@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
     RotateCw,
-    FileDiff,
     Database,
     RefreshCw,
     Plus,
@@ -14,7 +13,10 @@ import {
     ScanSearch,
     ListX,
     RotateCcw,
+    FileDiff,
 } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { Button } from '@/shared/ui/button'
 import {
@@ -24,6 +26,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
+    TruncatedText,
 } from '@/shared/ui/table'
 import {
     Card,
@@ -53,44 +56,37 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
-import { useAnalyzeFileSync, useApplyFileSync, useIgnoredFiles, useRestoreIgnoredFile } from '../api/queries'
-import { FileSyncResult, FileSyncActionType, FileSyncStatus, FileSyncTarget } from '../api/types'
+import { useCodesByType, CODE_TYPE } from '@/entities/code'
 
-// Target 한글 변환
-const getTargetLabel = (target: FileSyncTarget): string => {
-    switch (target) {
-        case 'VERSION':
-            return '버전'
-        case 'PATCH':
-            return '패치'
-        case 'RESOURCE':
-            return '리소스'
-        case 'BACKUP':
-            return '백업'
-        case 'CUSTOM':
-            return '커스텀'
-        case 'RELEASE_FILE':
-            return '릴리즈 파일'
-        default:
-            return target
-    }
+import { useAnalyzeFileSync, useApplyFileSync, useIgnoredFiles, useRestoreIgnoredFile } from '../api/queries'
+import { FileSyncResult, FileSyncActionType, FileSyncStatus } from '../api/types'
+
+// 바이트 포맷팅
+const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
-// Status 한글 변환 및 variant
-const getStatusConfig = (status: FileSyncStatus): { label: string; variant: 'error' | 'warning' | 'info' | 'success' } => {
+
+// Status 한글 변환 및 variant (테마 기반 색상 사용)
+type ThemeVariant = 'theme-1' | 'theme-2' | 'theme-3' | 'theme-4' | 'theme-5'
+const getStatusConfig = (status: FileSyncStatus): { label: string; variant: ThemeVariant } => {
     switch (status) {
         case 'UNREGISTERED':
-            return { label: '미등록', variant: 'warning' }
+            return { label: '미등록', variant: 'theme-1' }
         case 'CHECKSUM_MISMATCH':
-            return { label: '체크섬 불일치', variant: 'error' }
+            return { label: '체크섬 불일치', variant: 'theme-2' }
         case 'FILE_MISSING':
-            return { label: '파일 누락', variant: 'error' }
+            return { label: '파일 누락', variant: 'theme-3' }
         case 'DB_MISSING':
-            return { label: 'DB 누락', variant: 'warning' }
+            return { label: 'DB 누락', variant: 'theme-4' }
         case 'METADATA_MISMATCH':
-            return { label: '메타데이터 불일치', variant: 'info' }
+            return { label: '메타데이터 불일치', variant: 'theme-5' }
         default:
-            return { label: status, variant: 'info' }
+            return { label: status, variant: 'theme-1' }
     }
 }
 
@@ -110,13 +106,13 @@ const getAvailableActions = (status: FileSyncStatus): FileSyncActionType[] => {
     }
 }
 
-// 액션별 설정
-const actionConfig: Record<FileSyncActionType, { label: string; icon: typeof Plus; destructive?: boolean }> = {
-    REGISTER: { label: 'DB 등록', icon: Plus },
-    UPDATE_METADATA: { label: '메타데이터 갱신', icon: RefreshCw },
-    DELETE_METADATA: { label: 'DB 레코드 삭제', icon: Trash2, destructive: true },
-    DELETE_FILE: { label: '파일 삭제', icon: FileX, destructive: true },
-    IGNORE: { label: '제외', icon: Ban },
+// 액션별 아이콘 및 스타일 설정 (라벨은 API에서 동적으로 가져옴)
+const actionIconConfig: Record<FileSyncActionType, { icon: typeof Plus; destructive?: boolean }> = {
+    REGISTER: { icon: Plus },
+    UPDATE_METADATA: { icon: RefreshCw },
+    DELETE_METADATA: { icon: Trash2, destructive: true },
+    DELETE_FILE: { icon: FileX, destructive: true },
+    IGNORE: { icon: Ban },
 }
 
 type TabType = 'analysis' | 'ignored'
@@ -127,6 +123,23 @@ export function FileSyncPage() {
 
     const handleTabChange = (value: string) => {
         setSearchParams({ tab: value })
+    }
+
+    // 액션 코드값 조회
+    const { data: actionCodes = [] } = useCodesByType(CODE_TYPE.FILE_SYNC_ACTION)
+
+    // 액션 라벨 맵 생성 (코드값 -> 라벨)
+    const actionLabels = useMemo(() => {
+        const labels: Record<string, string> = {}
+        actionCodes.forEach(code => {
+            labels[code.value] = code.name
+        })
+        return labels
+    }, [actionCodes])
+
+    // 액션 라벨 가져오기 (폴백 포함)
+    const getActionLabel = (action: FileSyncActionType): string => {
+        return actionLabels[action] || action
     }
 
     // Analysis tab state
@@ -291,19 +304,19 @@ export function FileSyncPage() {
                                 </div>
                                 <DropdownMenuSeparator />
                                 {selectedItemsInfo.availableActions.map((action, index) => {
-                                    const config = actionConfig[action]
-                                    const Icon = config.icon
-                                    const showSeparator = index > 0 && config.destructive
+                                    const iconConfig = actionIconConfig[action]
+                                    const Icon = iconConfig.icon
+                                    const showSeparator = index > 0 && iconConfig.destructive
 
                                     return (
                                         <div key={action}>
                                             {showSeparator && <DropdownMenuSeparator />}
                                             <DropdownMenuItem
                                                 onClick={() => handleBulkAction(action)}
-                                                className={config.destructive ? 'text-red-600 focus:text-red-600' : ''}
+                                                className={iconConfig.destructive ? 'text-red-600 focus:text-red-600' : ''}
                                             >
                                                 <Icon className="mr-2 h-4 w-4" />
-                                                {config.label}
+                                                {getActionLabel(action)}
                                             </DropdownMenuItem>
                                         </div>
                                     )
@@ -365,7 +378,7 @@ export function FileSyncPage() {
 
             <div className="space-y-6">
                 <PageHeader
-                    icon={<FileDiff className="h-5 w-5 text-primary" />}
+                    icon={getPageIconById('operation_filesync')}
                     title="파일 동기화"
                     actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
                 />
@@ -412,19 +425,22 @@ export function FileSyncPage() {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
-                                                    <TableHead className="w-12 text-center">
+                                                    <TableHead style={{ width: '3%' }} className="text-center">
                                                         <Checkbox
                                                             checked={isIndeterminate ? 'indeterminate' : isAllSelected}
                                                             onCheckedChange={handleSelectAll}
                                                             aria-label="전체 선택"
                                                         />
                                                     </TableHead>
-                                                    <TableHead className="w-16 text-center">No</TableHead>
-                                                    <TableHead className="w-28">대상</TableHead>
+                                                    <TableHead style={{ width: '3%' }} className="text-center">No</TableHead>
+                                                    <TableHead style={{ width: '7%' }}>분류</TableHead>
+                                                    <TableHead style={{ width: '12%' }}>파일</TableHead>
                                                     <TableHead>경로</TableHead>
-                                                    <TableHead className="w-32 text-center">상태</TableHead>
-                                                    <TableHead className="w-80">메시지</TableHead>
-                                                    <TableHead className="w-12 text-center"></TableHead>
+                                                    <TableHead style={{ width: '7%' }} className="text-center">상태</TableHead>
+                                                    <TableHead style={{ width: '12%' }}>파일 정보</TableHead>
+                                                    <TableHead style={{ width: '12%' }}>DB 정보</TableHead>
+                                                    <TableHead style={{ width: '14%' }}>메시지</TableHead>
+                                                    <TableHead style={{ width: '3%' }} className="text-center"></TableHead>
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
@@ -447,11 +463,14 @@ export function FileSyncPage() {
                                                             </TableCell>
                                                             <TableCell>
                                                                 <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-muted">
-                                                                    {getTargetLabel(item.target)}
+                                                                    {item.targetName}
                                                                 </span>
                                                             </TableCell>
-                                                            <TableCell className="font-mono text-xs">
-                                                                {item.filePath}
+                                                            <TableCell className="text-sm">
+                                                                <TruncatedText>{item.fileName}</TruncatedText>
+                                                            </TableCell>
+                                                            <TableCell className="font-mono text-xs max-w-0">
+                                                                <TruncatedText>{item.filePath}</TruncatedText>
                                                             </TableCell>
                                                             <TableCell className="text-center">
                                                                 <StatusBadge variant={statusConfig.variant}>
@@ -459,16 +478,54 @@ export function FileSyncPage() {
                                                                 </StatusBadge>
                                                             </TableCell>
                                                             <TableCell>
-                                                                <TypographyMuted>
-                                                                    {item.message || '-'}
-                                                                </TypographyMuted>
+                                                                {item.fileInfo ? (
+                                                                    <div className="text-xs space-y-0.5">
+                                                                        <div className="flex gap-1">
+                                                                            <span className="text-muted-foreground w-10">크기:</span>
+                                                                            <span className="font-mono">{formatBytes(item.fileInfo.size)}</span>
+                                                                        </div>
+                                                                        <div className="flex gap-1">
+                                                                            <span className="text-muted-foreground w-10">체크섬:</span>
+                                                                            <span className="font-mono max-w-[100px]">
+                                                                                <TruncatedText>{item.fileInfo.checksum}</TruncatedText>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <TypographyMuted>-</TypographyMuted>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {item.dbInfo ? (
+                                                                    <div className="text-xs space-y-0.5">
+                                                                        <div className="flex gap-1">
+                                                                            <span className="text-muted-foreground w-10">크기:</span>
+                                                                            <span className="font-mono">{formatBytes(item.dbInfo.size)}</span>
+                                                                        </div>
+                                                                        <div className="flex gap-1">
+                                                                            <span className="text-muted-foreground w-10">체크섬:</span>
+                                                                            <span className="font-mono max-w-[100px]">
+                                                                                <TruncatedText>{item.dbInfo.checksum}</TruncatedText>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <TypographyMuted>-</TypographyMuted>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell className="text-xs max-w-[160px]">
+                                                                {item.message ? (
+                                                                    <TruncatedText>{item.message}</TruncatedText>
+                                                                ) : (
+                                                                    <TypographyMuted>-</TypographyMuted>
+                                                                )}
                                                             </TableCell>
                                                             <TableCell>
                                                                 <TableActionMenu>
                                                                     {availableActions.map((action, actionIndex) => {
-                                                                        const config = actionConfig[action]
-                                                                        const Icon = config.icon
-                                                                        const showSeparator = actionIndex > 0 && config.destructive
+                                                                        const iconConfig = actionIconConfig[action]
+                                                                        const Icon = iconConfig.icon
+                                                                        const showSeparator = actionIndex > 0 && iconConfig.destructive
 
                                                                         return (
                                                                             <div key={action}>
@@ -476,10 +533,10 @@ export function FileSyncPage() {
                                                                                 <TableActionMenuItem
                                                                                     onClick={() => handleAction(item, action)}
                                                                                     disabled={applyMutation.isPending}
-                                                                                    className={config.destructive ? 'text-red-600 focus:text-red-600' : ''}
+                                                                                    className={iconConfig.destructive ? 'text-red-600 focus:text-red-600' : ''}
                                                                                 >
                                                                                     <Icon className="mr-2 h-4 w-4" />
-                                                                                    {config.label}
+                                                                                    {getActionLabel(action)}
                                                                                 </TableActionMenuItem>
                                                                             </div>
                                                                         )
@@ -523,7 +580,7 @@ export function FileSyncPage() {
                                     <EmptyState
                                         icon={FileCheck}
                                         title="제외된 파일이 없습니다."
-                                        description="분석 결과에서 '제외' 액션을 사용하면 해당 파일이 이 목록에 추가됩니다."
+                                        description="분석 결과에서 '분석 제외' 액션을 사용하면 해당 파일이 이 목록에 추가됩니다."
                                     />
                                 ) : (
                                     <DataTable>
@@ -531,7 +588,7 @@ export function FileSyncPage() {
                                             <TableHeader>
                                                 <TableRow>
                                                     <TableHead className="w-16 text-center">No</TableHead>
-                                                    <TableHead className="w-28">대상</TableHead>
+                                                    <TableHead className="w-28">분류</TableHead>
                                                     <TableHead>경로</TableHead>
                                                     <TableHead className="w-32 text-center">제외 당시 상태</TableHead>
                                                     <TableHead className="w-32">처리자</TableHead>
@@ -549,11 +606,11 @@ export function FileSyncPage() {
                                                             </TableCell>
                                                             <TableCell>
                                                                 <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-muted">
-                                                                    {getTargetLabel(item.targetType)}
+                                                                    {item.targetTypeName}
                                                                 </span>
                                                             </TableCell>
-                                                            <TableCell className="font-mono text-xs">
-                                                                {item.filePath}
+                                                            <TableCell className="font-mono text-xs max-w-[300px]">
+                                                                <TruncatedText>{item.filePath}</TruncatedText>
                                                             </TableCell>
                                                             <TableCell className="text-center">
                                                                 <StatusBadge variant={statusConfig.variant}>

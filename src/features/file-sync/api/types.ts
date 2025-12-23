@@ -20,12 +20,30 @@ export type FileSyncTarget =
     | 'CUSTOM'
     | 'RELEASE_FILE'
 
+export interface FileInfo {
+    size: number
+    checksum: string
+    lastModified: string
+}
+
+export interface DbInfo {
+    id: number
+    size: number
+    checksum: string
+    registeredAt: string
+}
+
 export interface FileSyncResult {
     id: string
     target: FileSyncTarget
+    targetName: string
     filePath: string
+    fileName: string
     status: FileSyncStatus
     message?: string
+    fileInfo?: FileInfo
+    dbInfo?: DbInfo
+    availableActions?: FileSyncActionType[]
     suggestedAction?: FileSyncActionType
 }
 
@@ -53,6 +71,7 @@ export interface IgnoredFile {
     ignoreId: number
     filePath: string
     targetType: FileSyncTarget
+    targetTypeName: string
     status: FileSyncStatus
     ignoredBy?: string
     createdAt: string

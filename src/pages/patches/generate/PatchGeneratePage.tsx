@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Layers } from 'lucide-react'
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { useAuthStore, useProjectStore } from '@/shared/store'
 
@@ -138,7 +138,7 @@ export function PatchGeneratePage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Layers className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('patch_generate')}
         title="패치 생성"
       />
 

@@ -1,5 +1,7 @@
 import { GitBranch, Construction } from 'lucide-react'
 
+import { getPageIconById } from '@/shared/config/menu-icons'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { PageHeader } from '@/shared/ui/page-header'
@@ -12,7 +14,7 @@ export function CustomPatchPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<GitBranch className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('patch_custom')}
         title="패치 관리 (Custom)"
       />
 

@@ -1,7 +1,10 @@
 import { useState, FormEvent } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
+
+import { menuKeys } from '@/entities/menu'
 
 import type { ApiError } from '@/shared/api'
 import { ROUTES } from '@/shared/config/constants'
@@ -18,6 +21,7 @@ export function LoginForm() {
   const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -25,6 +29,8 @@ export function LoginForm() {
 
     try {
       await login(email, password)
+      // 로그인 성공 시 메뉴 캐시 무효화하여 새 권한 즉시 반영
+      await queryClient.invalidateQueries({ queryKey: menuKeys.all })
       navigate(ROUTES.HOME)
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>

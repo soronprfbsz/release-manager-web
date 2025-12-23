@@ -1,8 +1,10 @@
 import * as React from "react"
+import { useRef, useState, useEffect } from "react"
 
 import { ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -112,6 +114,71 @@ const TableCaption = React.forwardRef<
 ))
 TableCaption.displayName = "TableCaption"
 
+/**
+ * TruncatedText - 텍스트 축약 및 툴팁 컴포넌트
+ * 내용이 잘렸을 때만 마우스 오버 시 툴팁 표시
+ */
+interface TruncatedTextProps {
+  children: React.ReactNode
+  className?: string
+  /** 최대 줄 수 (기본: 1) */
+  maxLines?: 1 | 2 | 3
+}
+
+function TruncatedText({ children, className, maxLines = 1 }: TruncatedTextProps) {
+  const textRef = useRef<HTMLSpanElement>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      const element = textRef.current
+      if (element) {
+        // scrollWidth > clientWidth (가로 축약) 또는 scrollHeight > clientHeight (세로 축약)
+        setIsTruncated(
+          element.scrollWidth > element.clientWidth ||
+          element.scrollHeight > element.clientHeight
+        )
+      }
+    }
+
+    checkTruncation()
+
+    // ResizeObserver로 크기 변화 감지
+    const element = textRef.current
+    if (element) {
+      const observer = new ResizeObserver(checkTruncation)
+      observer.observe(element)
+      return () => observer.disconnect()
+    }
+  }, [children])
+
+  const lineClampClass = maxLines === 1 ? 'truncate' : maxLines === 2 ? 'line-clamp-2' : 'line-clamp-3'
+
+  const content = (
+    <span
+      ref={textRef}
+      className={cn(lineClampClass, 'block', className)}
+    >
+      {children}
+    </span>
+  )
+
+  if (!isTruncated) {
+    return content
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {content}
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-md whitespace-pre-wrap break-all">
+        {children}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 export {
   Table,
   TableHeader,
@@ -122,6 +189,7 @@ export {
   TableCell,
   TableCaption,
   SortableTableHead,
+  TruncatedText,
 }
 
 interface SortableTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {

@@ -7,6 +7,7 @@
  * 메뉴 아이템 인터페이스
  */
 export interface MenuItem {
+  menuId: string
   label: string
   description?: string
   isDescriptionVisible?: boolean
@@ -28,6 +29,7 @@ export function convertMenuResponseToMenuItem(menu: {
   children: any[]
 }): MenuItem {
   return {
+    menuId: menu.menuId,
     label: menu.menuName,
     description: menu.description,
     isDescriptionVisible: menu.isDescriptionVisible,

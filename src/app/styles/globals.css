@@ -81,7 +81,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
     --primary: 222.2 47.4% 11.2%;
-    /* Slate 900 for Primary in light mode? Or keep Teal. User had Teal. 
+    /* Slate 900 for Primary in light mode? Or keep Teal. User had Teal.
        Let's stick to Teal primary but fix surfaces.
     */
     --primary: 177 45% 40%;
@@ -90,7 +90,8 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
+    --accent: 177 45% 85%;
+    /* Light teal accent - visible hover background based on primary */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -197,8 +198,9 @@
     --secondary-foreground: 46 22% 86%;
     --muted: 0 0% 30%;
     --muted-foreground: 0 0% 66%;
-    --accent: 142 61% 44%;
-    --accent-foreground: 0 0% 16%;
+    --accent: 45 70% 32%;
+    /* Darker yellow accent - matches primary color */
+    --accent-foreground: 46 22% 86%;
     --destructive: 0 65% 51%;
     --destructive-foreground: 46 22% 86%;
     --border: 0 0% 30%;

@@ -14,7 +14,7 @@ export { LinkResourceForm } from './ui/LinkResourceForm'
 
 // Helpers
 export {
-  getResourceIcon,
+  getFileTypeIcon,
   getResourceColorClass,
   getGroupColorClass,
   getGroupIcon,

@@ -29,6 +29,8 @@ export const CODE_TYPE = {
   // 리소스 링크 카테고리
   LINK_CATEGORY: 'LINK_CATEGORY',
   LINK_SUBCATEGORY: 'LINK_SUBCATEGORY',
+  // 파일 동기화 액션
+  FILE_SYNC_ACTION: 'FILE_SYNC_ACTION',
 } as const
 
 export type CodeType = typeof CODE_TYPE[keyof typeof CODE_TYPE]

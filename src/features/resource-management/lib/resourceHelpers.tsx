@@ -4,9 +4,6 @@
 
 import {
   FileText,
-  FileCode,
-  FileArchive,
-  FileImage,
   FolderOpen,
   LayoutDashboard,
   Table,
@@ -23,9 +20,25 @@ import {
 } from 'lucide-react'
 
 // React Icons
-import { SiNotion } from "react-icons/si";
+import { SiNotion, SiDocker } from "react-icons/si";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { SlSocialDropbox } from "react-icons/sl";
+import { VscFileMedia, VscFile } from "react-icons/vsc";
+import { LuFileTerminal } from "react-icons/lu";
+import { FaRegFilePdf, FaRegFileArchive } from "react-icons/fa";
+import {
+  BsFiletypeExe,
+  BsFiletypeTxt,
+  BsFiletypeSql,
+  BsFiletypeJson,
+  BsFiletypeJava,
+  BsFiletypeMd,
+  BsFiletypePng,
+  BsFiletypeJpg,
+  BsFiletypeGif,
+  BsFiletypeSvg,
+  BsFiletypeXml,
+} from "react-icons/bs";
 
 import {
   getCategoryCardColorClass,
@@ -37,68 +50,103 @@ import {
 // File Resources
 // ============================================================================
 
-export const getResourceIcon = (fileType: string) => {
-  switch (fileType?.toLowerCase()) {
-    case 'sh':
-    case 'bash':
-      return <Terminal className="w-5 h-5 text-slate-600" />
-    case 'pdf':
-      return <FileText className="w-5 h-5 text-red-500" />
-    case 'doc':
-    case 'docx':
-      return <FileText className="w-5 h-5 text-blue-500" />
-    case 'xls':
-    case 'xlsx':
-      return <Table className="w-5 h-5 text-green-500" />
-    case 'zip':
-    case 'tar':
-    case 'gz':
-      return <FileArchive className="w-5 h-5 text-yellow-500" />
-    case 'png':
-    case 'jpg':
-    case 'jpeg':
-    case 'gif':
-      return <FileImage className="w-5 h-5 text-purple-500" />
+export const getFileTypeIcon = (fileType: string) => {
+  switch (fileType?.toUpperCase()) {
+    // Shell/Script
+    case 'SH':
+      return <LuFileTerminal className="w-5 h-5 text-primary" />
+
+    // Documents
+    case 'PDF':
+      return <FaRegFilePdf className="w-5 h-5 text-primary" />
+    case 'TXT':
+      return <BsFiletypeTxt className="w-5 h-5 text-primary" />
+    case 'MD':
+      return <BsFiletypeMd className="w-5 h-5 text-primary" />
+    case 'XML':
+      return <BsFiletypeXml className="w-5 h-5 text-primary" />
+
+    // Spreadsheets
+    case 'XLS':
+    case 'XLSX':
+      return <RiFileExcel2Line className="w-5 h-5 text-primary" />
+
+    // Archives
+    case 'ZIP':
+    case 'TAR':
+    case 'GZ':
+      return <FaRegFileArchive className="w-5 h-5 text-primary" />
+
+    // Executables
+    case 'EXE':
+      return <BsFiletypeExe className="w-5 h-5 text-primary" />
+
+    // Java
+    case 'JAR':
+    case 'WAR':
+      return <BsFiletypeJava className="w-5 h-5 text-primary" />
+
+    // Data files
+    case 'SQL':
+      return <BsFiletypeSql className="w-5 h-5 text-primary" />
+    case 'JSON':
+      return <BsFiletypeJson className="w-5 h-5 text-primary" />
+
+    // Images
+    case 'PNG':
+      return <BsFiletypePng className="w-5 h-5 text-primary" />
+    case 'JPG':
+    case 'JPEG':
+      return <BsFiletypeJpg className="w-5 h-5 text-primary" />
+    case 'GIF':
+      return <BsFiletypeGif className="w-5 h-5 text-primary" />
+    case 'SVG':
+      return <BsFiletypeSvg className="w-5 h-5 text-primary" />
+    case 'BMP':
+      return <VscFileMedia className="w-5 h-5 text-primary" />
+
+    // Undefined / Default
+    case 'UNDEFINED':
     default:
-      return <FileCode className="w-5 h-5 text-gray-400" />
+      return <VscFile className="w-5 h-5 text-primary" />
   }
 }
 
 export const getSubCategoryIcon = (subCategory: string | null) => {
   // Common icons for both File and Link resources
+  // 모든 아이콘은 테마의 primary 색상을 사용
   const upperSubCategory = subCategory?.toUpperCase();
 
   switch (upperSubCategory) {
     // Files
     case 'BACKUP':
-      return <Database className="w-5 h-5 text-blue-500" />
+      return <Database className="w-5 h-5 text-primary" />
     case 'RESTORE':
-      return <Database className="w-5 h-5 text-green-500" />
+      return <Database className="w-5 h-5 text-primary" />
     case 'INSTALL':
-      return <Server className="w-5 h-5 text-purple-500" />
+      return <Server className="w-5 h-5 text-primary" />
     case 'GUIDE':
-      return <FileText className="w-5 h-5 text-orange-500" />
+      return <FileText className="w-5 h-5 text-primary" />
 
     // Links
     case 'NOTION':
-      return <SiNotion className="w-5 h-5 text-black dark:text-white" />
-    case 'SHARED-EXCEL': // Updated to match user request "SHARED-EXCEL" and "엑셀아이콘"
+      return <SiNotion className="w-5 h-5 text-primary" />
+    case 'SHARED-EXCEL':
     case 'GOOGLE_SHEET':
-      return <RiFileExcel2Line className="w-5 h-5 text-green-600" />
+      return <RiFileExcel2Line className="w-5 h-5 text-primary" />
     case 'JIRA':
-      return <LayoutDashboard className="w-5 h-5 text-blue-600" />
+      return <LayoutDashboard className="w-5 h-5 text-primary" />
     case 'CONFLUENCE':
-      return <Globe className="w-5 h-5 text-blue-500" />
+      return <Globe className="w-5 h-5 text-primary" />
     case 'DROPBOX':
-      return <SlSocialDropbox className="w-5 h-5 text-blue-500" />
+      return <SlSocialDropbox className="w-5 h-5 text-primary" />
+    case 'DOCKER':
+      return <SiDocker className="w-5 h-5 text-primary" />
     case 'ETC':
-      return <FileText className="w-5 h-5 text-gray-500" />
+      return <FileText className="w-5 h-5 text-primary" />
     default:
-      // Default to document icon for ETC or unknown, per requirement "ETC면 일반문서 아이콘" if it falls through,
-      // but explicitly handling ETC above.
-      // If null or unknown, generic link or file text
-      if (!subCategory) return <LinkIcon className="w-5 h-5 text-gray-400" />
-      return <FileText className="w-5 h-5 text-gray-400" />
+      if (!subCategory) return <LinkIcon className="w-5 h-5 text-primary" />
+      return <FileText className="w-5 h-5 text-primary" />
   }
 }
 
@@ -136,6 +184,9 @@ export const getGroupIcon = (category: string) => {
     case 'TEAM_MANAGEMENT':
       // 팀 관련 아이콘
       return <Users className="w-5 h-5" />
+    case 'DOCKER':
+      // 도커 아이콘
+      return <SiDocker className="w-5 h-5" />
 
     case 'ETC':
       // 기타 아이콘
@@ -160,6 +211,7 @@ const CATEGORY_INDEX_MAP: Record<string, number> = {
   INFRAEYE2: 1,
   INFRAEYE: 2,
   INFRA: 3,
+  DOCKER: 3,
   TEAM: 4,
   TEAM_MANAGEMENT: 4,
   ETC: 4,

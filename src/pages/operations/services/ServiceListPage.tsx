@@ -4,7 +4,9 @@
  */
 
 import { useState, useMemo } from 'react'
-import { Plus, RefreshCw, Server } from 'lucide-react'
+import { Plus, RefreshCw } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 import { PageHeader } from '@/shared/ui/page-header'
 import { Button } from '@/shared/ui/button'
 import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
@@ -287,7 +289,7 @@ export function ServiceListPage() {
 
       <div className="space-y-8">
         <PageHeader
-          icon={<Server className="h-5 w-5 text-primary" />}
+          icon={getPageIconById('infrastructure_services')}
           title="인프라 서비스 관리"
           actions={
             <>

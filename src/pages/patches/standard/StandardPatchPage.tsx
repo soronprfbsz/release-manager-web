@@ -6,7 +6,9 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Package, Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, Package } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 
@@ -237,7 +239,7 @@ export function StandardPatchPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Package className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('patch_standard')}
         title="패치 관리 (Standard)"
         description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
         actions={

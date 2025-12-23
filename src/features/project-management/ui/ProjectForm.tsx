@@ -95,7 +95,7 @@ export function ProjectForm({
             )}
             {!isEditMode && (
               <p className="text-xs text-muted-foreground">
-                영문, 숫자, 하이픈, 언더스코어만 사용 가능
+                영문 소문자, 숫자, 언더스코어만 사용 가능
               </p>
             )}
           </div>
@@ -147,11 +147,11 @@ export function ProjectForm({
           )}
         </div>
 
-        <SheetFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+        <SheetFooter className="grid grid-cols-2 gap-3">
+          <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="w-full">
             취소
           </Button>
-          <Button onClick={onSubmit} disabled={isSubmitting}>
+          <Button onClick={onSubmit} disabled={isSubmitting} className="w-full">
             {isSubmitting ? '처리 중...' : isEditMode ? '수정' : '생성'}
           </Button>
         </SheetFooter>

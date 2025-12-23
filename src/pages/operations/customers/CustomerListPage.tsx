@@ -5,7 +5,9 @@
 
 import { useState, useMemo } from 'react'
 
-import { Building2, Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, Building2 } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import {
   CustomerTable,
@@ -217,7 +219,7 @@ export function CustomerListPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Building2 className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('operation_customers')}
         title="고객사 관리"
         actions={
           <>

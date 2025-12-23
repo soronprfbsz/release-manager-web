@@ -9,7 +9,7 @@ import type { ResourceFile } from '@/entities/resource'
 
 import { Button } from '@/shared/ui/button'
 
-import { getSubCategoryIcon } from '../lib/resourceHelpers'
+import { getFileTypeIcon } from '../lib/resourceHelpers'
 import { ResourceCardBase } from './ResourceCardBase'
 
 interface ResourceCardProps {
@@ -29,7 +29,7 @@ export function ResourceCard({
   dragHandleProps,
   categoryIndex = 0,
 }: ResourceCardProps) {
-  const icon = getSubCategoryIcon(resource.subCategory)
+  const icon = getFileTypeIcon(resource.fileType)
 
   return (
     <ResourceCardBase

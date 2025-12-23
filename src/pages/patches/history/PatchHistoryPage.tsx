@@ -5,7 +5,9 @@
 
 import { useState } from 'react'
 
-import { Layers, RefreshCw } from 'lucide-react'
+import { RefreshCw, Layers } from 'lucide-react'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { PatchHistoryTable } from '@/features/patch-management'
 
@@ -52,7 +54,7 @@ export function PatchHistoryPage() {
 
       {/* Page Header */}
       <PageHeader
-        icon={<Layers className="h-5 w-5 text-primary" />}
+        icon={getPageIconById('patch_history')}
         title="패치 조회/다운로드"
         actions={
           <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">

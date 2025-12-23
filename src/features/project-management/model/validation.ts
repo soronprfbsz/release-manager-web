@@ -12,8 +12,8 @@ export function validateProjectForm(data: ProjectFormData, mode: 'create' | 'edi
   if (mode === 'create') {
     if (!data.projectId.trim()) {
       errors.projectId = '프로젝트 ID는 필수입니다.'
-    } else if (!/^[a-zA-Z0-9_-]+$/.test(data.projectId)) {
-      errors.projectId = '프로젝트 ID는 영문, 숫자, 하이픈, 언더스코어만 사용 가능합니다.'
+    } else if (!/^[a-z0-9_]+$/.test(data.projectId)) {
+      errors.projectId = '프로젝트 ID는 영문 소문자, 숫자, 언더스코어만 사용 가능합니다.'
     }
   }
 

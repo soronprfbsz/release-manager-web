@@ -3,7 +3,7 @@
  * 프로젝트 카드 컴포넌트
  */
 
-import { Edit2, Trash2, FolderKanban } from 'lucide-react'
+import { Edit2, Trash2 } from 'lucide-react'
 
 import type { Project } from '@/entities/project'
 
@@ -23,11 +23,6 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       <CardHeader className="pb-3 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            {/* 아이콘 */}
-            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-              <FolderKanban className="h-5 w-5 text-primary" />
-            </div>
-
             {/* 제목 및 부제목 */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
