@@ -148,7 +148,7 @@ export function ResourceEditForm({
                             {resource && (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">파일명</label>
-                                    <div className="p-3 rounded-md bg-muted text-sm font-mono text-muted-foreground">
+                                    <div className="p-3 rounded-md bg-card border text-sm font-mono text-muted-foreground">
                                         {resource.fileName}
                                     </div>
                                 </div>

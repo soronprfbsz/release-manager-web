@@ -9,7 +9,7 @@ import { Pencil, Trash2, GripVertical } from 'lucide-react'
 import type { ServiceComponent } from '@/entities/service'
 import { Button } from '@/shared/ui/button'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
-import { getComponentTypeIcon, getComponentDisplayInfo, getComponentTypeBackgroundColor } from '../lib/serviceHelpers'
+import { getComponentTypeIcon, getComponentDisplayInfo } from '../lib/serviceHelpers'
 
 interface SortableComponentCardProps {
   component: ServiceComponent
@@ -33,12 +33,11 @@ export function SortableComponentCard({
 
   const Icon = getComponentTypeIcon(component.componentType)
   const displayInfo = getComponentDisplayInfo(component)
-  const bgColor = getComponentTypeBackgroundColor(component.componentType)
 
   return (
     <div ref={setNodeRef} style={style}>
       <div
-        className={`border rounded-lg p-4 space-y-3 transition-colors relative ${bgColor} ${
+        className={`border rounded-lg p-4 space-y-3 transition-all duration-200 relative bg-background shadow-sm hover:shadow-md hover:border-primary/50 ${
           !component.isActive ? 'opacity-60' : ''
         }`}
       >
