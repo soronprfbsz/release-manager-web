@@ -9,10 +9,16 @@ const ENDPOINTS = {
 
 export const linkResourceApi = {
     /** 링크 리소스 목록 조회 */
-    getList: async (linkCategory?: string): Promise<LinkResource[]> => {
-        const params = linkCategory ? { linkCategory } : undefined
+    getList: async (params?: { linkCategory?: string; keyword?: string }): Promise<LinkResource[]> => {
+        const queryParams = new URLSearchParams()
+        if (params?.linkCategory) queryParams.append('linkCategory', params.linkCategory)
+        if (params?.keyword) queryParams.append('keyword', params.keyword)
+
+        const queryString = queryParams.toString()
+        const url = queryString ? `${ENDPOINTS.list}?${queryString}` : ENDPOINTS.list
+
         try {
-            const response = await apiClient.get<LinkResource[]>(ENDPOINTS.list, { params })
+            const response = await apiClient.get<LinkResource[]>(url)
             return response
         } catch (error) {
             console.warn('Link Resource API failed, using mock data:', error)
@@ -40,8 +46,8 @@ export const linkResourceApi = {
                 }
             ]
 
-            if (linkCategory) {
-                return allMocks.filter(r => r.linkCategory === linkCategory)
+            if (params?.linkCategory) {
+                return allMocks.filter(r => r.linkCategory === params.linkCategory)
             }
             return allMocks
         }

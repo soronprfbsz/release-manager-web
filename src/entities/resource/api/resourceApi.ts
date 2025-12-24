@@ -12,8 +12,14 @@ const ENDPOINTS = {
 
 export const resourceApi = {
   /** 리소스 파일 목록 조회 */
-  getList: async (): Promise<ResourceFile[]> => {
-    const response = await apiClient.get<ResourceFile[]>(ENDPOINTS.list)
+  getList: async (params?: { keyword?: string }): Promise<ResourceFile[]> => {
+    const queryParams = new URLSearchParams()
+    if (params?.keyword) queryParams.append('keyword', params.keyword)
+
+    const queryString = queryParams.toString()
+    const url = queryString ? `${ENDPOINTS.list}?${queryString}` : ENDPOINTS.list
+
+    const response = await apiClient.get<ResourceFile[]>(url)
     return response
   },
 

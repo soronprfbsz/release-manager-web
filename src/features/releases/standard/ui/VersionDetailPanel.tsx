@@ -12,6 +12,7 @@ import {
   type ReleaseFileNode,
 } from '@/entities/release'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { formatFileSize } from '@/shared/lib/utils/format'
@@ -138,6 +139,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { toast } = useToast()
+  const { canDeleteVersion, canApproveVersion } = usePermission()
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useVersionFileStructure(version?.versionId ?? 0)
@@ -270,7 +272,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                 )}
               </div>
               <div className="flex items-center gap-2">
-                {!version.isApproved && (
+                {canApproveVersion && !version.isApproved && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -288,22 +290,24 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                     </TooltipContent>
                   </Tooltip>
                 )}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setDeleteDialogOpen(true)}
-                      disabled={deleteMutation.isPending}
-                      className="h-8 w-8"
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>삭제</p>
-                  </TooltipContent>
-                </Tooltip>
+                {canDeleteVersion && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setDeleteDialogOpen(true)}
+                        disabled={deleteMutation.isPending}
+                        className="h-8 w-8"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>삭제</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </div>
             </div>
           </CardHeader>

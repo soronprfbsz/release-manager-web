@@ -3,6 +3,7 @@
  * 서비스 필터
  */
 
+import { Search } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -10,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Label } from '@/shared/ui/label'
+import { Input } from '@/shared/ui/input'
 import type { ServiceFiltersState } from '../model/types'
 
 interface ServiceFiltersProps {
@@ -20,51 +21,35 @@ interface ServiceFiltersProps {
 
 export function ServiceFilters({ filters, onFiltersChange }: ServiceFiltersProps) {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="flex flex-wrap items-center gap-4">
       {/* 서비스 타입 필터 */}
-      <div className="flex-1 min-w-[200px]">
-        <Label htmlFor="serviceType" className="text-sm font-medium">
-          서비스 타입
-        </Label>
-        <Select
-          value={filters.serviceType}
-          onValueChange={(value) =>
-            onFiltersChange({ ...filters, serviceType: value as ServiceFiltersState['serviceType'] })
-          }
-        >
-          <SelectTrigger id="serviceType" className="mt-1.5">
-            <SelectValue placeholder="전체" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="infraeye1">InfraEye 1</SelectItem>
-            <SelectItem value="infraeye2">InfraEye 2</SelectItem>
-            <SelectItem value="infra">Infra</SelectItem>
-            <SelectItem value="etc">기타</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Select
+        value={filters.serviceType}
+        onValueChange={(value) =>
+          onFiltersChange({ ...filters, serviceType: value as ServiceFiltersState['serviceType'] })
+        }
+      >
+        <SelectTrigger className="h-9 w-[140px] text-sm">
+          <SelectValue placeholder="서비스 타입" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">전체</SelectItem>
+          <SelectItem value="infraeye1">InfraEye 1</SelectItem>
+          <SelectItem value="infraeye2">InfraEye 2</SelectItem>
+          <SelectItem value="infra">Infra</SelectItem>
+          <SelectItem value="etc">기타</SelectItem>
+        </SelectContent>
+      </Select>
 
-      {/* 활성 상태 필터 */}
-      <div className="flex-1 min-w-[200px]">
-        <Label htmlFor="isActive" className="text-sm font-medium">
-          활성 상태
-        </Label>
-        <Select
-          value={filters.isActive}
-          onValueChange={(value) =>
-            onFiltersChange({ ...filters, isActive: value as ServiceFiltersState['isActive'] })
-          }
-        >
-          <SelectTrigger id="isActive" className="mt-1.5">
-            <SelectValue placeholder="전체" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="true">활성</SelectItem>
-            <SelectItem value="false">비활성</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* 키워드 검색 */}
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={filters.keyword}
+          onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
+          placeholder="검색..."
+          className="pl-8 h-9 w-[180px] text-sm"
+        />
       </div>
     </div>
   )

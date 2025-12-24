@@ -21,7 +21,7 @@ import type { ResourceFile, ResourceFileUploadRequest, ResourceFileUpdateRequest
 export const resourceKeys = {
   all: ['resources'] as const,
   lists: () => [...resourceKeys.all, 'list'] as const,
-  list: () => [...resourceKeys.lists()] as const,
+  list: (params?: { keyword?: string }) => [...resourceKeys.lists(), params] as const,
   details: () => [...resourceKeys.all, 'detail'] as const,
   detail: (id: number) => [...resourceKeys.details(), id] as const,
 }
@@ -34,11 +34,12 @@ export const resourceKeys = {
  * 리소스 파일 목록 조회 훅
  */
 export function useResources(
-  options?: Omit<UseQueryOptions<ResourceFile[], Error>, 'queryKey' | 'queryFn'>
+  params?: { keyword?: string } & Omit<UseQueryOptions<ResourceFile[], Error>, 'queryKey' | 'queryFn'>
 ) {
+  const { keyword, ...options } = params || {}
   return useQuery({
-    queryKey: resourceKeys.list(),
-    queryFn: () => resourceApi.getList(),
+    queryKey: resourceKeys.list({ keyword }),
+    queryFn: () => resourceApi.getList({ keyword }),
     ...options,
   })
 }

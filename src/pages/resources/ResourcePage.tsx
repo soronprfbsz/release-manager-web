@@ -17,7 +17,9 @@ import {
   ResourceDeleteDialog,
   LinkResourceList,
   LinkResourceForm,
+  ResourceFilters,
   type ResourceUploadFormData,
+  type ResourceFiltersState,
 } from '@/features/resource-management'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/code'
@@ -94,6 +96,9 @@ export function ResourcePage() {
   const [formData, setFormData] = useState<ResourceUploadFormData>(INITIAL_FORM_DATA)
   const [uploadProgress, setUploadProgress] = useState(0)
 
+  // File filter state
+  const [fileFilters, setFileFilters] = useState<ResourceFiltersState>({ keyword: '' })
+
   // Queries
   const {
     data: resources,
@@ -101,6 +106,7 @@ export function ResourcePage() {
     error: resourcesError,
     refetch: refetchResources,
   } = useResources({
+    keyword: fileFilters.keyword || undefined,
     enabled: currentTab === 'files'
   })
 
@@ -231,12 +237,16 @@ export function ResourcePage() {
   const [editingLink, setEditingLink] = useState<LinkResource | null>(null)
   const [deleteLinkTarget, setDeleteLinkTarget] = useState<LinkResource | null>(null)
 
+  // Link filter state
+  const [linkFilters, setLinkFilters] = useState<ResourceFiltersState>({ keyword: '' })
+
   const {
     data: linkResources,
     isLoading: isLinksLoading,
     error: linksError,
     refetch: refetchLinks,
   } = useLinkResources({
+    keyword: linkFilters.keyword || undefined,
     enabled: currentTab === 'links'
   })
 
@@ -413,7 +423,10 @@ export function ResourcePage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="files" className="mt-8">
+          <TabsContent value="files" className="mt-8 space-y-6">
+            <div className="flex justify-end">
+              <ResourceFilters filters={fileFilters} onFiltersChange={setFileFilters} />
+            </div>
             {isResourcesLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="flex flex-col items-center gap-3">
@@ -432,7 +445,10 @@ export function ResourcePage() {
             )}
           </TabsContent>
 
-          <TabsContent value="links" className="mt-8">
+          <TabsContent value="links" className="mt-8 space-y-6">
+            <div className="flex justify-end">
+              <ResourceFilters filters={linkFilters} onFiltersChange={setLinkFilters} />
+            </div>
             {isLinksLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="flex flex-col items-center gap-3">

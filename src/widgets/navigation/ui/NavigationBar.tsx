@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, ChevronDown } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useMenus, type MenuItem } from '@/entities/menu'
@@ -10,7 +10,16 @@ import { ROUTES } from '@/shared/config/constants'
 import { getMenuIconById } from '@/shared/config/menu-icons'
 import { cn } from '@/shared/lib/utils'
 import { useAuthStore } from '@/shared/store'
-import { Button } from '@/shared/ui/button'
+import { Avatar } from '@/shared/ui/avatar'
+import { Badge } from '@/shared/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -200,16 +209,38 @@ export function NavigationBar() {
         <div className="flex-1 flex items-center justify-end gap-3">
           <ProjectSelector />
           <div className="h-4 w-px bg-border" />
-          {user && (
-            <span className="text-sm text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
-              {user.accountName}
-            </span>
-          )}
           <ThemeToggle />
-          <Button variant="ghost-icon" size="icon" onClick={handleLogout}>
-            <LogOut className="h-[1.2rem] w-[1.2rem]" />
-            <span className="sr-only">로그아웃</span>
-          </Button>
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Avatar name={user.accountName} size="sm" />
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={user.accountName} size="md" />
+                    <div className="flex flex-col space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium leading-none">{user.accountName}</span>
+                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                          {user.role}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-none">{user.email}</p>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  로그아웃
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>

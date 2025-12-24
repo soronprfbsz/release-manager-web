@@ -29,10 +29,12 @@ import {
   ServiceGroupList,
   ServiceForm,
   ServiceDeleteDialog,
+  ServiceFilters,
   ComponentSheet,
   type ServiceFormData,
   type ComponentFormData,
   type ServiceFormMode,
+  type ServiceFiltersState,
   type DeleteTarget,
   validateServiceForm,
 } from '@/features/service-management'
@@ -58,8 +60,17 @@ export function ServiceListPage() {
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
+  // Filter state
+  const [filters, setFilters] = useState<ServiceFiltersState>({
+    serviceType: 'all',
+    keyword: '',
+  })
+
   // Queries
-  const { data: services = [], isLoading, refetch } = useServices()
+  const { data: services = [], isLoading, refetch } = useServices({
+    serviceType: filters.serviceType !== 'all' ? filters.serviceType : undefined,
+    keyword: filters.keyword || undefined,
+  })
 
   // 관리 중인 서비스 (최신 데이터로 자동 갱신)
   const managingService = useMemo(
@@ -308,6 +319,11 @@ export function ServiceListPage() {
             </>
           }
         />
+
+        {/* Filters */}
+        <div className="flex justify-end">
+          <ServiceFilters filters={filters} onFiltersChange={setFilters} />
+        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center h-48">

@@ -1,5 +1,6 @@
 export * from './use-toast'
 export * from './use-job-polling'
 export * from './use-file-transfer-progress'
+export * from './use-permission'
 export * from './usePagination'
 export * from './useTableSort'

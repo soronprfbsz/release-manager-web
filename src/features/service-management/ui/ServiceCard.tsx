@@ -24,7 +24,7 @@ export function ServiceCard({
   onDelete,
   onManageComponents,
   dragHandleProps,
-}: ServiceCardProps) {
+}: Omit<ServiceCardProps, 'categoryIndex'>) {
 
   return (
     <Card

@@ -110,7 +110,7 @@ export function ComponentSheet({
   return (
     <>
       <Sheet open={!!service} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent className="w-[400px] sm:max-w-[400px]">
+        <SheetContent className="w-[480px] sm:max-w-[480px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />

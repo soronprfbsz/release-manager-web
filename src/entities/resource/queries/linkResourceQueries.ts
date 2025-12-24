@@ -11,7 +11,7 @@ import type { LinkResourceCreateRequest } from '../model/types'
 export const linkResourceKeys = {
     all: ['linkResources'] as const,
     lists: () => [...linkResourceKeys.all, 'list'] as const,
-    list: (params: { linkCategory?: string } = {}) =>
+    list: (params: { linkCategory?: string; keyword?: string } = {}) =>
         [...linkResourceKeys.lists(), params] as const,
     detail: (id: number) => [...linkResourceKeys.all, 'detail', id] as const,
 }
@@ -19,10 +19,10 @@ export const linkResourceKeys = {
 // Hooks
 
 /** 링크 리소스 목록 조회 */
-export const useLinkResources = (params: { linkCategory?: string; enabled?: boolean } = {}) => {
+export const useLinkResources = (params: { linkCategory?: string; keyword?: string; enabled?: boolean } = {}) => {
     return useQuery({
-        queryKey: linkResourceKeys.list({ linkCategory: params.linkCategory }),
-        queryFn: () => linkResourceApi.getList(params.linkCategory),
+        queryKey: linkResourceKeys.list({ linkCategory: params.linkCategory, keyword: params.keyword }),
+        queryFn: () => linkResourceApi.getList({ linkCategory: params.linkCategory, keyword: params.keyword }),
         enabled: params.enabled !== false,
     })
 }

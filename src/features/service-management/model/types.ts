@@ -37,7 +37,7 @@ export interface ComponentFormData {
  */
 export interface ServiceFiltersState {
   serviceType: ServiceType | 'all'
-  isActive: 'all' | 'true' | 'false'
+  keyword: string
 }
 
 /**

@@ -24,9 +24,9 @@ interface AccountFormProps {
 }
 
 const ROLE_OPTIONS = [
-  { value: 'ADMIN', label: '관리자' },
-  { value: 'USER', label: '사용자' },
-  { value: 'VIEWER', label: '조회자' },
+  { value: 'ADMIN', label: 'ADMIN' },
+  { value: 'USER', label: 'USER' },
+  { value: 'GUEST', label: 'GUEST' },
 ]
 
 export function AccountForm({

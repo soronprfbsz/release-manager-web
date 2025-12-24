@@ -64,7 +64,15 @@ class ApiClient {
       async (error: AxiosError<ApiError>) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // 401 에러 처리
+        if (error.response?.status === 401) {
+          // 이미 재시도한 요청이 또 401이면 바로 로그인 페이지로 이동
+          if (originalRequest._retry) {
+            this.clearAccessToken()
+            this.handleAuthFailureWithFallback()
+            return Promise.reject(error)
+          }
+
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject })
@@ -97,9 +105,7 @@ class ApiClient {
             this.processQueue(refreshError as AxiosError, null)
             this.clearAccessToken()
             // AuthProvider에서 설정한 콜백 호출 (로그아웃 처리 및 로그인 페이지 이동)
-            if (this.onAuthFailure) {
-              this.onAuthFailure()
-            }
+            this.handleAuthFailureWithFallback()
             return Promise.reject(refreshError)
           } finally {
             this.isRefreshing = false
@@ -145,6 +151,18 @@ class ApiClient {
 
   setAuthFailureCallback(callback: AuthFailureCallback): void {
     this.onAuthFailure = callback
+  }
+
+  // 인증 실패 처리 (콜백이 없으면 직접 로그인 페이지로 이동)
+  private handleAuthFailureWithFallback(): void {
+    if (this.onAuthFailure) {
+      this.onAuthFailure()
+    } else {
+      // 콜백이 등록되지 않은 경우 직접 리다이렉트
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    }
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

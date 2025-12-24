@@ -11,6 +11,7 @@ export { ResourceEditForm } from './ui/ResourceEditForm'
 export { ResourceDeleteDialog } from './ui/ResourceDeleteDialog'
 export { LinkResourceList } from './ui/LinkResourceList'
 export { LinkResourceForm } from './ui/LinkResourceForm'
+export { ResourceFilters } from './ui/ResourceFilters'
 
 // Helpers
 export {
@@ -23,3 +24,4 @@ export {
 
 // Types
 export type { ResourceUploadFormData, ResourceUploadMode } from './model/types'
+export type { ResourceFiltersState } from './ui/ResourceFilters'

@@ -14,7 +14,9 @@ import {
   AccountTable,
   AccountForm,
   AccountDeleteDialog,
+  AccountFilters,
   type AccountFormData,
+  type AccountFiltersState,
   createAccountFormData,
 } from '@/features/account-management'
 
@@ -67,11 +69,15 @@ export function AccountListPage() {
   // Delete state
   const [deleteConfirmAccount, setDeleteConfirmAccount] = useState<Account | null>(null)
 
+  // Filter state
+  const [filters, setFilters] = useState<AccountFiltersState>({ keyword: '' })
+
   // Query
   const { data: accountData, isLoading, refetch } = useAccounts({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     sort: sort ? `${sort.key},${sort.direction}` : undefined,
+    keyword: filters.keyword || undefined,
   })
 
   // Mutations
@@ -177,10 +183,13 @@ export function AccountListPage() {
       {/* Account List Card */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            계정 목록
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              계정 목록
+            </CardTitle>
+            <AccountFilters filters={filters} onFiltersChange={setFilters} />
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

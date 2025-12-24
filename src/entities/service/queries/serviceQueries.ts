@@ -22,6 +22,7 @@ export const serviceKeys = {
     serviceType?: string
     serviceName?: string
     isActive?: boolean
+    keyword?: string
   }) => [...serviceKeys.lists(), params] as const,
   details: () => [...serviceKeys.all, 'detail'] as const,
   detail: (id: number) => [...serviceKeys.details(), id] as const,
@@ -34,6 +35,7 @@ export const useServices = (params?: {
   serviceType?: string
   serviceName?: string
   isActive?: boolean
+  keyword?: string
 }) =>
   useQuery({
     queryKey: serviceKeys.list(params),

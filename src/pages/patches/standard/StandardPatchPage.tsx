@@ -12,6 +12,7 @@ import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
 
+import { usePermission } from '@/shared/lib/hooks'
 import { useAuthStore, useProjectStore } from '@/shared/store'
 
 import {
@@ -83,6 +84,7 @@ export function StandardPatchPage() {
   const { toast } = useToast()
   const user = useAuthStore((state) => state.user)
   const projectId = useProjectStore((state) => state.projectId)
+  const { canAddPatch, canDeletePatch } = usePermission()
 
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -254,16 +256,18 @@ export function StandardPatchPage() {
                 <p>새로고침</p>
               </TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={() => setIsFormOpen(true)} variant="outline" size="icon">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>패치 생성</p>
-              </TooltipContent>
-            </Tooltip>
+            {canAddPatch && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={() => setIsFormOpen(true)} variant="outline" size="icon">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>패치 생성</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </>
         }
       />
@@ -298,6 +302,7 @@ export function StandardPatchPage() {
                 patches={patchList}
                 sort={sort}
                 isDeleting={deleteMutation.isPending}
+                showDelete={canDeletePatch}
                 onSort={handleSort}
                 onViewFiles={handleViewFiles}
                 onDownload={handleDownload}

@@ -42,6 +42,7 @@ interface PatchTableProps {
   patches: CumulativePatch[]
   sort: SortConfig | null
   isDeleting?: boolean
+  showDelete?: boolean
   onSort: (key: string) => void
   onViewFiles: (patch: CumulativePatch) => void
   onDownload: (patch: CumulativePatch) => void
@@ -52,6 +53,7 @@ export function PatchTable({
   patches,
   sort,
   isDeleting,
+  showDelete = true,
   onSort,
   onViewFiles,
   onDownload,
@@ -209,15 +211,19 @@ export function PatchTable({
                     <Download className="mr-2 h-4 w-4" />
                     다운로드
                   </TableActionMenuItem>
-                  <TableActionMenuSeparator />
-                  <TableActionMenuItem
-                    onClick={() => onDelete(patch)}
-                    disabled={isDeleting}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    삭제
-                  </TableActionMenuItem>
+                  {showDelete && (
+                    <>
+                      <TableActionMenuSeparator />
+                      <TableActionMenuItem
+                        onClick={() => onDelete(patch)}
+                        disabled={isDeleting}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        삭제
+                      </TableActionMenuItem>
+                    </>
+                  )}
                 </TableActionMenu>
               </TableCell>
             </TableRow>

@@ -25,19 +25,21 @@ const ENDPOINTS = {
 export const serviceApi = {
   /**
    * 서비스 목록 조회
-   * @param params 필터 파라미터 (serviceType, serviceName, isActive)
+   * @param params 필터 파라미터 (serviceType, serviceName, isActive, keyword)
    * @returns 서비스 목록 (컴포넌트 포함)
    */
   getList: async (params?: {
     serviceType?: string
     serviceName?: string
     isActive?: boolean
+    keyword?: string
   }): Promise<Service[]> => {
     const queryParams = new URLSearchParams()
 
     if (params?.serviceType) queryParams.append('serviceType', params.serviceType)
     if (params?.serviceName) queryParams.append('serviceName', params.serviceName)
     if (params?.isActive !== undefined) queryParams.append('isActive', String(params.isActive))
+    if (params?.keyword) queryParams.append('keyword', params.keyword)
 
     const queryString = queryParams.toString()
     const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base

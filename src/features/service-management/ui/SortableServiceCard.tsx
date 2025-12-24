@@ -13,7 +13,6 @@ interface SortableServiceCardProps {
   onEdit: (service: Service) => void
   onDelete: (service: Service) => void
   onManageComponents: (service: Service) => void
-  categoryIndex?: number
 }
 
 export function SortableServiceCard({
@@ -21,7 +20,6 @@ export function SortableServiceCard({
   onEdit,
   onDelete,
   onManageComponents,
-  categoryIndex,
 }: SortableServiceCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({
     id: service.serviceId,
@@ -40,7 +38,6 @@ export function SortableServiceCard({
         onDelete={onDelete}
         onManageComponents={onManageComponents}
         dragHandleProps={{ ...attributes, ...listeners }}
-        categoryIndex={categoryIndex}
       />
     </div>
   )

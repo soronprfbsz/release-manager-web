@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 
 import { VersionCreateDialog } from '@/widgets/version-create-dialog'
 
+import { usePermission } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
 import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
@@ -26,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 export function StandardReleasePage() {
   const location = useLocation()
   const projectId = useProjectStore((state) => state.projectId)
+  const { canAddVersion } = usePermission()
   const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
@@ -88,16 +90,18 @@ export function StandardReleasePage() {
               <p>새로고침</p>
             </TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => setCreateDialogOpen(true)} variant="outline" size="icon">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>릴리즈 생성</p>
-            </TooltipContent>
-          </Tooltip>
+          {canAddVersion && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => setCreateDialogOpen(true)} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>릴리즈 생성</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </>
       }
     >

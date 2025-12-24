@@ -101,7 +101,6 @@ export function ServiceGroupList({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onManageComponents={onManageComponents}
-                  categoryIndex={0}
                 />
               )}
             />
