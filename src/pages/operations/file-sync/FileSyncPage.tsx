@@ -227,55 +227,6 @@ export function FileSyncPage() {
         })
     }
 
-    // Target별 등록 API 호출 헬퍼
-    const handleRegister = (items: FileSyncResult[], onSuccess: () => void) => {
-        // target별로 그룹화
-        const groupedByTarget = items.reduce((acc, item) => {
-            if (!acc[item.target]) {
-                acc[item.target] = []
-            }
-            acc[item.target].push(item)
-            return acc
-        }, {} as Record<FileSyncTarget, FileSyncResult[]>)
-
-        // 각 target별로 적절한 API 호출
-        const promises: Promise<unknown>[] = []
-
-        if (groupedByTarget.RESOURCE_FILE?.length) {
-            promises.push(
-                registerResourceMutation.mutateAsync({
-                    items: groupedByTarget.RESOURCE_FILE.map(item => ({ id: item.id }))
-                })
-            )
-        }
-
-        if (groupedByTarget.BACKUP_FILE?.length) {
-            promises.push(
-                registerBackupMutation.mutateAsync({
-                    items: groupedByTarget.BACKUP_FILE.map(item => ({ id: item.id }))
-                })
-            )
-        }
-
-        if (groupedByTarget.PATCH_FILE?.length) {
-            promises.push(
-                registerPatchMutation.mutateAsync({
-                    items: groupedByTarget.PATCH_FILE.map(item => ({ id: item.id }))
-                })
-            )
-        }
-
-        if (groupedByTarget.RELEASE_FILE?.length) {
-            promises.push(
-                registerReleaseMutation.mutateAsync({
-                    items: groupedByTarget.RELEASE_FILE.map(item => ({ id: item.id }))
-                })
-            )
-        }
-
-        Promise.all(promises).then(onSuccess)
-    }
-
     const handleAction = (item: FileSyncResult, action: FileSyncActionType) => {
         // REGISTER 액션은 등록 시트 열기
         if (action === 'REGISTER') {
@@ -354,18 +305,10 @@ export function FileSyncPage() {
     }
 
     const handleBulkAction = (action: FileSyncActionType) => {
-        const selectedItems = results.filter(item => selectedIds.has(item.id))
+        // 일괄 등록은 지원하지 않음 (개별 등록만 가능)
+        // REGISTER 액션은 드롭다운에서 필터링되어 이 함수에 도달하지 않음
 
-        // REGISTER 액션은 전용 API 사용
-        if (action === 'REGISTER') {
-            handleRegister(selectedItems, () => {
-                setResults(prev => prev.filter(r => !selectedIds.has(r.id)))
-                setSelectedIds(new Set())
-            })
-            return
-        }
-
-        // 기타 액션은 기존 apply API 사용
+        // apply API 사용
         const actions = Array.from(selectedIds).map(id => ({
             id,
             action,
@@ -462,7 +405,9 @@ export function FileSyncPage() {
                                     상태: {getStatusConfig(selectedItemsInfo.commonStatus).label}
                                 </div>
                                 <DropdownMenuSeparator />
-                                {selectedItemsInfo.availableActions.map((action, index) => {
+                                {selectedItemsInfo.availableActions
+                                    .filter(action => action !== 'REGISTER') // 일괄 등록은 지원하지 않음 (개별 등록만 가능)
+                                    .map((action, index) => {
                                     const iconConfig = actionIconConfig[action]
                                     const Icon = iconConfig.icon
                                     const showSeparator = index > 0 && iconConfig.destructive
