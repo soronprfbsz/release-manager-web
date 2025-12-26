@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react'
 import { Tag, RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
-import { VersionCreateDialog } from '@/widgets/version-create-dialog'
+import { VersionCreateDialog } from '@/widgets/releases'
 
 import { usePermission } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
 import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
 
-import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { Badge } from '@/shared/ui/badge'

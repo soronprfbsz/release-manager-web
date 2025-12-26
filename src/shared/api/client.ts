@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-import { sessionApi } from '@/entities/session'
+import { sessionApi } from '@/entities/auth/session'
 
 import { API_BASE_URL, API_TIMEOUT } from '@/shared/config/constants'
 

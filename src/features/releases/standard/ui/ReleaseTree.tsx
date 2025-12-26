@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag } from 'lucide-react'
 
-import type { MajorMinorNode, VersionNode } from '@/entities/release'
+import type { MajorMinorNode, VersionNode } from '@/entities/releases/release'
 
 import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'

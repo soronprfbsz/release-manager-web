@@ -6,7 +6,7 @@
 import { create } from 'zustand'
 import { devtools, persist, createJSONStorage } from 'zustand/middleware'
 
-import { sessionApi, type AccountInfo, type SignUpRequest } from '@/entities/session'
+import { sessionApi, type AccountInfo, type SignUpRequest } from '@/entities/auth/session'
 
 import { apiClient } from '@/shared/api'
 import { ROUTES } from '@/shared/config/constants'

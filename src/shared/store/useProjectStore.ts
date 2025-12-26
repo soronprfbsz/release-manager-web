@@ -6,8 +6,8 @@
 import { create } from 'zustand'
 import { devtools, persist, createJSONStorage } from 'zustand/middleware'
 
-import type { Project } from '@/entities/project'
-import { DEFAULT_PROJECT_ID } from '@/entities/project'
+import type { Project } from '@/entities/operations/project'
+import { DEFAULT_PROJECT_ID } from '@/entities/operations/project'
 
 interface ProjectState {
   // State

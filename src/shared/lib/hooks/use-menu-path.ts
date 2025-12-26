@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom'
 import { useMemo } from 'react'
 
-import { useMenus, type MenuItem } from '@/entities/menu'
+import { useMenus, type MenuItem } from '@/entities/_shared/menu'
 
 export interface MenuPathItem {
   label: string

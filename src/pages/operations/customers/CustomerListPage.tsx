@@ -18,7 +18,7 @@ import {
   type CustomerFiltersState,
   type CustomerFormMode,
   validateCustomerForm,
-} from '@/features/customer-management'
+} from '@/features/operations/customer-management'
 
 import {
   useCustomers,
@@ -27,8 +27,8 @@ import {
   useDeleteCustomer,
   useUpdateCustomerStatus,
   type Customer,
-} from '@/entities/customer'
-import { useProjects } from '@/entities/project'
+} from '@/entities/operations'
+import { useProjects } from '@/entities/operations/project'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'

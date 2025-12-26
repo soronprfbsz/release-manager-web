@@ -16,7 +16,7 @@ import {
   type Project,
   type ProjectCreateRequest,
   type ProjectUpdateRequest,
-} from '@/entities/project'
+} from '@/entities/operations/project'
 import {
   ProjectList,
   ProjectForm,
@@ -24,7 +24,7 @@ import {
   validateProjectForm,
   type ProjectFormData,
   type ProjectFormMode,
-} from '@/features/project-management'
+} from '@/features/operations/project-management'
 
 import { PageHeader } from '@/shared/ui/page-header'
 import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'

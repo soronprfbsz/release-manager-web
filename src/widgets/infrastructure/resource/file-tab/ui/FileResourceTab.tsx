@@ -1,0 +1,259 @@
+/**
+ * File Resource Tab Widget
+ * 파일 리소스 관리 탭 - 파일 업로드/수정/삭제 전체 기능
+ */
+
+import { useState, forwardRef, useImperativeHandle } from 'react'
+
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import {
+  resourceApi,
+  useResources,
+  useUploadResource,
+  useUpdateResource,
+  useDeleteResource,
+  type ResourceFile,
+  type ResourceFileUpdateRequest,
+} from '@/entities/infrastructure/resource'
+
+import {
+  ResourceGroupList,
+  ResourceUploadForm,
+  ResourceEditForm,
+  ResourceDeleteDialog,
+  ResourceFilters,
+  type ResourceUploadFormData,
+  type ResourceFiltersState,
+} from '@/features/infrastructure/resource-management'
+
+import { useToast } from '@/shared/lib/hooks/use-toast'
+
+const INITIAL_FORM_DATA: ResourceUploadFormData = {
+  file: null,
+  fileCategory: '',
+  subCategory: '',
+  resourceFileName: '',
+  description: '',
+}
+
+export interface FileResourceTabHandle {
+  openAddDialog: () => void
+  refresh: () => void
+}
+
+interface FileResourceTabProps {
+  onRefresh?: () => void
+}
+
+export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTabProps>(
+  function FileResourceTab({ onRefresh }, ref) {
+    const { toast } = useToast()
+
+    // Modal states
+    const [isUploadOpen, setIsUploadOpen] = useState(false)
+    const [editingResource, setEditingResource] = useState<ResourceFile | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<ResourceFile | null>(null)
+
+    // Upload form state
+    const [formData, setFormData] = useState<ResourceUploadFormData>(INITIAL_FORM_DATA)
+    const [uploadProgress, setUploadProgress] = useState(0)
+
+    // Filter state
+    const [filters, setFilters] = useState<ResourceFiltersState>({ keyword: '' })
+
+    // Queries
+    const {
+      data: resources,
+      isLoading,
+      refetch,
+    } = useResources({
+      keyword: filters.keyword || undefined,
+    })
+
+    const { data: fileCategoryList = [] } = useCodesByType(CODE_TYPE.RESOURCE_FILE_CATEGORY)
+
+    // Get subcategory code type based on category
+    const getSubCategoryCodeType = (category: string) => {
+      switch (category) {
+        case 'SCRIPT':
+          return CODE_TYPE.RESOURCE_SUBCATEGORY_SCRIPT
+        case 'DOCUMENT':
+          return CODE_TYPE.RESOURCE_SUBCATEGORY_DOCUMENT
+        default:
+          return ''
+      }
+    }
+
+    const subCategoryCodeType = getSubCategoryCodeType(formData.fileCategory)
+    const { data: subCategoryList = [] } = useCodesByType(subCategoryCodeType, {
+      enabled: !!subCategoryCodeType,
+    })
+
+    // Mutations
+    const uploadMutation = useUploadResource({
+      onSuccess: () => {
+        toast({ title: '업로드 완료', description: '리소스 파일이 등록되었습니다.' })
+        closeUploadModal()
+      },
+      onError: (error: Error) => {
+        toast({ title: '업로드 실패', description: error.message, variant: 'destructive' })
+      },
+    })
+
+    const updateMutation = useUpdateResource({
+      onSuccess: () => {
+        toast({ title: '수정 완료', description: '리소스 파일 정보가 수정되었습니다.' })
+        setEditingResource(null)
+      },
+      onError: (error: Error) => {
+        toast({ title: '수정 실패', description: error.message, variant: 'destructive' })
+      },
+    })
+
+    const deleteMutation = useDeleteResource({
+      onSuccess: () => {
+        toast({ title: '삭제 완료', description: '리소스 파일이 삭제되었습니다.' })
+        setDeleteTarget(null)
+      },
+      onError: (error: Error) => {
+        toast({ title: '삭제 실패', description: error.message, variant: 'destructive' })
+      },
+    })
+
+    // Expose methods to parent via ref
+    useImperativeHandle(ref, () => ({
+      openAddDialog: () => {
+        setFormData(INITIAL_FORM_DATA)
+        setUploadProgress(0)
+        setIsUploadOpen(true)
+      },
+      refresh: () => {
+        refetch()
+        onRefresh?.()
+      },
+    }))
+
+    // Handlers
+    const closeUploadModal = () => {
+      setIsUploadOpen(false)
+      setFormData(INITIAL_FORM_DATA)
+      setUploadProgress(0)
+    }
+
+    const handleUploadSubmit = () => {
+      if (!formData.file) {
+        toast({
+          title: '파일 선택 필요',
+          description: '업로드할 파일을 선택해주세요.',
+          variant: 'destructive',
+        })
+        return
+      }
+      if (!formData.fileCategory) {
+        toast({
+          title: '카테고리 선택 필요',
+          description: '파일 카테고리를 선택해주세요.',
+          variant: 'destructive',
+        })
+        return
+      }
+      if (!formData.resourceFileName.trim()) {
+        toast({
+          title: '리소스명 입력 필요',
+          description: '리소스명을 입력해주세요.',
+          variant: 'destructive',
+        })
+        return
+      }
+      uploadMutation.mutate({
+        file: formData.file,
+        fileCategory: formData.fileCategory,
+        resourceFileName: formData.resourceFileName.trim(),
+        subCategory: formData.subCategory.trim() || undefined,
+        description: formData.description.trim() || undefined,
+        onProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            setUploadProgress(progress)
+          }
+        },
+      })
+    }
+
+    const handleDownload = (resource: ResourceFile) => {
+      resourceApi.download(resource.resourceFileId)
+    }
+
+    const handleEditResource = (resource: ResourceFile) => {
+      setEditingResource(resource)
+    }
+
+    const handleEditResourceSubmit = (data: ResourceFileUpdateRequest) => {
+      if (editingResource) {
+        updateMutation.mutate({ resourceFileId: editingResource.resourceFileId, data })
+      }
+    }
+
+    const resourceList = resources || []
+
+    return (
+      <>
+        <div className="space-y-6">
+          {/* Filters */}
+          <div className="flex justify-end">
+            <ResourceFilters filters={filters} onFiltersChange={setFilters} />
+          </div>
+
+          {/* Resource List */}
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="flex flex-col items-center gap-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                <p className="text-sm text-muted-foreground">리소스 목록을 불러오는 중...</p>
+              </div>
+            </div>
+          ) : (
+            <ResourceGroupList
+              resources={resourceList}
+              categories={fileCategoryList}
+              onDownload={handleDownload}
+              onDelete={setDeleteTarget}
+              onEdit={handleEditResource}
+            />
+          )}
+        </div>
+
+        {/* File Upload Form */}
+        <ResourceUploadForm
+          isOpen={isUploadOpen}
+          formData={formData}
+          categories={fileCategoryList}
+          subCategories={subCategoryList}
+          uploadProgress={uploadProgress}
+          isUploading={uploadMutation.isPending}
+          onFormDataChange={setFormData}
+          onSubmit={handleUploadSubmit}
+          onClose={closeUploadModal}
+        />
+
+        {/* File Edit Form */}
+        <ResourceEditForm
+          isOpen={editingResource !== null}
+          resource={editingResource}
+          isSubmitting={updateMutation.isPending}
+          onSubmit={handleEditResourceSubmit}
+          onClose={() => setEditingResource(null)}
+        />
+
+        {/* File Delete Dialog */}
+        <ResourceDeleteDialog
+          isOpen={deleteTarget !== null}
+          isDeleting={deleteMutation.isPending}
+          resourceName={deleteTarget?.resourceFileName || deleteTarget?.fileName || ''}
+          onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.resourceFileId)}
+          onClose={() => setDeleteTarget(null)}
+        />
+      </>
+    )
+  }
+)

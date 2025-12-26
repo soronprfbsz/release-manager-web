@@ -18,7 +18,7 @@ import {
   type AccountFormData,
   type AccountFiltersState,
   createAccountFormData,
-} from '@/features/account-management'
+} from '@/features/operations/account-management'
 
 import {
   useAccounts,
@@ -26,7 +26,7 @@ import {
   useDeleteAccount,
   type Account,
   type AccountUpdateRequest,
-} from '@/entities/account'
+} from '@/entities/operations/account'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'

@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react'
 
-import { jobApi, type JobStatus } from '@/entities/job'
+import { mariadbApi, type JobStatus } from '@/entities/remote-jobs/mariadb'
 
 import { toast } from './use-toast'
 
@@ -84,8 +84,8 @@ class JobPollingManager {
         // jobId에 따라 적절한 API 호출
         const isBackupJob = jobId.startsWith('backup_')
         const status = isBackupJob
-          ? await jobApi.getBackupJobStatus(jobId)
-          : await jobApi.getRestoreJobStatus(jobId)
+          ? await mariadbApi.getBackupJobStatus(jobId)
+          : await mariadbApi.getRestoreJobStatus(jobId)
         options.onStatusChange?.(status)
 
         if (status.status === 'SUCCESS') {

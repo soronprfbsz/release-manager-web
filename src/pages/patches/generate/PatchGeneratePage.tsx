@@ -16,12 +16,12 @@ import {
   type PatchCreateFormData,
   type ReleaseType,
   validatePatchForm,
-} from '@/features/patch-management'
+} from '@/features/patches/patch-management'
 
-import { customerApi } from '@/entities/customer'
-import { engineerApi } from '@/entities/engineer'
-import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entities/patch'
-import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
+import { customerApi } from '@/entities/operations'
+import { engineerApi } from '@/entities/operations'
+import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entities/patches/patch'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'

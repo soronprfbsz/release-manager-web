@@ -5,8 +5,7 @@ import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { HomePage } from '@/pages/home'
 import { InfrastructurePage } from '@/pages/infrastructure'
-import { MariaDBJobPage } from '@/pages/job'
-import { SshShellPage } from '@/pages/job/ssh-shell/SshShellPage'
+import { MariaDBPage, TerminalPage } from '@/pages/remote-jobs'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
@@ -136,7 +135,7 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <MariaDBJobPage />
+          <MariaDBPage />
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -146,7 +145,7 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <SshShellPage />
+          <TerminalPage />
         </MainLayout>
       </ProtectedRoute>
     ),

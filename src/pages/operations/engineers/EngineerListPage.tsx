@@ -18,17 +18,17 @@ import {
   type EngineerFiltersState,
   type EngineerFormMode,
   validateEngineerForm,
-} from '@/features/engineer-management'
+} from '@/features/operations/engineer-management'
 
-import { CODE_TYPE, useCodesByType } from '@/entities/code'
-import { useDepartments } from '@/entities/department'
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import { useDepartments } from '@/entities/_shared/department'
 import {
   useEngineers,
   useCreateEngineer,
   useUpdateEngineer,
   useDeleteEngineer,
   type Engineer,
-} from '@/entities/engineer'
+} from '@/entities/operations'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'

@@ -10,7 +10,7 @@ import { Plus, RefreshCw, Package } from 'lucide-react'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 
-import { PatchFileExplorer } from '@/widgets/patch-file-explorer'
+import { PatchFileExplorer } from '@/widgets/patches'
 
 import { usePermission } from '@/shared/lib/hooks'
 import { useAuthStore, useProjectStore } from '@/shared/store'
@@ -22,10 +22,10 @@ import {
   type PatchCreateFormData,
   type SortConfig,
   validatePatchForm,
-} from '@/features/patch-management'
+} from '@/features/patches/patch-management'
 
-import { customerApi } from '@/entities/customer'
-import { engineerApi } from '@/entities/engineer'
+import { customerApi } from '@/entities/operations'
+import { engineerApi } from '@/entities/operations'
 import {
   patchApi,
   usePatches,
@@ -33,8 +33,8 @@ import {
   useDeletePatch,
   type CumulativePatch,
   type CumulativePatchGenerateRequest,
-} from '@/entities/patch'
-import { useStandardReleaseTree, type VersionNode } from '@/entities/release'
+} from '@/entities/patches/patch'
+import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'

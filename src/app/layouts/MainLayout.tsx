@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { NavigationBar } from '@/widgets/navigation/ui/NavigationBar'
+import { NavigationBar } from '@/widgets/_shared/navigation'
 
 interface MainLayoutProps {
   children: ReactNode

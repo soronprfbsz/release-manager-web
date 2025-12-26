@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom'
 
-import { useMenus, type MenuItem } from '@/entities/menu'
+import { useMenus, type MenuItem } from '@/entities/_shared/menu'
 
 /**
  * 현재 경로에 해당하는 메뉴의 description을 찾는 훅

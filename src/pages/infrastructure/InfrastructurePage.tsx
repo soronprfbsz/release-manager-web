@@ -8,9 +8,14 @@ import { useRef } from 'react'
 import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { ServiceTab, type ServiceTabHandle } from '@/widgets/service-tab'
-import { LinkResourceTab, type LinkResourceTabHandle } from '@/widgets/link-resource-tab'
-import { FileResourceTab, type FileResourceTabHandle } from '@/widgets/file-resource-tab'
+import {
+  ServiceTab,
+  type ServiceTabHandle,
+  LinkResourceTab,
+  type LinkResourceTabHandle,
+  FileResourceTab,
+  type FileResourceTabHandle,
+} from '@/widgets/infrastructure'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 import {

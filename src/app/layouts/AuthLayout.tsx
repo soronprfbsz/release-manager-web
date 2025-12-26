@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { ThemeToggle } from '@/widgets/theme-toggle/ui/ThemeToggle'
+import { ThemeToggle } from '@/widgets/_shared/theme-toggle'
 
 interface AuthLayoutProps {
   children: ReactNode

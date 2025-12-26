@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { menuKeys } from '@/entities/menu'
+import { menuKeys } from '@/entities/_shared/menu'
 
 import type { ApiError } from '@/shared/api'
 import { ROUTES } from '@/shared/config/constants'

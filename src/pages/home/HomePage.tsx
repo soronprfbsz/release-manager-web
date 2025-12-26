@@ -15,7 +15,7 @@ import {
   useDashboardRecent,
   useDashboardTopCustomers,
   useDashboardMonthlyPatches,
-} from '@/entities/dashboard'
+} from '@/entities/_shared/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
 import { useProjectStore } from '@/shared/store'

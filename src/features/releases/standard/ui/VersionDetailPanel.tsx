@@ -10,7 +10,7 @@ import {
   useApproveVersion,
   type VersionNode,
   type ReleaseFileNode,
-} from '@/entities/release'
+} from '@/entities/releases/release'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'

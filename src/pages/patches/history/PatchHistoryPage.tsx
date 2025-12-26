@@ -9,9 +9,9 @@ import { RefreshCw, Layers } from 'lucide-react'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 
-import { PatchHistoryTable } from '@/features/patch-management'
+import { PatchHistoryTable } from '@/features/patches/patch-management'
 
-import { patchApi, usePatches, type CumulativePatch } from '@/entities/patch'
+import { patchApi, usePatches, type CumulativePatch } from '@/entities/patches/patch'
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
