@@ -3,15 +3,14 @@ import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'reac
 import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
-import { ResourcePage } from '@/pages/resources'
 import { HomePage } from '@/pages/home'
+import { InfrastructurePage } from '@/pages/infrastructure'
 import { MariaDBJobPage } from '@/pages/job'
 import { SshShellPage } from '@/pages/job/ssh-shell/SshShellPage'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { EngineerListPage } from '@/pages/operations/engineers'
 import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
-import { ServiceListPage } from '@/pages/operations/services/ServiceListPage'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
 import { CustomReleasePage } from '@/pages/releases/custom'
@@ -133,26 +132,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.SERVICES,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <ServiceListPage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/development-support/infrastructure/service',
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <ServiceListPage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.MARIADB,
     element: (
       <ProtectedRoute>
@@ -177,7 +156,7 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ResourcePage />
+          <InfrastructurePage />
         </MainLayout>
       </ProtectedRoute>
     ),

@@ -1,0 +1,174 @@
+/**
+ * Infrastructure Page
+ * 인프라 관리 페이지 - 서비스, 링크, 파일 탭 조합
+ */
+
+import { useRef } from 'react'
+
+import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+
+import { ServiceTab, type ServiceTabHandle } from '@/widgets/service-tab'
+import { LinkResourceTab, type LinkResourceTabHandle } from '@/widgets/link-resource-tab'
+import { FileResourceTab, type FileResourceTabHandle } from '@/widgets/file-resource-tab'
+
+import { getPageIconById } from '@/shared/config/menu-icons'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/shared/ui/breadcrumb'
+import { Button } from '@/shared/ui/button'
+import { PageHeader } from '@/shared/ui/page-header'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+
+type TabType = 'services' | 'links' | 'files'
+
+const TAB_CONFIG = {
+  services: {
+    icon: Server,
+    label: '서비스',
+    addTooltip: '서비스 추가',
+  },
+  links: {
+    icon: LinkIcon,
+    label: '링크',
+    addTooltip: '링크 추가',
+  },
+  files: {
+    icon: FolderOpen,
+    label: '파일',
+    addTooltip: '파일 업로드',
+  },
+} as const
+
+export function InfrastructurePage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentTab = (searchParams.get('tab') as TabType) || 'services'
+
+  // Refs for tab components
+  const serviceTabRef = useRef<ServiceTabHandle>(null)
+  const linkTabRef = useRef<LinkResourceTabHandle>(null)
+  const fileTabRef = useRef<FileResourceTabHandle>(null)
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value })
+  }
+
+  const handleRefresh = () => {
+    switch (currentTab) {
+      case 'services':
+        serviceTabRef.current?.refresh()
+        break
+      case 'links':
+        linkTabRef.current?.refresh()
+        break
+      case 'files':
+        fileTabRef.current?.refresh()
+        break
+    }
+  }
+
+  const handleAdd = () => {
+    switch (currentTab) {
+      case 'services':
+        serviceTabRef.current?.openAddDialog()
+        break
+      case 'links':
+        linkTabRef.current?.openAddDialog()
+        break
+      case 'files':
+        fileTabRef.current?.openAddDialog()
+        break
+    }
+  }
+
+  const currentTabConfig = TAB_CONFIG[currentTab]
+
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>인프라 관리</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="space-y-6">
+        {/* Page Header */}
+        <PageHeader
+          icon={getPageIconById('infrastructure_resources')}
+          title="인프라 관리"
+          actions={
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handleRefresh} variant="outline" size="icon">
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>새로고침</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button onClick={handleAdd} variant="outline" size="icon">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{currentTabConfig.addTooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </>
+          }
+        />
+
+        {/* Tabs */}
+        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
+            {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+              const config = TAB_CONFIG[tabKey]
+              const Icon = config.icon
+              return (
+                <TabsTrigger
+                  key={tabKey}
+                  value={tabKey}
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3"
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  {config.label}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
+
+          <TabsContent value="services" className="mt-8">
+            <ServiceTab ref={serviceTabRef} />
+          </TabsContent>
+
+          <TabsContent value="links" className="mt-8">
+            <LinkResourceTab ref={linkTabRef} />
+          </TabsContent>
+
+          <TabsContent value="files" className="mt-8">
+            <FileResourceTab ref={fileTabRef} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
