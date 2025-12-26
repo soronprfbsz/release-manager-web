@@ -280,8 +280,8 @@ export function HomePage() {
                 <Package className="h-5 w-5 text-primary" />
               </div>
               <div className="space-y-1">
-                <TypographyMuted>1. <strong>버전 관리</strong>에서 표준/커스텀 버전의 릴리즈를 생성 및 관리합니다.</TypographyMuted>
-                <TypographyMuted>2. <strong>패치 관리</strong>에서 버전 간 누적 패치를 생성하여 배포합니다.</TypographyMuted>
+                <TypographyMuted>1. <strong>버전 관리</strong>에서 릴리즈를 생성 및 관리합니다.</TypographyMuted>
+                <TypographyMuted>2. <strong>패치 관리</strong>에서 생성 된 릴리즈 버전들을 기반으로 패치를 생성하여 배포합니다.</TypographyMuted>
               </div>
             </div>
           </CardContent>
