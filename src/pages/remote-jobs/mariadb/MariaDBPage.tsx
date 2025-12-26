@@ -34,12 +34,11 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted } from '@/shared/ui/typography'
 
@@ -199,50 +198,44 @@ export function MariaDBPage() {
   })
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('remote_mariadb')}
-        title="MariaDB"
-        actions={
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={() => refetch()} variant="outline" size="icon">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>새로고침</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={() => setBackupDialogOpen(true)} variant="outline" size="icon">
-                  <BsDatabaseDown className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>백업</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={() => setRestoreDialogOpen(true)} variant="outline" size="icon">
-                  <BsDatabaseUp className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>복원</p>
-              </TooltipContent>
-            </Tooltip>
-          </>
-        }
-      />
-
+    <PageLayout
+      icon={getPageIconById('remote_mariadb')}
+      title="MariaDB"
+      actions={
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => refetch()} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setBackupDialogOpen(true)} variant="outline" size="icon">
+                <BsDatabaseDown className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>백업</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setRestoreDialogOpen(true)} variant="outline" size="icon">
+                <BsDatabaseUp className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>복원</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
+      }
+    >
       {/* Backup File List Card */}
       <Card>
         <CardHeader className="pb-3">
@@ -361,6 +354,6 @@ export function MariaDBPage() {
             : undefined
         }
       />
-    </div>
+    </PageLayout>
   )
 }

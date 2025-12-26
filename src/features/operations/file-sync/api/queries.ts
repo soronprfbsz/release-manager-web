@@ -1,6 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/api'
-import { FileSyncRequest, FileSyncApplyRequest, FileSyncAnalyzeResponse, IgnoredFile } from './types'
+import {
+    FileSyncRequest,
+    FileSyncApplyRequest,
+    FileSyncAnalyzeResponse,
+    IgnoredFile,
+    ResourceRegisterRequest,
+    BackupRegisterRequest,
+    PatchRegisterRequest,
+    ReleaseRegisterRequest,
+    RegisterResponse,
+} from './types'
 
 // 쿼리 키
 export const fileSyncKeys = {
@@ -50,6 +60,50 @@ export const useRestoreIgnoredFile = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: fileSyncKeys.ignores() })
+        },
+    })
+}
+
+// ============================================================================
+// 파일 등록 API (Target별 분리)
+// ============================================================================
+
+// 리소스 파일 등록
+export const useRegisterResourceFiles = () => {
+    return useMutation({
+        mutationFn: async (request: ResourceRegisterRequest) => {
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/resources/register', request)
+            return data
+        },
+    })
+}
+
+// 백업 파일 등록
+export const useRegisterBackupFiles = () => {
+    return useMutation({
+        mutationFn: async (request: BackupRegisterRequest) => {
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/backups/register', request)
+            return data
+        },
+    })
+}
+
+// 패치 파일 등록
+export const useRegisterPatchFiles = () => {
+    return useMutation({
+        mutationFn: async (request: PatchRegisterRequest) => {
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/patches/register', request)
+            return data
+        },
+    })
+}
+
+// 릴리즈 파일 등록
+export const useRegisterReleaseFiles = () => {
+    return useMutation({
+        mutationFn: async (request: ReleaseRegisterRequest) => {
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/releases/register', request)
+            return data
         },
     })
 }

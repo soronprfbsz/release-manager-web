@@ -39,11 +39,10 @@ import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/re
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted } from '@/shared/ui/typography'
 
@@ -235,43 +234,37 @@ export function StandardPatchPage() {
   const patchList = patchesData?.content || []
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('patch_standard')}
-        title="패치 관리 (Standard)"
-        description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
-        actions={
-          <>
+    <PageLayout
+      icon={getPageIconById('patch_standard')}
+      title="패치 관리 (Standard)"
+      description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
+      actions={
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => refetch()} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          {canAddPatch && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button onClick={() => refetch()} variant="outline" size="icon">
-                  <RefreshCw className="h-4 w-4" />
+                <Button onClick={() => setIsFormOpen(true)} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>새로고침</p>
+                <p>패치 생성</p>
               </TooltipContent>
             </Tooltip>
-            {canAddPatch && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={() => setIsFormOpen(true)} variant="outline" size="icon">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>패치 생성</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </>
-        }
-      />
-
+          )}
+        </>
+      }
+    >
       {/* Patch List Card */}
       <Card>
         <CardHeader className="pb-3">
@@ -356,6 +349,6 @@ export function StandardPatchPage() {
           setPatchToDelete(null)
         }}
       />
-    </div>
+    </PageLayout>
   )
 }

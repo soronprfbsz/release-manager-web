@@ -6,7 +6,7 @@
 import { useRef } from 'react'
 
 import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import {
   ServiceTab,
@@ -18,16 +18,8 @@ import {
 } from '@/widgets/infrastructure'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
@@ -95,55 +87,36 @@ export function InfrastructurePage() {
   const currentTabConfig = TAB_CONFIG[currentTab]
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>인프라 관리</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="space-y-6">
-        {/* Page Header */}
-        <PageHeader
-          icon={getPageIconById('infrastructure_resources')}
-          title="인프라 관리"
-          actions={
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={handleRefresh} variant="outline" size="icon">
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>새로고침</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={handleAdd} variant="outline" size="icon">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{currentTabConfig.addTooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </>
-          }
-        />
-
-        {/* Tabs */}
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+    <PageLayout
+      icon={getPageIconById('infrastructure_resources')}
+      title="인프라 관리"
+      actions={
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleRefresh} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleAdd} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{currentTabConfig.addTooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
+      }
+    >
+      {/* Tabs */}
+      <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
             {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
               const config = TAB_CONFIG[tabKey]
@@ -169,11 +142,10 @@ export function InfrastructurePage() {
             <LinkResourceTab ref={linkTabRef} />
           </TabsContent>
 
-          <TabsContent value="files" className="mt-8">
-            <FileResourceTab ref={fileTabRef} />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+        <TabsContent value="files" className="mt-8">
+          <FileResourceTab ref={fileTabRef} />
+        </TabsContent>
+      </Tabs>
+    </PageLayout>
   )
 }

@@ -24,8 +24,7 @@ import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entitie
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 
 const INITIAL_FORM_DATA: PatchCreateFormData = {
   fromVersion: '',
@@ -132,16 +131,10 @@ export function PatchGeneratePage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('patch_generate')}
-        title="패치 생성"
-      />
-
+    <PageLayout
+      icon={getPageIconById('patch_generate')}
+      title="패치 생성"
+    >
       {/* Two Column Layout */}
       <div className="grid grid-cols-2 gap-6">
         <PatchGenerateFormCard
@@ -165,6 +158,6 @@ export function PatchGeneratePage() {
           userEmail={user?.email}
         />
       </div>
-    </div>
+    </PageLayout>
   )
 }

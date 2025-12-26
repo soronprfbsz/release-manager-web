@@ -15,8 +15,7 @@ import { patchApi, usePatches, type CumulativePatch } from '@/entities/patches/p
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 interface PaginationState {
@@ -48,21 +47,15 @@ export function PatchHistoryPage() {
   const totalCount = patchData?.totalElements || 0
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('patch_history')}
-        title="패치 조회/다운로드"
-        actions={
-          <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        }
-      />
-
+    <PageLayout
+      icon={getPageIconById('patch_history')}
+      title="패치 조회/다운로드"
+      actions={
+        <Button onClick={() => refetch()} variant="outline" size="icon" title="새로고침">
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      }
+    >
       {/* Patch History Card */}
       <Card>
         <CardHeader className="pb-3">
@@ -85,6 +78,6 @@ export function PatchHistoryPage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </PageLayout>
   )
 }

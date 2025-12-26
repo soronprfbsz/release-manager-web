@@ -26,9 +26,8 @@ import {
   type ProjectFormMode,
 } from '@/features/operations/project-management'
 
-import { PageHeader } from '@/shared/ui/page-header'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Button } from '@/shared/ui/button'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 
@@ -161,51 +160,45 @@ export function ProjectListPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <DynamicBreadcrumb />
-
-      <div className="space-y-8">
-        <PageHeader
-          icon={getPageIconById('operation_projects')}
-          title="프로젝트 관리"
-          actions={
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={() => refetch()} variant="outline" size="icon">
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>새로고침</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={handleAddClick} variant="outline" size="icon">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>프로젝트 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </>
-          }
-        />
-
-        {isLoading ? (
+    <PageLayout
+      icon={getPageIconById('operation_projects')}
+      title="프로젝트 관리"
+      actions={
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => refetch()} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleAddClick} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>프로젝트 추가</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
+      }
+    >
+      {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
-        ) : (
-          <ProjectList
-            projects={projects}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        )}
-      </div>
+      ) : (
+        <ProjectList
+          projects={projects}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       {/* 프로젝트 생성/수정 폼 */}
       <ProjectForm
@@ -228,6 +221,6 @@ export function ProjectListPage() {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
       />
-    </div>
+    </PageLayout>
   )
 }

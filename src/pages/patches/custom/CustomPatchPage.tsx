@@ -3,21 +3,14 @@ import { GitBranch, Construction } from 'lucide-react'
 import { getPageIconById } from '@/shared/config/menu-icons'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 
 export function CustomPatchPage() {
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('patch_custom')}
-        title="패치 관리 (Custom)"
-      />
-
+    <PageLayout
+      icon={getPageIconById('patch_custom')}
+      title="패치 관리 (Custom)"
+    >
       {/* 준비 중 안내 */}
       <Card>
         <CardHeader>
@@ -36,6 +29,6 @@ export function CustomPatchPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageLayout>
   )
 }

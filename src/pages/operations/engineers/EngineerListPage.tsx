@@ -33,10 +33,9 @@ import {
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
@@ -200,40 +199,34 @@ export function EngineerListPage() {
   const engineerList = engineerData?.content || []
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('operation_engineers')}
-        title="엔지니어 관리"
-        actions={
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={() => refetch()} variant="outline" size="icon">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>새로고침</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button onClick={openCreateModal} variant="outline" size="icon">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>엔지니어 등록</p>
-              </TooltipContent>
-            </Tooltip>
-          </>
-        }
-      />
-
+    <PageLayout
+      icon={getPageIconById('operation_engineers')}
+      title="엔지니어 관리"
+      actions={
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => refetch()} variant="outline" size="icon">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>새로고침</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={openCreateModal} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>엔지니어 등록</p>
+            </TooltipContent>
+          </Tooltip>
+        </>
+      }
+    >
       {/* Engineer List Card */}
       <Card>
         <CardHeader className="pb-3">
@@ -293,6 +286,6 @@ export function EngineerListPage() {
         onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteConfirmId(null)}
       />
-    </div>
+    </PageLayout>
   )
 }

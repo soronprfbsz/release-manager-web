@@ -19,8 +19,7 @@ import {
 import { FileTransferSheet } from '@/features/remote-jobs/terminal/ui/FileTransferSheet'
 import type { SshConnectionFormData } from '@/features/remote-jobs/terminal'
 import { Button } from '@/shared/ui/button'
-import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function TerminalPage() {
@@ -60,43 +59,37 @@ export function TerminalPage() {
   }, [disconnect])
 
   return (
-    <div className="flex flex-col space-y-6">
-      {/* Breadcrumb */}
-      <DynamicBreadcrumb />
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('remote_terminal')}
-        title="터미널"
-        actions={
-          <>
-            {session ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={handleDisconnect} variant="outline" size="icon">
-                    <Unplug className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>연결 종료</p>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={() => setConnectionSheetOpen(true)} variant="outline" size="icon">
-                    <PlugZap className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>연결</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </>
-        }
-      />
-
+    <PageLayout
+      icon={getPageIconById('remote_terminal')}
+      title="터미널"
+      actions={
+        <>
+          {session ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleDisconnect} variant="outline" size="icon">
+                  <Unplug className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>연결 종료</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => setConnectionSheetOpen(true)} variant="outline" size="icon">
+                  <PlugZap className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>연결</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </>
+      }
+    >
       {/* 연결 Sheet */}
       <SshConnectionSheet
         open={connectionSheetOpen}
@@ -145,6 +138,6 @@ export function TerminalPage() {
           }
         />
       </div>
-    </div>
+    </PageLayout>
   )
 }

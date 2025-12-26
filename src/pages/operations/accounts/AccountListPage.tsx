@@ -8,7 +8,6 @@ import { useState } from 'react'
 import { RefreshCw, User } from 'lucide-react'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
-import { Link } from 'react-router-dom'
 
 import {
   AccountTable,
@@ -30,18 +29,10 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/shared/ui/breadcrumb'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
-import { PageHeader } from '@/shared/ui/page-header'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 interface PaginationState {
@@ -142,44 +133,22 @@ export function AccountListPage() {
   const accountList = accountData?.content || []
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>운영 관리</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>계정 관리</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Page Header */}
-      <PageHeader
-        icon={getPageIconById('operation_accounts')}
-        title="계정 관리"
-        actions={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => refetch()} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
-        }
-      />
-
+    <PageLayout
+      icon={getPageIconById('operation_accounts')}
+      title="계정 관리"
+      actions={
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={() => refetch()} variant="outline" size="icon">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>새로고침</p>
+          </TooltipContent>
+        </Tooltip>
+      }
+    >
       {/* Account List Card */}
       <Card>
         <CardHeader className="pb-3">
@@ -242,6 +211,6 @@ export function AccountListPage() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteConfirmAccount(null)}
       />
-    </div>
+    </PageLayout>
   )
 }

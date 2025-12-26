@@ -4,4 +4,3 @@
  */
 
 export { InfrastructurePage } from './InfrastructurePage'
-export { ResourcePage } from './resources'
