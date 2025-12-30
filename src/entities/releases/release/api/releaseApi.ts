@@ -1,16 +1,19 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
 
 const ENDPOINTS = {
   standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
+  standardVersionList: (id: string) => `/api/releases/projects/${id}/versions`,
   customTree: (id: string, customerCode: string) => `/api/releases/projects/${id}/custom/${customerCode}/tree`,
+  allCustomTree: (id: string) => `/api/releases/projects/${id}/custom/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
   fileDownload: (id: number) => `/api/releases/files/${id}/download`,
   versionDownload: (id: number) => `/api/releases/versions/${id}/download`,
-  createVersion: '/api/releases/standard/versions',
+  createVersion: '/api/releases/versions/standard',
+  createCustomVersion: '/api/releases/versions/custom',
   deleteVersion: (id: number) => `/api/releases/versions/${id}`,
   approveVersion: (id: number) => `/api/releases/versions/${id}/approve`,
 } as const
@@ -22,9 +25,21 @@ export const releaseApi = {
     return response
   },
 
-  /** 커스텀 릴리즈 트리 조회 */
+  /** 표준본 버전 목록 조회 (셀렉트박스용) */
+  getStandardVersionList: async (projectId: string): Promise<StandardVersionSimple[]> => {
+    const response = await apiClient.get<StandardVersionSimple[]>(ENDPOINTS.standardVersionList(projectId))
+    return response
+  },
+
+  /** 커스텀 릴리즈 트리 조회 (특정 고객사) */
   getCustomTree: async (projectId: string, customerCode: string): Promise<ReleaseTreeResponse> => {
     const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.customTree(projectId, customerCode))
+    return response
+  },
+
+  /** 전체 커스텀 릴리즈 트리 조회 (모든 고객사) */
+  getAllCustomTree: async (projectId: string): Promise<CustomReleaseTreeResponse> => {
+    const response = await apiClient.get<CustomReleaseTreeResponse>(ENDPOINTS.allCustomTree(projectId))
     return response
   },
 
@@ -52,7 +67,7 @@ export const releaseApi = {
     return response.data
   },
 
-  /** 버전 생성 (multipart/form-data) */
+  /** 표준 버전 생성 (multipart/form-data) */
   createVersion: async (
     projectId: string,
     version: string,
@@ -73,6 +88,36 @@ export const releaseApi = {
     }
 
     await apiClient.upload(ENDPOINTS.createVersion, formData, {
+      onUploadProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION
+    })
+  },
+
+  /** 커스텀 버전 생성 (multipart/form-data) - releaseCategory는 PATCH로 고정 */
+  createCustomVersion: async (
+    projectId: string,
+    customerId: number,
+    customVersion: string,
+    comment: string,
+    patchFiles: File,
+    isApproved?: boolean,
+    baseVersionId?: number,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<void> => {
+    const formData = new FormData()
+    formData.append('projectId', projectId)
+    formData.append('customerId', String(customerId))
+    formData.append('customVersion', customVersion)
+    formData.append('comment', comment)
+    formData.append('patchFiles', patchFiles)
+    if (isApproved !== undefined) {
+      formData.append('isApproved', String(isApproved))
+    }
+    if (baseVersionId !== undefined) {
+      formData.append('baseVersionId', String(baseVersionId))
+    }
+
+    await apiClient.upload(ENDPOINTS.createCustomVersion, formData, {
       onUploadProgress,
       timeout: API_TIMEOUT.FILE_OPERATION
     })

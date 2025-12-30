@@ -81,3 +81,25 @@ export interface ReleaseFileStructure {
   version: string
   files: ReleaseFileNode
 }
+
+/** 고객사별 커스텀 릴리즈 노드 */
+export interface CustomerReleaseNode {
+  customerId: number
+  customerCode: string
+  customerName: string
+  baseVersionId: number | null
+  baseVersion: string | null
+  majorMinorGroups: MajorMinorNode[]
+}
+
+/** 전체 커스텀 릴리즈 트리 응답 */
+export interface CustomReleaseTreeResponse {
+  customers: CustomerReleaseNode[]
+}
+
+/** 표준본 버전 간단 정보 (셀렉트박스용) */
+export interface StandardVersionSimple {
+  versionId: number
+  version: string
+  isApproved: boolean
+}

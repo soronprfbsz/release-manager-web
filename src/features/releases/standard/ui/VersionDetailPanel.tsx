@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2 } from 'lucide-react'
+import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch } from 'lucide-react'
 
 import {
   releaseApi,
@@ -37,6 +37,8 @@ import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 interface VersionDetailPanelProps {
   version: VersionNode | null
   onDelete?: () => void
+  /** 기준 표준본 버전 (커스텀 릴리즈의 경우) */
+  baseVersion?: string | null
 }
 
 interface FileNodeProps {
@@ -134,7 +136,7 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
   )
 }
 
-export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProps) {
+export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDetailPanelProps) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -336,6 +338,13 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
                     </div>
                   )}
                 </>
+              )}
+              {baseVersion && (
+                <div className="flex items-center gap-2 col-span-2">
+                  <GitBranch className="h-4 w-4 text-muted-foreground" />
+                  <TypographyMuted className="text-sm">기준 표준본:</TypographyMuted>
+                  <TypographySmall>{baseVersion}</TypographySmall>
+                </div>
               )}
             </div>
           </CardContent>

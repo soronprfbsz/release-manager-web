@@ -4,3 +4,4 @@
  */
 
 export { VersionCreateDialog } from './version-create-dialog'
+export { CustomVersionCreateDialog } from './custom-version-create-dialog'

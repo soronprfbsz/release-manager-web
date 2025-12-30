@@ -4,7 +4,7 @@ import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { HomePage } from '@/pages/home'
-import { InfrastructurePage } from '@/pages/infrastructure'
+import { ResourcePage } from '@/pages/infrastructure'
 import { MariaDBPage, TerminalPage } from '@/pages/remote-jobs'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
@@ -155,7 +155,7 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <InfrastructurePage />
+          <ResourcePage />
         </MainLayout>
       </ProtectedRoute>
     ),

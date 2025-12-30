@@ -1,6 +1,6 @@
 /**
- * Infrastructure Page
- * 인프라 관리 페이지 - 서비스, 링크, 파일 탭 조합
+ * Resource Page
+ * 리소스 관리 페이지 - 서비스, 링크, 파일 탭 조합
  */
 
 import { useRef } from 'react'
@@ -15,7 +15,7 @@ import {
   type LinkResourceTabHandle,
   FileResourceTab,
   type FileResourceTabHandle,
-} from '@/widgets/infrastructure'
+} from '@/widgets/infrastructure/resource'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 import { Button } from '@/shared/ui/button'
@@ -43,7 +43,7 @@ const TAB_CONFIG = {
   },
 } as const
 
-export function InfrastructurePage() {
+export function ResourcePage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'services'
 
@@ -89,7 +89,7 @@ export function InfrastructurePage() {
   return (
     <PageLayout
       icon={getPageIconById('infrastructure_resources')}
-      title="인프라 관리"
+      title="리소스 관리"
       actions={
         <>
           <Tooltip>
@@ -117,30 +117,30 @@ export function InfrastructurePage() {
     >
       {/* Tabs */}
       <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
-            {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-              const config = TAB_CONFIG[tabKey]
-              const Icon = config.icon
-              return (
-                <TabsTrigger
-                  key={tabKey}
-                  value={tabKey}
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3"
-                >
-                  <Icon className="w-4 h-4 mr-2" />
-                  {config.label}
-                </TabsTrigger>
-              )
-            })}
-          </TabsList>
+        <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
+          {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+            const config = TAB_CONFIG[tabKey]
+            const Icon = config.icon
+            return (
+              <TabsTrigger
+                key={tabKey}
+                value={tabKey}
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3"
+              >
+                <Icon className="w-4 h-4 mr-2" />
+                {config.label}
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
 
-          <TabsContent value="services" className="mt-8">
-            <ServiceTab ref={serviceTabRef} />
-          </TabsContent>
+        <TabsContent value="services" className="mt-8">
+          <ServiceTab ref={serviceTabRef} />
+        </TabsContent>
 
-          <TabsContent value="links" className="mt-8">
-            <LinkResourceTab ref={linkTabRef} />
-          </TabsContent>
+        <TabsContent value="links" className="mt-8">
+          <LinkResourceTab ref={linkTabRef} />
+        </TabsContent>
 
         <TabsContent value="files" className="mt-8">
           <FileResourceTab ref={fileTabRef} />

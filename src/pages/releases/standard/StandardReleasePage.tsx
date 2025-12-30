@@ -53,6 +53,19 @@ export function StandardReleasePage() {
     refetch: refetchTree,
   } = useStandardReleaseTree(projectId)
 
+  // 트리 데이터 변경 시 선택된 버전 동기화 (승인 등으로 인한 상태 변경 반영)
+  useEffect(() => {
+    if (selectedVersion && treeData?.majorMinorGroups) {
+      for (const group of treeData.majorMinorGroups) {
+        const updatedVersion = group.versions.find(v => v.versionId === selectedVersion.versionId)
+        if (updatedVersion && updatedVersion.isApproved !== selectedVersion.isApproved) {
+          setSelectedVersion(updatedVersion)
+          break
+        }
+      }
+    }
+  }, [treeData, selectedVersion])
+
   const handleSelectVersion = (version: VersionNode) => {
     setSelectedVersion(version)
   }

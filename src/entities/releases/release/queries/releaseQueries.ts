@@ -1,14 +1,16 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 
 import { releaseApi } from '../api/releaseApi'
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
 
 // Query Keys Factory
 export const releaseKeys = {
   all: ['releases'] as const,
   trees: () => [...releaseKeys.all, 'tree'] as const,
   standardTree: (projectId: string) => [...releaseKeys.trees(), 'standard', projectId] as const,
+  standardVersionList: (projectId: string) => [...releaseKeys.all, 'standard-version-list', projectId] as const,
   customTree: (projectId: string, customerCode: string) => [...releaseKeys.trees(), 'custom', projectId, customerCode] as const,
+  allCustomTree: (projectId: string) => [...releaseKeys.trees(), 'custom', 'all', projectId] as const,
   versions: () => [...releaseKeys.all, 'version'] as const,
   version: (id: number) => [...releaseKeys.versions(), id] as const,
   fileStructure: (id: number) => [...releaseKeys.versions(), id, 'files'] as const,
@@ -26,6 +28,17 @@ export const useStandardReleaseTree = (
     ...options,
   })
 
+export const useStandardVersionList = (
+  projectId: string,
+  options?: Omit<UseQueryOptions<StandardVersionSimple[]>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: releaseKeys.standardVersionList(projectId),
+    queryFn: () => releaseApi.getStandardVersionList(projectId),
+    enabled: !!projectId,
+    ...options,
+  })
+
 export const useCustomReleaseTree = (
   projectId: string,
   customerCode: string,
@@ -35,6 +48,17 @@ export const useCustomReleaseTree = (
     queryKey: releaseKeys.customTree(projectId, customerCode),
     queryFn: () => releaseApi.getCustomTree(projectId, customerCode),
     enabled: !!customerCode,
+    ...options,
+  })
+
+export const useAllCustomReleaseTree = (
+  projectId: string,
+  options?: Omit<UseQueryOptions<CustomReleaseTreeResponse>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: releaseKeys.allCustomTree(projectId),
+    queryFn: () => releaseApi.getAllCustomTree(projectId),
+    enabled: !!projectId,
     ...options,
   })
 

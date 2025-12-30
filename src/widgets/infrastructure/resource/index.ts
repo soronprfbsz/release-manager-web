@@ -1,6 +1,6 @@
 /**
- * Infrastructure Resource Widgets
- * 인프라 리소스 관리 탭 위젯 모음
+ * Resource Widgets
+ * 리소스 관리 위젯 모음
  */
 
 export { ServiceTab, type ServiceTabHandle } from './service-tab'
