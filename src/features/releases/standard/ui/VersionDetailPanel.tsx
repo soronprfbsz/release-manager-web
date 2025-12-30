@@ -226,7 +226,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
 
   if (!version) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-26rem)] text-muted-foreground">
         <FileText className="h-12 w-12 mb-2 opacity-50" />
         <TypographyMuted>버전을 선택하면 상세 정보가 표시됩니다.</TypographyMuted>
       </div>
@@ -235,7 +235,7 @@ export function VersionDetailPanel({ version, onDelete }: VersionDetailPanelProp
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center min-h-[calc(100vh-26rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     )

@@ -30,6 +30,13 @@ export function StandardReleasePage() {
   const { canAddVersion } = usePermission()
   const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [prevProjectId, setPrevProjectId] = useState(projectId)
+
+  // 프로젝트 변경 시 선택 초기화 (렌더링 중 동기 처리)
+  if (projectId !== prevProjectId) {
+    setPrevProjectId(projectId)
+    setSelectedVersion(null)
+  }
 
   // 홈페이지에서 전달된 버전 선택
   useEffect(() => {
