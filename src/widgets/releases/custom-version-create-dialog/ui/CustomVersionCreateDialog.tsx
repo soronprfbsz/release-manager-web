@@ -18,13 +18,7 @@ import {
   PopoverTrigger,
 } from '@/shared/ui/popover'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
+import { Combobox } from '@/shared/ui/combobox'
 import {
   Sheet,
   SheetContent,
@@ -285,7 +279,7 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+        <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 파일 구조 안내 */}
             <div className="flex items-center gap-2">
@@ -362,24 +356,19 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
               <Label htmlFor="customerId" required>
                 고객사
               </Label>
-              <Select
+              <Combobox
+                options={customers.map((customer: Customer) => ({
+                  value: String(customer.customerId),
+                  label: `${customer.customerName} (${customer.customerCode})`,
+                }))}
                 value={customerId ? String(customerId) : ''}
                 onValueChange={(value) => {
-                  setCustomerId(Number(value))
+                  setCustomerId(value ? Number(value) : null)
                   setBaseVersionId(null) // 고객사 변경 시 baseVersionId 초기화
                 }}
-              >
-                <SelectTrigger id="customerId">
-                  <SelectValue placeholder="고객사를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((customer: Customer) => (
-                    <SelectItem key={customer.customerId} value={String(customer.customerId)}>
-                      {customer.customerName} ({customer.customerCode})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="고객사를 선택하세요"
+                searchPlaceholder="고객사 검색..."
+              />
             </div>
 
             {/* 표준본 버전 선택 (최초 버전 생성 시에만 표시) */}
@@ -388,21 +377,16 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
                 <Label htmlFor="baseVersionId" required>
                   표준본 버전 (Base Version)
                 </Label>
-                <Select
+                <Combobox
+                  options={standardVersions.map((sv) => ({
+                    value: String(sv.versionId),
+                    label: `${sv.version}${!sv.isApproved ? ' (승인되지 않음)' : ''}`,
+                  }))}
                   value={baseVersionId ? String(baseVersionId) : ''}
-                  onValueChange={(value) => setBaseVersionId(Number(value))}
-                >
-                  <SelectTrigger id="baseVersionId">
-                    <SelectValue placeholder="기준이 될 표준본 버전을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {standardVersions.map((sv) => (
-                      <SelectItem key={sv.versionId} value={String(sv.versionId)}>
-                        {sv.version} {!sv.isApproved && '(승인되지 않음)'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(value) => setBaseVersionId(value ? Number(value) : null)}
+                  placeholder="기준이 될 표준본 버전을 선택하세요"
+                  searchPlaceholder="표준본 버전 검색..."
+                />
                 <p className="text-xs text-muted-foreground">
                   고객사별 최초 커스텀 버전 생성 시 기준이 될 표준본 버전을 선택해야 합니다.
                 </p>
