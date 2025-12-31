@@ -1,8 +1,7 @@
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
-import { Button } from "@/shared/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -50,13 +49,12 @@ export function Combobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
+        <button
+          type="button"
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between whitespace-nowrap h-9 px-3 py-2 text-sm font-normal shadow-sm",
-            "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset",
+            "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
             !selectedOption && "text-muted-foreground",
             className
           )}
@@ -65,8 +63,8 @@ export function Combobox({
           <span className="truncate text-left overflow-hidden">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>

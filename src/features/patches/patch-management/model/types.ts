@@ -11,6 +11,14 @@ export interface PatchCreateFormData {
   description: string
 }
 
+export interface CustomPatchCreateFormData {
+  customerId: number | null
+  fromVersion: string
+  toVersion: string
+  engineerId: number | null
+  description: string
+}
+
 export interface PatchFiltersState {
   keyword?: string
   releaseType?: 'STANDARD' | 'CUSTOM'

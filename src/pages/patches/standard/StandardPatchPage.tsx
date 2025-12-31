@@ -29,7 +29,7 @@ import { engineerApi } from '@/entities/operations'
 import {
   patchApi,
   usePatches,
-  useGeneratePatch,
+  useGenerateStandardPatch,
   useDeletePatch,
   type CumulativePatch,
   type CumulativePatchGenerateRequest,
@@ -142,7 +142,7 @@ export function StandardPatchPage() {
   const versions = getVersionsFromTree(treeData)
 
   // Mutations
-  const generateMutation = useGeneratePatch()
+  const generateMutation = useGenerateStandardPatch()
   const deleteMutation = useDeletePatch()
 
   // Handlers
@@ -183,7 +183,7 @@ export function StandardPatchPage() {
     }
 
     generateMutation.mutate(request, {
-      onSuccess: (data) => {
+      onSuccess: (data: CumulativePatch) => {
         toast({
           title: '패치 생성 완료',
           description: `${data.patchName} 패치가 생성되었습니다.`,

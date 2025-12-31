@@ -8,6 +8,9 @@ import type {
   CumulativePatch,
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
+  CustomPatchGenerateRequest,
+  CustomPatchCustomer,
+  CustomPatchVersion,
   PatchFileStructure,
   PatchFileContent,
 } from '../model/types'
@@ -22,6 +25,10 @@ export const patchKeys = {
   detail: (id: number) => [...patchKeys.details(), id] as const,
   fileStructure: (id: number) => [...patchKeys.all, 'file-structure', id] as const,
   fileContent: (id: number, path: string) => [...patchKeys.all, 'file-content', id, path] as const,
+  // Custom patch keys
+  customCustomers: (projectId: string) => [...patchKeys.all, 'custom-customers', projectId] as const,
+  customVersions: (customerId: number, projectId: string) =>
+    [...patchKeys.all, 'custom-versions', customerId, projectId] as const,
 }
 
 // Query Hooks
@@ -72,12 +79,47 @@ export const usePatchFileContent = (
     ...options,
   })
 
+// Custom Patch Query Hooks
+export const useCustomPatchCustomers = (
+  projectId: string,
+  options?: Omit<UseQueryOptions<CustomPatchCustomer[]>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: patchKeys.customCustomers(projectId),
+    queryFn: () => patchApi.getCustomPatchCustomers(projectId),
+    enabled: !!projectId,
+    ...options,
+  })
+
+export const useCustomPatchVersions = (
+  customerId: number | null,
+  projectId: string,
+  options?: Omit<UseQueryOptions<CustomPatchVersion[]>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: patchKeys.customVersions(customerId!, projectId),
+    queryFn: () => patchApi.getCustomPatchVersions(customerId!, projectId),
+    enabled: !!customerId && !!projectId,
+    ...options,
+  })
+
 // Mutation Hooks
-export const useGeneratePatch = () => {
+export const useGenerateStandardPatch = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: CumulativePatchGenerateRequest) => patchApi.generate(data),
+    mutationFn: (data: CumulativePatchGenerateRequest) => patchApi.generateStandard(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
+    },
+  })
+}
+
+export const useGenerateCustomPatch = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: CustomPatchGenerateRequest) => patchApi.generateCustom(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
     },

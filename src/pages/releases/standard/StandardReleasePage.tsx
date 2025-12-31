@@ -38,20 +38,29 @@ export function StandardReleasePage() {
     setSelectedVersion(null)
   }
 
-  // 홈페이지에서 전달된 버전 선택
-  useEffect(() => {
-    const state = location.state as { selectedVersion?: VersionNode } | null
-    if (state?.selectedVersion) {
-      setSelectedVersion(state.selectedVersion)
-    }
-  }, [location.state])
-
   const {
     data: treeData,
     isLoading: isTreeLoading,
     error: treeError,
     refetch: refetchTree,
   } = useStandardReleaseTree(projectId)
+
+  // 홈페이지에서 전달된 버전 선택 (selectedVersion 객체 또는 selectedVersionId)
+  useEffect(() => {
+    const state = location.state as { selectedVersion?: VersionNode; selectedVersionId?: number } | null
+    if (state?.selectedVersion) {
+      setSelectedVersion(state.selectedVersion)
+    } else if (state?.selectedVersionId && treeData?.majorMinorGroups && !selectedVersion) {
+      // selectedVersionId로 전달된 경우 트리에서 해당 버전 찾아 선택
+      for (const group of treeData.majorMinorGroups) {
+        const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
+        if (foundVersion) {
+          setSelectedVersion(foundVersion)
+          break
+        }
+      }
+    }
+  }, [location.state, treeData, selectedVersion])
 
   // 트리 데이터 변경 시 선택된 버전 동기화 (승인 등으로 인한 상태 변경 반영)
   useEffect(() => {
@@ -129,7 +138,7 @@ export function StandardReleasePage() {
       {/* Content */}
       <div className="grid grid-cols-12 gap-4">
         {/* Tree Panel */}
-        <div className="col-span-2">
+        <div className="col-span-3">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -161,7 +170,7 @@ export function StandardReleasePage() {
         </div>
 
         {/* Detail Panel */}
-        <div className="col-span-10">
+        <div className="col-span-9">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 flex-wrap">

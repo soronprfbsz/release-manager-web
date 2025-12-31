@@ -20,7 +20,7 @@ import {
 
 import { customerApi } from '@/entities/operations'
 import { engineerApi } from '@/entities/operations'
-import { useGeneratePatch, type CumulativePatchGenerateRequest } from '@/entities/patches/patch'
+import { useGenerateStandardPatch, type CumulativePatchGenerateRequest } from '@/entities/patches/patch'
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -86,7 +86,7 @@ export function PatchGeneratePage() {
   const versions = getVersionsFromTree(treeData)
 
   // Mutations
-  const generateMutation = useGeneratePatch()
+  const generateMutation = useGenerateStandardPatch()
 
   // Handlers
   const handleSubmit = () => {

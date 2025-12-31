@@ -1,15 +1,13 @@
 /**
- * Patch Generate Form Card Component
- * 패치 생성 폼 카드 컴포넌트
+ * Custom Patch Generate Form Card Component
+ * 커스텀 패치 생성 폼 카드 컴포넌트
  */
 
-import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { ArrowRight, GitBranch, Layers, Loader2 } from 'lucide-react'
 
-import type { Customer } from '@/entities/operations'
 import type { Engineer } from '@/entities/operations'
+import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
 
-import { ROUTES } from '@/shared/config/constants'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Combobox } from '@/shared/ui/combobox'
@@ -17,36 +15,41 @@ import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { PatchCreateFormData } from '../model/types'
+import type { CustomPatchCreateFormData } from '../model/types'
 
-type ReleaseType = 'STANDARD' | 'CUSTOM'
-
-interface PatchGenerateFormCardProps {
-  releaseType: ReleaseType
-  formData: PatchCreateFormData
-  versions: string[]
-  customers: Customer[]
+interface CustomPatchGenerateFormCardProps {
+  formData: CustomPatchCreateFormData
+  customers: CustomPatchCustomer[]
+  versions: CustomPatchVersion[]
   engineers: Engineer[]
+  isCustomersLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
-  onReleaseTypeChange: (type: ReleaseType) => void
-  onFormDataChange: (data: PatchCreateFormData) => void
+  onFormDataChange: (data: CustomPatchCreateFormData) => void
   onSubmit: () => void
 }
 
-export function PatchGenerateFormCard({
-  releaseType,
+export function CustomPatchGenerateFormCard({
   formData,
-  versions,
   customers,
+  versions,
   engineers,
+  isCustomersLoading,
   isVersionsLoading,
   isSubmitting,
-  onReleaseTypeChange,
   onFormDataChange,
   onSubmit,
-}: PatchGenerateFormCardProps) {
-  const navigate = useNavigate()
+}: CustomPatchGenerateFormCardProps) {
+  // 승인된 버전만 필터링
+  const approvedVersions = versions.filter((v) => v.isApproved)
+
+  // fromVersion: 승인된 모든 버전 (베이스 버전 포함)
+  const fromVersionOptions = approvedVersions
+
+  // toVersion: 베이스 버전이 아닌 것 + fromVersion보다 큰 것
+  const filteredToVersions = approvedVersions.filter(
+    (v) => !v.isBaseVersion && formData.fromVersion && v.version > formData.fromVersion
+  )
 
   const handleFromVersionChange = (value: string) => {
     onFormDataChange({
@@ -56,47 +59,42 @@ export function PatchGenerateFormCard({
     })
   }
 
-  const filteredToVersions = versions.filter(
-    (v) => formData.fromVersion && v > formData.fromVersion
-  )
-
-  const handleCustomClick = () => {
-    navigate(ROUTES.PATCHES.CUSTOM)
-  }
+  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Layers className="h-5 w-5" />
-          패치 생성
+          <GitBranch className="h-5 w-5" />
+          커스텀 패치 생성
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        {/* Release Type */}
+        {/* Customer Selection */}
         <div className="space-y-2">
-          <Label>릴리즈 타입 *</Label>
-          <div className="flex gap-2">
-            <Button
-              variant={releaseType === 'STANDARD' ? 'default' : 'outline'}
-              onClick={() => {
-                onReleaseTypeChange('STANDARD')
-                onFormDataChange({ ...formData, fromVersion: '', toVersion: '' })
-              }}
-              className="flex-1"
-            >
-              <Package className="h-4 w-4 mr-2" />
-              Standard
-            </Button>
-            <Button
-              variant={releaseType === 'CUSTOM' ? 'default' : 'outline'}
-              onClick={handleCustomClick}
-              className="flex-1"
-            >
-              <GitBranch className="h-4 w-4 mr-2" />
-              Custom
-            </Button>
-          </div>
+          <Label required>고객사</Label>
+          <Combobox
+            options={customers.map((c) => ({
+              value: String(c.customerId),
+              label: `${c.customerName} (${c.customerCode})`,
+            }))}
+            value={formData.customerId ? String(formData.customerId) : ''}
+            onValueChange={(value) => {
+              onFormDataChange({
+                ...formData,
+                customerId: value ? Number(value) : null,
+                fromVersion: '',
+                toVersion: '',
+              })
+            }}
+            placeholder="고객사를 선택하세요"
+            searchPlaceholder="고객사 검색..."
+            disabled={isCustomersLoading}
+          />
+          {isCustomersLoading && <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>}
+          {!isCustomersLoading && customers.length === 0 && (
+            <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+          )}
         </div>
 
         {/* Version Selection */}
@@ -104,52 +102,37 @@ export function PatchGenerateFormCard({
           <Label required>버전 범위</Label>
           <div className="flex items-center gap-3">
             <Combobox
-              options={versions.map((v) => ({ value: v, label: v }))}
+              options={fromVersionOptions.map((v) => ({
+                value: v.version,
+                label: v.isBaseVersion ? `${v.version} (베이스)` : v.version,
+              }))}
               value={formData.fromVersion}
               onValueChange={handleFromVersionChange}
               placeholder="시작 버전"
               searchPlaceholder="버전 검색..."
-              disabled={isVersionsLoading || versions.length === 0}
+              disabled={isVersionsLoading || !formData.customerId || fromVersionOptions.length === 0}
               className="flex-1"
             />
             <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             <Combobox
-              options={filteredToVersions.map((v) => ({ value: v, label: v }))}
+              options={filteredToVersions.map((v) => ({
+                value: v.version,
+                label: v.version,
+              }))}
               value={formData.toVersion}
               onValueChange={(value) => onFormDataChange({ ...formData, toVersion: value })}
               placeholder="종료 버전"
               searchPlaceholder="버전 검색..."
-              disabled={isVersionsLoading || versions.length === 0 || !formData.fromVersion}
+              disabled={isVersionsLoading || !formData.customerId || !formData.fromVersion}
               className="flex-1"
             />
           </div>
-          {isVersionsLoading && <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>}
-          {!isVersionsLoading && versions.length === 0 && (
-            <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
+          {formData.customerId && isVersionsLoading && (
+            <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
           )}
-        </div>
-
-        {/* Customer */}
-        <div className="space-y-2">
-          <Label>고객사</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...customers.map((c) => ({
-                value: c.customerCode,
-                label: `${c.customerName} (${c.customerCode})`,
-              })),
-            ]}
-            value={formData.customerCode || '__none__'}
-            onValueChange={(value) =>
-              onFormDataChange({
-                ...formData,
-                customerCode: value === '__none__' || !value ? '' : value,
-              })
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="고객사 검색..."
-          />
+          {formData.customerId && !isVersionsLoading && approvedVersions.length === 0 && (
+            <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
+          )}
         </div>
 
         {/* Assigned Engineer */}
@@ -189,15 +172,16 @@ export function PatchGenerateFormCard({
         {/* Info Message */}
         <div className="p-3 bg-muted/50 rounded-lg">
           <TypographyMuted>
-            선택한 버전 범위 내의 모든 변경사항(MariaDB, CrateDB)이 하나의 패치 파일로
-            생성됩니다.
+            {selectedCustomer
+              ? `${selectedCustomer.customerName}의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.`
+              : '고객사를 선택하면 해당 고객사의 커스텀 버전 목록이 표시됩니다.'}
           </TypographyMuted>
         </div>
 
         {/* Submit Button */}
         <Button
           onClick={onSubmit}
-          disabled={!formData.fromVersion || !formData.toVersion || isSubmitting}
+          disabled={!formData.customerId || !formData.fromVersion || !formData.toVersion || isSubmitting}
           className="w-full"
           size="lg"
         >
@@ -217,5 +201,3 @@ export function PatchGenerateFormCard({
     </Card>
   )
 }
-
-export type { ReleaseType }

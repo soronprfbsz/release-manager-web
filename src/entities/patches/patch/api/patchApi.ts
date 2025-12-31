@@ -5,13 +5,23 @@ import type {
   CumulativePatch,
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
+  CustomPatchGenerateRequest,
+  CustomPatchCustomer,
+  CustomPatchVersion,
   PatchFileStructure,
   PatchFileContent,
 } from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/patches',
-  generate: '/api/patches/generate',
+  // Standard patch
+  generateStandard: '/api/patches/standard/generate',
+  // Custom patch
+  customCustomers: (projectId: string) => `/api/patches/custom/customers?projectId=${projectId}`,
+  customVersions: (customerId: number, projectId: string) =>
+    `/api/patches/custom/customers/${customerId}/versions?projectId=${projectId}`,
+  generateCustom: '/api/patches/custom/generate',
+  // Common
   byId: (id: number) => `/api/patches/${id}`,
   download: (id: number) => `/api/patches/${id}/download`,
   files: (id: number) => `/api/patches/${id}/files`,
@@ -42,9 +52,27 @@ export const patchApi = {
     return response
   },
 
-  /** 패치 생성 */
-  generate: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
-    const response = await apiClient.post<CumulativePatch>(ENDPOINTS.generate, request)
+  /** 표준 패치 생성 */
+  generateStandard: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
+    const response = await apiClient.post<CumulativePatch>(ENDPOINTS.generateStandard, request)
+    return response
+  },
+
+  /** 커스텀 버전 보유 고객사 목록 조회 */
+  getCustomPatchCustomers: async (projectId: string): Promise<CustomPatchCustomer[]> => {
+    const response = await apiClient.get<CustomPatchCustomer[]>(ENDPOINTS.customCustomers(projectId))
+    return response
+  },
+
+  /** 고객사별 커스텀 버전 목록 조회 */
+  getCustomPatchVersions: async (customerId: number, projectId: string): Promise<CustomPatchVersion[]> => {
+    const response = await apiClient.get<CustomPatchVersion[]>(ENDPOINTS.customVersions(customerId, projectId))
+    return response
+  },
+
+  /** 커스텀 패치 생성 */
+  generateCustom: async (request: CustomPatchGenerateRequest): Promise<CumulativePatch> => {
+    const response = await apiClient.post<CumulativePatch>(ENDPOINTS.generateCustom, request)
     return response
   },
 

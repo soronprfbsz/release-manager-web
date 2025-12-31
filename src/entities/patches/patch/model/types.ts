@@ -48,6 +48,33 @@ export interface CumulativePatchGenerateRequest {
   patchName?: string
 }
 
+/** 커스텀 패치 생성 요청 (신규 API) */
+export interface CustomPatchGenerateRequest {
+  projectId: string
+  customerId: number
+  fromVersion: string
+  toVersion: string
+  createdBy: string
+  description?: string
+  engineerId?: number
+  patchName?: string
+}
+
+/** 커스텀 버전 보유 고객사 */
+export interface CustomPatchCustomer {
+  customerId: number
+  customerCode: string
+  customerName: string
+}
+
+/** 고객사별 커스텀 버전 */
+export interface CustomPatchVersion {
+  versionId: number
+  version: string
+  isApproved: boolean
+  isBaseVersion: boolean
+}
+
 export interface PatchFileNode {
   name: string
   path: string
