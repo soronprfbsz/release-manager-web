@@ -113,7 +113,7 @@ export function TerminalPage() {
       />
 
       {/* xterm.js 터미널 */}
-      <div className="h-[calc(100vh-300px)]">
+      <div className="h-full">
         <XtermTerminal
           key={session?.sessionId || 'no-session'}
           ref={terminalRef}
@@ -123,6 +123,7 @@ export function TerminalPage() {
           isConnected={isConnected}
           onData={sendCommand}
           onResize={sendResize}
+          onConnect={() => setConnectionSheetOpen(true)}
           headerActions={
             isConnected && session?.sessionId && (
               <Button

@@ -25,6 +25,7 @@ interface XtermTerminalProps {
   isConnected: boolean
   onData: (data: string) => void
   onResize?: (cols: number, rows: number) => void
+  onConnect?: () => void
   headerActions?: React.ReactNode
 }
 
@@ -35,7 +36,7 @@ export interface XtermTerminalHandle {
 }
 
 export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>(
-  function XtermTerminal({ sessionId, host, username, isConnected, onData, onResize, headerActions }, ref) {
+  function XtermTerminal({ sessionId, host, username, isConnected, onData, onResize, onConnect, headerActions }, ref) {
     const containerRef = useRef<HTMLDivElement>(null)
     const terminalRef = useRef<HTMLDivElement>(null)
     const xtermRef = useRef<XTerm | null>(null)
@@ -193,9 +194,28 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       }
       window.addEventListener('resize', handleResize)
 
+      // ResizeObserver로 컨테이너 크기 변경 감지
+      const resizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => {
+          try {
+            fitAddon.fit()
+            if (onResizeRef.current && term.cols && term.rows) {
+              onResizeRef.current(term.cols, term.rows)
+            }
+          } catch (error) {
+            console.error('Failed to fit terminal on container resize:', error)
+          }
+        })
+      })
+
+      if (terminalRef.current) {
+        resizeObserver.observe(terminalRef.current)
+      }
+
       // Cleanup
       return () => {
         window.removeEventListener('resize', handleResize)
+        resizeObserver.disconnect()
         term.dispose()
         xtermRef.current = null
         fitAddonRef.current = null
@@ -252,10 +272,13 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     // 연결되지 않은 경우
     if (!sessionId) {
       return (
-        <div className="h-full flex items-center justify-center rounded-lg border border-dashed bg-card">
+        <div
+          className="h-[calc(100vh-20rem)] flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={onConnect}
+        >
           <div className="text-center text-muted-foreground">
             <TerminalIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>연결 버튼을 눌러 원격 서버에 연결하세요.</p>
+            <p>클릭하여 원격 서버에 연결하세요.</p>
           </div>
         </div>
       )
@@ -264,7 +287,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     return (
       <div
         ref={containerRef}
-        className={`flex flex-col rounded-lg border overflow-hidden ${isFullscreen ? 'h-screen' : 'h-[calc(95vh-16rem)]'
+        className={`flex flex-col rounded-lg border overflow-hidden ${isFullscreen ? 'h-screen' : 'h-[calc(100vh-20rem)]'
           }`}
         style={{
           backgroundColor: activeTheme.background,
@@ -326,7 +349,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
 
         {/* xterm.js 터미널 영역 */}
         <div
-          className="flex-1 p-2 overflow-hidden min-h-0 cursor-text"
+          className="flex-1 overflow-hidden min-h-0 cursor-text"
           onMouseDown={() => {
             // 터미널 영역 클릭 시 즉시 포커스
             // onMouseDown은 브라우저가 포커스를 받기 전에도 발생
