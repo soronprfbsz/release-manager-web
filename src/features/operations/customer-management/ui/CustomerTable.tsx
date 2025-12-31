@@ -9,6 +9,7 @@ import {
   Trash2,
   Power,
   PowerOff,
+  Check,
 } from 'lucide-react'
 
 import type { Customer } from '@/entities/operations'
@@ -106,10 +107,18 @@ export function CustomerTable({
               프로젝트명
             </SortableTableHead>
             <SortableTableHead
+              id="hasCustomVersion"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-28 text-center"
+            >
+              커스텀 여부
+            </SortableTableHead>
+            <SortableTableHead
               id="lastPatchedVersion"
               currentSort={sort}
               onSort={onSort}
-              className="w-40"
+              className="w-48"
             >
               최종 패치 버전
             </SortableTableHead>
@@ -153,6 +162,11 @@ export function CustomerTable({
                   </span>
                 ) : (
                   <TypographyMuted>-</TypographyMuted>
+                )}
+              </TableCell>
+              <TableCell className="text-center">
+                {customer.hasCustomVersion && (
+                  <Check className="h-4 w-4 mx-auto text-green-600" />
                 )}
               </TableCell>
               <TableCell>

@@ -18,6 +18,7 @@ export interface Customer {
   customerName: string
   description: string | null
   isActive: boolean
+  hasCustomVersion: boolean
   project: CustomerProject | null
   createdAt: string
   updatedAt: string
