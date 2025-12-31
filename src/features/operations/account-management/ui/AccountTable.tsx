@@ -81,7 +81,7 @@ export function AccountTable({
               onSort={onSort}
               className="w-40"
             >
-              계정명
+              이름
             </SortableTableHead>
             <SortableTableHead
               id="email"

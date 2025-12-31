@@ -62,7 +62,7 @@ export function AccountForm({
         </TypographyMuted>
       </div>
       <div className="space-y-2">
-        <Label>계정명</Label>
+        <Label>이름</Label>
         <Input
           value={formData.accountName}
           onChange={(e) =>
