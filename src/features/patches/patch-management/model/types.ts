@@ -9,6 +9,7 @@ export interface PatchCreateFormData {
   customerCode: string
   engineerId: number | null
   description: string
+  includeAllBuildVersions: boolean
 }
 
 export interface CustomPatchCreateFormData {

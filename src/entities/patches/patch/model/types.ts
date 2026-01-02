@@ -46,6 +46,7 @@ export interface CumulativePatchGenerateRequest {
   engineerId?: number
   description?: string
   patchName?: string
+  includeAllBuildVersions?: boolean
 }
 
 /** 커스텀 패치 생성 요청 (신규 API) */

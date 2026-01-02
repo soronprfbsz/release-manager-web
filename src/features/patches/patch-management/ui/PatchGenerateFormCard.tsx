@@ -12,6 +12,7 @@ import type { Engineer } from '@/entities/operations'
 import { ROUTES } from '@/shared/config/constants'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Checkbox } from '@/shared/ui/checkbox'
 import { Combobox } from '@/shared/ui/combobox'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
@@ -184,6 +185,25 @@ export function PatchGenerateFormCard({
             placeholder="패치에 대한 설명을 입력하세요 (예: 특정 버그 수정, 기능 추가 등)"
             className="min-h-[80px]"
           />
+        </div>
+
+        {/* Include All Build Versions */}
+        <div className="flex items-start space-x-3">
+          <Checkbox
+            id="includeAllBuildVersions"
+            checked={formData.includeAllBuildVersions}
+            onCheckedChange={(checked) =>
+              onFormDataChange({ ...formData, includeAllBuildVersions: checked === true })
+            }
+          />
+          <div className="space-y-1">
+            <Label htmlFor="includeAllBuildVersions" className="cursor-pointer">
+              모든 빌드 버전 포함
+            </Label>
+            <TypographyMuted className="text-xs">
+              WEB/ENGINE 카테고리의 모든 빌드 버전을 포함합니다. 체크 해제 시 마지막 버전만 포함됩니다.
+            </TypographyMuted>
+          </div>
         </div>
 
         {/* Info Message */}

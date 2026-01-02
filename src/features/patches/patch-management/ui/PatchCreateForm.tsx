@@ -9,6 +9,7 @@ import type { Customer } from '@/entities/operations'
 import type { Engineer } from '@/entities/operations'
 
 import { Button } from '@/shared/ui/button'
+import { Checkbox } from '@/shared/ui/checkbox'
 import { Combobox } from '@/shared/ui/combobox'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -190,6 +191,25 @@ export function PatchCreateForm({
                 placeholder="패치에 대한 설명"
                 className="min-h-[80px]"
               />
+            </div>
+
+            {/* 모든 빌드 버전 포함 */}
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="includeAllBuildVersions"
+                checked={formData.includeAllBuildVersions}
+                onCheckedChange={(checked) =>
+                  onFormDataChange({ ...formData, includeAllBuildVersions: checked === true })
+                }
+              />
+              <div className="space-y-1">
+                <Label htmlFor="includeAllBuildVersions" className="cursor-pointer">
+                  모든 빌드 버전 포함
+                </Label>
+                <TypographyMuted className="text-xs">
+                  WEB/ENGINE 카테고리의 모든 빌드 버전을 포함합니다. 체크 해제 시 마지막 버전만 포함됩니다.
+                </TypographyMuted>
+              </div>
             </div>
 
             {/* 생성 정보 미리보기 */}

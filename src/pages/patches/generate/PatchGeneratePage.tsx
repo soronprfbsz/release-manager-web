@@ -32,6 +32,7 @@ const INITIAL_FORM_DATA: PatchCreateFormData = {
   customerCode: '',
   engineerId: null,
   description: '',
+  includeAllBuildVersions: false,
 }
 
 function getVersionsFromTree(
@@ -110,6 +111,7 @@ export function PatchGeneratePage() {
       createdBy: user?.email || '',
       engineerId: formData.engineerId || undefined,
       description: formData.description || undefined,
+      includeAllBuildVersions: formData.includeAllBuildVersions || undefined,
     }
 
     generateMutation.mutate(request, {
