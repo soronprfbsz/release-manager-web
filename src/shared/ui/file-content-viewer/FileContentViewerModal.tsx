@@ -148,12 +148,17 @@ export function FileContentViewerModal({
     }
   }, [content])
 
+  // PDF는 더 큰 모달 사이즈 사용
+  const modalSizeClass = isPdf
+    ? `max-w-6xl flex flex-col gap-4 ${isFullscreen ? 'h-screen max-h-screen' : 'max-h-[85vh]'}`
+    : `max-w-4xl flex flex-col gap-4 ${isFullscreen ? 'h-screen max-h-screen' : 'max-h-[85vh]'}`
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={containerRef}
         hideClose
-        className={`max-w-4xl flex flex-col gap-4 ${isFullscreen ? 'h-screen max-h-screen' : 'max-h-[85vh]'}`}
+        className={modalSizeClass}
       >
         {/* 커스텀 헤더 */}
         <div className="flex items-start justify-between gap-4">
@@ -226,7 +231,7 @@ export function FileContentViewerModal({
         <div className="relative flex-1 min-h-0">
           {/* PDF 뷰어 */}
           {isPdf && (
-            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[55vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[68vh]'}`}>
               <PdfViewer
                 file={pdfBlob}
                 isLoading={isPdfLoading}
