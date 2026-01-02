@@ -14,6 +14,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Combobox } from '@/shared/ui/combobox'
+import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -174,6 +175,20 @@ export function PatchGenerateFormCard({
             placeholder="선택 안함"
             searchPlaceholder="엔지니어 검색..."
           />
+        </div>
+
+        {/* Patch Name */}
+        <div className="space-y-2">
+          <Label>패치명</Label>
+          <Input
+            value={formData.patchName}
+            onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
+            placeholder="미입력 시 자동 생성 (예: 20260102_1.0.0_1.1.0)"
+            maxLength={100}
+          />
+          <TypographyMuted className="text-xs">
+            최대 100자. 미입력 시 날짜와 버전 정보로 자동 생성됩니다.
+          </TypographyMuted>
         </div>
 
         {/* Description */}
