@@ -98,6 +98,14 @@ export const patchApi = {
     return response
   },
 
+  /** 패치 파일 Blob 조회 (PDF 등 바이너리 파일용) */
+  getFileBlob: async (id: number, path: string): Promise<Blob> => {
+    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileContent(id, path), {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
   /** 패치 삭제 */
   deleteById: async (id: number): Promise<void> => {
     await apiClient.delete(ENDPOINTS.delete(id))

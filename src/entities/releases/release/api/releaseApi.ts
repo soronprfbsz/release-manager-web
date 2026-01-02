@@ -67,6 +67,14 @@ export const releaseApi = {
     return response.data
   },
 
+  /** 릴리즈 파일 내용 조회 (Blob - PDF용) */
+  getFileBlob: async (id: number): Promise<Blob> => {
+    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
   /** 표준 버전 생성 (multipart/form-data) */
   createVersion: async (
     projectId: string,

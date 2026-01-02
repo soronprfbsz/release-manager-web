@@ -30,6 +30,7 @@ export {
   useReleaseVersion,
   useVersionFileStructure,
   useReleaseFileContent,
+  useReleaseFileBlob,
   useCreateVersion,
   useDeleteVersion,
   useApproveVersion,

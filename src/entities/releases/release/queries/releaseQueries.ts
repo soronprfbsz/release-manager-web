@@ -15,6 +15,7 @@ export const releaseKeys = {
   version: (id: number) => [...releaseKeys.versions(), id] as const,
   fileStructure: (id: number) => [...releaseKeys.versions(), id, 'files'] as const,
   fileContent: (fileId: number) => [...releaseKeys.all, 'file-content', fileId] as const,
+  fileBlob: (fileId: number) => [...releaseKeys.all, 'file-blob', fileId] as const,
 }
 
 // Query Hooks
@@ -92,6 +93,20 @@ export const useReleaseFileContent = (
   useQuery({
     queryKey: releaseKeys.fileContent(fileId),
     queryFn: () => releaseApi.getFileContent(fileId),
+    enabled: enabled && !!fileId,
+    staleTime: Infinity, // 파일 내용은 변경되지 않음
+    ...options,
+  })
+
+/** 파일 Blob 조회 (PDF 등 바이너리 파일용) */
+export const useReleaseFileBlob = (
+  fileId: number,
+  enabled: boolean = true,
+  options?: Omit<UseQueryOptions<Blob>, 'queryKey' | 'queryFn' | 'enabled'>
+) =>
+  useQuery({
+    queryKey: releaseKeys.fileBlob(fileId),
+    queryFn: () => releaseApi.getFileBlob(fileId),
     enabled: enabled && !!fileId,
     staleTime: Infinity, // 파일 내용은 변경되지 않음
     ...options,

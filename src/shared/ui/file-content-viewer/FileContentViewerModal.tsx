@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogClose,
 } from '@/shared/ui/dialog'
+import { PdfViewer } from '@/shared/ui/pdf-viewer'
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 
 // 미리보기 제한 설정
@@ -28,6 +29,19 @@ interface FileContentViewerModalProps {
   description?: string
   fileSize?: number
   onDownload?: () => void
+  /** PDF 파일용 Blob 데이터 */
+  pdfBlob?: Blob | null
+  /** PDF 로딩 상태 */
+  isPdfLoading?: boolean
+  /** PDF 에러 */
+  pdfError?: Error | null
+}
+
+/**
+ * 파일이 PDF인지 확인
+ */
+function isPdfFile(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith('.pdf')
 }
 
 function getLanguageFromFileName(fileName: string): string {
@@ -81,11 +95,15 @@ export function FileContentViewerModal({
   description = '파일 내용',
   fileSize,
   onDownload,
+  pdfBlob = null,
+  isPdfLoading = false,
+  pdfError = null,
 }: FileContentViewerModalProps) {
   const language = getLanguageFromFileName(fileName)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
   const theme = useThemeStore((state) => state.theme)
+  const isPdf = isPdfFile(fileName)
 
   // 테마에 따른 syntax highlighter 스타일 선택
   const syntaxStyle = theme === 'white' ? vs : vscDarkPlus
@@ -195,8 +213,8 @@ export function FileContentViewerModal({
           </div>
         </div>
 
-        {/* 큰 파일 경고 */}
-        {isTruncated && (
+        {/* 큰 파일 경고 (텍스트 파일만) */}
+        {!isPdf && isTruncated && (
           <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
             <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
             <span className="text-yellow-600 dark:text-yellow-500">
@@ -206,52 +224,67 @@ export function FileContentViewerModal({
         )}
 
         <div className="relative flex-1 min-h-0">
+          {/* PDF 뷰어 */}
+          {isPdf && (
+            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[55vh]'}`}>
+              <PdfViewer
+                file={pdfBlob}
+                isLoading={isPdfLoading}
+                error={pdfError}
+              />
+            </div>
+          )}
 
-          <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[55vh]'}`}>
-            <div className="min-w-max">
-              {isLoading && (
-                <div className="flex items-center justify-center p-8 gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-muted-foreground">로딩 중...</span>
+          {/* 텍스트 파일 뷰어 */}
+          {!isPdf && (
+            <>
+              <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[55vh]'}`}>
+                <div className="min-w-max">
+                  {isLoading && (
+                    <div className="flex items-center justify-center p-8 gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-muted-foreground">로딩 중...</span>
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="flex items-center justify-center p-8">
+                      <div className="text-destructive text-center">
+                        <div>파일을 불러오는데 실패했습니다.</div>
+                        {error.message && (
+                          <div className="text-sm mt-2 text-muted-foreground">{error.message}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {displayContent && !isLoading && !error && (
+                    <SyntaxHighlighter
+                      language={language}
+                      style={syntaxStyle}
+                      showLineNumbers
+                      customStyle={{
+                        margin: 0,
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        minHeight: '100%',
+                      }}
+                      wrapLongLines={false}
+                    >
+                      {displayContent}
+                    </SyntaxHighlighter>
+                  )}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+
+              {/* 더 보기 안내 */}
+              {isTruncated && (
+                <div className="mt-3 text-center text-sm text-muted-foreground">
+                  {displayedLines.toLocaleString()} / {totalLines.toLocaleString()} 줄 표시 중
                 </div>
               )}
-
-              {error && (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-destructive text-center">
-                    <div>파일을 불러오는데 실패했습니다.</div>
-                    {error.message && (
-                      <div className="text-sm mt-2 text-muted-foreground">{error.message}</div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {displayContent && !isLoading && !error && (
-                <SyntaxHighlighter
-                  language={language}
-                  style={syntaxStyle}
-                  showLineNumbers
-                  customStyle={{
-                    margin: 0,
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    minHeight: '100%',
-                  }}
-                  wrapLongLines={false}
-                >
-                  {displayContent}
-                </SyntaxHighlighter>
-              )}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-
-          {/* 더 보기 안내 */}
-          {isTruncated && (
-            <div className="mt-3 text-center text-sm text-muted-foreground">
-              {displayedLines.toLocaleString()} / {totalLines.toLocaleString()} 줄 표시 중
-            </div>
+            </>
           )}
         </div>
       </DialogContent>

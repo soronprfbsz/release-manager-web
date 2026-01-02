@@ -5,6 +5,7 @@ import { Folder, FolderOpen, File, ChevronRight, ChevronDown, Package } from 'lu
 import {
   usePatchFileStructure,
   usePatchFileContent,
+  usePatchFileBlob,
   type PatchFileNode,
 } from '@/entities/patches/patch'
 
@@ -91,7 +92,8 @@ function FileNode({ node, level, onFileClick }: FileNodeProps) {
     fileName.endsWith('.txt') || fileName.endsWith('.log') || fileName.endsWith('.json') ||
     fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
     fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
-    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env')
+    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env') ||
+    fileName.endsWith('.pdf')
 
   return (
     <div
@@ -125,11 +127,21 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
     open && patchId !== null
   )
 
-  // 파일 내용 조회
+  // PDF 파일 여부 확인
+  const isPdfFile = selectedFile?.name.toLowerCase().endsWith('.pdf') ?? false
+
+  // 텍스트 파일 내용 조회 (PDF가 아닌 경우)
   const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = usePatchFileContent(
     patchId ?? 0,
     selectedFile?.path ?? '',
-    fileViewerOpen && patchId !== null && selectedFile !== null
+    fileViewerOpen && patchId !== null && selectedFile !== null && !isPdfFile
+  )
+
+  // PDF 파일 Blob 조회
+  const { data: pdfBlobData, isLoading: isLoadingPdf, error: pdfError } = usePatchFileBlob(
+    patchId ?? 0,
+    selectedFile?.path ?? '',
+    fileViewerOpen && patchId !== null && selectedFile !== null && isPdfFile
   )
 
   const handleFileClick = (node: PatchFileNode) => {
@@ -204,6 +216,9 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName }: Pa
         error={contentError as Error | null}
         description="파일 내용"
         fileSize={selectedFile?.size}
+        pdfBlob={pdfBlobData || null}
+        isPdfLoading={isLoadingPdf}
+        pdfError={pdfError as Error | null}
       />
     </>
   )

@@ -6,6 +6,7 @@ import {
   releaseApi,
   useVersionFileStructure,
   useReleaseFileContent,
+  useReleaseFileBlob,
   useDeleteVersion,
   useApproveVersion,
   type VersionNode,
@@ -99,7 +100,8 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
     fileName.endsWith('.txt') || fileName.endsWith('.log') || fileName.endsWith('.json') ||
     fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
     fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
-    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env')
+    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env') ||
+    fileName.endsWith('.pdf')
 
   return (
     <div
@@ -200,7 +202,7 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
     if (!node.releaseFileId) return
     const fileName = node.name.toLowerCase()
     const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env']
+      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
       setSelectedFile({ id: node.releaseFileId, name: node.name, size: node.size ?? undefined })
@@ -208,10 +210,19 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
     }
   }
 
-  // 파일 내용 조회
+  // PDF 파일 여부 확인
+  const isPdfFile = selectedFile?.name.toLowerCase().endsWith('.pdf') ?? false
+
+  // 텍스트 파일 내용 조회 (PDF가 아닌 경우)
   const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
     selectedFile?.id ?? 0,
-    fileViewerOpen && selectedFile !== null
+    fileViewerOpen && selectedFile !== null && !isPdfFile
+  )
+
+  // PDF 파일 Blob 조회
+  const { data: pdfBlobData, isLoading: isLoadingPdf, error: pdfError } = useReleaseFileBlob(
+    selectedFile?.id ?? 0,
+    fileViewerOpen && selectedFile !== null && isPdfFile
   )
 
   const handleDownloadSelectedFile = () => {
@@ -432,6 +443,9 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
           description="파일 내용"
           fileSize={selectedFile?.size}
           onDownload={handleDownloadSelectedFile}
+          pdfBlob={pdfBlobData || null}
+          isPdfLoading={isLoadingPdf}
+          pdfError={pdfError as Error | null}
         />
       </div>
 
