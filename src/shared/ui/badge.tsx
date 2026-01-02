@@ -24,6 +24,10 @@ const badgeVariants = cva(
           "border-violet-600 text-violet-600 bg-violet-100 dark:border-violet-400 dark:text-violet-400 dark:bg-violet-950/90",
         etc:
           "border-slate-600 text-slate-600 bg-slate-100 dark:border-slate-400 dark:text-slate-400 dark:bg-slate-950/90",
+        latest:
+          "border-amber-500 text-amber-700 bg-amber-100 dark:border-amber-400 dark:text-amber-300 dark:bg-amber-950/90",
+        install:
+          "border-rose-500 text-rose-700 bg-rose-100 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/90",
       },
     },
     defaultVariants: {

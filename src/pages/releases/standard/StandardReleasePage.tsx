@@ -13,6 +13,7 @@ import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { isLatestVersion, findLatestVersionString } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -178,6 +179,11 @@ export function StandardReleasePage() {
                 {selectedVersion && (
                   <>
                     <span>({selectedVersion.version})</span>
+                    {treeData?.majorMinorGroups && isLatestVersion(selectedVersion.versionId, treeData.majorMinorGroups) && (
+                      <Badge variant="latest" className="text-xs px-2 py-0.5">
+                        LATEST
+                      </Badge>
+                    )}
                     {selectedVersion.fileCategories && selectedVersion.fileCategories.length > 0 && (
                       <>
                         {selectedVersion.fileCategories.map((category) => (
@@ -211,6 +217,7 @@ export function StandardReleasePage() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={handleCreateSuccess}
+        latestVersion={treeData?.majorMinorGroups ? findLatestVersionString(treeData.majorMinorGroups) ?? undefined : undefined}
       />
     </PageLayout>
   )

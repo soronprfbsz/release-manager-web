@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag, Building2 } from 'lucide-react'
 
@@ -6,7 +6,20 @@ import type { CustomerReleaseNode, VersionNode } from '@/entities/releases/relea
 
 import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { findLatestVersionIdByCustomer } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
+
+/** 최신 버전 표시용 배지 */
+function LatestBadge() {
+  return (
+    <Badge
+      variant="latest"
+      className="text-[10px] px-1 py-0 h-4 leading-none"
+    >
+      LATEST
+    </Badge>
+  )
+}
 
 interface CustomReleaseTreeProps {
   customers: CustomerReleaseNode[]
@@ -27,6 +40,9 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
     })
     return allGroups
   })
+
+  // 고객사별 최신 버전 ID 맵
+  const latestVersionMap = useMemo(() => findLatestVersionIdByCustomer(customers), [customers])
 
   useEffect(() => {
     if (customers.length > 0) {
@@ -152,19 +168,22 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
                               )}>
                                 {version.version}
                               </span>
-                              {version.fileCategories && version.fileCategories.length > 0 && (
-                                <div className="flex gap-1 ml-auto">
-                                  {version.fileCategories.map((category) => (
-                                    <Badge
-                                      key={category}
-                                      variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                      className="text-[10px] px-1 py-0 h-4 leading-none"
-                                    >
-                                      {getCategoryShortName(category)}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              )}
+                              <div className="flex gap-1 ml-auto items-center">
+                                {latestVersionMap.get(customer.customerCode) === version.versionId && <LatestBadge />}
+                                {version.fileCategories && version.fileCategories.length > 0 && (
+                                  <>
+                                    {version.fileCategories.map((category) => (
+                                      <Badge
+                                        key={category}
+                                        variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                        className="text-[10px] px-1 py-0 h-4 leading-none"
+                                      >
+                                        {getCategoryShortName(category)}
+                                      </Badge>
+                                    ))}
+                                  </>
+                                )}
+                              </div>
                             </button>
                           ))}
                         </div>

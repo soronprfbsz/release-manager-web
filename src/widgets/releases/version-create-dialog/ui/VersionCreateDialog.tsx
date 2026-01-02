@@ -39,9 +39,11 @@ interface VersionCreateDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  /** 최신 버전 정보 (placeholder에 표시) */
+  latestVersion?: string
 }
 
-export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCreateDialogProps) {
+export function VersionCreateDialog({ open, onOpenChange, onSuccess, latestVersion }: VersionCreateDialogProps) {
   const projectId = useProjectStore((state) => state.projectId)
   const [version, setVersion] = useState('')
   const [comment, setComment] = useState('')
@@ -323,7 +325,7 @@ export function VersionCreateDialog({ open, onOpenChange, onSuccess }: VersionCr
               </Label>
               <Input
                 id="version"
-                placeholder="예: 1.1.3"
+                placeholder={latestVersion ? `마지막 버전: ${latestVersion}` : '예: 1.0.0'}
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
                 required

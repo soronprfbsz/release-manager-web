@@ -6,6 +6,7 @@ import type { MajorMinorNode, VersionNode } from '@/entities/releases/release'
 
 import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { findLatestVersionId } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
 
 interface ReleaseTreeProps {
@@ -14,11 +15,26 @@ interface ReleaseTreeProps {
   onSelectVersion: (version: VersionNode) => void
 }
 
+/** 최신 버전 표시용 배지 */
+function LatestBadge() {
+  return (
+    <Badge
+      variant="latest"
+      className="text-[10px] px-1 py-0 h-4 leading-none"
+    >
+      LATEST
+    </Badge>
+  )
+}
+
 export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersion }: ReleaseTreeProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     // 모든 그룹 기본 펼침
     return new Set(majorMinorGroups.map(g => g.majorMinor))
   })
+
+  // 최신 버전 ID 계산
+  const latestVersionId = findLatestVersionId(majorMinorGroups)
 
   // 데이터가 비동기로 로드될 때 모든 그룹 펼침
   useEffect(() => {
@@ -97,19 +113,30 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                     )}>
                       {version.version}
                     </span>
-                    {version.fileCategories && version.fileCategories.length > 0 && (
-                      <div className="flex gap-1 ml-auto">
-                        {version.fileCategories.map((category) => (
-                          <Badge
-                            key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                            className="text-[10px] px-1 py-0 h-4 leading-none"
-                          >
-                            {getCategoryShortName(category)}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex gap-1 ml-auto items-center">
+                      {version.versionId === latestVersionId && <LatestBadge />}
+                      {version.releaseCategory === 'INSTALL' && (
+                        <Badge
+                          variant="install"
+                          className="text-[10px] px-1 py-0 h-4 leading-none"
+                        >
+                          INSTALL
+                        </Badge>
+                      )}
+                      {version.fileCategories && version.fileCategories.length > 0 && (
+                        <>
+                          {version.fileCategories.map((category) => (
+                            <Badge
+                              key={category}
+                              variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                              className="text-[10px] px-1 py-0 h-4 leading-none"
+                            >
+                              {getCategoryShortName(category)}
+                            </Badge>
+                          ))}
+                        </>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>

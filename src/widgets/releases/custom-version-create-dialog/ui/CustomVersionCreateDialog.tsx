@@ -8,6 +8,7 @@ import { useProjectStore } from '@/shared/store'
 import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -70,6 +71,14 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
     const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
     // 고객사 노드가 없거나 버전 그룹이 없으면 최초 버전
     return !customerNode || customerNode.majorMinorGroups.length === 0
+  }, [selectedCustomer, customTreeData])
+
+  // 선택된 고객사의 최신 버전 문자열
+  const latestVersionForCustomer = useMemo(() => {
+    if (!selectedCustomer || !customTreeData?.customers) return null
+    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
+    if (!customerNode) return null
+    return findLatestVersionString(customerNode.majorMinorGroups)
   }, [selectedCustomer, customTreeData])
 
   const createMutation = useMutation({
@@ -399,7 +408,7 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
               </Label>
               <Input
                 id="customVersion"
-                placeholder="예: 1.0.0"
+                placeholder={latestVersionForCustomer ? `마지막 버전: ${latestVersionForCustomer}` : '예: 1.0.0'}
                 value={customVersion}
                 onChange={(e) => setCustomVersion(e.target.value)}
                 required
