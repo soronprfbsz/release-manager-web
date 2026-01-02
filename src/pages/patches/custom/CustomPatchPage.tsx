@@ -56,6 +56,7 @@ const INITIAL_FORM_DATA: CustomPatchCreateFormData = {
   toVersion: '',
   engineerId: null,
   description: '',
+  patchName: '',
 }
 
 export function CustomPatchPage() {
@@ -156,6 +157,7 @@ export function CustomPatchPage() {
       createdBy: user?.email || '',
       engineerId: formData.engineerId || undefined,
       description: formData.description || undefined,
+      patchName: formData.patchName || undefined,
     }
 
     generateMutation.mutate(request, {

@@ -10,6 +10,7 @@ export interface PatchCreateFormData {
   engineerId: number | null
   description: string
   includeAllBuildVersions: boolean
+  patchName: string
 }
 
 export interface CustomPatchCreateFormData {
@@ -18,6 +19,7 @@ export interface CustomPatchCreateFormData {
   toVersion: string
   engineerId: number | null
   description: string
+  patchName: string
 }
 
 export interface PatchFiltersState {
