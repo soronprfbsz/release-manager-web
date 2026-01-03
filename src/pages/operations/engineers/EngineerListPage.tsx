@@ -251,6 +251,7 @@ export function EngineerListPage() {
                 onSort={handleSort}
                 onEdit={openEditModal}
                 onDelete={setDeleteConfirmId}
+                viewportHeight="calc(100vh - 27rem)"
               />
               {engineerList.length > 0 && (
                 <div className="pt-4">

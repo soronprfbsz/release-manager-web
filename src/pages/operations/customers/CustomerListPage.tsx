@@ -265,6 +265,7 @@ export function CustomerListPage() {
                 onEdit={openEditModal}
                 onDelete={setDeleteConfirmId}
                 onToggleStatus={handleToggleStatus}
+                viewportHeight="calc(100vh - 27rem)"
               />
               {customerList.length > 0 && (
                 <div className="pt-4">

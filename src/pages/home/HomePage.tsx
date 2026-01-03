@@ -53,9 +53,9 @@ export function HomePage() {
   }))
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-[calc(100vh-9rem)] gap-4">
       {/* Latest Info Cards */}
-      <div>
+      <div className="flex-shrink-0">
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
         <div className="grid grid-cols-3 gap-4">
           {/* Latest Install Version */}
@@ -203,24 +203,24 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Statistics */}
-      <div>
-        <TypographyLarge className="mb-3">Statistics</TypographyLarge>
-        <div className="grid grid-cols-2 gap-4">
+      {/* Statistics - 남은 공간을 채움 */}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <TypographyLarge className="mb-3 flex-shrink-0">Statistics</TypographyLarge>
+        <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
           {/* 고객사별 패치 통계 (Bar Chart) */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="flex flex-col min-h-0">
+            <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
                 고객사별 패치 현황
               </CardTitle>
               <CardDescription>최근 {statisticsMonths}개월 Top {topN}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingTopCustomers ? (
-                <div className="animate-pulse h-[25vh] bg-muted rounded" />
+                <div className="animate-pulse h-full bg-muted rounded" />
               ) : topCustomers && topCustomers.length > 0 ? (
-                <div className="h-[25vh]">
+                <div className="h-full">
                   <HorizontalBarChart
                     data={topCustomers}
                     categoryKey="customerName"
@@ -230,7 +230,7 @@ export function HomePage() {
                   />
                 </div>
               ) : (
-                <div className="h-[25vh] flex items-center justify-center">
+                <div className="h-full flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -238,19 +238,19 @@ export function HomePage() {
           </Card>
 
           {/* 월별 패치 생성 현황 (Line Chart) */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="flex flex-col min-h-0">
+            <CardHeader className="pb-2 flex-shrink-0">
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
                 월별 패치 생성 현황
               </CardTitle>
               <CardDescription>최근 {monthlyPatchesData?.months || 6}개월</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingMonthly ? (
-                <div className="animate-pulse h-[25vh] bg-muted rounded" />
+                <div className="animate-pulse h-full bg-muted rounded" />
               ) : formattedMonthlyData.length > 0 ? (
-                <div className="h-[25vh]">
+                <div className="h-full">
                   <StackedBarChart
                     data={formattedMonthlyData}
                     xAxisKey="displayMonth"
@@ -261,7 +261,7 @@ export function HomePage() {
                   />
                 </div>
               ) : (
-                <div className="h-[25vh] flex items-center justify-center">
+                <div className="h-full flex items-center justify-center">
                   <TypographyMuted>데이터가 없습니다.</TypographyMuted>
                 </div>
               )}
@@ -271,7 +271,7 @@ export function HomePage() {
       </div>
 
       {/* Quick Guide */}
-      <div>
+      <div className="flex-shrink-0">
         <TypographyLarge className="mb-3">Guide</TypographyLarge>
         <Card>
           <CardContent className="p-5">

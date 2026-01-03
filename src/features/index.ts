@@ -20,7 +20,6 @@ export {
   PatchDeleteDialog,
   PatchGenerateFormCard,
   PatchPreviewCard,
-  PatchHistoryTable,
   validatePatchForm,
   type ReleaseType,
   type PatchCreateFormData,

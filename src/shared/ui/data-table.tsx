@@ -13,6 +13,11 @@ import { ScrollArea } from "./scroll-area"
  * <DataTable visibleRows={10}>
  *   <Table>...</Table>
  * </DataTable>
+ *
+ * 뷰포트 기반 동적 높이 사용 예:
+ * <DataTable viewportHeight="calc(100vh - 20rem)">
+ *   <Table>...</Table>
+ * </DataTable>
  */
 interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
@@ -24,6 +29,8 @@ interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   headerHeight?: number
   /** 스크롤 없이 전체 표시 (높이 제한 없음) */
   autoHeight?: boolean
+  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 20rem)") - 설정 시 visibleRows 무시 */
+  viewportHeight?: string
 }
 
 export function DataTable({
@@ -33,12 +40,25 @@ export function DataTable({
   rowHeight = 41,
   headerHeight = 41,
   autoHeight = false,
+  viewportHeight,
 }: DataTableProps) {
   if (autoHeight) {
     return (
       <div className={cn("w-full rounded-md border", className)}>
         {children}
       </div>
+    )
+  }
+
+  // 뷰포트 기반 동적 높이 사용
+  if (viewportHeight) {
+    return (
+      <ScrollArea
+        className={cn("rounded-md border", className)}
+        style={{ height: viewportHeight }}
+      >
+        {children}
+      </ScrollArea>
     )
   }
 

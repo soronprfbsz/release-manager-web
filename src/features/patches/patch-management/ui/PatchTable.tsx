@@ -47,6 +47,8 @@ interface PatchTableProps {
   onViewFiles: (patch: CumulativePatch) => void
   onDownload: (patch: CumulativePatch) => void
   onDelete: (patch: CumulativePatch) => void
+  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 27rem)") */
+  viewportHeight?: string
 }
 
 export function PatchTable({
@@ -58,6 +60,7 @@ export function PatchTable({
   onViewFiles,
   onDownload,
   onDelete,
+  viewportHeight,
 }: PatchTableProps) {
   if (patches.length === 0) {
     return (
@@ -70,7 +73,7 @@ export function PatchTable({
   }
 
   return (
-    <DataTable>
+    <DataTable viewportHeight={viewportHeight}>
       <Table>
         <TableHeader>
           <TableRow>

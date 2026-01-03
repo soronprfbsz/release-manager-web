@@ -47,6 +47,8 @@ interface CustomerTableProps {
   onEdit: (customer: Customer) => void
   onDelete: (customerId: number) => void
   onToggleStatus: (customer: Customer) => void
+  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 20rem)") */
+  viewportHeight?: string
 }
 
 export function CustomerTable({
@@ -56,6 +58,7 @@ export function CustomerTable({
   onEdit,
   onDelete,
   onToggleStatus,
+  viewportHeight,
 }: CustomerTableProps) {
   if (customers.length === 0) {
     return (
@@ -68,7 +71,7 @@ export function CustomerTable({
   }
 
   return (
-    <DataTable>
+    <DataTable viewportHeight={viewportHeight}>
       <Table>
         <TableHeader>
           <TableRow>

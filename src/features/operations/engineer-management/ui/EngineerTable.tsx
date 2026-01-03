@@ -42,6 +42,8 @@ interface EngineerTableProps {
   onSort: (key: string) => void
   onEdit: (engineer: Engineer) => void
   onDelete: (engineerId: number) => void
+  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 27rem)") */
+  viewportHeight?: string
 }
 
 export function EngineerTable({
@@ -50,6 +52,7 @@ export function EngineerTable({
   onSort,
   onEdit,
   onDelete,
+  viewportHeight,
 }: EngineerTableProps) {
   if (engineers.length === 0) {
     return (
@@ -62,7 +65,7 @@ export function EngineerTable({
   }
 
   return (
-    <DataTable>
+    <DataTable viewportHeight={viewportHeight}>
       <Table>
         <TableHeader>
           <TableRow>

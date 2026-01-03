@@ -76,10 +76,6 @@ const menuIconConfig: Record<string, IconConfig> = {
     icon: <Layers className="h-4 w-4" />,
     iconLarge: <Layers className="h-5 w-5 text-primary" />,
   },
-  patch_history: {
-    icon: <Layers className="h-4 w-4" />,
-    iconLarge: <Layers className="h-5 w-5 text-primary" />,
-  },
 
   // 운영 관리
   operation_customers: {
@@ -117,7 +113,6 @@ const pathToMenuId: Record<string, string> = {
   '/patches/standard': 'patch_standard',
   '/patches/custom': 'patch_custom',
   '/patches/generate': 'patch_generate',
-  '/patches/history': 'patch_history',
   '/operations/customers': 'operation_customers',
   '/operations/engineers': 'operation_engineers',
   '/operations/accounts': 'operation_accounts',

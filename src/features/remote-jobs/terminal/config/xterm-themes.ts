@@ -6,29 +6,29 @@ type ThemeType =
     | 'gruvbox'
 
 export const XTERM_THEMES: Record<ThemeType, ITheme> = {
-    // Default Black (Modern Dark - similar to Tokyo Night / One Dark)
+    // Default Black (Pure Dark - GitHub Dark inspired)
     black: {
-        background: '#1a1b26', // Deep dark blue-grey
-        foreground: '#a9b1d6', // Soft pale blue
-        cursor: '#c0caf5',
-        cursorAccent: '#1a1b26',
-        selectionBackground: '#515c7e',
-        black: '#32344a',
-        red: '#f7768e',
-        green: '#9ece6a',
-        yellow: '#e0af68',
-        blue: '#7aa2f7',
-        magenta: '#bb9af7',
-        cyan: '#7dcfff',
-        white: '#a9b1d6',
-        brightBlack: '#414868',
-        brightRed: '#f7768e',
-        brightGreen: '#9ece6a',
-        brightYellow: '#e0af68',
-        brightBlue: '#7aa2f7',
-        brightMagenta: '#bb9af7',
-        brightCyan: '#7dcfff',
-        brightWhite: '#c0caf5',
+        background: '#0d1117', // Pure dark background
+        foreground: '#c9d1d9', // Soft grey text
+        cursor: '#58a6ff',
+        cursorAccent: '#0d1117',
+        selectionBackground: '#264f78',
+        black: '#0d1117',
+        red: '#ff7b72',
+        green: '#7ee787',
+        yellow: '#d29922',
+        blue: '#58a6ff',
+        magenta: '#bc8cff',
+        cyan: '#39c5cf',
+        white: '#b1bac4',
+        brightBlack: '#6e7681',
+        brightRed: '#ffa198',
+        brightGreen: '#a5d6a7',
+        brightYellow: '#e3b341',
+        brightBlue: '#79c0ff',
+        brightMagenta: '#d2a8ff',
+        brightCyan: '#56d4dd',
+        brightWhite: '#f0f6fc',
     },
     // Default White (Modern Light - cleaner, higher contrast)
     white: {

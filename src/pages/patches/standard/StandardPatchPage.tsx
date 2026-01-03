@@ -304,6 +304,7 @@ export function StandardPatchPage() {
                 onViewFiles={handleViewFiles}
                 onDownload={handleDownload}
                 onDelete={handleDeleteClick}
+                viewportHeight="calc(100vh - 27rem)"
               />
               {patchList.length > 0 && (
                 <div className="pt-4">
