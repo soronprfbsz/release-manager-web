@@ -3,7 +3,7 @@
  * PDF 파일을 표시하는 뷰어 컴포넌트
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
@@ -31,11 +31,66 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
   const [pageNumber, setPageNumber] = useState(1)
   const [scale, setScale] = useState(1.0)
   const [pdfError, setPdfError] = useState<Error | null>(null)
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
+  const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 컨테이너 크기 측정
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth - 16 // 패딩 고려
+        const height = containerRef.current.clientHeight - 16
+        setContainerSize(width > 0 && height > 0 ? { width, height } : null)
+      }
+    }
+
+    // 초기 측정을 약간 지연시켜 레이아웃이 완료된 후 측정
+    const timeoutId = setTimeout(updateSize, 100)
+
+    // ResizeObserver로 컨테이너 크기 변경 감지
+    const resizeObserver = new ResizeObserver(updateSize)
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
+    }
+
+    return () => {
+      clearTimeout(timeoutId)
+      resizeObserver.disconnect()
+    }
+  }, [file])
+
+  // 컨테이너에 맞는 PDF 크기 계산 (스크롤 없이 딱 맞게)
+  const fittedWidth = useMemo(() => {
+    if (!containerSize || !pageSize) return undefined
+
+    // PDF 페이지의 원본 비율
+    const pageAspectRatio = pageSize.width / pageSize.height
+    // 컨테이너의 비율
+    const containerAspectRatio = containerSize.width / containerSize.height
+
+    let fitWidth: number
+
+    if (pageAspectRatio > containerAspectRatio) {
+      // 페이지가 더 넓음 → 너비에 맞춤
+      fitWidth = containerSize.width
+    } else {
+      // 페이지가 더 높음 → 높이에 맞춰서 너비 계산
+      fitWidth = containerSize.height * pageAspectRatio
+    }
+
+    return fitWidth * scale
+  }, [containerSize, pageSize, scale])
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
     setPageNumber(1)
     setPdfError(null)
+  }, [])
+
+  // 페이지 로드 성공 시 페이지 크기 저장
+  const onPageLoadSuccess = useCallback((page: { width: number; height: number }) => {
+    setPageSize({ width: page.width, height: page.height })
   }, [])
 
   const onDocumentLoadError = useCallback((error: Error) => {
@@ -145,7 +200,10 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
       </div>
 
       {/* PDF 문서 */}
-      <div className="flex-1 overflow-auto flex justify-center p-4 bg-muted/20">
+      <div 
+        ref={containerRef}
+        className="flex-1 overflow-auto flex justify-center p-2 bg-muted/20"
+      >
         <Document
           file={file}
           onLoadSuccess={onDocumentLoadSuccess}
@@ -159,7 +217,8 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
         >
           <Page
             pageNumber={pageNumber}
-            scale={scale}
+            width={fittedWidth}
+            onLoadSuccess={onPageLoadSuccess}
             renderTextLayer={true}
             renderAnnotationLayer={true}
             className="shadow-lg"

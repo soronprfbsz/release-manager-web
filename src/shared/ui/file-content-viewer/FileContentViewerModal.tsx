@@ -151,7 +151,7 @@ export function FileContentViewerModal({
   // 모니터 크기에 비례한 통일된 모달 사이즈
   const modalSizeClass = isFullscreen
     ? 'w-screen h-screen max-w-none max-h-none flex flex-col gap-4'
-    : 'w-[85vw] max-w-6xl max-h-[90vh] flex flex-col gap-4'
+    : 'w-[65vw] max-w-none max-h-[90vh] flex flex-col gap-4'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -231,7 +231,7 @@ export function FileContentViewerModal({
         <div className="relative flex-1 min-h-0">
           {/* PDF 뷰어 */}
           {isPdf && (
-            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[75vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
               <PdfViewer
                 file={pdfBlob}
                 isLoading={isPdfLoading}
@@ -243,7 +243,7 @@ export function FileContentViewerModal({
           {/* 텍스트 파일 뷰어 */}
           {!isPdf && (
             <>
-              <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[75vh]'}`}>
+              <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
                 <div className="min-w-max">
                   {isLoading && (
                     <div className="flex items-center justify-center p-8 gap-2">
