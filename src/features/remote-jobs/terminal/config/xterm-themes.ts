@@ -6,14 +6,14 @@ type ThemeType =
     | 'gruvbox'
 
 export const XTERM_THEMES: Record<ThemeType, ITheme> = {
-    // Default Black (Pure Dark - GitHub Dark inspired)
+    // Default Black (Matches card background in black theme)
     black: {
-        background: '#0d1117', // Pure dark background
+        background: '#171717', // Same as --card in black theme (0 0% 9%)
         foreground: '#c9d1d9', // Soft grey text
         cursor: '#58a6ff',
-        cursorAccent: '#0d1117',
-        selectionBackground: '#264f78',
-        black: '#0d1117',
+        cursorAccent: '#171717',
+        selectionBackground: '#3a3a3a',
+        black: '#171717',
         red: '#ff7b72',
         green: '#7ee787',
         yellow: '#d29922',
@@ -30,12 +30,12 @@ export const XTERM_THEMES: Record<ThemeType, ITheme> = {
         brightCyan: '#56d4dd',
         brightWhite: '#f0f6fc',
     },
-    // Default White (Modern Light - cleaner, higher contrast)
+    // Default White (Matches card background in light theme)
     white: {
-        background: '#f8fafc', // Slate-50 - subtle difference from white page
+        background: '#ffffff', // Same as --card in light theme (0 0% 100%)
         foreground: '#334155', // Slate-700
         cursor: '#0f172a', // Slate-900
-        cursorAccent: '#f8fafc',
+        cursorAccent: '#ffffff',
         selectionBackground: '#cbd5e1', // Slate-300
         black: '#0f172a',
         red: '#ef4444',
@@ -54,14 +54,14 @@ export const XTERM_THEMES: Record<ThemeType, ITheme> = {
         brightCyan: '#22d3ee',
         brightWhite: '#f1f5f9',
     },
-    // Gruvbox
+    // Gruvbox (Matches card background in gruvbox theme)
     gruvbox: {
-        background: '#282828',
+        background: '#333333', // Same as --card in gruvbox theme (0 0% 20%)
         foreground: '#ebdbb2',
         cursor: '#ebdbb2',
-        cursorAccent: '#282828',
+        cursorAccent: '#333333',
         selectionBackground: '#3c3836',
-        black: '#282828',
+        black: '#333333',
         red: '#cc241d',
         green: '#98971a',
         yellow: '#d79921',
