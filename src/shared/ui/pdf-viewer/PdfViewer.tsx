@@ -202,28 +202,31 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
       {/* PDF 문서 */}
       <div 
         ref={containerRef}
-        className="flex-1 overflow-auto flex justify-center p-2 bg-muted/20"
+        className="flex-1 overflow-auto p-2 bg-muted/20"
       >
-        <Document
-          file={file}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={
-            <div className="flex items-center justify-center p-8 gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-muted-foreground">PDF 로딩 중...</span>
-            </div>
-          }
-        >
-          <Page
-            pageNumber={pageNumber}
-            width={fittedWidth}
-            onLoadSuccess={onPageLoadSuccess}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-            className="shadow-lg"
-          />
-        </Document>
+        {/* 100% 이하일 때는 중앙 정렬, 확대 시에는 왼쪽 상단부터 스크롤 */}
+        <div className={`min-w-max min-h-max ${scale <= 1 ? 'flex justify-center items-center h-full' : ''}`}>
+          <Document
+            file={file}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={
+              <div className="flex items-center justify-center p-8 gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-muted-foreground">PDF 로딩 중...</span>
+              </div>
+            }
+          >
+            <Page
+              pageNumber={pageNumber}
+              width={fittedWidth}
+              onLoadSuccess={onPageLoadSuccess}
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
+              className="shadow-lg"
+            />
+          </Document>
+        </div>
       </div>
     </div>
   )

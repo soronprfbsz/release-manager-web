@@ -151,7 +151,7 @@ export function FileContentViewerModal({
   // 모니터 크기에 비례한 통일된 모달 사이즈
   const modalSizeClass = isFullscreen
     ? 'w-screen h-screen max-w-none max-h-none flex flex-col gap-4'
-    : 'w-[65vw] max-w-none max-h-[90vh] flex flex-col gap-4'
+    : 'w-[60vw] max-w-none max-h-[90vh] flex flex-col gap-4'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
