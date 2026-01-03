@@ -29,15 +29,18 @@ export function SortableLinkResourceCard({ resource, onDelete, onEdit, categoryI
     })
 
     // 드래그 중일 때 스타일
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
+    const baseTransform = CSS.Transform.toString(transform)
+    const scaleTransform = isDragging ? 'scale(1.02)' : ''
+    
+    const style: React.CSSProperties = {
+        transform: baseTransform ? `${baseTransform} ${scaleTransform}`.trim() : scaleTransform,
+        transition: transition ?? 'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
         opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 1 : 0,
+        zIndex: isDragging ? 10 : 0,
     }
 
     return (
-        <div ref={setNodeRef} style={style} className="h-full">
+        <div ref={setNodeRef} style={style} className={`h-full ${isDragging ? 'shadow-xl' : ''}`}>
             <LinkResourceCard
                 resource={resource}
                 onDelete={onDelete}

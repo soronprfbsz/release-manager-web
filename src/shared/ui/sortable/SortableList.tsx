@@ -13,6 +13,7 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  MeasuringStrategy,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -22,7 +23,7 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 interface SortableListProps<T> {
   items: T[]
@@ -80,6 +81,13 @@ export function SortableList<T>({
 
   const activeItem = activeId ? items.find((item) => keyExtractor(item) === activeId) : null
 
+  // 드래그 중에도 정확한 위치 계산을 위한 측정 설정
+  const measuringConfig = {
+    droppable: {
+      strategy: MeasuringStrategy.Always,
+    },
+  }
+
   return (
     <DndContext
       sensors={sensors}
@@ -88,6 +96,7 @@ export function SortableList<T>({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
       modifiers={strategy === 'vertical' ? [restrictToVerticalAxis] : []}
+      measuring={measuringConfig}
     >
       <div className={className}>
         <SortableContext
@@ -95,17 +104,20 @@ export function SortableList<T>({
           strategy={sortingStrategy}
           disabled={disabled}
         >
-          {items.map((item) => (
-            <div key={keyExtractor(item)} className={strategy === 'vertical' ? 'mb-3 last:mb-0' : ''}>
-              {renderItem(item)}
-            </div>
-          ))}
+          {items.map((item) => {
+            const element = renderItem(item)
+            // React element에 key 추가
+            if (React.isValidElement(element)) {
+              return React.cloneElement(element, { key: keyExtractor(item) })
+            }
+            return element
+          })}
         </SortableContext>
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeItem && (
-          <div className="opacity-80">
+          <div className="opacity-90 shadow-2xl cursor-grabbing" style={{ transform: 'scale(1.02)' }}>
             {renderOverlay ? renderOverlay(activeItem) : renderItem(activeItem)}
           </div>
         )}
