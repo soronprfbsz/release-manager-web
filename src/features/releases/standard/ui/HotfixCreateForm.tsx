@@ -2,10 +2,13 @@ import { useState, useRef } from 'react'
 
 import { Upload, FileArchive, X, Flame, Loader2, AlertTriangle } from 'lucide-react'
 
+import { useEngineers, type Engineer } from '@/entities/operations'
+
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
+import { Combobox } from '@/shared/ui/combobox'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
@@ -39,13 +42,19 @@ export function HotfixCreateForm({
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   
   const [comment, setComment] = useState('')
+  const [engineerId, setEngineerId] = useState<number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
 
+  // 엔지니어 목록 조회
+  const { data: engineersResponse } = useEngineers()
+  const engineers = engineersResponse?.content ?? []
+
   const resetForm = () => {
     setComment('')
+    setEngineerId(null)
     setSelectedFile(null)
     setIsUploading(false)
     setUploadCompleted(false)
@@ -142,6 +151,7 @@ export function HotfixCreateForm({
         hotfixBaseVersionId,
         comment,
         selectedFile,
+        engineerId ?? undefined,
         (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -197,7 +207,7 @@ export function HotfixCreateForm({
                 <p className="font-semibold text-yellow-700 dark:text-yellow-400">핫픽스 안내</p>
                 <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
                   <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
-                  <li>가급적 <strong className="text-foreground">핫픽스 대신 패치 관리 기능을 통한 패치 방법을 권장합니다.</strong> 버전업을 거부하는 고객사 등 특수한 경우에만 사용해주세요.</li>                  
+                  <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>                  
                   <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면, 
                   해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>                  
                   
@@ -228,6 +238,30 @@ export function HotfixCreateForm({
                 disabled={isUploading}
                 rows={3}
               />
+            </div>
+
+            {/* 담당 엔지니어 */}
+            <div className="space-y-2">
+              <Label htmlFor="engineerId">담당 엔지니어</Label>
+              <Combobox
+                options={[
+                  { value: '__none__', label: '선택 안함' },
+                  ...engineers.map((e: Engineer) => ({
+                    value: String(e.engineerId),
+                    label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+                  })),
+                ]}
+                value={engineerId !== null ? String(engineerId) : '__none__'}
+                onValueChange={(value) =>
+                  setEngineerId(value === '__none__' ? null : Number(value))
+                }
+                placeholder="선택 안함"
+                searchPlaceholder="엔지니어 검색..."
+                disabled={isUploading}
+              />
+              <p className="text-xs text-muted-foreground">
+                DB 패치 스크립트의 기본 담당자로 설정됩니다.
+              </p>
             </div>
 
             {/* 파일 업로드 */}
@@ -287,18 +321,20 @@ export function HotfixCreateForm({
             </div>
 
             {/* 버튼 영역 */}
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleClose}
                 disabled={isUploading}
+                className="flex-1"
               >
                 취소
               </Button>
               <Button
                 type="submit"
                 disabled={!comment.trim() || !selectedFile || isUploading}
+                className="flex-1"
               >
                 {isUploading ? (
                   <>

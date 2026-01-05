@@ -167,6 +167,7 @@ export const releaseApi = {
     hotfixBaseVersionId: number,
     comment: string,
     patchFiles: File,
+    engineerId?: number,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<ReleaseVersionDetail> => {
     const formData = new FormData()
@@ -174,6 +175,9 @@ export const releaseApi = {
     formData.append('hotfixBaseVersionId', String(hotfixBaseVersionId))
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
+    if (engineerId !== undefined) {
+      formData.append('engineerId', String(engineerId))
+    }
 
     const response = await apiClient.upload<ReleaseVersionDetail>(
       ENDPOINTS.createHotfix(hotfixBaseVersionId),
