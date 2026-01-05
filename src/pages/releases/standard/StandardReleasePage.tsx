@@ -8,9 +8,9 @@ import { VersionCreateDialog } from '@/widgets/releases'
 import { usePermission } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
-import { ReleaseTree, VersionDetailPanel } from '@/features/releases/standard'
+import { ReleaseTree, VersionDetailPanel, type SelectedVersionInfo, type SelectedVersionData } from '@/features/releases/standard'
 
-import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
+import { useStandardReleaseTree } from '@/entities/releases/release'
 
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { isLatestVersion, findLatestVersionString } from '@/shared/lib/utils/version'
@@ -25,18 +25,25 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
 
+/** 선택된 버전 정보 상태 */
+interface SelectedState {
+  versionId: number
+  version: string
+  isHotfix: boolean
+}
+
 export function StandardReleasePage() {
   const location = useLocation()
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddVersion } = usePermission()
-  const [selectedVersion, setSelectedVersion] = useState<VersionNode | null>(null)
+  const [selectedState, setSelectedState] = useState<SelectedState | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [prevProjectId, setPrevProjectId] = useState(projectId)
 
   // 프로젝트 변경 시 선택 초기화 (렌더링 중 동기 처리)
   if (projectId !== prevProjectId) {
     setPrevProjectId(projectId)
-    setSelectedVersion(null)
+    setSelectedState(null)
   }
 
   const {
@@ -46,38 +53,62 @@ export function StandardReleasePage() {
     refetch: refetchTree,
   } = useStandardReleaseTree(projectId)
 
-  // 홈페이지에서 전달된 버전 선택 (selectedVersion 객체 또는 selectedVersionId)
+  // 홈페이지에서 전달된 버전 선택 (selectedVersionId)
   useEffect(() => {
-    const state = location.state as { selectedVersion?: VersionNode; selectedVersionId?: number } | null
-    if (state?.selectedVersion) {
-      setSelectedVersion(state.selectedVersion)
-    } else if (state?.selectedVersionId && treeData?.majorMinorGroups && !selectedVersion) {
+    const state = location.state as { selectedVersionId?: number } | null
+    if (state?.selectedVersionId && treeData?.majorMinorGroups && !selectedState) {
       // selectedVersionId로 전달된 경우 트리에서 해당 버전 찾아 선택
       for (const group of treeData.majorMinorGroups) {
         const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
         if (foundVersion) {
-          setSelectedVersion(foundVersion)
+          setSelectedState({
+            versionId: foundVersion.versionId,
+            version: foundVersion.version,
+            isHotfix: false
+          })
           break
         }
       }
     }
-  }, [location.state, treeData, selectedVersion])
+  }, [location.state, treeData, selectedState])
 
-  // 트리 데이터 변경 시 선택된 버전 동기화 (승인 등으로 인한 상태 변경 반영)
-  useEffect(() => {
-    if (selectedVersion && treeData?.majorMinorGroups) {
-      for (const group of treeData.majorMinorGroups) {
-        const updatedVersion = group.versions.find(v => v.versionId === selectedVersion.versionId)
-        if (updatedVersion && updatedVersion.isApproved !== selectedVersion.isApproved) {
-          setSelectedVersion(updatedVersion)
-          break
+  // 선택된 버전 데이터 (트리에서 찾기)
+  const selectedVersion = selectedState && treeData?.majorMinorGroups
+    ? (() => {
+        // 일반 버전에서 찾기
+        for (const group of treeData.majorMinorGroups) {
+          const foundVersion = group.versions.find(v => v.versionId === selectedState.versionId)
+          if (foundVersion) {
+            return foundVersion
+          }
+          // 핫픽스에서 찾기
+          for (const version of group.versions) {
+            const foundHotfix = version.hotfixes?.find(h => h.versionId === selectedState.versionId)
+            if (foundHotfix) {
+              return {
+                versionId: foundHotfix.versionId,
+                version: foundHotfix.fullVersion,
+                createdAt: foundHotfix.createdAt,
+                createdBy: foundHotfix.createdBy || '',
+                comment: foundHotfix.comment || '',
+                isApproved: foundHotfix.isApproved ?? false,
+                approvedBy: foundHotfix.approvedBy ?? null,
+                approvedAt: foundHotfix.approvedAt ?? null,
+                fileCategories: foundHotfix.fileCategories || []
+              } as SelectedVersionData
+            }
+          }
         }
-      }
-    }
-  }, [treeData, selectedVersion])
+        return null
+      })()
+    : null
 
-  const handleSelectVersion = (version: VersionNode) => {
-    setSelectedVersion(version)
+  const handleSelectVersion = (info: SelectedVersionInfo) => {
+    setSelectedState({
+      versionId: info.versionId,
+      version: info.version,
+      isHotfix: info.isHotfix
+    })
   }
 
   // 트리 새로고침
@@ -90,7 +121,7 @@ export function StandardReleasePage() {
   }
 
   const handleDeleteSuccess = () => {
-    setSelectedVersion(null)
+    setSelectedState(null)
     handleRefresh()
   }
 
@@ -161,7 +192,7 @@ export function StandardReleasePage() {
                 ) : (
                   <ReleaseTree
                     majorMinorGroups={treeData?.majorMinorGroups || []}
-                    selectedVersionId={selectedVersion?.versionId || null}
+                    selectedVersionId={selectedState?.versionId || null}
                     onSelectVersion={handleSelectVersion}
                   />
                 )}
@@ -176,15 +207,15 @@ export function StandardReleasePage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 flex-wrap">
                 <span>버전 정보</span>
-                {selectedVersion && (
+                {selectedState && (
                   <>
-                    <span>({selectedVersion.version})</span>
-                    {treeData?.majorMinorGroups && isLatestVersion(selectedVersion.versionId, treeData.majorMinorGroups) && (
+                    <span>({selectedState.version})</span>
+                    {!selectedState.isHotfix && treeData?.majorMinorGroups && isLatestVersion(selectedState.versionId, treeData.majorMinorGroups) && (
                       <Badge variant="latest" className="text-xs px-2 py-0.5">
                         LATEST
                       </Badge>
                     )}
-                    {selectedVersion.fileCategories && selectedVersion.fileCategories.length > 0 && (
+                    {selectedVersion?.fileCategories && selectedVersion.fileCategories.length > 0 && (
                       <>
                         {selectedVersion.fileCategories.map((category) => (
                           <Badge
@@ -205,6 +236,7 @@ export function StandardReleasePage() {
               <ScrollArea className="h-[calc(100vh-24rem)]">
                 <VersionDetailPanel
                   version={selectedVersion}
+                  isHotfix={selectedState?.isHotfix}
                   onDelete={handleDeleteSuccess}
                 />
               </ScrollArea>

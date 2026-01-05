@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch } from 'lucide-react'
+import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame } from 'lucide-react'
 
 import {
   releaseApi,
@@ -9,12 +9,12 @@ import {
   useReleaseFileBlob,
   useDeleteVersion,
   useApproveVersion,
-  type VersionNode,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useProjectStore } from '@/shared/store'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { formatFileSize } from '@/shared/lib/utils/format'
 import {
@@ -35,8 +35,26 @@ import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
+import { HotfixCreateDialog } from './HotfixCreateDialog'
+
+/** 버전 정보 (트리에서 선택된 정보) */
+export interface SelectedVersionData {
+  versionId: number
+  version: string
+  createdAt: string
+  createdBy: string
+  comment: string
+  releaseCategory?: 'INSTALL' | 'PATCH'
+  fileCategories: string[]
+  isApproved: boolean
+  approvedBy: string | null
+  approvedAt: string | null
+}
+
 interface VersionDetailPanelProps {
-  version: VersionNode | null
+  version: SelectedVersionData | null
+  /** 핫픽스 여부 */
+  isHotfix?: boolean
   onDelete?: () => void
   /** 기준 표준본 버전 (커스텀 릴리즈의 경우) */
   baseVersion?: string | null
@@ -138,12 +156,14 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
   )
 }
 
-export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDetailPanelProps) {
+export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVersion }: VersionDetailPanelProps) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ id: number; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { canDeleteVersion, canApproveVersion } = usePermission()
+  const { canDeleteVersion, canApproveVersion, canAddVersion } = usePermission()
+  const projectId = useProjectStore((state) => state.projectId)
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useVersionFileStructure(version?.versionId ?? 0)
@@ -278,6 +298,9 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
                   <Info className="h-4 w-4" />
                   기본 정보
                 </CardTitle>
+                {isHotfix && (
+                  <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
+                )}
                 {version.isApproved ? (
                   <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
                 ) : (
@@ -285,6 +308,23 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {/* 핫픽스 생성 버튼 - 핫픽스가 아닌 일반 버전에서만 표시 */}
+                {canAddVersion && !isHotfix && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setHotfixDialogOpen(true)}
+                      >
+                        <Flame className="h-4 w-4 text-orange-500" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>핫픽스 생성</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
                 {canApproveVersion && !version.isApproved && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -472,6 +512,18 @@ export function VersionDetailPanel({ version, onDelete, baseVersion }: VersionDe
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Hotfix Create Dialog */}
+      {version && !isHotfix && (
+        <HotfixCreateDialog
+          open={hotfixDialogOpen}
+          onOpenChange={setHotfixDialogOpen}
+          projectId={projectId}
+          parentVersionId={version.versionId}
+          parentVersion={version.version}
+          onSuccess={onDelete}
+        />
+      )}
     </>
   )
 }

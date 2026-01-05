@@ -16,6 +16,9 @@ const ENDPOINTS = {
   createCustomVersion: '/api/releases/versions/custom',
   deleteVersion: (id: number) => `/api/releases/versions/${id}`,
   approveVersion: (id: number) => `/api/releases/versions/${id}/approve`,
+  // 핫픽스 관련 엔드포인트
+  createHotfix: (id: number) => `/api/releases/versions/${id}/hotfix`,
+  getHotfixes: (id: number) => `/api/releases/versions/${id}/hotfixes`,
 } as const
 
 export const releaseApi = {
@@ -155,6 +158,37 @@ export const releaseApi = {
   /** 버전 승인 */
   approveVersion: async (id: number): Promise<ReleaseVersionDetail> => {
     const response = await apiClient.patch<ReleaseVersionDetail>(ENDPOINTS.approveVersion(id))
+    return response
+  },
+
+  /** 핫픽스 생성 (multipart/form-data) */
+  createHotfix: async (
+    projectId: string,
+    parentVersionId: number,
+    comment: string,
+    patchFiles: File,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<ReleaseVersionDetail> => {
+    const formData = new FormData()
+    formData.append('projectId', projectId)
+    formData.append('parentVersionId', String(parentVersionId))
+    formData.append('comment', comment)
+    formData.append('patchFiles', patchFiles)
+
+    const response = await apiClient.upload<ReleaseVersionDetail>(
+      ENDPOINTS.createHotfix(parentVersionId),
+      formData,
+      {
+        onUploadProgress,
+        timeout: API_TIMEOUT.FILE_OPERATION
+      }
+    )
+    return response
+  },
+
+  /** 특정 버전의 핫픽스 목록 조회 */
+  getHotfixes: async (versionId: number): Promise<ReleaseVersionDetail[]> => {
+    const response = await apiClient.get<ReleaseVersionDetail[]>(ENDPOINTS.getHotfixes(versionId))
     return response
   },
 }

@@ -5,6 +5,7 @@
 // Types
 export type {
   DatabaseNode,
+  HotfixNode,
   VersionNode,
   MajorMinorNode,
   ReleaseTreeResponse,

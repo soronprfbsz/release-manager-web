@@ -1,18 +1,37 @@
 import { useState, useEffect } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag, Flame } from 'lucide-react'
 
-import type { MajorMinorNode, VersionNode } from '@/entities/releases/release'
+import type { MajorMinorNode } from '@/entities/releases/release'
 
 import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { findLatestVersionId } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
 
+/** 핫픽스 배지 */
+function HotfixBadge() {
+  return (
+    <Badge
+      variant="destructive"
+      className="text-[10px] px-1 py-0 h-4 leading-none"
+    >
+      HOTFIX
+    </Badge>
+  )
+}
+
+/** 선택된 노드 정보 */
+export interface SelectedVersionInfo {
+  versionId: number
+  version: string
+  isHotfix: boolean
+}
+
 interface ReleaseTreeProps {
   majorMinorGroups: MajorMinorNode[]
   selectedVersionId: number | null
-  onSelectVersion: (version: VersionNode) => void
+  onSelectVersion: (info: SelectedVersionInfo) => void
 }
 
 /** 최신 버전 표시용 배지 */
@@ -32,6 +51,9 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
     // 모든 그룹 기본 펼침
     return new Set(majorMinorGroups.map(g => g.majorMinor))
   })
+  
+  // 핫픽스가 있는 버전들의 확장 상태
+  const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
   // 최신 버전 ID 계산
   const latestVersionId = findLatestVersionId(majorMinorGroups)
@@ -50,6 +72,19 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
         next.delete(majorMinor)
       } else {
         next.add(majorMinor)
+      }
+      return next
+    })
+  }
+
+  const toggleVersion = (versionId: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setExpandedVersions((prev) => {
+      const next = new Set(prev)
+      if (next.has(versionId)) {
+        next.delete(versionId)
+      } else {
+        next.add(versionId)
       }
       return next
     })
@@ -93,52 +128,125 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
 
             {isExpanded && (
               <div className="ml-4 pl-2 border-l border-border">
-                {group.versions.map((version) => (
-                  <button
-                    key={version.versionId}
-                    onClick={() => onSelectVersion(version)}
-                    className={cn(
-                      'flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left text-sm',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      selectedVersionId === version.versionId && 'bg-accent text-accent-foreground'
-                    )}
-                  >
-                    <FileCode className={cn(
-                      "h-4 w-4 shrink-0",
-                      version.isApproved ? "text-blue-500" : "text-muted-foreground"
-                    )} />
-                    <span className={cn(
-                      "flex-shrink-0",
-                      !version.isApproved && "text-muted-foreground italic opacity-60"
-                    )}>
-                      {version.version}
-                    </span>
-                    <div className="flex gap-1 ml-auto items-center">
-                      {version.versionId === latestVersionId && <LatestBadge />}
-                      {version.releaseCategory === 'INSTALL' && (
-                        <Badge
-                          variant="install"
-                          className="text-[10px] px-1 py-0 h-4 leading-none"
+                {group.versions.map((version) => {
+                  const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
+                  const isVersionExpanded = expandedVersions.has(version.versionId)
+
+                  return (
+                    <div key={version.versionId}>
+                      <div className="flex items-center">
+                        {/* 핫픽스가 있는 경우 확장 버튼 */}
+                        {hasHotfixes ? (
+                          <button
+                            onClick={(e) => toggleVersion(version.versionId, e)}
+                            className="p-0.5 hover:bg-accent rounded shrink-0"
+                          >
+                            {isVersionExpanded ? (
+                              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                            ) : (
+                              <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                            )}
+                          </button>
+                        ) : (
+                          <div className="w-4" />
+                        )}
+                        <button
+                          onClick={() => onSelectVersion({
+                            versionId: version.versionId,
+                            version: version.version,
+                            isHotfix: false
+                          })}
+                          className={cn(
+                            'flex items-center gap-2 flex-1 px-2 py-1.5 rounded-md text-left text-sm',
+                            'hover:bg-accent hover:text-accent-foreground',
+                            selectedVersionId === version.versionId && 'bg-accent text-accent-foreground'
+                          )}
                         >
-                          INSTALL
-                        </Badge>
-                      )}
-                      {version.fileCategories && version.fileCategories.length > 0 && (
-                        <>
-                          {version.fileCategories.map((category) => (
-                            <Badge
-                              key={category}
-                              variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                              className="text-[10px] px-1 py-0 h-4 leading-none"
+                          <FileCode className={cn(
+                            "h-4 w-4 shrink-0",
+                            version.isApproved ? "text-blue-500" : "text-muted-foreground"
+                          )} />
+                          <span className={cn(
+                            "flex-shrink-0",
+                            !version.isApproved && "text-muted-foreground italic opacity-60"
+                          )}>
+                            {version.version}
+                          </span>
+                          <div className="flex gap-1 ml-auto items-center">
+                            {version.versionId === latestVersionId && <LatestBadge />}
+                            {version.releaseCategory === 'INSTALL' && (
+                              <Badge
+                                variant="install"
+                                className="text-[10px] px-1 py-0 h-4 leading-none"
+                              >
+                                INSTALL
+                              </Badge>
+                            )}
+                            {version.fileCategories && version.fileCategories.length > 0 && (
+                              <>
+                                {version.fileCategories.map((category) => (
+                                  <Badge
+                                    key={category}
+                                    variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                    className="text-[10px] px-1 py-0 h-4 leading-none"
+                                  >
+                                    {getCategoryShortName(category)}
+                                  </Badge>
+                                ))}
+                              </>
+                            )}
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* 핫픽스 목록 */}
+                      {hasHotfixes && isVersionExpanded && (
+                        <div className="ml-6 pl-2 border-l border-border/50">
+                          {version.hotfixes.map((hotfix) => (
+                            <button
+                              key={hotfix.versionId}
+                              onClick={() => onSelectVersion({
+                                versionId: hotfix.versionId,
+                                version: hotfix.fullVersion,
+                                isHotfix: true
+                              })}
+                              className={cn(
+                                'flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left text-sm',
+                                'hover:bg-accent hover:text-accent-foreground',
+                                selectedVersionId === hotfix.versionId && 'bg-accent text-accent-foreground'
+                              )}
                             >
-                              {getCategoryShortName(category)}
-                            </Badge>
+                              <Flame className="h-4 w-4 shrink-0 text-orange-500" />
+                              <span className={cn(
+                                "flex-shrink-0",
+                                hotfix.isApproved === false && "text-muted-foreground italic opacity-60"
+                              )}>
+                                {hotfix.fullVersion}
+                              </span>
+                              <div className="flex gap-1 ml-auto items-center">
+                                {hotfix.fileCategories && hotfix.fileCategories.length > 0 ? (
+                                  <>
+                                    {hotfix.fileCategories.map((category) => (
+                                      <Badge
+                                        key={category}
+                                        variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                        className="text-[10px] px-1 py-0 h-4 leading-none"
+                                      >
+                                        {getCategoryShortName(category)}
+                                      </Badge>
+                                    ))}
+                                  </>
+                                ) : (
+                                  <HotfixBadge />
+                                )}
+                              </div>
+                            </button>
                           ))}
-                        </>
+                        </div>
                       )}
                     </div>
-                  </button>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

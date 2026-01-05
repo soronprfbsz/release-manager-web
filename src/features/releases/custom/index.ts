@@ -3,3 +3,4 @@
  */
 
 export { CustomReleaseTree } from './ui/CustomReleaseTree'
+export type { SelectedCustomVersionInfo } from './ui/CustomReleaseTree'

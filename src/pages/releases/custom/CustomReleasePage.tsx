@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import { Tag, RefreshCw, Plus } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
 
 import { CustomVersionCreateDialog } from '@/widgets/releases'
 
-import { CustomReleaseTree } from '@/features/releases/custom'
-import { VersionDetailPanel } from '@/features/releases/standard'
+import { CustomReleaseTree, type SelectedCustomVersionInfo } from '@/features/releases/custom'
+import { VersionDetailPanel, type SelectedVersionData } from '@/features/releases/standard'
 
-import { useAllCustomReleaseTree, type VersionNode } from '@/entities/releases/release'
+import { useAllCustomReleaseTree } from '@/entities/releases/release'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 import { usePermission } from '@/shared/lib/hooks'
@@ -24,32 +23,27 @@ import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-interface SelectedVersionInfo extends VersionNode {
+/** 선택된 버전 정보 상태 */
+interface SelectedState {
+  versionId: number
+  version: string
+  isHotfix: boolean
   customerCode: string
   baseVersion: string | null
 }
 
 export function CustomReleasePage() {
-  const location = useLocation()
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddVersion } = usePermission()
-  const [selectedVersion, setSelectedVersion] = useState<SelectedVersionInfo | null>(null)
+  const [selectedState, setSelectedState] = useState<SelectedState | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [prevProjectId, setPrevProjectId] = useState(projectId)
 
   // 프로젝트 변경 시 선택 초기화
   if (projectId !== prevProjectId) {
     setPrevProjectId(projectId)
-    setSelectedVersion(null)
+    setSelectedState(null)
   }
-
-  // 홈페이지에서 전달된 버전 선택
-  useEffect(() => {
-    const state = location.state as { selectedVersion?: SelectedVersionInfo } | null
-    if (state?.selectedVersion) {
-      setSelectedVersion(state.selectedVersion)
-    }
-  }, [location.state])
 
   const {
     data: treeData,
@@ -58,27 +52,47 @@ export function CustomReleasePage() {
     refetch: refetchTree,
   } = useAllCustomReleaseTree(projectId)
 
-  // 트리 데이터 변경 시 선택된 버전 동기화 (승인 등으로 인한 상태 변경 반영)
-  useEffect(() => {
-    if (selectedVersion && treeData?.customers) {
-      for (const customer of treeData.customers) {
-        for (const group of customer.majorMinorGroups) {
-          const updatedVersion = group.versions.find(v => v.versionId === selectedVersion.versionId)
-          if (updatedVersion && updatedVersion.isApproved !== selectedVersion.isApproved) {
-            setSelectedVersion({
-              ...updatedVersion,
-              customerCode: customer.customerCode,
-              baseVersion: customer.baseVersion,
-            })
-            return
+  // 선택된 버전 데이터 (트리에서 찾기)
+  const selectedVersion = selectedState && treeData?.customers
+    ? (() => {
+        for (const customer of treeData.customers) {
+          for (const group of customer.majorMinorGroups) {
+            // 일반 버전에서 찾기
+            const foundVersion = group.versions.find(v => v.versionId === selectedState.versionId)
+            if (foundVersion) {
+              return foundVersion
+            }
+            // 핫픽스에서 찾기
+            for (const version of group.versions) {
+              const foundHotfix = version.hotfixes?.find(h => h.versionId === selectedState.versionId)
+              if (foundHotfix) {
+                return {
+                  versionId: foundHotfix.versionId,
+                  version: foundHotfix.fullVersion,
+                  createdAt: foundHotfix.createdAt,
+                  createdBy: foundHotfix.createdBy || '',
+                  comment: foundHotfix.comment || '',
+                  isApproved: foundHotfix.isApproved ?? false,
+                  approvedBy: foundHotfix.approvedBy ?? null,
+                  approvedAt: foundHotfix.approvedAt ?? null,
+                  fileCategories: foundHotfix.fileCategories || []
+                } as SelectedVersionData
+              }
+            }
           }
         }
-      }
-    }
-  }, [treeData, selectedVersion])
+        return null
+      })()
+    : null
 
-  const handleSelectVersion = (version: VersionNode, customerCode: string, baseVersion: string | null) => {
-    setSelectedVersion({ ...version, customerCode, baseVersion })
+  const handleSelectVersion = (info: SelectedCustomVersionInfo) => {
+    setSelectedState({
+      versionId: info.versionId,
+      version: info.version,
+      isHotfix: info.isHotfix,
+      customerCode: info.customerCode,
+      baseVersion: info.baseVersion
+    })
   }
 
   const handleRefresh = async () => {
@@ -86,7 +100,7 @@ export function CustomReleasePage() {
   }
 
   const handleDeleteSuccess = () => {
-    setSelectedVersion(null)
+    setSelectedState(null)
     handleRefresh()
   }
 
@@ -167,7 +181,7 @@ export function CustomReleasePage() {
                 ) : (
                   <CustomReleaseTree
                     customers={treeData?.customers || []}
-                    selectedVersionId={selectedVersion?.versionId || null}
+                    selectedVersionId={selectedState?.versionId || null}
                     onSelectVersion={handleSelectVersion}
                   />
                 )}
@@ -182,15 +196,15 @@ export function CustomReleasePage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 flex-wrap">
                 <span>버전 정보</span>
-                {selectedVersion && (
+                {selectedState && (
                   <>
-                    <span>({selectedVersion.version})</span>
-                    {treeData?.customers && isLatestVersionForCustomer(selectedVersion.versionId, selectedVersion.customerCode, treeData.customers) && (
+                    <span>({selectedState.version})</span>
+                    {!selectedState.isHotfix && treeData?.customers && isLatestVersionForCustomer(selectedState.versionId, selectedState.customerCode, treeData.customers) && (
                       <Badge variant="latest" className="text-xs px-2 py-0.5">
                         LATEST
                       </Badge>
                     )}
-                    {selectedVersion.fileCategories && selectedVersion.fileCategories.length > 0 && (
+                    {selectedVersion?.fileCategories && selectedVersion.fileCategories.length > 0 && (
                       <>
                         {selectedVersion.fileCategories.map((category) => (
                           <Badge
@@ -211,8 +225,9 @@ export function CustomReleasePage() {
               <ScrollArea className="h-[calc(100vh-24rem)]">
                 <VersionDetailPanel
                   version={selectedVersion}
+                  isHotfix={selectedState?.isHotfix}
                   onDelete={handleDeleteSuccess}
-                  baseVersion={selectedVersion?.baseVersion}
+                  baseVersion={selectedState?.baseVersion}
                 />
               </ScrollArea>
             </CardContent>
