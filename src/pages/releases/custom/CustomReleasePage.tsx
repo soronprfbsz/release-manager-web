@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { Tag, RefreshCw, Plus } from 'lucide-react'
 
-import { CustomVersionCreateDialog } from '@/widgets/releases'
+import { CustomVersionCreateForm } from '@/widgets/releases'
 
 import { CustomReleaseTree, type SelectedCustomVersionInfo } from '@/features/releases/custom'
 import { VersionDetailPanel, type SelectedVersionData } from '@/features/releases/standard'
@@ -235,7 +235,7 @@ export function CustomReleasePage() {
         </div>
       </div>
 
-      <CustomVersionCreateDialog
+      <CustomVersionCreateForm
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={handleCreateSuccess}

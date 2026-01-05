@@ -7,7 +7,7 @@
 export { PatchTable } from './ui/PatchTable'
 export { PatchCreateForm } from './ui/PatchCreateForm'
 export { CustomPatchCreateForm } from './ui/CustomPatchCreateForm'
-export { PatchDeleteDialog } from './ui/PatchDeleteDialog'
+export { PatchDeleteModal } from './ui/PatchDeleteModal'
 export { PatchGenerateFormCard, type ReleaseType } from './ui/PatchGenerateFormCard'
 export { PatchPreviewCard } from './ui/PatchPreviewCard'
 export { CustomPatchGenerateFormCard } from './ui/CustomPatchGenerateFormCard'

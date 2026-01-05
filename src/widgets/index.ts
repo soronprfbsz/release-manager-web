@@ -23,10 +23,10 @@ export {
 } from './infrastructure'
 
 // Remote Jobs Widgets
-export { BackupDialog, RestoreDialog } from './remote-jobs'
+export { BackupForm, RestoreForm } from './remote-jobs'
 
 // Patches Widgets
 export { PatchFileExplorer } from './patches'
 
 // Releases Widgets
-export { VersionCreateDialog } from './releases'
+export { VersionCreateForm } from './releases'

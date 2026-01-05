@@ -16,7 +16,7 @@ import {
   useSshConnectionHistory,
   type XtermTerminalHandle,
 } from '@/features/remote-jobs/terminal'
-import { FileTransferSheet } from '@/features/remote-jobs/terminal/ui/FileTransferSheet'
+import { FileTransferForm } from '@/features/remote-jobs/terminal/ui/FileTransferForm'
 import type { SshConnectionFormData } from '@/features/remote-jobs/terminal'
 import { Button } from '@/shared/ui/button'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -25,7 +25,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 export function TerminalPage() {
   // 로컬 UI 상태
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false)
-  const [fileTransferSheetOpen, setFileTransferSheetOpen] = useState(false)
+  const [fileTransferFormOpen, setFileTransferFormOpen] = useState(false)
   const [formData, setFormData] = useState<SshConnectionFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -104,10 +104,10 @@ export function TerminalPage() {
         }}
       />
 
-      {/* 파일 전송 Sheet */}
-      <FileTransferSheet
-        open={fileTransferSheetOpen}
-        onOpenChange={setFileTransferSheetOpen}
+      {/* 파일 전송 Form */}
+      <FileTransferForm
+        open={fileTransferFormOpen}
+        onOpenChange={setFileTransferFormOpen}
         shellSessionId={session?.sessionId || null}
         isConnected={isConnected}
       />
@@ -130,7 +130,7 @@ export function TerminalPage() {
                 variant="ghost"
                 size="sm"
                 className="h-6 px-2 text-xs flex items-center gap-1.5 border border-transparent hover:border-border"
-                onClick={() => setFileTransferSheetOpen(true)}
+                onClick={() => setFileTransferFormOpen(true)}
               >
                 <Upload className="h-3 w-3" />
                 파일 전송

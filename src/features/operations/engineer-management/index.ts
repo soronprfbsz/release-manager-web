@@ -7,7 +7,7 @@
 export { EngineerTable } from './ui/EngineerTable'
 export { EngineerForm } from './ui/EngineerForm'
 export { EngineerFilters } from './ui/EngineerFilters'
-export { EngineerDeleteDialog } from './ui/EngineerDeleteDialog'
+export { EngineerDeleteModal } from './ui/EngineerDeleteModal'
 
 // Types
 export type {

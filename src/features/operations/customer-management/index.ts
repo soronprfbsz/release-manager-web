@@ -7,7 +7,7 @@
 export { CustomerTable } from './ui/CustomerTable'
 export { CustomerForm } from './ui/CustomerForm'
 export { CustomerFilters } from './ui/CustomerFilters'
-export { CustomerDeleteDialog } from './ui/CustomerDeleteDialog'
+export { CustomerDeleteModal } from './ui/CustomerDeleteModal'
 
 // Types
 export type {

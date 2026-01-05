@@ -13,7 +13,7 @@ import {
   CustomerTable,
   CustomerForm,
   CustomerFilters,
-  CustomerDeleteDialog,
+  CustomerDeleteModal,
   type CustomerFormData,
   type CustomerFiltersState,
   type CustomerFormMode,
@@ -293,8 +293,8 @@ export function CustomerListPage() {
         onClose={closeModal}
       />
 
-      {/* Delete Dialog */}
-      <CustomerDeleteDialog
+      {/* Delete Modal */}
+      <CustomerDeleteModal
         isOpen={deleteConfirmId !== null}
         isDeleting={deleteMutation.isPending}
         onConfirm={handleDeleteConfirm}

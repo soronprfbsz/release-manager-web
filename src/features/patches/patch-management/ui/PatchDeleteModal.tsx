@@ -1,6 +1,6 @@
 /**
- * Backup File Delete Dialog Component
- * 백업 파일 삭제 확인 다이얼로그
+ * Patch Delete Modal Component
+ * 패치 삭제 확인 모달
  */
 
 import { Loader2 } from 'lucide-react'
@@ -15,31 +15,30 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 
-interface BackupFileDeleteDialogProps {
+interface PatchDeleteModalProps {
   isOpen: boolean
   isDeleting: boolean
-  fileName: string
+  patchName: string
   onConfirm: () => void
   onClose: () => void
 }
 
-export function BackupFileDeleteDialog({
+export function PatchDeleteModal({
   isOpen,
   isDeleting,
-  fileName,
+  patchName,
   onConfirm,
   onClose,
-}: BackupFileDeleteDialogProps) {
+}: PatchDeleteModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>백업 파일 삭제 확인</DialogTitle>
+          <DialogTitle>패치 삭제 확인</DialogTitle>
           <DialogDescription>
-            백업 파일 <strong className="text-foreground">{fileName}</strong>을(를)
-            삭제하시겠습니까?
+            패치 <strong className="text-foreground">{patchName}</strong>을(를) 삭제하시겠습니까?
             <br />
-            이 작업은 되돌릴 수 없습니다.
+            이 작업은 되돌릴 수 없으며, 모든 관련 파일이 삭제됩니다.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -55,3 +54,4 @@ export function BackupFileDeleteDialog({
     </Dialog>
   )
 }
+

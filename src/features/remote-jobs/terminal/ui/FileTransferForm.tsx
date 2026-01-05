@@ -1,5 +1,5 @@
 /**
- * File Transfer Sheet
+ * File Transfer Form
  * SSH 연결을 통한 파일 업로드 및 패치 배포
  */
 
@@ -31,19 +31,19 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 
-interface FileTransferSheetProps {
+interface FileTransferFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   shellSessionId: string | null
   isConnected: boolean
 }
 
-export function FileTransferSheet({
+export function FileTransferForm({
   open,
   onOpenChange,
   shellSessionId,
   isConnected,
-}: FileTransferSheetProps) {
+}: FileTransferFormProps) {
   // Patch Deploy Tab State
   const [selectedPatchId, setSelectedPatchId] = useState<string>('')
   const [patchRemotePath, setPatchRemotePath] = useState('')
@@ -287,13 +287,25 @@ export function FileTransferSheet({
         </SheetHeader>
 
         <Tabs defaultValue="patch" className="mt-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="patch">패치 배포</TabsTrigger>
-            <TabsTrigger value="file">파일 업로드</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
+            <TabsTrigger
+              value="patch"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              패치 배포
+            </TabsTrigger>
+            <TabsTrigger
+              value="file"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              파일 업로드
+            </TabsTrigger>
           </TabsList>
 
           {/* 패치 배포 탭 */}
-          <TabsContent value="patch">
+          <TabsContent value="patch" className="mt-6">
             <ScrollArea className="h-[calc(100vh-280px)] pr-4">
               <form onSubmit={handlePatchDeploySubmit} className="space-y-5">
                 <div className="space-y-2">
@@ -369,7 +381,7 @@ export function FileTransferSheet({
           </TabsContent>
 
           {/* 파일 업로드 탭 */}
-          <TabsContent value="file">
+          <TabsContent value="file" className="mt-6">
             <ScrollArea className="h-[calc(100vh-280px)] pr-4">
               <form onSubmit={handleFileUploadSubmit} className="space-y-5">
                 <div className="space-y-2">
@@ -496,3 +508,4 @@ export function FileTransferSheet({
     </Sheet>
   )
 }
+

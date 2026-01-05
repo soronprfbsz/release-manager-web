@@ -17,7 +17,7 @@ import {
 } from '@/shared/ui/sheet'
 import { Textarea } from '@/shared/ui/textarea'
 
-interface HotfixCreateDialogProps {
+interface HotfixCreateFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   projectId: string
@@ -26,14 +26,14 @@ interface HotfixCreateDialogProps {
   onSuccess?: () => void
 }
 
-export function HotfixCreateDialog({
+export function HotfixCreateForm({
   open,
   onOpenChange,
   projectId,
   parentVersionId,
   parentVersion,
   onSuccess,
-}: HotfixCreateDialogProps) {
+}: HotfixCreateFormProps) {
   const { toast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
@@ -316,3 +316,4 @@ export function HotfixCreateDialog({
     </Sheet>
   )
 }
+

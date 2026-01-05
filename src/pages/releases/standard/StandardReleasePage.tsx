@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Tag, RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
-import { VersionCreateDialog } from '@/widgets/releases'
+import { VersionCreateForm } from '@/widgets/releases'
 
 import { usePermission } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
@@ -245,7 +245,7 @@ export function StandardReleasePage() {
         </div>
       </div>
 
-      <VersionCreateDialog
+      <VersionCreateForm
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={handleCreateSuccess}

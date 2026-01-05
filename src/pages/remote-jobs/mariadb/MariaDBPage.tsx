@@ -10,13 +10,12 @@ import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
 
-import { BackupDialog } from '@/widgets/remote-jobs'
-import { RestoreDialog } from '@/widgets/remote-jobs'
+import { BackupForm, RestoreForm } from '@/widgets/remote-jobs'
 
 import {
   BackupFileTable,
-  BackupFileDeleteDialog,
-  BackupLogsDialog,
+  BackupFileDeleteModal,
+  BackupLogsForm,
   type SortConfig,
   type LogViewerState,
 } from '@/features/remote-jobs/mariadb'
@@ -283,23 +282,23 @@ export function MariaDBPage() {
         </CardContent>
       </Card>
 
-      {/* Backup Dialog */}
-      <BackupDialog
+      {/* Backup Form */}
+      <BackupForm
         open={backupDialogOpen}
         onOpenChange={setBackupDialogOpen}
         onSuccess={() => refetch()}
       />
 
-      {/* Restore Dialog */}
-      <RestoreDialog
+      {/* Restore Form */}
+      <RestoreForm
         open={restoreDialogOpen}
         onOpenChange={setRestoreDialogOpen}
         backupFiles={backupFiles}
         onSuccess={() => refetch()}
       />
 
-      {/* Delete Dialog */}
-      <BackupFileDeleteDialog
+      {/* Delete Modal */}
+      <BackupFileDeleteModal
         isOpen={deleteDialogOpen}
         isDeleting={deleteMutation.isPending}
         fileName={fileToDelete?.fileName || ''}
@@ -323,8 +322,8 @@ export function MariaDBPage() {
         onDownload={selectedFile ? () => handleDownload(selectedFile) : undefined}
       />
 
-      {/* Logs Dialog */}
-      <BackupLogsDialog
+      {/* Logs Form */}
+      <BackupLogsForm
         isOpen={logsDialogOpen}
         fileName={logsFile?.fileName || ''}
         logFiles={logsData?.logFiles || []}

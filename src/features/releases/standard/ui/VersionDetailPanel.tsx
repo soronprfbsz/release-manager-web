@@ -35,7 +35,7 @@ import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
-import { HotfixCreateDialog } from './HotfixCreateDialog'
+import { HotfixCreateForm } from './HotfixCreateForm'
 
 /** 버전 정보 (트리에서 선택된 정보) */
 export interface SelectedVersionData {
@@ -513,9 +513,9 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Hotfix Create Dialog */}
+      {/* Hotfix Create Form */}
       {version && !isHotfix && (
-        <HotfixCreateDialog
+        <HotfixCreateForm
           open={hotfixDialogOpen}
           onOpenChange={setHotfixDialogOpen}
           projectId={projectId}

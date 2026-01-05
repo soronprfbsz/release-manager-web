@@ -1,6 +1,6 @@
 /**
- * Customer Delete Dialog Component
- * 고객사 삭제 확인 다이얼로그
+ * Engineer Delete Modal Component
+ * 엔지니어 삭제 확인 모달
  */
 
 import { Loader2 } from 'lucide-react'
@@ -15,26 +15,26 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 
-interface CustomerDeleteDialogProps {
+interface EngineerDeleteModalProps {
   isOpen: boolean
   isDeleting: boolean
   onConfirm: () => void
   onClose: () => void
 }
 
-export function CustomerDeleteDialog({
+export function EngineerDeleteModal({
   isOpen,
   isDeleting,
   onConfirm,
   onClose,
-}: CustomerDeleteDialogProps) {
+}: EngineerDeleteModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>고객사 삭제</DialogTitle>
+          <DialogTitle>엔지니어 삭제</DialogTitle>
           <DialogDescription>
-            정말로 이 고객사를 삭제하시겠습니까?
+            정말로 이 엔지니어를 삭제하시겠습니까?
             이 작업은 되돌릴 수 없습니다.
           </DialogDescription>
         </DialogHeader>
@@ -55,3 +55,4 @@ export function CustomerDeleteDialog({
     </Dialog>
   )
 }
+

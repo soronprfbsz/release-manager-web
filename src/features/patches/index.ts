@@ -7,7 +7,7 @@
 export {
   PatchTable,
   PatchCreateForm,
-  PatchDeleteDialog,
+  PatchDeleteModal,
   PatchGenerateFormCard,
   PatchPreviewCard,
   validatePatchForm,

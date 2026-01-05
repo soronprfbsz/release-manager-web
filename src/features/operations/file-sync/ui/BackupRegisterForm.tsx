@@ -1,6 +1,6 @@
 /**
- * Backup Register Sheet
- * 백업 파일 등록 시트 (파일 동기화에서 사용)
+ * Backup Register Form
+ * 백업 파일 등록 폼 (파일 동기화에서 사용)
  */
 
 import { useState } from 'react'
@@ -21,7 +21,7 @@ import {
 
 import type { FileSyncResult, BackupRegisterItem } from '../api/types'
 
-interface BackupRegisterSheetProps {
+interface BackupRegisterFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   item: FileSyncResult | null
@@ -29,13 +29,13 @@ interface BackupRegisterSheetProps {
   onSubmit: (data: BackupRegisterItem) => void
 }
 
-export function BackupRegisterSheet({
+export function BackupRegisterForm({
   open,
   onOpenChange,
   item,
   isSubmitting,
   onSubmit,
-}: BackupRegisterSheetProps) {
+}: BackupRegisterFormProps) {
   const [fileCategory, setFileCategory] = useState('')
   const [description, setDescription] = useState('')
 
@@ -144,3 +144,4 @@ export function BackupRegisterSheet({
     </Sheet>
   )
 }
+

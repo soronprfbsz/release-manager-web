@@ -66,10 +66,10 @@ import {
     useRegisterBackupFiles,
     useRegisterPatchFiles,
     useRegisterReleaseFiles,
-    ResourceRegisterSheet,
-    BackupRegisterSheet,
-    PatchRegisterSheet,
-    ReleaseRegisterSheet,
+    ResourceRegisterForm,
+    BackupRegisterForm,
+    PatchRegisterForm,
+    ReleaseRegisterForm,
     type FileSyncResult,
     type FileSyncActionType,
     type FileSyncStatus,
@@ -753,29 +753,29 @@ export function FileSyncPage() {
                 </TabsContent>
             </Tabs>
 
-            {/* Register Sheets */}
-            <ResourceRegisterSheet
+            {/* Register Forms */}
+            <ResourceRegisterForm
                 open={registerSheetOpen === 'RESOURCE_FILE'}
                 onOpenChange={(open) => !open && handleRegisterSheetClose()}
                 item={registerItem}
                 isSubmitting={registerResourceMutation.isPending}
                 onSubmit={handleResourceRegister}
             />
-            <BackupRegisterSheet
+            <BackupRegisterForm
                 open={registerSheetOpen === 'BACKUP_FILE'}
                 onOpenChange={(open) => !open && handleRegisterSheetClose()}
                 item={registerItem}
                 isSubmitting={registerBackupMutation.isPending}
                 onSubmit={handleBackupRegister}
             />
-            <PatchRegisterSheet
+            <PatchRegisterForm
                 open={registerSheetOpen === 'PATCH_FILE'}
                 onOpenChange={(open) => !open && handleRegisterSheetClose()}
                 item={registerItem}
                 isSubmitting={registerPatchMutation.isPending}
                 onSubmit={handlePatchRegister}
             />
-            <ReleaseRegisterSheet
+            <ReleaseRegisterForm
                 open={registerSheetOpen === 'RELEASE_FILE'}
                 onOpenChange={(open) => !open && handleRegisterSheetClose()}
                 item={registerItem}

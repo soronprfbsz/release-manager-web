@@ -24,7 +24,7 @@ import {
   ServiceForm,
   ServiceDeleteDialog,
   ServiceFilters,
-  ComponentSheet,
+  ComponentForm,
   type ServiceFormData,
   type ComponentFormData,
   type ServiceFormMode,
@@ -304,8 +304,8 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
         onCancel={handleServiceFormCancel}
       />
 
-      {/* Component Sheet */}
-      <ComponentSheet
+      {/* Component Form */}
+      <ComponentForm
         service={managingService}
         onClose={() => setManagingServiceId(null)}
         onAddComponent={handleAddComponent}

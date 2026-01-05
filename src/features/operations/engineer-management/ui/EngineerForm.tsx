@@ -83,9 +83,9 @@ export function EngineerForm({
             value: pos.value,
             label: pos.name,
           }))}
-          value={formData.position}
+          value={formData.positionCode}
           onValueChange={(value) =>
-            onFormDataChange({ ...formData, position: value })
+            onFormDataChange({ ...formData, positionCode: value })
           }
           placeholder="직급을 선택하세요"
           searchPlaceholder="직급 검색..."

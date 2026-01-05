@@ -17,7 +17,7 @@ export * from './operations'
 export {
   PatchTable,
   PatchCreateForm,
-  PatchDeleteDialog,
+  PatchDeleteModal,
   PatchGenerateFormCard,
   PatchPreviewCard,
   validatePatchForm,
@@ -34,8 +34,8 @@ export * from './releases'
 // Remote Jobs Features
 export {
   BackupFileTable,
-  BackupFileDeleteDialog,
-  BackupLogsDialog,
+  BackupFileDeleteModal,
+  BackupLogsForm,
   SshConnectionSheet,
   SshTerminal,
   XtermTerminal,

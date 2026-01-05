@@ -18,7 +18,7 @@ import { useAuthStore, useProjectStore } from '@/shared/store'
 import {
   PatchTable,
   CustomPatchCreateForm,
-  PatchDeleteDialog,
+  PatchDeleteModal,
   type CustomPatchCreateFormData,
   type SortConfig,
 } from '@/features/patches/patch-management'
@@ -318,8 +318,8 @@ export function CustomPatchPage() {
         patchName={selectedPatch?.patchName || ''}
       />
 
-      {/* Delete Dialog */}
-      <PatchDeleteDialog
+      {/* Delete Modal */}
+      <PatchDeleteModal
         isOpen={deleteDialogOpen}
         isDeleting={deleteMutation.isPending}
         patchName={patchToDelete?.patchName || ''}

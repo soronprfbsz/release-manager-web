@@ -20,7 +20,7 @@ import {
   ResourceGroupList,
   ResourceUploadForm,
   ResourceEditForm,
-  ResourceDeleteDialog,
+  ResourceDeleteModal,
   ResourceFilters,
   type ResourceUploadFormData,
   type ResourceFiltersState,
@@ -245,8 +245,8 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
           onClose={() => setEditingResource(null)}
         />
 
-        {/* File Delete Dialog */}
-        <ResourceDeleteDialog
+        {/* File Delete Modal */}
+        <ResourceDeleteModal
           isOpen={deleteTarget !== null}
           isDeleting={deleteMutation.isPending}
           resourceName={deleteTarget?.resourceFileName || deleteTarget?.fileName || ''}

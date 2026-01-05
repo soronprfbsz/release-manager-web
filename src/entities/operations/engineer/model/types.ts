@@ -7,6 +7,7 @@ export interface Engineer {
   rowNumber: number
   engineerId: number
   engineerName: string
+  positionCode: string | null
   position: string | null
   engineerEmail: string
   departmentId: number | null
@@ -18,7 +19,7 @@ export interface Engineer {
 
 export interface EngineerCreateRequest {
   engineerName: string
-  position?: string
+  positionCode?: string
   engineerEmail: string
   departmentId?: number
   description?: string
@@ -26,7 +27,7 @@ export interface EngineerCreateRequest {
 
 export interface EngineerUpdateRequest {
   engineerName?: string
-  position?: string
+  positionCode?: string
   engineerEmail?: string
   departmentId?: number
   description?: string

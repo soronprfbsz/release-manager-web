@@ -3,5 +3,5 @@
  * 릴리즈 관련 위젯 모음
  */
 
-export { VersionCreateDialog } from './version-create-dialog'
-export { CustomVersionCreateDialog } from './custom-version-create-dialog'
+export { VersionCreateForm } from './version-create-form'
+export { CustomVersionCreateForm } from './custom-version-create-form'

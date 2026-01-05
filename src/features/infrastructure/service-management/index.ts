@@ -9,8 +9,8 @@ export { ServiceGroupList } from './ui/ServiceGroupList'
 export { ServiceForm } from './ui/ServiceForm'
 export { ServiceFilters } from './ui/ServiceFilters'
 export { ServiceDeleteDialog } from './ui/ServiceDeleteDialog'
-export { ComponentSheet } from './ui/ComponentSheet'
 export { ComponentForm } from './ui/ComponentForm'
+export { ComponentModal } from './ui/ComponentModal'
 export { ComponentList } from './ui/ComponentList'
 
 // Types

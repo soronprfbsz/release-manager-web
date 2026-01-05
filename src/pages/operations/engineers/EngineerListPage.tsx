@@ -13,7 +13,7 @@ import {
   EngineerTable,
   EngineerForm,
   EngineerFilters,
-  EngineerDeleteDialog,
+  EngineerDeleteModal,
   type EngineerFormData,
   type EngineerFiltersState,
   type EngineerFormMode,
@@ -47,7 +47,7 @@ interface PaginationState {
 
 const INITIAL_FORM_DATA: EngineerFormData = {
   engineerName: '',
-  position: '',
+  positionCode: '',
   engineerEmail: '',
   departmentId: '',
   description: '',
@@ -112,7 +112,7 @@ export function EngineerListPage() {
   const openEditModal = (engineer: Engineer) => {
     setFormData({
       engineerName: engineer.engineerName,
-      position: engineer.position || '',
+      positionCode: engineer.positionCode || '',
       engineerEmail: engineer.engineerEmail,
       departmentId: engineer.departmentId?.toString() || '',
       description: engineer.description || '',
@@ -139,7 +139,7 @@ export function EngineerListPage() {
       createMutation.mutate(
         {
           engineerName: formData.engineerName.trim(),
-          position: formData.position.trim() || undefined,
+          positionCode: formData.positionCode.trim() || undefined,
           engineerEmail: formData.engineerEmail.trim(),
           departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
           description: formData.description.trim() || undefined,
@@ -158,7 +158,7 @@ export function EngineerListPage() {
           id: editingEngineer.engineerId,
           data: {
             engineerName: formData.engineerName.trim(),
-            position: formData.position.trim() || undefined,
+            positionCode: formData.positionCode.trim() || undefined,
             engineerEmail: formData.engineerEmail.trim(),
             departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
             description: formData.description.trim() || undefined,
@@ -280,8 +280,8 @@ export function EngineerListPage() {
         onClose={closeModal}
       />
 
-      {/* Delete Dialog */}
-      <EngineerDeleteDialog
+      {/* Delete Modal */}
+      <EngineerDeleteModal
         isOpen={deleteConfirmId !== null}
         isDeleting={deleteMutation.isPending}
         onConfirm={handleDeleteConfirm}

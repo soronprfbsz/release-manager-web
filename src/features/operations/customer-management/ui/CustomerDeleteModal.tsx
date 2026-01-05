@@ -1,6 +1,6 @@
 /**
- * Resource Delete Dialog Component
- * 리소스 삭제 확인 다이얼로그
+ * Customer Delete Modal Component
+ * 고객사 삭제 확인 모달
  */
 
 import { Loader2 } from 'lucide-react'
@@ -15,37 +15,38 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 
-interface ResourceDeleteDialogProps {
+interface CustomerDeleteModalProps {
   isOpen: boolean
   isDeleting: boolean
-  resourceName: string
   onConfirm: () => void
   onClose: () => void
 }
 
-export function ResourceDeleteDialog({
+export function CustomerDeleteModal({
   isOpen,
   isDeleting,
-  resourceName,
   onConfirm,
   onClose,
-}: ResourceDeleteDialogProps) {
+}: CustomerDeleteModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>리소스 삭제</DialogTitle>
+          <DialogTitle>고객사 삭제</DialogTitle>
           <DialogDescription>
-            <span className="font-medium text-foreground">{resourceName}</span> 파일을
-            삭제하시겠습니까?
-            <br />이 작업은 되돌릴 수 없습니다.
+            정말로 이 고객사를 삭제하시겠습니까?
+            이 작업은 되돌릴 수 없습니다.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
+          <Button variant="outline" onClick={onClose}>
             취소
           </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={isDeleting}>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={isDeleting}
+          >
             {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             삭제
           </Button>
@@ -54,3 +55,4 @@ export function ResourceDeleteDialog({
     </Dialog>
   )
 }
+

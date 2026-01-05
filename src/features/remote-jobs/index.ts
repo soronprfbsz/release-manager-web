@@ -6,8 +6,8 @@
 // MariaDB (백업/복원 관리)
 export {
   BackupFileTable,
-  BackupFileDeleteDialog,
-  BackupLogsDialog,
+  BackupFileDeleteModal,
+  BackupLogsForm,
   type SortConfig,
   type PaginationState,
   type LogViewerState,

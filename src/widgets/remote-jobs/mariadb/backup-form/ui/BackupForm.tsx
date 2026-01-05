@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Loader2, RotateCcw } from 'lucide-react'
+import { Database, Loader2 } from 'lucide-react'
 
-import { mariadbApi, type MariaDBRestoreRequest, type BackupFile } from '@/entities/remote-jobs/mariadb'
+import { mariadbApi, type MariaDBBackupRequest } from '@/entities/remote-jobs/mariadb'
 
 import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -12,53 +12,48 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
-import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
 } from '@/shared/ui/sheet'
+import { Textarea } from '@/shared/ui/textarea'
 
 
-interface RestoreDialogProps {
+interface BackupFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  backupFiles: BackupFile[]
   onSuccess: () => void
 }
 
-export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: RestoreDialogProps) {
+export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
   const { toast } = useToast()
   const { startPolling } = useJobPolling({
     onComplete: () => {
-      onSuccess()
+      onSuccess() // 백업 목록 새로고침
     },
   })
 
   const [host, setHost] = useState('')
   const [port, setPort] = useState('3306')
+  const [database, setDatabase] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [selectedBackupFileId, setSelectedBackupFileId] = useState<string>('')
+  const [fileName, setFileName] = useState('')
+  const [description, setDescription] = useState('')
 
-  const restoreMutation = useMutation({
-    mutationFn: (request: MariaDBRestoreRequest) => mariadbApi.restoreMariaDB(request),
+  const backupMutation = useMutation({
+    mutationFn: (request: MariaDBBackupRequest) => mariadbApi.backupMariaDB(request),
     onSuccess: (data) => {
       // job 상태 polling 시작 (진행 중 toast 자동 표시)
-      startPolling(data.jobId, '복원')
+      startPolling(data.jobId, '백업')
       handleClose()
     },
     onError: (error: Error) => {
       toast({
-        title: '복원 실행 실패',
-        description: error.message || '복원 실행 중 오류가 발생했습니다.',
+        title: '백업 실행 실패',
+        description: error.message || '백업 실행 중 오류가 발생했습니다.',
         variant: 'destructive',
       })
     },
@@ -67,16 +62,18 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
   const handleClose = () => {
     setHost('')
     setPort('3306')
+    setDatabase('')
     setUsername('')
     setPassword('')
-    setSelectedBackupFileId('')
+    setFileName('')
+    setDescription('')
     onOpenChange(false)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!host.trim() || !username.trim() || !password.trim() || !selectedBackupFileId) {
+    if (!host.trim() || !database.trim() || !username.trim() || !password.trim()) {
       toast({
         title: '입력 오류',
         description: '모든 필수 항목을 입력해주세요.',
@@ -85,65 +82,40 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
       return
     }
 
-    const request: MariaDBRestoreRequest = {
+    const request: MariaDBBackupRequest = {
       host,
       port: parseInt(port),
+      database,
       username,
       password,
-      backupFileId: parseInt(selectedBackupFileId),
+      fileName: fileName.trim() || undefined,
+      description: description.trim() || undefined,
     }
 
-    restoreMutation.mutate(request)
+    backupMutation.mutate(request)
   }
-
-  // MariaDB 카테고리 파일만 필터링
-  const mariadbFiles = backupFiles.filter(f => f.fileCategory === 'MARIADB')
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[500px] sm:max-w-[500px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <RotateCcw className="h-5 w-5" />
-            MariaDB 복원 실행
+            <Database className="h-5 w-5" />
+            MariaDB 백업 실행
           </SheetTitle>
           <SheetDescription>
-            백업 파일로부터 MariaDB 데이터베이스를 복원합니다.
+            MariaDB 데이터베이스를 백업합니다.
           </SheetDescription>
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 백업 파일 선택 */}
-            <div className="space-y-2">
-              <Label htmlFor="backupFileId" required>백업 파일</Label>
-              <Select
-                value={selectedBackupFileId}
-                onValueChange={setSelectedBackupFileId}
-                disabled={mariadbFiles.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="백업 파일을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mariadbFiles.map((file) => (
-                    <SelectItem key={file.backupFileId} value={file.backupFileId.toString()}>
-                      {file.fileName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {mariadbFiles.length === 0 && (
-                <p className="text-xs text-muted-foreground">MariaDB 백업 파일이 없습니다.</p>
-              )}
-            </div>
-
             {/* 호스트 */}
             <div className="space-y-2">
-              <Label htmlFor="mariadb-restore-host" required>호스트</Label>
+              <Label htmlFor="mariadb-backup-host" required>호스트</Label>
               <Input
-                id="mariadb-restore-host"
-                name="mariadb-restore-host"
+                id="mariadb-backup-host"
+                name="mariadb-backup-host"
                 autoComplete="off"
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
@@ -154,10 +126,10 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 포트 */}
             <div className="space-y-2">
-              <Label htmlFor="mariadb-restore-port" required>포트</Label>
+              <Label htmlFor="mariadb-backup-port" required>포트</Label>
               <Input
-                id="mariadb-restore-port"
-                name="mariadb-restore-port"
+                id="mariadb-backup-port"
+                name="mariadb-backup-port"
                 type="number"
                 autoComplete="off"
                 value={port}
@@ -167,12 +139,26 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               />
             </div>
 
+            {/* 데이터베이스 */}
+            <div className="space-y-2">
+              <Label htmlFor="mariadb-backup-database" required>데이터베이스</Label>
+              <Input
+                id="mariadb-backup-database"
+                name="mariadb-backup-database"
+                autoComplete="off"
+                value={database}
+                onChange={(e) => setDatabase(e.target.value)}
+                placeholder="데이터베이스 이름"
+                required
+              />
+            </div>
+
             {/* 사용자명 */}
             <div className="space-y-2">
-              <Label htmlFor="mariadb-restore-username" required>사용자명</Label>
+              <Label htmlFor="mariadb-backup-username" required>사용자명</Label>
               <Input
-                id="mariadb-restore-username"
-                name="mariadb-restore-username"
+                id="mariadb-backup-username"
+                name="mariadb-backup-username"
                 autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -183,10 +169,10 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
 
             {/* 비밀번호 */}
             <div className="space-y-2">
-              <Label htmlFor="mariadb-restore-password" required>비밀번호</Label>
+              <Label htmlFor="mariadb-backup-password" required>비밀번호</Label>
               <Input
-                id="mariadb-restore-password"
-                name="mariadb-restore-password"
+                id="mariadb-backup-password"
+                name="mariadb-backup-password"
                 type="password"
                 autoComplete="new-password"
                 value={password}
@@ -196,11 +182,30 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               />
             </div>
 
-            {/* 경고 메시지 */}
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <p className="text-sm text-yellow-600 dark:text-yellow-500">
-                <strong>경고:</strong> 복원 작업은 기존 데이터를 덮어씁니다. 신중하게 진행하세요.
+            {/* 파일명 (선택) */}
+            <div className="space-y-2">
+              <Label htmlFor="fileName">파일명</Label>
+              <Input
+                id="fileName"
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                placeholder="예: production_backup_2025 (선택)"
+              />
+              <p className="text-xs text-muted-foreground">
+                생략 시 기본 파일명으로 생성됩니다. (.sql 확장자는 자동으로 추가됩니다)
               </p>
+            </div>
+
+            {/* 설명 (선택) */}
+            <div className="space-y-2">
+              <Label htmlFor="description">설명</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="백업에 대한 설명 (선택)"
+                rows={2}
+              />
             </div>
 
             {/* 버튼 */}
@@ -215,18 +220,18 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
               </Button>
               <Button
                 type="submit"
-                disabled={restoreMutation.isPending || !selectedBackupFileId}
+                disabled={backupMutation.isPending}
                 className="flex-1"
               >
-                {restoreMutation.isPending ? (
+                {backupMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     실행 중...
                   </>
                 ) : (
                   <>
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    복원 실행
+                    <Database className="h-4 w-4 mr-2" />
+                    백업 실행
                   </>
                 )}
               </Button>
@@ -237,3 +242,4 @@ export function RestoreDialog({ open, onOpenChange, backupFiles, onSuccess }: Re
     </Sheet>
   )
 }
+

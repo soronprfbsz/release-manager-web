@@ -1,6 +1,6 @@
 /**
- * Engineer Delete Dialog Component
- * 엔지니어 삭제 확인 다이얼로그
+ * Resource Delete Modal Component
+ * 리소스 삭제 확인 모달
  */
 
 import { Loader2 } from 'lucide-react'
@@ -15,38 +15,37 @@ import {
   DialogDescription,
 } from '@/shared/ui/dialog'
 
-interface EngineerDeleteDialogProps {
+interface ResourceDeleteModalProps {
   isOpen: boolean
   isDeleting: boolean
+  resourceName: string
   onConfirm: () => void
   onClose: () => void
 }
 
-export function EngineerDeleteDialog({
+export function ResourceDeleteModal({
   isOpen,
   isDeleting,
+  resourceName,
   onConfirm,
   onClose,
-}: EngineerDeleteDialogProps) {
+}: ResourceDeleteModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>엔지니어 삭제</DialogTitle>
+          <DialogTitle>리소스 삭제</DialogTitle>
           <DialogDescription>
-            정말로 이 엔지니어를 삭제하시겠습니까?
-            이 작업은 되돌릴 수 없습니다.
+            <span className="font-medium text-foreground">{resourceName}</span> 파일을
+            삭제하시겠습니까?
+            <br />이 작업은 되돌릴 수 없습니다.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
             취소
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={isDeleting}
-          >
+          <Button variant="destructive" onClick={onConfirm} disabled={isDeleting}>
             {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             삭제
           </Button>
@@ -55,3 +54,4 @@ export function EngineerDeleteDialog({
     </Dialog>
   )
 }
+

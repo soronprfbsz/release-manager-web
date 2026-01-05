@@ -42,7 +42,7 @@ export type {
 } from './api/types'
 
 // UI Components
-export { ResourceRegisterSheet } from './ui/ResourceRegisterSheet'
-export { BackupRegisterSheet } from './ui/BackupRegisterSheet'
-export { PatchRegisterSheet } from './ui/PatchRegisterSheet'
-export { ReleaseRegisterSheet } from './ui/ReleaseRegisterSheet'
+export { ResourceRegisterForm } from './ui/ResourceRegisterForm'
+export { BackupRegisterForm } from './ui/BackupRegisterForm'
+export { PatchRegisterForm } from './ui/PatchRegisterForm'
+export { ReleaseRegisterForm } from './ui/ReleaseRegisterForm'

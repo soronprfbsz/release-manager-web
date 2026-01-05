@@ -1,14 +1,13 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
 import { Upload, X, FileArchive, Info, Loader2, Tag } from 'lucide-react'
 
-import { useCustomers, type Customer } from '@/entities/operations/customer'
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import { useProjectStore } from '@/shared/store'
-import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
+import { releaseApi } from '@/entities/releases/release'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
-import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
@@ -19,7 +18,13 @@ import {
   PopoverTrigger,
 } from '@/shared/ui/popover'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Combobox } from '@/shared/ui/combobox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import {
   Sheet,
   SheetContent,
@@ -30,18 +35,19 @@ import {
 import { Textarea } from '@/shared/ui/textarea'
 import { Checkbox } from '@/shared/ui/checkbox'
 
-interface CustomVersionCreateDialogProps {
+interface VersionCreateFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  /** 최신 버전 정보 (placeholder에 표시) */
+  latestVersion?: string
 }
 
-export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: CustomVersionCreateDialogProps) {
+export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion }: VersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
-  const [customerId, setCustomerId] = useState<number | null>(null)
-  const [baseVersionId, setBaseVersionId] = useState<number | null>(null)
-  const [customVersion, setCustomVersion] = useState('')
+  const [version, setVersion] = useState('')
   const [comment, setComment] = useState('')
+  const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
   const [file, setFile] = useState<File | null>(null)
   const [isApproved, setIsApproved] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
@@ -50,69 +56,42 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   const [uploadCompleted, setUploadCompleted] = useState(false)
 
-  // 고객사 목록 조회 (활성화된 고객사만)
-  const { data: customersData } = useCustomers({ isActive: true, size: 1000 })
-  const customers = customersData?.content || []
+  // 릴리즈 카테고리 목록 조회
+  const { data: releaseCategoryOptions = [] } = useCodesByType(CODE_TYPE.RELEASE_CATEGORY)
 
-  // 표준본 버전 목록 조회 (baseVersion 선택용)
-  const { data: standardVersions = [] } = useStandardVersionList(projectId)
-
-  // 커스텀 릴리즈 트리 조회 (고객사별 버전 존재 여부 확인용)
-  const { data: customTreeData } = useAllCustomReleaseTree(projectId)
-
-  // 선택된 고객사 정보
-  const selectedCustomer = useMemo(() => {
-    return customers.find(c => c.customerId === customerId)
-  }, [customers, customerId])
-
-  // 선택된 고객사의 최초 버전 생성 여부 확인
-  const isFirstVersionForCustomer = useMemo(() => {
-    if (!selectedCustomer || !customTreeData?.customers) return false
-    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
-    // 고객사 노드가 없거나 버전 그룹이 없으면 최초 버전
-    return !customerNode || customerNode.majorMinorGroups.length === 0
-  }, [selectedCustomer, customTreeData])
-
-  // 선택된 고객사의 최신 버전 문자열
-  const latestVersionForCustomer = useMemo(() => {
-    if (!selectedCustomer || !customTreeData?.customers) return null
-    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
-    if (!customerNode) return null
-    return findLatestVersionString(customerNode.majorMinorGroups)
-  }, [selectedCustomer, customTreeData])
+  // 첫 번째 옵션을 기본값으로 설정
+  useEffect(() => {
+    if (releaseCategoryOptions.length > 0 && !releaseCategory) {
+      setReleaseCategory(releaseCategoryOptions[0].value)
+    }
+  }, [releaseCategoryOptions, releaseCategory])
 
   const createMutation = useMutation({
     mutationFn: async () => {
       setUploadCompleted(false)
       startTransfer(file?.name, 'upload')
 
+      // 진행률 핸들러 래퍼 - 100% 도달 시 서버 처리 단계로 전환
       const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
         handleProgress(progressEvent)
 
+        // 100%에 도달하면 서버 처리 단계로 전환
         if (progressEvent.total && progressEvent.loaded >= progressEvent.total && !uploadCompleted) {
           setUploadCompleted(true)
+          // 약간의 지연 후 서버 처리 단계 표시 (토스트 업데이트 타이밍 조정)
           setTimeout(() => {
             startServerProcessing()
           }, 100)
         }
       }
 
-      await releaseApi.createCustomVersion(
-        projectId,
-        customerId!,
-        customVersion,
-        comment,
-        file!,
-        isApproved,
-        isFirstVersionForCustomer && baseVersionId ? baseVersionId : undefined,
-        progressHandler
-      )
+      await releaseApi.createVersion(projectId, version, comment, releaseCategory, file!, isApproved, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {
       toast({
-        title: '커스텀 버전 생성 완료',
-        description: `버전 ${customVersion}이(가) 성공적으로 생성되었습니다.`,
+        title: '버전 생성 완료',
+        description: `버전 ${version}이(가) 성공적으로 생성되었습니다.`,
       })
       handleClose()
       onSuccess()
@@ -120,7 +99,7 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
     onError: (error) => {
       resetTransfer()
       toast({
-        title: '커스텀 버전 생성 실패',
+        title: '버전 생성 실패',
         description: error instanceof Error ? error.message : '버전 생성 중 오류가 발생했습니다.',
         variant: 'destructive',
       })
@@ -128,9 +107,7 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
   })
 
   const handleClose = () => {
-    setCustomerId(null)
-    setBaseVersionId(null)
-    setCustomVersion('')
+    setVersion('')
     setComment('')
     setFile(null)
     setIsApproved(false)
@@ -142,25 +119,7 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!customerId) {
-      toast({
-        title: '입력 오류',
-        description: '고객사를 선택해주세요.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (isFirstVersionForCustomer && !baseVersionId) {
-      toast({
-        title: '입력 오류',
-        description: '최초 버전 생성 시 표준본 버전(Base Version)을 선택해주세요.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!customVersion.trim()) {
+    if (!version.trim()) {
       toast({
         title: '입력 오류',
         description: '버전을 입력해주세요.',
@@ -281,16 +240,16 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Tag className="h-5 w-5" />
-            커스텀 버전 생성
+            버전 생성
           </SheetTitle>
           <SheetDescription>
-            고객사별 커스텀 릴리즈 버전을 생성합니다.
+            새로운 릴리즈 버전을 생성합니다.
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
+        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 파일 구조 안내 */}
+            {/* 파일 구조 안내 - 호버 시 표시 */}
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
@@ -360,59 +319,38 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
               </Popover>
             </div>
 
-            {/* 고객사 선택 */}
             <div className="space-y-2">
-              <Label htmlFor="customerId" required>
-                고객사
-              </Label>
-              <Combobox
-                options={customers.map((customer: Customer) => ({
-                  value: String(customer.customerId),
-                  label: `${customer.customerName} (${customer.customerCode})`,
-                }))}
-                value={customerId ? String(customerId) : ''}
-                onValueChange={(value) => {
-                  setCustomerId(value ? Number(value) : null)
-                  setBaseVersionId(null) // 고객사 변경 시 baseVersionId 초기화
-                }}
-                placeholder="고객사를 선택하세요"
-                searchPlaceholder="고객사 검색..."
-              />
-            </div>
-
-            {/* 표준본 버전 선택 (최초 버전 생성 시에만 표시) */}
-            {customerId && isFirstVersionForCustomer && (
-              <div className="space-y-2">
-                <Label htmlFor="baseVersionId" required>
-                  표준본 버전 (Base Version)
-                </Label>
-                <Combobox
-                  options={standardVersions.map((sv) => ({
-                    value: String(sv.versionId),
-                    label: `${sv.version}${!sv.isApproved ? ' (승인되지 않음)' : ''}`,
-                  }))}
-                  value={baseVersionId ? String(baseVersionId) : ''}
-                  onValueChange={(value) => setBaseVersionId(value ? Number(value) : null)}
-                  placeholder="기준이 될 표준본 버전을 선택하세요"
-                  searchPlaceholder="표준본 버전 검색..."
-                />
-                <p className="text-xs text-muted-foreground">
-                  고객사별 최초 커스텀 버전 생성 시 기준이 될 표준본 버전을 선택해야 합니다.
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="customVersion" required>
+              <Label htmlFor="version" required>
                 버전
               </Label>
               <Input
-                id="customVersion"
-                placeholder={latestVersionForCustomer ? `마지막 버전: ${latestVersionForCustomer}` : '예: 1.0.0'}
-                value={customVersion}
-                onChange={(e) => setCustomVersion(e.target.value)}
+                id="version"
+                placeholder={latestVersion ? `마지막 버전: ${latestVersion}` : '예: 1.0.0'}
+                value={version}
+                onChange={(e) => setVersion(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="releaseCategory" required>
+                릴리즈 타입
+              </Label>
+              <Select
+                value={releaseCategory}
+                onValueChange={setReleaseCategory}
+              >
+                <SelectTrigger id="releaseCategory">
+                  <SelectValue placeholder="릴리즈 타입을 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {releaseCategoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -551,3 +489,4 @@ export function CustomVersionCreateDialog({ open, onOpenChange, onSuccess }: Cus
     </Sheet>
   )
 }
+

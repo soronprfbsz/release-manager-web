@@ -1,6 +1,6 @@
 /**
- * Patch Register Sheet
- * 패치 파일 등록 시트 (파일 동기화에서 사용)
+ * Patch Register Form
+ * 패치 파일 등록 폼 (파일 동기화에서 사용)
  */
 
 import { useState } from 'react'
@@ -24,7 +24,7 @@ import {
 
 import type { FileSyncResult, PatchRegisterItem } from '../api/types'
 
-interface PatchRegisterSheetProps {
+interface PatchRegisterFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   item: FileSyncResult | null
@@ -32,13 +32,13 @@ interface PatchRegisterSheetProps {
   onSubmit: (data: PatchRegisterItem) => void
 }
 
-export function PatchRegisterSheet({
+export function PatchRegisterForm({
   open,
   onOpenChange,
   item,
   isSubmitting,
   onSubmit,
-}: PatchRegisterSheetProps) {
+}: PatchRegisterFormProps) {
   const [engineerId, setEngineerId] = useState<number | null>(null)
   const [customerCode, setCustomerCode] = useState('')
   const [description, setDescription] = useState('')
@@ -187,3 +187,4 @@ export function PatchRegisterSheet({
     </Sheet>
   )
 }
+

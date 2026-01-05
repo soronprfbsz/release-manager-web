@@ -1,11 +1,11 @@
 /**
- * Resource Register Sheet
- * 리소스 파일 등록 시트 (파일 동기화에서 사용)
+ * Release Register Form
+ * 릴리즈 파일 등록 폼 (파일 동기화에서 사용)
  */
 
 import { useState } from 'react'
 
-import { Loader2, Upload } from 'lucide-react'
+import { FileArchive, Loader2 } from 'lucide-react'
 
 import { useCodesByType, CODE_TYPE, type CodeSimpleResponse } from '@/entities/_shared/code'
 
@@ -22,48 +22,37 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 
-import type { FileSyncResult, ResourceRegisterItem } from '../api/types'
+import type { FileSyncResult, ReleaseRegisterItem } from '../api/types'
 
-interface ResourceRegisterSheetProps {
+interface ReleaseRegisterFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   item: FileSyncResult | null
   isSubmitting: boolean
-  onSubmit: (data: ResourceRegisterItem) => void
+  onSubmit: (data: ReleaseRegisterItem) => void
 }
 
-export function ResourceRegisterSheet({
+export function ReleaseRegisterForm({
   open,
   onOpenChange,
   item,
   isSubmitting,
   onSubmit,
-}: ResourceRegisterSheetProps) {
-  const [resourceFileName, setResourceFileName] = useState('')
+}: ReleaseRegisterFormProps) {
+  const [releaseVersionId, setReleaseVersionId] = useState<number | null>(null)
   const [fileCategory, setFileCategory] = useState('')
   const [subCategory, setSubCategory] = useState('')
+  const [executionOrder, setExecutionOrder] = useState<number | null>(null)
   const [description, setDescription] = useState('')
 
-  // 카테고리 코드 조회
-  const { data: categories = [] } = useCodesByType(CODE_TYPE.RESOURCE_FILE_CATEGORY)
-
-  // 서브카테고리 동적 조회 (SCRIPT -> RESOURCE_SUBCATEGORY_SCRIPT, DOCUMENT -> RESOURCE_SUBCATEGORY_DOCUMENT)
-  const subCategoryCodeType = fileCategory === 'SCRIPT'
-    ? CODE_TYPE.RESOURCE_SUBCATEGORY_SCRIPT
-    : fileCategory === 'DOCUMENT'
-      ? CODE_TYPE.RESOURCE_SUBCATEGORY_DOCUMENT
-      : null
-  const { data: subCategories = [] } = useCodesByType(subCategoryCodeType as string)
-
-  const handleCategoryChange = (value: string) => {
-    setFileCategory(value)
-    setSubCategory('') // 카테고리 변경 시 서브카테고리 초기화
-  }
+  // 파일 카테고리 코드 조회 (DATABASE, WEB, ENGINE, ETC)
+  const { data: categories = [] } = useCodesByType(CODE_TYPE.FILE_CATEGORY)
 
   const handleClose = () => {
-    setResourceFileName('')
+    setReleaseVersionId(null)
     setFileCategory('')
     setSubCategory('')
+    setExecutionOrder(null)
     setDescription('')
     onOpenChange(false)
   }
@@ -72,11 +61,12 @@ export function ResourceRegisterSheet({
     e.preventDefault()
     if (!item) return
 
-    const data: ResourceRegisterItem = {
+    const data: ReleaseRegisterItem = {
       id: item.id,
-      ...(resourceFileName.trim() && { resourceFileName: resourceFileName.trim() }),
+      ...(releaseVersionId !== null && { releaseVersionId }),
       ...(fileCategory && { fileCategory }),
-      ...(subCategory && { subCategory }),
+      ...(subCategory.trim() && { subCategory: subCategory.trim() }),
+      ...(executionOrder !== null && { executionOrder }),
       ...(description.trim() && { description: description.trim() }),
     }
 
@@ -85,14 +75,14 @@ export function ResourceRegisterSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[450px] sm:max-w-[450px]">
+      <SheetContent className="w-[500px] sm:max-w-[500px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            리소스 파일 등록
+            <FileArchive className="h-5 w-5" />
+            릴리즈 파일 등록
           </SheetTitle>
           <SheetDescription>
-            파일을 리소스로 등록합니다. 추가 정보를 입력하세요.
+            파일을 릴리즈로 등록합니다. 추가 정보를 입력하세요.
           </SheetDescription>
         </SheetHeader>
 
@@ -111,46 +101,65 @@ export function ResourceRegisterSheet({
               </div>
             )}
 
-            {/* 대분류 */}
+            {/* 버전 ID */}
             <div className="space-y-2">
-              <Label>대분류</Label>
+              <Label>버전 ID</Label>
+              <Input
+                type="number"
+                value={releaseVersionId !== null ? releaseVersionId : ''}
+                onChange={(e) =>
+                  setReleaseVersionId(e.target.value ? Number(e.target.value) : null)
+                }
+                placeholder="버전 ID (선택, 자동 추론 가능)"
+              />
+              <p className="text-xs text-muted-foreground">
+                미입력 시 파일 경로에서 자동 추론됩니다.
+              </p>
+            </div>
+
+            {/* 파일 카테고리 */}
+            <div className="space-y-2">
+              <Label>파일 카테고리</Label>
               <Combobox
                 options={categories.map((cat: CodeSimpleResponse) => ({
                   value: cat.value,
                   label: cat.name,
                 }))}
                 value={fileCategory}
-                onValueChange={handleCategoryChange}
-                placeholder="대분류를 선택하세요 (선택)"
-                searchPlaceholder="대분류 검색..."
+                onValueChange={setFileCategory}
+                placeholder="카테고리 선택 (선택)"
+                searchPlaceholder="카테고리 검색..."
+              />
+              <p className="text-xs text-muted-foreground">
+                DATABASE, WEB, ENGINE, ETC 등 파일 분류
+              </p>
+            </div>
+
+            {/* 서브 카테고리 */}
+            <div className="space-y-2">
+              <Label>서브 카테고리</Label>
+              <Input
+                value={subCategory}
+                onChange={(e) => setSubCategory(e.target.value)}
+                placeholder="서브 카테고리 (선택)"
               />
             </div>
 
-            {/* 소분류 */}
-            {subCategories.length > 0 && (
-              <div className="space-y-2">
-                <Label>소분류</Label>
-                <Combobox
-                  options={subCategories.map((cat: CodeSimpleResponse) => ({
-                    value: cat.value,
-                    label: cat.name,
-                  }))}
-                  value={subCategory}
-                  onValueChange={setSubCategory}
-                  placeholder="소분류를 선택하세요 (선택)"
-                  searchPlaceholder="소분류 검색..."
-                />
-              </div>
-            )}
-
-            {/* 리소스명 */}
+            {/* 실행 순서 */}
             <div className="space-y-2">
-              <Label>리소스명</Label>
+              <Label>실행 순서</Label>
               <Input
-                value={resourceFileName}
-                onChange={(e) => setResourceFileName(e.target.value)}
-                placeholder="리소스 이름 (선택, 미입력시 파일명 사용)"
+                type="number"
+                value={executionOrder !== null ? executionOrder : ''}
+                onChange={(e) =>
+                  setExecutionOrder(e.target.value ? Number(e.target.value) : null)
+                }
+                placeholder="실행 순서 (선택, 기본값: 99)"
+                min={1}
               />
+              <p className="text-xs text-muted-foreground">
+                데이터베이스 스크립트 실행 순서 (숫자가 작을수록 먼저 실행)
+              </p>
             </div>
 
             {/* 설명 */}
@@ -159,7 +168,7 @@ export function ResourceRegisterSheet({
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="리소스에 대한 설명 (선택)"
+                placeholder="릴리즈 파일에 대한 설명 (선택)"
               />
             </div>
 
@@ -186,7 +195,7 @@ export function ResourceRegisterSheet({
                   </>
                 ) : (
                   <>
-                    <Upload className="h-4 w-4 mr-2" />
+                    <FileArchive className="h-4 w-4 mr-2" />
                     등록
                   </>
                 )}
@@ -198,3 +207,4 @@ export function ResourceRegisterSheet({
     </Sheet>
   )
 }
+

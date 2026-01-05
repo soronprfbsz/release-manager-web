@@ -1,5 +1,5 @@
 /**
- * Backup Logs Sheet Component
+ * Backup Logs Form Component
  * 백업 파일 로그 목록 조회 Sheet
  */
 
@@ -18,7 +18,7 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 
-interface BackupLogsDialogProps {
+interface BackupLogsFormProps {
   isOpen: boolean
   fileName: string
   logFiles: LogFile[]
@@ -29,7 +29,7 @@ interface BackupLogsDialogProps {
   onClose: () => void
 }
 
-export function BackupLogsDialog({
+export function BackupLogsForm({
   isOpen,
   fileName,
   logFiles,
@@ -38,7 +38,7 @@ export function BackupLogsDialog({
   onLogClick,
   onLogDownload,
   onClose,
-}: BackupLogsDialogProps) {
+}: BackupLogsFormProps) {
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="w-[600px] sm:max-w-[600px]">
@@ -108,3 +108,4 @@ export function BackupLogsDialog({
     </Sheet>
   )
 }
+
