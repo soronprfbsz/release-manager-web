@@ -29,7 +29,7 @@ interface SelectedState {
   version: string
   isHotfix: boolean
   customerCode: string
-  baseVersion: string | null
+  customBaseVersion: string | null
 }
 
 export function CustomReleasePage() {
@@ -91,7 +91,7 @@ export function CustomReleasePage() {
       version: info.version,
       isHotfix: info.isHotfix,
       customerCode: info.customerCode,
-      baseVersion: info.baseVersion
+      customBaseVersion: info.customBaseVersion
     })
   }
 
@@ -227,7 +227,7 @@ export function CustomReleasePage() {
                   version={selectedVersion}
                   isHotfix={selectedState?.isHotfix}
                   onDelete={handleDeleteSuccess}
-                  baseVersion={selectedState?.baseVersion}
+                  baseVersion={selectedState?.customBaseVersion}
                 />
               </ScrollArea>
             </CardContent>

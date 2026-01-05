@@ -519,8 +519,8 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
           open={hotfixDialogOpen}
           onOpenChange={setHotfixDialogOpen}
           projectId={projectId}
-          parentVersionId={version.versionId}
-          parentVersion={version.version}
+          hotfixBaseVersionId={version.versionId}
+          hotfixBaseVersion={version.version}
           onSuccess={onDelete}
         />
       )}

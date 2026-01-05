@@ -39,7 +39,7 @@ export interface SelectedCustomVersionInfo {
   version: string
   isHotfix: boolean
   customerCode: string
-  baseVersion: string | null
+  customBaseVersion: string | null
 }
 
 interface CustomReleaseTreeProps {
@@ -212,7 +212,7 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
                                       version: version.version,
                                       isHotfix: false,
                                       customerCode: customer.customerCode,
-                                      baseVersion: customer.baseVersion
+                                      customBaseVersion: customer.customBaseVersion
                                     })}
                                     className={cn(
                                       'flex items-center gap-2 flex-1 px-2 py-1.5 rounded-md text-left text-sm',
@@ -260,7 +260,7 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
                                           version: hotfix.fullVersion,
                                           isHotfix: true,
                                           customerCode: customer.customerCode,
-                                          baseVersion: customer.baseVersion
+                                          customBaseVersion: customer.customBaseVersion
                                         })}
                                         className={cn(
                                           'flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left text-sm',

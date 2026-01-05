@@ -110,8 +110,8 @@ export interface CustomerReleaseNode {
   customerId: number
   customerCode: string
   customerName: string
-  baseVersionId: number | null
-  baseVersion: string | null
+  customBaseVersionId: number | null
+  customBaseVersion: string | null
   majorMinorGroups: MajorMinorNode[]
 }
 

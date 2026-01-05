@@ -39,7 +39,7 @@ interface CustomVersionCreateFormProps {
 export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: CustomVersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
   const [customerId, setCustomerId] = useState<number | null>(null)
-  const [baseVersionId, setBaseVersionId] = useState<number | null>(null)
+  const [customBaseVersionId, setCustomBaseVersionId] = useState<number | null>(null)
   const [customVersion, setCustomVersion] = useState('')
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -104,7 +104,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
         comment,
         file!,
         isApproved,
-        isFirstVersionForCustomer && baseVersionId ? baseVersionId : undefined,
+        isFirstVersionForCustomer && customBaseVersionId ? customBaseVersionId : undefined,
         progressHandler
       )
       completeTransfer()
@@ -129,7 +129,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
 
   const handleClose = () => {
     setCustomerId(null)
-    setBaseVersionId(null)
+    setCustomBaseVersionId(null)
     setCustomVersion('')
     setComment('')
     setFile(null)
@@ -151,7 +151,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
       return
     }
 
-    if (isFirstVersionForCustomer && !baseVersionId) {
+    if (isFirstVersionForCustomer && !customBaseVersionId) {
       toast({
         title: '입력 오류',
         description: '최초 버전 생성 시 표준본 버전(Base Version)을 선택해주세요.',
@@ -373,7 +373,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
                 value={customerId ? String(customerId) : ''}
                 onValueChange={(value) => {
                   setCustomerId(value ? Number(value) : null)
-                  setBaseVersionId(null) // 고객사 변경 시 baseVersionId 초기화
+                  setCustomBaseVersionId(null) // 고객사 변경 시 customBaseVersionId 초기화
                 }}
                 placeholder="고객사를 선택하세요"
                 searchPlaceholder="고객사 검색..."
@@ -383,7 +383,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
             {/* 표준본 버전 선택 (최초 버전 생성 시에만 표시) */}
             {customerId && isFirstVersionForCustomer && (
               <div className="space-y-2">
-                <Label htmlFor="baseVersionId" required>
+                <Label htmlFor="customBaseVersionId" required>
                   표준본 버전 (Base Version)
                 </Label>
                 <Combobox
@@ -391,8 +391,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
                     value: String(sv.versionId),
                     label: `${sv.version}${!sv.isApproved ? ' (승인되지 않음)' : ''}`,
                   }))}
-                  value={baseVersionId ? String(baseVersionId) : ''}
-                  onValueChange={(value) => setBaseVersionId(value ? Number(value) : null)}
+                  value={customBaseVersionId ? String(customBaseVersionId) : ''}
+                  onValueChange={(value) => setCustomBaseVersionId(value ? Number(value) : null)}
                   placeholder="기준이 될 표준본 버전을 선택하세요"
                   searchPlaceholder="표준본 버전 검색..."
                 />

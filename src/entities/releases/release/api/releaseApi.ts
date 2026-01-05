@@ -112,7 +112,7 @@ export const releaseApi = {
     comment: string,
     patchFiles: File,
     isApproved?: boolean,
-    baseVersionId?: number,
+    customBaseVersionId?: number,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<void> => {
     const formData = new FormData()
@@ -124,8 +124,8 @@ export const releaseApi = {
     if (isApproved !== undefined) {
       formData.append('isApproved', String(isApproved))
     }
-    if (baseVersionId !== undefined) {
-      formData.append('baseVersionId', String(baseVersionId))
+    if (customBaseVersionId !== undefined) {
+      formData.append('customBaseVersionId', String(customBaseVersionId))
     }
 
     await apiClient.upload(ENDPOINTS.createCustomVersion, formData, {
@@ -164,19 +164,19 @@ export const releaseApi = {
   /** 핫픽스 생성 (multipart/form-data) */
   createHotfix: async (
     projectId: string,
-    parentVersionId: number,
+    hotfixBaseVersionId: number,
     comment: string,
     patchFiles: File,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<ReleaseVersionDetail> => {
     const formData = new FormData()
     formData.append('projectId', projectId)
-    formData.append('parentVersionId', String(parentVersionId))
+    formData.append('hotfixBaseVersionId', String(hotfixBaseVersionId))
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
 
     const response = await apiClient.upload<ReleaseVersionDetail>(
-      ENDPOINTS.createHotfix(parentVersionId),
+      ENDPOINTS.createHotfix(hotfixBaseVersionId),
       formData,
       {
         onUploadProgress,

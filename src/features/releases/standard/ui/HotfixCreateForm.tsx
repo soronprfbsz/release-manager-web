@@ -21,8 +21,8 @@ interface HotfixCreateFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   projectId: string
-  parentVersionId: number
-  parentVersion: string
+  hotfixBaseVersionId: number
+  hotfixBaseVersion: string
   onSuccess?: () => void
 }
 
@@ -30,8 +30,8 @@ export function HotfixCreateForm({
   open,
   onOpenChange,
   projectId,
-  parentVersionId,
-  parentVersion,
+  hotfixBaseVersionId,
+  hotfixBaseVersion,
   onSuccess,
 }: HotfixCreateFormProps) {
   const { toast } = useToast()
@@ -139,7 +139,7 @@ export function HotfixCreateForm({
       
       await releaseApi.createHotfix(
         projectId,
-        parentVersionId,
+        hotfixBaseVersionId,
         comment,
         selectedFile,
         (progressEvent) => {
@@ -157,7 +157,7 @@ export function HotfixCreateForm({
       completeTransfer()
       toast({
         title: '핫픽스 생성 완료',
-        description: `${parentVersion}의 핫픽스가 생성되었습니다.`,
+        description: `${hotfixBaseVersion}의 핫픽스가 생성되었습니다.`,
       })
 
       resetForm()
@@ -184,7 +184,7 @@ export function HotfixCreateForm({
             핫픽스 생성
           </SheetTitle>
           <SheetDescription>
-            버전 <strong>{parentVersion}</strong>의 핫픽스를 생성합니다.
+            버전 <strong>{hotfixBaseVersion}</strong>의 핫픽스를 생성합니다.
           </SheetDescription>
         </SheetHeader>
 
@@ -211,7 +211,7 @@ export function HotfixCreateForm({
               <Label>대상 버전</Label>
               <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
                 <Flame className="h-4 w-4 text-orange-500" />
-                <span className="font-medium">{parentVersion}</span>
+                <span className="font-medium">{hotfixBaseVersion}</span>
               </div>
             </div>
 
