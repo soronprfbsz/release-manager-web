@@ -199,7 +199,7 @@ export function HotfixCreateForm({
                   <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
                   <li>가급적 <strong className="text-foreground">핫픽스 대신 패치 관리 기능을 통한 패치 방법을 권장합니다.</strong> 버전업을 거부하는 고객사 등 특수한 경우에만 사용해주세요.</li>                  
                   <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면, 
-                  해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주셔야 합니다.</li>                  
+                  해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>                  
                   
                 </ul>
               </div>
