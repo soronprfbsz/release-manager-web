@@ -24,15 +24,6 @@ interface CustomerFiltersProps {
 export function CustomerFilters({ filters, onFiltersChange }: CustomerFiltersProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          value={filters.keyword}
-          onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
-          placeholder="검색..."
-          className="pl-8 h-8 w-[180px] text-sm"
-        />
-      </div>
       <Select
         value={filters.isActive}
         onValueChange={(value: 'all' | 'true' | 'false') =>
@@ -48,6 +39,15 @@ export function CustomerFilters({ filters, onFiltersChange }: CustomerFiltersPro
           <SelectItem value="false">비활성</SelectItem>
         </SelectContent>
       </Select>
+      <div className="relative">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={filters.keyword}
+          onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
+          placeholder="검색..."
+          className="pl-8 h-8 w-[180px] text-sm"
+        />
+      </div>
     </div>
   )
 }
