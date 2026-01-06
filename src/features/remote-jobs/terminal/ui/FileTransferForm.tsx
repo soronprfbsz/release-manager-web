@@ -3,15 +3,16 @@
  * SSH 연결을 통한 파일 업로드 및 패치 배포
  */
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Upload, X, FileArchive, Loader2, FileUp, Package } from 'lucide-react'
+import { Loader2, FileUp, Package } from 'lucide-react'
 
 import { terminalApi } from '@/entities/remote-jobs/terminal'
 import { usePatches, type CumulativePatch } from '@/entities/patches/patch'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
+import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -38,6 +39,8 @@ interface FileTransferFormProps {
   isConnected: boolean
 }
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024 // 10GB
+
 export function FileTransferForm({
   open,
   onOpenChange,
@@ -51,8 +54,6 @@ export function FileTransferForm({
   // File Upload Tab State
   const [remotePath, setRemotePath] = useState('')
   const [file, setFile] = useState<File | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadCompleted, setUploadCompleted] = useState(false)
 
   const { toast } = useToast()
@@ -202,75 +203,15 @@ export function FileTransferForm({
       return
     }
 
-    const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
-    if (file.size > maxSize) {
-      toast({
-        title: '파일 크기 초과',
-        description: '파일 크기는 10GB를 초과할 수 없습니다.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     uploadMutation.mutate()
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
-      if (selectedFile.size > maxSize) {
-        toast({
-          title: '파일 크기 초과',
-          description: '파일 크기는 10GB를 초과할 수 없습니다.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      setFile(selectedFile)
-    }
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-
-    const droppedFile = e.dataTransfer.files[0]
-    if (droppedFile) {
-      const maxSize = 10 * 1024 * 1024 * 1024 // 10GB
-      if (droppedFile.size > maxSize) {
-        toast({
-          title: '파일 크기 초과',
-          description: '파일 크기는 10GB를 초과할 수 없습니다.',
-          variant: 'destructive',
-        })
-        return
-      }
-
-      setFile(droppedFile)
-    }
-  }
-
-  const handleRemoveFile = () => {
-    setFile(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
-
-  const handleClickUploadArea = () => {
-    fileInputRef.current?.click()
+  const handleFileError = (message: string) => {
+    toast({
+      title: '파일 오류',
+      description: message,
+      variant: 'destructive',
+    })
   }
 
   if (!isConnected || !shellSessionId) return null
@@ -299,7 +240,7 @@ export function FileTransferForm({
               value="file"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
             >
-              <Upload className="w-4 h-4 mr-2" />
+              <FileUp className="w-4 h-4 mr-2" />
               파일 업로드
             </TabsTrigger>
           </TabsList>
@@ -385,79 +326,16 @@ export function FileTransferForm({
             <ScrollArea className="h-[calc(100vh-280px)] pr-4">
               <form onSubmit={handleFileUploadSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="file" required>
-                    파일 선택
-                  </Label>
-                  <input
-                    ref={fileInputRef}
-                    id="file"
-                    type="file"
-                    onChange={handleFileChange}
-                    className="hidden"
+                  <Label required>파일 선택</Label>
+                  <FileDropzone
+                    file={file}
+                    onFileChange={setFile}
+                    maxSize={MAX_FILE_SIZE}
+                    onError={handleFileError}
+                    disabled={uploadMutation.isPending}
+                    heightClass="h-32"
+                    hint="최대 파일 크기: 10GB"
                   />
-
-                  {!file ? (
-                    <div
-                      onClick={handleClickUploadArea}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      className={`
-                        border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-                        transition-colors duration-200
-                        ${isDragging
-                          ? 'border-primary bg-primary/5'
-                          : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
-                        }
-                      `}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <div
-                          className={`
-                          rounded-full p-3
-                          ${isDragging ? 'bg-primary/10' : 'bg-muted'}
-                        `}
-                        >
-                          <Upload
-                            className={`h-6 w-6 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`}
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">
-                            {isDragging
-                              ? '파일을 여기에 놓아주세요'
-                              : '파일을 여기에 끌어다 놓거나 클릭하여 선택하세요'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">최대 파일 크기: 10GB</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="border rounded-lg p-4 bg-muted/50">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="rounded-md p-2 bg-primary/10">
-                            <FileArchive className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{file.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(file.size / (1024 * 1024)).toFixed(2)} MB
-                            </p>
-                          </div>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleRemoveFile}
-                          className="flex-shrink-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -508,4 +386,3 @@ export function FileTransferForm({
     </Sheet>
   )
 }
-

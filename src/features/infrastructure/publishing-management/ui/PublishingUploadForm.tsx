@@ -1,0 +1,289 @@
+/**
+ * Publishing Upload Form Component
+ * 퍼블리싱 업로드 폼 컴포넌트
+ */
+
+import { FileArchive, Loader2, Upload, AlertTriangle } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import { customerApi } from '@/entities/operations'
+import { useToast } from '@/shared/lib/hooks/use-toast'
+import { Button } from '@/shared/ui/button'
+import { Combobox } from '@/shared/ui/combobox'
+import { FileDropzone } from '@/shared/ui/file-dropzone'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/shared/ui/sheet'
+import { Textarea } from '@/shared/ui/textarea'
+
+import type { PublishingUploadFormData } from '../model/types'
+
+interface PublishingUploadFormProps {
+  isOpen: boolean
+  formData: PublishingUploadFormData
+  uploadProgress: number
+  isUploading: boolean
+  onFormDataChange: (data: PublishingUploadFormData) => void
+  onSubmit: () => void
+  onClose: () => void
+}
+
+export function PublishingUploadForm({
+  isOpen,
+  formData,
+  uploadProgress,
+  isUploading,
+  onFormDataChange,
+  onSubmit,
+  onClose,
+}: PublishingUploadFormProps) {
+  const { toast } = useToast()
+
+  // Fetch Categories from API
+  const { data: categoryList = [] } = useCodesByType(CODE_TYPE.PUBLISHING_CATEGORY)
+
+  // Fetch Customers
+  const { data: customersData } = useQuery({
+    queryKey: ['customers-active'],
+    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
+    enabled: isOpen,
+  })
+  const customers = customersData?.content || []
+
+  // Get subcategory code type based on selected category
+  const getSubCategoryCodeType = (category: string) => {
+    switch (category) {
+      case 'INFRAEYE1':
+        return CODE_TYPE.PUBLISHING_SUBCATEGORY_INFRAEYE1
+      case 'INFRAEYE2':
+        return CODE_TYPE.PUBLISHING_SUBCATEGORY_INFRAEYE2
+      case 'COMMON':
+        return CODE_TYPE.PUBLISHING_SUBCATEGORY_COMMON
+      default:
+        return ''
+    }
+  }
+
+  const subCategoryCodeType = getSubCategoryCodeType(formData.publishingCategory)
+  const { data: subCategoryList = [] } = useCodesByType(subCategoryCodeType, {
+    enabled: !!formData.publishingCategory && !!subCategoryCodeType,
+  })
+
+  const handleCategoryChange = (value: string) => {
+    onFormDataChange({
+      ...formData,
+      publishingCategory: value,
+      subCategory: '', // Reset subcategory when category changes
+    })
+  }
+
+  const handleFileError = (message: string) => {
+    toast({
+      title: '파일 오류',
+      description: message,
+      variant: 'destructive',
+    })
+  }
+
+  return (
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent className="w-[400px] sm:max-w-[400px]">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            퍼블리싱 추가
+          </SheetTitle>
+          <SheetDescription>HTML, CSS, 이미지 등이 포함된 ZIP 파일을 업로드합니다.</SheetDescription>
+        </SheetHeader>
+
+        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+          <div className="space-y-5">
+            {/* Info Box */}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium text-foreground mb-1">ZIP 파일 요구사항</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>index.html 파일이 루트에 있어야 합니다</li>
+                  <li>CSS, JS, 이미지 등은 상대 경로로 참조</li>
+                  <li>외부 리소스 참조 시 CORS 주의</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Publishing Name Input */}
+            <div className="space-y-2">
+              <Label required>퍼블리싱명</Label>
+              <Input
+                value={formData.publishingName}
+                onChange={(e) =>
+                  onFormDataChange({ ...formData, publishingName: e.target.value })
+                }
+                placeholder="예: 대시보드 v1.0"
+              />
+            </div>
+
+            {/* Category Select */}
+            <div className="space-y-2">
+              <Label required>카테고리</Label>
+              <Select onValueChange={handleCategoryChange} value={formData.publishingCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="카테고리를 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryList.map((code) => (
+                    <SelectItem key={code.value} value={code.value}>{code.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sub Category Select */}
+            {formData.publishingCategory && (
+              <div className="space-y-2">
+                <Label>서브 카테고리</Label>
+                <Select
+                  onValueChange={(value) =>
+                    onFormDataChange({ ...formData, subCategory: value })
+                  }
+                  value={formData.subCategory || ''}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="서브 카테고리를 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subCategoryList.length > 0 ? (
+                      subCategoryList.map((code) => (
+                        <SelectItem key={code.value} value={code.value}>{code.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>등록된 서브 카테고리가 없습니다</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Customer Select */}
+            <div className="space-y-2">
+              <Label>고객사</Label>
+              <Combobox
+                options={[
+                  { value: '__none__', label: '선택 안함' },
+                  ...customers.map((c) => ({
+                    value: String(c.customerId),
+                    label: `${c.customerName} (${c.customerCode})`,
+                  })),
+                ]}
+                value={formData.customerId ? String(formData.customerId) : '__none__'}
+                onValueChange={(value) =>
+                  onFormDataChange({
+                    ...formData,
+                    customerId: value === '__none__' || !value ? null : Number(value),
+                  })
+                }
+                placeholder="선택 안함"
+                searchPlaceholder="고객사 검색..."
+              />
+              <p className="text-xs text-muted-foreground">
+                고객사를 선택하면 해당 고객사 전용 퍼블리싱으로 설정됩니다.
+              </p>
+            </div>
+
+            {/* File Select with Drag & Drop */}
+            <div className="space-y-2">
+              <Label required>ZIP 파일</Label>
+              <FileDropzone
+                file={formData.file}
+                onFileChange={(file) => onFormDataChange({ ...formData, file })}
+                accept={['.zip']}
+                onError={handleFileError}
+                disabled={isUploading}
+                icon={<FileArchive className="h-6 w-6 text-muted-foreground" />}
+                hint="ZIP 파일만 지원"
+              />
+            </div>
+
+            {/* Description Input */}
+            <div className="space-y-2">
+              <Label>설명</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) =>
+                  onFormDataChange({ ...formData, description: e.target.value })
+                }
+                placeholder="퍼블리싱에 대한 상세 설명을 입력하세요"
+                rows={3}
+              />
+            </div>
+
+            {/* Upload Progress */}
+            {isUploading && uploadProgress > 0 && (
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>업로드 중...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isUploading}
+                className="flex-1"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={onSubmit}
+                disabled={
+                  isUploading ||
+                  !formData.file ||
+                  !formData.publishingCategory ||
+                  !formData.publishingName.trim()
+                }
+                className="flex-1"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    업로드 중...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    업로드
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
+  )
+}

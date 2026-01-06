@@ -21,7 +21,6 @@ export interface ServiceComponent {
   sshPort: number | null
   description: string | null
   sortOrder: number
-  isActive: boolean
 }
 
 /**
@@ -33,7 +32,6 @@ export interface Service {
   serviceType: ServiceType
   serviceTypeName: string
   description: string | null
-  isActive: boolean
   components: ServiceComponent[]
   createdAt: string
   createdBy: string
@@ -53,7 +51,6 @@ export interface ComponentRequest {
   sshPort?: number
   description?: string
   sortOrder?: number
-  isActive?: boolean
 }
 
 /**
@@ -73,5 +70,4 @@ export interface ServiceUpdateRequest {
   serviceName?: string
   serviceType?: ServiceType
   description?: string
-  isActive?: boolean
 }

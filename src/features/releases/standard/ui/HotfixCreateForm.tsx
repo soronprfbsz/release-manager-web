@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 
-import { Upload, FileArchive, X, Flame, Loader2, AlertTriangle } from 'lucide-react'
+import { Flame, Loader2, AlertTriangle } from 'lucide-react'
 
 import { useEngineers, type Engineer } from '@/entities/operations'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
 import { Combobox } from '@/shared/ui/combobox'
+import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
@@ -38,7 +38,6 @@ export function HotfixCreateForm({
   onSuccess,
 }: HotfixCreateFormProps) {
   const { toast } = useToast()
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   
   const [comment, setComment] = useState('')
@@ -46,7 +45,6 @@ export function HotfixCreateForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
-  const [isDragOver, setIsDragOver] = useState(false)
 
   // 엔지니어 목록 조회
   const { data: engineersResponse } = useEngineers()
@@ -68,53 +66,12 @@ export function HotfixCreateForm({
     }
   }
 
-  const handleFileSelect = (file: File) => {
-    if (!file.name.toLowerCase().endsWith('.zip')) {
-      toast({
-        title: '파일 형식 오류',
-        description: 'ZIP 파일만 업로드할 수 있습니다.',
-        variant: 'destructive',
-      })
-      return
-    }
-    setSelectedFile(file)
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-    const file = e.dataTransfer.files[0]
-    if (file) {
-      handleFileSelect(file)
-    }
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(true)
-  }
-
-  const handleDragLeave = () => {
-    setIsDragOver(false)
-  }
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      handleFileSelect(file)
-    }
-  }
-
-  const handleRemoveFile = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setSelectedFile(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
-
-  const handleClickUploadArea = () => {
-    fileInputRef.current?.click()
+  const handleFileError = (message: string) => {
+    toast({
+      title: '파일 오류',
+      description: message,
+      variant: 'destructive',
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -267,57 +224,17 @@ export function HotfixCreateForm({
             {/* 파일 업로드 */}
             <div className="space-y-2">
               <Label>
-                핫픽스 파일 (ZIP) <span className="text-destructive">*</span>
+                핫픽스 파일 <span className="text-destructive">*</span>
               </Label>
-              <div
-                className={`
-                  border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
-                  transition-colors
-                  ${isDragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'}
-                  ${isUploading ? 'pointer-events-none opacity-50' : ''}
-                `}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onClick={handleClickUploadArea}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".zip"
-                  className="hidden"
-                  onChange={handleFileInputChange}
-                  disabled={isUploading}
-                />
-                
-                {selectedFile ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <FileArchive className="h-6 w-6 text-primary" />
-                    <div className="text-left">
-                      <p className="text-sm font-medium">{selectedFile.name}</p>
-                      <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 ml-2"
-                      onClick={handleRemoveFile}
-                      disabled={isUploading}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">클릭하거나 파일을 드래그하세요</p>
-                      <p className="text-xs text-muted-foreground">ZIP 파일만 지원됩니다</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <FileDropzone
+                file={selectedFile}
+                onFileChange={setSelectedFile}
+                accept={['.zip']}
+                onError={handleFileError}
+                disabled={isUploading}
+                heightClass="h-28"
+                hint="ZIP 파일만 지원"
+              />
             </div>
 
             {/* 버튼 영역 */}
@@ -352,4 +269,3 @@ export function HotfixCreateForm({
     </Sheet>
   )
 }
-

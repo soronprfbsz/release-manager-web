@@ -14,11 +14,10 @@ interface ComponentListProps {
 }
 
 export function ComponentList({ components, maxDisplay = 3 }: ComponentListProps) {
-  const activeComponents = components.filter((c) => c.isActive)
-  const displayComponents = activeComponents.slice(0, maxDisplay)
-  const remainingCount = activeComponents.length - maxDisplay
+  const displayComponents = components.slice(0, maxDisplay)
+  const remainingCount = components.length - maxDisplay
 
-  if (activeComponents.length === 0) {
+  if (components.length === 0) {
     return (
       <div className="text-sm text-muted-foreground italic">
         등록된 컴포넌트가 없습니다.

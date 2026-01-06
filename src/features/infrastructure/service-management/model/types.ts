@@ -13,7 +13,6 @@ export interface ServiceFormData {
   serviceName: string
   serviceType: ServiceType | ''
   description: string
-  isActive: boolean
 }
 
 /**
@@ -28,7 +27,6 @@ export interface ComponentFormData {
   url: string
   sshPort: string // String for form
   description: string
-  isActive: boolean
 }
 
 /**

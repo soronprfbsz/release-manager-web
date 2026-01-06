@@ -39,7 +39,6 @@ const INITIAL_SERVICE_FORM: ServiceFormData = {
   serviceName: '',
   serviceType: '',
   description: '',
-  isActive: true,
 }
 
 export interface ServiceTabHandle {
@@ -113,7 +112,6 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
       serviceName: service.serviceName,
       serviceType: service.serviceType,
       description: service.description || '',
-      isActive: service.isActive,
     })
     setEditingService(service)
     setServiceFormMode('edit')
@@ -149,7 +147,6 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
         serviceName: serviceFormData.serviceName,
         serviceType: serviceFormData.serviceType as ServiceUpdateRequest['serviceType'],
         description: serviceFormData.description || undefined,
-        isActive: serviceFormData.isActive,
       }
 
       updateServiceMutation.mutate(
@@ -228,7 +225,6 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
       url: formData.url || undefined,
       sshPort: formData.sshPort ? Number(formData.sshPort) : undefined,
       description: formData.description || undefined,
-      isActive: formData.isActive,
     }
 
     addComponentMutation.mutate(
@@ -255,7 +251,6 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
       url: formData.url || undefined,
       sshPort: formData.sshPort ? Number(formData.sshPort) : undefined,
       description: formData.description || undefined,
-      isActive: formData.isActive,
     }
 
     updateComponentMutation.mutate(

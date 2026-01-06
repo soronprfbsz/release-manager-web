@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Switch } from '@/shared/ui/switch'
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 import type { ServiceFormData, ServiceFormMode } from '../model/types'
 
@@ -96,21 +95,6 @@ export function ServiceForm({
           }
           placeholder="서비스 설명"
           className="min-h-[80px]"
-        />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <Label className="text-sm font-medium">활성화</Label>
-          <p className="text-xs text-muted-foreground">
-            비활성화 시 관리 대상에서 제외됩니다.
-          </p>
-        </div>
-        <Switch
-          checked={formData.isActive}
-          onCheckedChange={(checked) =>
-            onFormDataChange({ ...formData, isActive: checked })
-          }
         />
       </div>
     </FormSheet>

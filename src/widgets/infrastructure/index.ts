@@ -11,3 +11,5 @@ export {
   FileResourceTab,
   type FileResourceTabHandle,
 } from './resource'
+
+export { PublishingFileExplorer } from './publishing-file-explorer'

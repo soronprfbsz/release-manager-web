@@ -6,3 +6,4 @@
 export { ServiceTab, type ServiceTabHandle } from './service-tab'
 export { LinkResourceTab, type LinkResourceTabHandle } from './link-tab'
 export { FileResourceTab, type FileResourceTabHandle } from './file-tab'
+export { PublishingTab, type PublishingTabHandle } from './publishing-tab'

@@ -5,7 +5,7 @@
 
 import { useRef } from 'react'
 
-import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen } from 'lucide-react'
+import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen, Globe } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -15,6 +15,8 @@ import {
   type LinkResourceTabHandle,
   FileResourceTab,
   type FileResourceTabHandle,
+  PublishingTab,
+  type PublishingTabHandle,
 } from '@/widgets/infrastructure/resource'
 
 import { getPageIconById } from '@/shared/config/menu-icons'
@@ -23,7 +25,7 @@ import { PageLayout } from '@/shared/ui/page-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-type TabType = 'services' | 'links' | 'files'
+type TabType = 'services' | 'links' | 'files' | 'publishing'
 
 const TAB_CONFIG = {
   services: {
@@ -41,6 +43,11 @@ const TAB_CONFIG = {
     label: '파일',
     addTooltip: '파일 업로드',
   },
+  publishing: {
+    icon: Globe,
+    label: '퍼블리싱',
+    addTooltip: '퍼블리싱 업로드',
+  },
 } as const
 
 export function ResourcePage() {
@@ -51,6 +58,7 @@ export function ResourcePage() {
   const serviceTabRef = useRef<ServiceTabHandle>(null)
   const linkTabRef = useRef<LinkResourceTabHandle>(null)
   const fileTabRef = useRef<FileResourceTabHandle>(null)
+  const publishingTabRef = useRef<PublishingTabHandle>(null)
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value })
@@ -67,6 +75,9 @@ export function ResourcePage() {
       case 'files':
         fileTabRef.current?.refresh()
         break
+      case 'publishing':
+        publishingTabRef.current?.refresh()
+        break
     }
   }
 
@@ -80,6 +91,9 @@ export function ResourcePage() {
         break
       case 'files':
         fileTabRef.current?.openAddDialog()
+        break
+      case 'publishing':
+        publishingTabRef.current?.openAddDialog()
         break
     }
   }
@@ -144,6 +158,10 @@ export function ResourcePage() {
 
         <TabsContent value="files" className="mt-8">
           <FileResourceTab ref={fileTabRef} />
+        </TabsContent>
+
+        <TabsContent value="publishing" className="mt-8">
+          <PublishingTab ref={publishingTabRef} />
         </TabsContent>
       </Tabs>
     </PageLayout>

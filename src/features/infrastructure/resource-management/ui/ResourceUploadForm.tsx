@@ -3,14 +3,14 @@
  * 리소스 업로드 폼 컴포넌트
  */
 
-import { useRef } from 'react'
-
-import { File, Loader2, Upload, X } from 'lucide-react'
+import { Loader2, Upload } from 'lucide-react'
 
 import type { CodeSimpleResponse } from '@/entities/_shared/code'
 
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Combobox } from '@/shared/ui/combobox'
+import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -22,7 +22,6 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 
-import { formatFileSize } from '../lib/resourceHelpers'
 import type { ResourceUploadFormData } from '../model/types'
 
 interface ResourceUploadFormProps {
@@ -48,20 +47,21 @@ export function ResourceUploadForm({
   onSubmit,
   onClose,
 }: ResourceUploadFormProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      onFormDataChange({ ...formData, file })
-    }
-  }
+  const { toast } = useToast()
 
   const handleFileCategoryChange = (value: string) => {
     onFormDataChange({
       ...formData,
       fileCategory: value,
       subCategory: '', // Reset subcategory when category changes
+    })
+  }
+
+  const handleFileError = (message: string) => {
+    toast({
+      title: '파일 오류',
+      description: message,
+      variant: 'destructive',
     })
   }
 
@@ -112,42 +112,16 @@ export function ResourceUploadForm({
               </div>
             )}
 
-            {/* File Select */}
+            {/* File Select with Drag & Drop */}
             <div className="space-y-2">
               <Label required>파일</Label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={handleFileSelect}
-                className="hidden"
+              <FileDropzone
+                file={formData.file}
+                onFileChange={(file) => onFormDataChange({ ...formData, file })}
+                onError={handleFileError}
+                disabled={isUploading}
+                placeholder="클릭하거나 파일을 드래그하세요"
               />
-              {formData.file ? (
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                  <File className="h-8 w-8 text-muted-foreground" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{formData.file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatFileSize(formData.file.size)}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => onFormDataChange({ ...formData, file: null })}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
-                >
-                  <Upload className="h-6 w-6 text-muted-foreground mb-1" />
-                  <p className="text-sm text-muted-foreground">클릭하여 파일을 선택하세요</p>
-                </div>
-              )}
             </div>
 
             {/* Resource Name Input */}

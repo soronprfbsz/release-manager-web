@@ -42,13 +42,8 @@ export function SortableComponentCard({
   return (
     <div ref={setNodeRef} style={style} className="mb-3 last:mb-0">
       <div
-        className={`border rounded-lg p-4 space-y-3 transition-all duration-200 relative bg-background shadow-sm hover:shadow-md hover:border-primary/50 ${
-          !component.isActive ? 'opacity-60' : ''
-        }`}
+        className="border rounded-lg p-4 space-y-3 transition-all duration-200 relative bg-background shadow-sm hover:shadow-md hover:border-primary/50"
       >
-        {!component.isActive && (
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,hsl(var(--muted))_10px,hsl(var(--muted))_11px)] rounded-lg pointer-events-none opacity-30" />
-        )}
         <div className="flex items-center justify-between gap-2 relative z-10">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {/* 드래그 핸들 */}

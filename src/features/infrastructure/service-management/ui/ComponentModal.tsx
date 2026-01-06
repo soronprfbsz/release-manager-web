@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Switch } from '@/shared/ui/switch'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { validateComponentForm } from '../model/validation'
 import type { ComponentFormData, ComponentFormMode } from '../model/types'
@@ -211,16 +210,6 @@ export function ComponentModal({
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <Label htmlFor="isActive" className="text-base font-medium">활성 상태</Label>
-              <Switch
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={(checked) =>
-                  onFormDataChange({ ...formData, isActive: checked })
-                }
-              />
-            </div>
           </div>
         </ScrollArea>
 

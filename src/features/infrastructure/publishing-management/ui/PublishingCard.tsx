@@ -1,0 +1,167 @@
+/**
+ * Publishing Card Component
+ * 퍼블리싱 카드 컴포넌트
+ */
+
+import { ChevronDown, Download, Edit2, Eye, FileText, FolderOpen } from 'lucide-react'
+
+import { publishingApi, type PublishingListItem } from '@/entities/infrastructure/publishing'
+import { Button } from '@/shared/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
+
+import { getSubCategoryIcon, getSubCategoryLabel } from '../lib/publishingHelpers'
+import { PublishingCardBase } from './PublishingCardBase'
+
+interface PublishingCardProps {
+  publishing: PublishingListItem
+  onDelete: (publishing: PublishingListItem) => void
+  onEdit?: (publishing: PublishingListItem) => void
+  onViewFiles?: (publishing: PublishingListItem) => void
+  dragHandleProps?: any
+  categoryIndex?: number
+}
+
+export function PublishingCard({
+  publishing,
+  onDelete,
+  onEdit,
+  onViewFiles,
+  dragHandleProps,
+  categoryIndex = 0,
+}: PublishingCardProps) {
+  const icon = getSubCategoryIcon(publishing.subCategory)
+  const htmlFiles = publishing.htmlFiles || []
+
+  const handleOpenHtmlFile = (serveUrl: string) => {
+    // API Base URL 추가
+    const fullUrl = `${import.meta.env.VITE_API_BASE_URL || ''}${serveUrl}`
+    window.open(fullUrl, '_blank')
+  }
+
+  const handleDownload = () => {
+    publishingApi.download(publishing.publishingId)
+  }
+
+  // 미리보기 버튼 렌더링
+  const renderPreviewButton = () => {
+    const buttonClass = "flex-1 bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+
+    if (htmlFiles.length === 0) {
+      // HTML 파일이 없으면 비활성화 버튼
+      return (
+        <Button
+          className={buttonClass}
+          disabled
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          미리보기
+        </Button>
+      )
+    }
+
+    if (htmlFiles.length === 1) {
+      // HTML 파일이 1개면 직접 열기
+      return (
+        <Button
+          className={buttonClass}
+          onClick={() => handleOpenHtmlFile(htmlFiles[0].serveUrl)}
+        >
+          <Eye className="h-4 w-4 mr-2" />
+          미리보기
+        </Button>
+      )
+    }
+
+    // HTML 파일이 여러 개면 드롭다운
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            className={buttonClass}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            미리보기
+            <ChevronDown className="h-4 w-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          {htmlFiles.map((htmlFile) => (
+            <DropdownMenuItem
+              key={htmlFile.fileName}
+              onClick={() => handleOpenHtmlFile(htmlFile.serveUrl)}
+              className="cursor-pointer"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              {htmlFile.fileName}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+
+  // 다운로드 버튼 렌더링
+  const renderDownloadButton = () => {
+    return (
+      <Button
+        className="flex-1 bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+        onClick={handleDownload}
+      >
+        <Download className="h-4 w-4 mr-2" />
+        다운로드
+      </Button>
+    )
+  }
+
+  // 액션 버튼 영역 (미리보기 + 다운로드)
+  const renderActionButtons = () => {
+    return (
+      <div className="flex gap-2">
+        {renderPreviewButton()}
+        {renderDownloadButton()}
+      </div>
+    )
+  }
+
+  return (
+    <PublishingCardBase
+      title={publishing.publishingName}
+      subtitle={getSubCategoryLabel(publishing.subCategory)}
+      description={publishing.description}
+      icon={icon}
+      categoryIndex={categoryIndex}
+      dragHandleProps={dragHandleProps}
+      onDelete={() => onDelete(publishing)}
+      headerActions={
+        <div className="flex items-center gap-1">
+          {onViewFiles && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewFiles(publishing)}
+              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          )}
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onEdit(publishing)}
+              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      }
+      actionButton={renderActionButtons()}
+    />
+  )
+}

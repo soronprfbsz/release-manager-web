@@ -28,13 +28,8 @@ export function ServiceCard({
 
   return (
     <Card
-      className={`transition-all duration-200 hover:shadow-md bg-[hsl(var(--header-bg))] border-border hover:border-primary/50 relative ${!service.isActive ? 'bg-muted/30' : ''
-        }`}
+      className="transition-all duration-200 hover:shadow-md bg-[hsl(var(--header-bg))] border-border hover:border-primary/50 relative"
     >
-      {!service.isActive && (
-        <div className="absolute inset-0 bg-muted/50 rounded-lg pointer-events-none" />
-      )}
-
       <CardHeader className="pb-3 relative z-10">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">

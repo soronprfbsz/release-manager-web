@@ -47,33 +47,72 @@ function isPdfFile(fileName: string): boolean {
 function getLanguageFromFileName(fileName: string): string {
   const extension = fileName.toLowerCase().split('.').pop()
   switch (extension) {
-    case 'sql':
-      return 'sql'
-    case 'sh':
-    case 'bash':
-      return 'bash'
-    case 'md':
-      return 'markdown'
+    // Web
+    case 'html':
+    case 'htm':
+      return 'html'
+    case 'css':
+      return 'css'
+    case 'scss':
+      return 'scss'
+    case 'less':
+      return 'less'
+    case 'js':
+    case 'jsx':
+      return 'javascript'
+    case 'ts':
+    case 'tsx':
+      return 'typescript'
+    // Data
     case 'json':
       return 'json'
     case 'xml':
+    case 'svg':
       return 'xml'
     case 'yml':
     case 'yaml':
       return 'yaml'
-    case 'js':
-      return 'javascript'
-    case 'ts':
-      return 'typescript'
-    case 'py':
-      return 'python'
-    case 'java':
-      return 'java'
+    // Database
+    case 'sql':
+      return 'sql'
+    // Shell/Scripts
+    case 'sh':
+    case 'bash':
+      return 'bash'
     case 'bat':
     case 'cmd':
       return 'batch'
     case 'ps1':
       return 'powershell'
+    // Programming
+    case 'py':
+      return 'python'
+    case 'java':
+      return 'java'
+    case 'c':
+      return 'c'
+    case 'cpp':
+    case 'cc':
+    case 'cxx':
+      return 'cpp'
+    case 'cs':
+      return 'csharp'
+    case 'go':
+      return 'go'
+    case 'rs':
+      return 'rust'
+    case 'rb':
+      return 'ruby'
+    case 'php':
+      return 'php'
+    // Markup/Config
+    case 'md':
+    case 'markdown':
+      return 'markdown'
+    case 'ini':
+    case 'conf':
+    case 'properties':
+      return 'ini'
     default:
       return 'text'
   }

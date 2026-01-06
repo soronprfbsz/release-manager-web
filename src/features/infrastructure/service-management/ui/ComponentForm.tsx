@@ -37,7 +37,6 @@ const INITIAL_COMPONENT_FORM: ComponentFormData = {
   url: '',
   sshPort: '',
   description: '',
-  isActive: true,
 }
 
 export function ComponentForm({
@@ -76,7 +75,6 @@ export function ComponentForm({
       url: component.url || '',
       sshPort: component.sshPort ? String(component.sshPort) : '',
       description: component.description || '',
-      isActive: component.isActive,
     })
     setEditingComponentId(component.componentId)
     setFormMode('edit')
