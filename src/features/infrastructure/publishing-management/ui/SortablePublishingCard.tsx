@@ -38,6 +38,7 @@ export function SortablePublishingCard({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    cursor: 'default' as const,
   }
 
   return (

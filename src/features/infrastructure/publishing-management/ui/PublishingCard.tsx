@@ -49,13 +49,12 @@ export function PublishingCard({
 
   // 미리보기 버튼 렌더링
   const renderPreviewButton = () => {
-    const buttonClass = "flex-1 bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
-
     if (htmlFiles.length === 0) {
       // HTML 파일이 없으면 비활성화 버튼
       return (
         <Button
-          className={buttonClass}
+          variant="outline"
+          className="flex-1"
           disabled
         >
           <Eye className="h-4 w-4 mr-2" />
@@ -68,7 +67,8 @@ export function PublishingCard({
       // HTML 파일이 1개면 직접 열기
       return (
         <Button
-          className={buttonClass}
+          variant="outline"
+          className="flex-1"
           onClick={() => handleOpenHtmlFile(htmlFiles[0].serveUrl)}
         >
           <Eye className="h-4 w-4 mr-2" />
@@ -82,7 +82,8 @@ export function PublishingCard({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            className={buttonClass}
+            variant="outline"
+            className="flex-1"
           >
             <Eye className="h-4 w-4 mr-2" />
             미리보기
@@ -109,7 +110,8 @@ export function PublishingCard({
   const renderDownloadButton = () => {
     return (
       <Button
-        className="flex-1 bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground"
+        variant="outline"
+        className="flex-1"
         onClick={handleDownload}
       >
         <Download className="h-4 w-4 mr-2" />

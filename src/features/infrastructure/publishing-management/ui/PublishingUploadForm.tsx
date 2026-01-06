@@ -120,8 +120,6 @@ export function PublishingUploadForm({
                 <p className="font-medium text-foreground mb-1">ZIP 파일 요구사항</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
                   <li>index.html 파일이 루트에 있어야 합니다</li>
-                  <li>CSS, JS, 이미지 등은 상대 경로로 참조</li>
-                  <li>외부 리소스 참조 시 CORS 주의</li>
                 </ul>
               </div>
             </div>
