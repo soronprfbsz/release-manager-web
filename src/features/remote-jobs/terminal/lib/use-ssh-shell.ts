@@ -64,7 +64,17 @@ export function useSshShell(
         if (message.status === 'CONNECTED') {
           setConnected(true)
         } else if (message.status === 'ERROR' || message.status === 'DISCONNECTED') {
-          setConnected(false)
+          // 에러 또는 연결 종료 시 세션 초기화
+          if (session) {
+            clearHistory(session.sessionId)
+          }
+          clearSession()
+          terminalRef.current?.clear()
+          
+          toast({
+            title: '연결 종료',
+            description: 'SSH 연결이 종료되었습니다.',
+          })
         }
         return
       }
@@ -84,12 +94,22 @@ export function useSshShell(
         terminalRef.current.write(output)
       }
     },
-    [terminalRef, setConnected]
+    [terminalRef, setConnected, session, clearHistory, clearSession, toast]
   )
 
   const handleWebSocketDisconnect = useCallback(() => {
-    setConnected(false)
-  }, [setConnected])
+    // WebSocket 연결이 끊어지면 세션도 함께 초기화
+    if (session) {
+      clearHistory(session.sessionId)
+    }
+    clearSession()
+    terminalRef.current?.clear()
+    
+    toast({
+      title: '연결 종료',
+      description: 'SSH 연결이 종료되었습니다.',
+    })
+  }, [session, clearHistory, clearSession, terminalRef, toast])
 
   const handleWebSocketError = useCallback(
     (error: Error) => {
