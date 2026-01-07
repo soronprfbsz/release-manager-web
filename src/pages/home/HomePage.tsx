@@ -1,13 +1,13 @@
 import {
   Package,
-  Layers,
   ArrowRight,
   Calendar,
   User,
   Clock,
   CheckCircle,
   Building2,
-  TrendingUp
+  TrendingUp,
+  Info
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -163,7 +163,7 @@ export function HomePage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Layers className="h-4 w-4 text-green-500" />
+                <Package className="h-4 w-4 text-green-500" />
                 최근 생성 패치
               </CardTitle>
             </CardHeader>
@@ -277,7 +277,7 @@ export function HomePage() {
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
               <div className="p-2 rounded-full bg-primary/10">
-                <Package className="h-5 w-5 text-primary" />
+                <Info className="h-5 w-5 text-primary" />
               </div>
               <div className="space-y-1">
                 <TypographyMuted>1. <strong>버전 관리</strong>에서 릴리즈를 생성 및 관리합니다.</TypographyMuted>

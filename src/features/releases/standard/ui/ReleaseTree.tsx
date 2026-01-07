@@ -44,7 +44,7 @@ function LatestIndicator() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 relative top-[1px]" />
       </TooltipTrigger>
       <TooltipContent side="top" className="text-xs">
         최신 버전
