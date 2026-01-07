@@ -65,10 +65,11 @@ export function isPdfFile(fileName: string): boolean {
 
 /**
  * 파일 확장자로 이미지 파일 여부 확인
+ * SVG는 XML 기반 텍스트 파일이므로 제외 (코드 뷰어로 표시)
  */
 export function isImageFile(fileName: string): boolean {
   const ext = fileName.toLowerCase().split('.').pop()
-  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(ext || '')
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico'].includes(ext || '')
 }
 
 /**
