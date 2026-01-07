@@ -7,14 +7,20 @@ default:
   image: docker:24-cli
 
 variables:
-  # Docker 이미지 설정
+  # App
+  SERVER_NAME: "release-manager-web"
+  SERVER_HOST: "10.110.1.106"
+  SERVER_PORT: "13000"
+  API_SERVER_URL: "http://${SERVER_HOST}:18080"
+
+  # Docker Image
   DOCKER_IMAGE_NAME: "ts/${SERVER_NAME}"
   DOCKER_IMAGE_TAG: "latest"
 
-  # Harbor Registry 설정
+  # Harbor Registry
   HARBOR_IMAGE_NAME: "${HARBOR_REGISTRY}/${HARBOR_PROJECT}/${SERVER_NAME}"
 
-  # Yarn 캐시 설정
+  # Yarn Cache
   YARN_CACHE_FOLDER: "$CI_PROJECT_DIR/.yarn-cache"
 
 stages:
@@ -298,69 +304,3 @@ deploy-main:
   environment:
     name: production
     url: http://${SERVER_HOST}:${SERVER_PORT}
-
-# ========================================
-# Dev 브랜치 전용 Job들
-# ========================================
-
-# build-dev:
-#   extends: .build-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#   tags:
-#     - dev-runner
-#   environment:
-#     name: development
-
-# test-dev:lint:
-#   extends: .test-lint-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#   tags:
-#     - dev-runner
-#   environment:
-#     name: development
-
-# test-dev:type-check:
-#   extends: .test-type-check-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#   tags:
-#     - dev-runner
-#   environment:
-#     name: development
-
-# docker-build-dev:
-#   extends: .docker-build-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#   tags:
-#     - dev-runner
-#   dependencies:
-#     - build-dev
-#   environment:
-#     name: development
-
-# harbor-push-dev:
-#   extends: .harbor-push-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#       when: never  # dev 브랜치는 Harbor push 비활성화      
-#   tags:
-#     - dev-runner
-#   dependencies:
-#     - docker-build-dev
-#   environment:
-#     name: development
-
-# deploy-dev:
-#   extends: .deploy-template
-#   rules:
-#     - if: '$CI_COMMIT_BRANCH == "dev"'
-#   tags:
-#     - dev-runner
-#   dependencies:
-#     - docker-build-dev
-#   environment:
-#     name: development
-#     url: http://${SERVER_HOST}:${SERVER_PORT}

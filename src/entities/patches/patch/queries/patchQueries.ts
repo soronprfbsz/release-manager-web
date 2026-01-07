@@ -25,7 +25,6 @@ export const patchKeys = {
   detail: (id: number) => [...patchKeys.details(), id] as const,
   fileStructure: (id: number) => [...patchKeys.all, 'file-structure', id] as const,
   fileContent: (id: number, path: string) => [...patchKeys.all, 'file-content', id, path] as const,
-  fileBlob: (id: number, path: string) => [...patchKeys.all, 'file-blob', id, path] as const,
   // Custom patch keys
   customCustomers: (projectId: string) => [...patchKeys.all, 'custom-customers', projectId] as const,
   customVersions: (customerId: number, projectId: string) =>
@@ -66,6 +65,7 @@ export const usePatchFileStructure = (
     ...options,
   })
 
+/** 패치 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
 export const usePatchFileContent = (
   patchId: number,
   path: string,
@@ -75,21 +75,6 @@ export const usePatchFileContent = (
   useQuery({
     queryKey: patchKeys.fileContent(patchId, path),
     queryFn: () => patchApi.getFileContent(patchId, path),
-    enabled: enabled && !!patchId && !!path,
-    staleTime: Infinity, // 파일 내용은 변경되지 않음
-    ...options,
-  })
-
-/** 패치 파일 Blob 조회 (PDF 등 바이너리 파일용) */
-export const usePatchFileBlob = (
-  patchId: number,
-  path: string,
-  enabled: boolean = true,
-  options?: Omit<UseQueryOptions<Blob>, 'queryKey' | 'queryFn' | 'enabled'>
-) =>
-  useQuery({
-    queryKey: patchKeys.fileBlob(patchId, path),
-    queryFn: () => patchApi.getFileBlob(patchId, path),
     enabled: enabled && !!patchId && !!path,
     staleTime: Infinity, // 파일 내용은 변경되지 않음
     ...options,

@@ -130,7 +130,7 @@ export function NavigationBar() {
                                         key={child.label}
                                         className={cn(
                                           'col-span-2',
-                                          childIndex > 0 && 'pt-3'
+                                          childIndex > 0 && 'pt-1.5'
                                         )}
                                       >
                                         {/* 섹션 헤더 */}

@@ -17,7 +17,6 @@ export {
   useReorderPublishing,
   usePublishingFileTree,
   usePublishingFileContent,
-  usePublishingFileBlob,
 } from './api/queries'
 
 // Types

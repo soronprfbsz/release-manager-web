@@ -16,6 +16,7 @@ export type {
   CustomerReleaseNode,
   CustomReleaseTreeResponse,
   StandardVersionSimple,
+  ReleaseFileContent,
 } from './model/types'
 
 // API
@@ -31,7 +32,6 @@ export {
   useReleaseVersion,
   useVersionFileStructure,
   useReleaseFileContent,
-  useReleaseFileBlob,
   useCreateVersion,
   useDeleteVersion,
   useApproveVersion,

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame } from 'lucide-react'
 
@@ -6,7 +6,6 @@ import {
   releaseApi,
   useVersionFileStructure,
   useReleaseFileContent,
-  useReleaseFileBlob,
   useDeleteVersion,
   useApproveVersion,
   type ReleaseFileNode,
@@ -17,6 +16,7 @@ import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useProjectStore } from '@/shared/store'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { formatFileSize } from '@/shared/lib/utils/format'
+import { base64ToBlob, base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile } from '@/shared/lib/utils/file-content'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -119,7 +119,9 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
     fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
     fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
     fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env') ||
-    fileName.endsWith('.pdf')
+    fileName.endsWith('.pdf') ||
+    fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') ||
+    fileName.endsWith('.gif') || fileName.endsWith('.webp') || fileName.endsWith('.bmp') || fileName.endsWith('.ico')
 
   return (
     <div
@@ -230,20 +232,39 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
     }
   }
 
-  // PDF 파일 여부 확인
-  const isPdfFile = selectedFile?.name.toLowerCase().endsWith('.pdf') ?? false
+  // PDF/이미지 파일 여부 확인
+  const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
+  const isImageFile = selectedFile ? checkIsImageFile(selectedFile.name) : false
 
-  // 텍스트 파일 내용 조회 (PDF가 아닌 경우)
-  const { data: fileContent, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
+  // 모든 파일 내용 조회 (통합 API 사용)
+  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
     selectedFile?.id ?? 0,
-    fileViewerOpen && selectedFile !== null && !isPdfFile
+    fileViewerOpen && selectedFile !== null
   )
 
-  // PDF 파일 Blob 조회
-  const { data: pdfBlobData, isLoading: isLoadingPdf, error: pdfError } = useReleaseFileBlob(
-    selectedFile?.id ?? 0,
-    fileViewerOpen && selectedFile !== null && isPdfFile
-  )
+  // isBinary가 true이면서 PDF/이미지인 경우 Blob으로 변환
+  const binaryBlob = useMemo(() => {
+    if (!fileContentData?.isBinary || !fileContentData?.content) return null
+    if (!isPdfFile && !isImageFile) return null // PDF/이미지만 Blob 변환
+    return base64ToBlob(fileContentData.content, fileContentData.mimeType)
+  }, [fileContentData, isPdfFile, isImageFile])
+
+  // isBinary가 true이면서 텍스트 파일인 경우 텍스트로 디코딩
+  const decodedTextContent = useMemo(() => {
+    if (!fileContentData?.isBinary || !fileContentData?.content) return null
+    if (isPdfFile || isImageFile) return null // PDF/이미지가 아닌 경우만 텍스트 변환
+    return base64ToText(fileContentData.content)
+  }, [fileContentData, isPdfFile, isImageFile])
+
+  // 바이너리 파일용 데이터 (PDF/이미지)
+  const blobData = binaryBlob
+
+  // 텍스트 콘텐츠 결정: isBinary가 true이면 디코딩된 텍스트, 아니면 원본 content
+  const textContent = useMemo(() => {
+    if (isPdfFile || isImageFile) return null
+    if (fileContentData?.isBinary) return decodedTextContent
+    return fileContentData?.content || null
+  }, [fileContentData, isPdfFile, isImageFile, decodedTextContent])
 
   const handleDownloadSelectedFile = () => {
     if (selectedFile) {
@@ -477,15 +498,18 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
           open={fileViewerOpen}
           onOpenChange={setFileViewerOpen}
           fileName={selectedFile?.name || ''}
-          content={fileContent || null}
-          isLoading={isLoadingContent}
-          error={contentError as Error | null}
+          content={textContent}
+          isLoading={isLoadingContent && !isPdfFile && !isImageFile}
+          error={!isPdfFile && !isImageFile ? (contentError as Error | null) : null}
           description="파일 내용"
           fileSize={selectedFile?.size}
           onDownload={handleDownloadSelectedFile}
-          pdfBlob={pdfBlobData || null}
-          isPdfLoading={isLoadingPdf}
-          pdfError={pdfError as Error | null}
+          pdfBlob={isPdfFile ? blobData : null}
+          isPdfLoading={isPdfFile && isLoadingContent}
+          pdfError={isPdfFile ? (contentError as Error | null) : null}
+          imageBlob={isImageFile ? blobData : null}
+          isImageLoading={isImageFile && isLoadingContent}
+          imageError={isImageFile ? (contentError as Error | null) : null}
         />
       </div>
 

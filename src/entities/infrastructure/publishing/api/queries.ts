@@ -22,7 +22,6 @@ export const publishingKeys = {
   detail: (id: number) => [...publishingKeys.details(), id] as const,
   fileTree: (id: number) => [...publishingKeys.all, 'file-tree', id] as const,
   fileContent: (id: number, path: string) => [...publishingKeys.all, 'file-content', id, path] as const,
-  fileBlob: (id: number, path: string) => [...publishingKeys.all, 'file-blob', id, path] as const,
 }
 
 /** 퍼블리싱 목록 조회 */
@@ -125,7 +124,7 @@ export function usePublishingFileTree(id: number, enabled: boolean = true) {
   })
 }
 
-/** 퍼블리싱 파일 내용 조회 */
+/** 퍼블리싱 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
 export function usePublishingFileContent(
   id: number,
   path: string,
@@ -134,19 +133,6 @@ export function usePublishingFileContent(
   return useQuery({
     queryKey: publishingKeys.fileContent(id, path),
     queryFn: () => publishingApi.getFileContent(id, path),
-    enabled: enabled && !!id && !!path,
-  })
-}
-
-/** 퍼블리싱 파일 Blob 조회 (PDF 등) */
-export function usePublishingFileBlob(
-  id: number,
-  path: string,
-  enabled: boolean = true
-) {
-  return useQuery({
-    queryKey: publishingKeys.fileBlob(id, path),
-    queryFn: () => publishingApi.getFileBlob(id, path),
     enabled: enabled && !!id && !!path,
   })
 }

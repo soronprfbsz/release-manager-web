@@ -25,7 +25,6 @@ export {
   usePatch,
   usePatchFileStructure,
   usePatchFileContent,
-  usePatchFileBlob,
   useCustomPatchCustomers,
   useCustomPatchVersions,
   useGenerateStandardPatch,

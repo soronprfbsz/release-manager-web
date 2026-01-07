@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple, ReleaseFileContent } from '../model/types'
 
 const ENDPOINTS = {
   standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
@@ -11,6 +11,7 @@ const ENDPOINTS = {
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
   fileDownload: (id: number) => `/api/releases/files/${id}/download`,
+  fileContent: (id: number) => `/api/releases/files/${id}/file-content`,
   versionDownload: (id: number) => `/api/releases/versions/${id}/download`,
   createVersion: '/api/releases/versions/standard',
   createCustomVersion: '/api/releases/versions/custom',
@@ -62,20 +63,10 @@ export const releaseApi = {
     document.body.removeChild(link)
   },
 
-  /** 릴리즈 파일 내용 조회 (텍스트) */
-  getFileContent: async (id: number): Promise<string> => {
-    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
-      responseType: 'text',
-    })
-    return response.data
-  },
-
-  /** 릴리즈 파일 내용 조회 (Blob - PDF용) */
-  getFileBlob: async (id: number): Promise<Blob> => {
-    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileDownload(id), {
-      responseType: 'blob',
-    })
-    return response.data
+  /** 릴리즈 파일 내용 조회 (통합 API) */
+  getFileContent: async (id: number): Promise<ReleaseFileContent> => {
+    const response = await apiClient.get<ReleaseFileContent>(ENDPOINTS.fileContent(id))
+    return response
   },
 
   /** 표준 버전 생성 (multipart/form-data) */

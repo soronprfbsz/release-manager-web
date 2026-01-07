@@ -114,17 +114,9 @@ export const publishingApi = {
     return response
   },
 
-  /** 퍼블리싱 파일 내용 조회 */
+  /** 퍼블리싱 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
   getFileContent: async (id: number, path: string): Promise<PublishingFileContent> => {
     const response = await apiClient.get<PublishingFileContent>(ENDPOINTS.fileContent(id, path))
     return response
-  },
-
-  /** 퍼블리싱 파일 Blob 조회 (PDF 등 바이너리 파일용) */
-  getFileBlob: async (id: number, path: string): Promise<Blob> => {
-    const response = await apiClient.getAxiosInstance().get(ENDPOINTS.fileContent(id, path), {
-      responseType: 'blob',
-    })
-    return response.data
   },
 }

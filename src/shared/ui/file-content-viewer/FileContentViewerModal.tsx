@@ -17,7 +17,8 @@ import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 
 // 미리보기 제한 설정
 const PREVIEW_SIZE_LIMIT = 500 * 1024 // 500KB - 미리보기 최대 크기
-const PREVIEW_LINES = 500 // 미리보기 시 표시할 최대 라인 수
+const PREVIEW_LINES_LIMIT = 2000 // 미리보기 최대 라인 수 (이 이상이면 잘라서 표시)
+const PREVIEW_LINES_DISPLAY = 500 // 잘릴 때 표시할 라인 수
 
 interface FileContentViewerModalProps {
   open: boolean
@@ -35,6 +36,12 @@ interface FileContentViewerModalProps {
   isPdfLoading?: boolean
   /** PDF 에러 */
   pdfError?: Error | null
+  /** 이미지 파일용 Blob 데이터 */
+  imageBlob?: Blob | null
+  /** 이미지 로딩 상태 */
+  isImageLoading?: boolean
+  /** 이미지 에러 */
+  imageError?: Error | null
 }
 
 /**
@@ -42,6 +49,14 @@ interface FileContentViewerModalProps {
  */
 function isPdfFile(fileName: string): boolean {
   return fileName.toLowerCase().endsWith('.pdf')
+}
+
+/**
+ * 파일이 이미지인지 확인
+ */
+function isImageFile(fileName: string): boolean {
+  const extension = fileName.toLowerCase().split('.').pop()
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(extension || '')
 }
 
 function getLanguageFromFileName(fileName: string): string {
@@ -137,18 +152,30 @@ export function FileContentViewerModal({
   pdfBlob = null,
   isPdfLoading = false,
   pdfError = null,
+  imageBlob = null,
+  isImageLoading = false,
+  imageError = null,
 }: FileContentViewerModalProps) {
   const language = getLanguageFromFileName(fileName)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
   const theme = useThemeStore((state) => state.theme)
   const isPdf = isPdfFile(fileName)
+  const isImage = isImageFile(fileName)
+
+  // 이미지 URL 생성
+  const imageUrl = useMemo(() => {
+    if (imageBlob) {
+      return URL.createObjectURL(imageBlob)
+    }
+    return null
+  }, [imageBlob])
 
   // 테마에 따른 syntax highlighter 스타일 선택
   const syntaxStyle = theme === 'white' ? vs : vscDarkPlus
 
   // 콘텐츠 크기 계산 및 미리보기 처리
-  const { displayContent, isTruncated, totalLines, displayedLines, contentSize } = useMemo(() => {
+  const { displayContent, isTruncated, totalLines, displayedLines, contentSize, truncateReason } = useMemo(() => {
     if (!content) {
       return {
         displayContent: null,
@@ -156,6 +183,7 @@ export function FileContentViewerModal({
         totalLines: 0,
         displayedLines: 0,
         contentSize: 0,
+        truncateReason: null as 'size' | 'lines' | null,
       }
     }
 
@@ -163,27 +191,33 @@ export function FileContentViewerModal({
     const lines = content.split('\n')
     const totalLineCount = lines.length
 
-    // 500KB 이하면 전체 표시
-    if (size <= PREVIEW_SIZE_LIMIT) {
+    // 크기 제한 또는 라인 수 제한 체크
+    const exceedsSize = size > PREVIEW_SIZE_LIMIT
+    const exceedsLines = totalLineCount > PREVIEW_LINES_LIMIT
+
+    // 제한에 걸리지 않으면 전체 표시
+    if (!exceedsSize && !exceedsLines) {
       return {
         displayContent: content,
         isTruncated: false,
         totalLines: totalLineCount,
         displayedLines: totalLineCount,
         contentSize: size,
+        truncateReason: null,
       }
     }
 
-    // 500KB 초과 시 처음 500줄만 표시
-    const previewLines = lines.slice(0, PREVIEW_LINES)
+    // 제한 초과 시 처음 500줄만 표시
+    const previewLines = lines.slice(0, PREVIEW_LINES_DISPLAY)
     const previewContent = previewLines.join('\n')
 
     return {
       displayContent: previewContent,
       isTruncated: true,
       totalLines: totalLineCount,
-      displayedLines: Math.min(PREVIEW_LINES, totalLineCount),
+      displayedLines: Math.min(PREVIEW_LINES_DISPLAY, totalLineCount),
       contentSize: size,
+      truncateReason: exceedsSize ? 'size' : 'lines',
     }
   }, [content])
 
@@ -262,7 +296,11 @@ export function FileContentViewerModal({
           <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
             <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
             <span className="text-yellow-600 dark:text-yellow-500">
-              파일이 큽니다 ({formatFileSize(contentSize)}). 처음 {PREVIEW_LINES}줄만 표시됩니다. 전체 내용은 다운로드하여 확인하세요.
+              {truncateReason === 'size'
+                ? `파일이 큽니다 (${formatFileSize(contentSize)}). `
+                : `라인 수가 많습니다 (${totalLines.toLocaleString()}줄). `
+              }
+              처음 {PREVIEW_LINES_DISPLAY}줄만 표시됩니다. 전체 내용은 다운로드하여 확인하세요.
             </span>
           </div>
         )}
@@ -279,8 +317,39 @@ export function FileContentViewerModal({
             </div>
           )}
 
+          {/* 이미지 뷰어 */}
+          {isImage && (
+            <div className={`w-full rounded-md border overflow-hidden bg-muted/30 flex items-center justify-center ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+              {isImageLoading && (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="text-muted-foreground">이미지 로딩 중...</span>
+                </div>
+              )}
+
+              {imageError && (
+                <div className="text-destructive text-center">
+                  <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+                  <div>이미지를 불러오는데 실패했습니다.</div>
+                  {imageError.message && (
+                    <div className="text-sm mt-2 text-muted-foreground">{imageError.message}</div>
+                  )}
+                </div>
+              )}
+
+              {imageUrl && !isImageLoading && !imageError && (
+                <img
+                  src={imageUrl}
+                  alt={fileName}
+                  className="max-w-full max-h-full object-contain"
+                  style={{ imageRendering: 'auto' }}
+                />
+              )}
+            </div>
+          )}
+
           {/* 텍스트 파일 뷰어 */}
-          {!isPdf && (
+          {!isPdf && !isImage && (
             <>
               <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
                 <div className="min-w-max">

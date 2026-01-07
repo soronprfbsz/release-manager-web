@@ -108,4 +108,6 @@ export interface PublishingFileContent {
   fileName: string
   size: number
   content: string
+  mimeType?: string      // 파일의 MIME 타입
+  isBinary?: boolean     // true면 content가 Base64 인코딩됨
 }
