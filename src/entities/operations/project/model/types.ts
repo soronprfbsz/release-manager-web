@@ -16,6 +16,7 @@ export interface ProjectCreateRequest {
   projectId: string
   projectName: string
   description?: string
+  isEnabled?: boolean
 }
 
 export interface ProjectUpdateRequest {

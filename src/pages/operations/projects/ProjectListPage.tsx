@@ -101,6 +101,7 @@ export function ProjectListPage() {
         projectId: formData.projectId.trim(),
         projectName: formData.projectName.trim(),
         description: formData.description.trim() || undefined,
+        isEnabled,
       }
 
       createMutation.mutate(request, {

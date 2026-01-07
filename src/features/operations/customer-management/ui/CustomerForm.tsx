@@ -125,12 +125,12 @@ export function CustomerForm({
       </div>
 
       {/* 활성 상태 토글 */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <Label className="text-sm font-medium">활성화</Label>
-          <p className="text-xs text-muted-foreground">
+      <div className="flex items-center justify-between rounded-lg border p-4">
+        <div className="space-y-1">
+          <Label className="font-medium">활성화</Label>
+          <TypographyMuted className="text-xs">
             비활성화 시 관리 대상에서 제외됩니다.
-          </p>
+          </TypographyMuted>
         </div>
         <Switch
           checked={formData.isActive}

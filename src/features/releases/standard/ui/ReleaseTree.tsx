@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Flame } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Flame, Star } from 'lucide-react'
 
 import type { MajorMinorNode } from '@/entities/releases/release'
 
@@ -8,6 +8,11 @@ import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { findLatestVersionId } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/ui/tooltip'
 
 /** 핫픽스 배지 */
 function HotfixBadge() {
@@ -34,15 +39,17 @@ interface ReleaseTreeProps {
   onSelectVersion: (info: SelectedVersionInfo) => void
 }
 
-/** 최신 버전 표시용 배지 */
-function LatestBadge() {
+/** 최신 버전 표시용 아이콘 */
+function LatestIndicator() {
   return (
-    <Badge
-      variant="latest"
-      className="text-[10px] px-1 py-0 h-4 leading-none"
-    >
-      LATEST
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+      </TooltipTrigger>
+      <TooltipContent side="top" className="text-xs">
+        최신 버전
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -171,8 +178,8 @@ export function ReleaseTree({ majorMinorGroups, selectedVersionId, onSelectVersi
                           )}>
                             {version.version}
                           </span>
+                          {version.versionId === latestVersionId && <LatestIndicator />}
                           <div className="flex gap-1 ml-auto items-center">
-                            {version.versionId === latestVersionId && <LatestBadge />}
                             {version.releaseCategory === 'INSTALL' && (
                               <Badge
                                 variant="install"

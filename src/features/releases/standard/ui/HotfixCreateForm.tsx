@@ -1,23 +1,15 @@
 import { useState } from 'react'
 
-import { Flame, Loader2, AlertTriangle } from 'lucide-react'
+import { Flame, AlertTriangle } from 'lucide-react'
 
 import { useEngineers, type Engineer } from '@/entities/operations'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { Button } from '@/shared/ui/button'
 import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
+import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/ui/sheet'
 import { Textarea } from '@/shared/ui/textarea'
 
 interface HotfixCreateFormProps {
@@ -74,9 +66,7 @@ export function HotfixCreateForm({
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const handleSubmit = async () => {
     if (!comment.trim()) {
       toast({
         title: '코멘트 필요',
@@ -142,130 +132,102 @@ export function HotfixCreateForm({
     }
   }
 
+  // 핫픽스 안내 배너
+  const headerContent = (
+    <div className="mb-5 p-3 rounded-md border border-yellow-500/50 bg-yellow-500/10">
+      <div className="flex gap-2">
+        <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" />
+        <div className="text-xs leading-relaxed">
+          <p className="font-semibold text-yellow-700 dark:text-yellow-400">핫픽스 안내</p>
+          <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
+            <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
+            <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>                  
+            <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면, 
+            해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>                  
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
-    <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent className="w-[500px] sm:max-w-[500px]">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-orange-500" />
-            핫픽스 생성
-          </SheetTitle>
-          <SheetDescription>
-            버전 <strong>{hotfixBaseVersion}</strong>의 핫픽스를 생성합니다.
-          </SheetDescription>
-        </SheetHeader>
+    <FormSheet
+      open={open}
+      icon={Flame}
+      iconClassName="text-orange-500"
+      title="핫픽스 생성"
+      description={<>버전 <strong>{hotfixBaseVersion}</strong>의 핫픽스를 생성합니다.</>}
+      submitLabel="핫픽스 생성"
+      isSubmitting={isUploading}
+      submitDisabled={!comment.trim() || !selectedFile}
+      onSubmit={handleSubmit}
+      onClose={handleClose}
+      width="w-[500px] sm:max-w-[500px]"
+      headerContent={headerContent}
+    >
+      {/* 대상 버전 표시 */}
+      <div className="space-y-2">
+        <Label>대상 버전</Label>
+        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
+          <Flame className="h-4 w-4 text-orange-500" />
+          <span className="font-medium">{hotfixBaseVersion}</span>
+        </div>
+      </div>
 
-        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
-          {/* 핫픽스 안내 */}
-          <div className="mb-5 p-3 rounded-md border border-yellow-500/50 bg-yellow-500/10">
-            <div className="flex gap-2">
-              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" />
-              <div className="text-xs leading-relaxed">
-                <p className="font-semibold text-yellow-700 dark:text-yellow-400">핫픽스 안내</p>
-                <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
-                  <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
-                  <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>                  
-                  <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면, 
-                  해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>                  
-                  
-                </ul>
-              </div>
-            </div>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 대상 버전 표시 */}
-            <div className="space-y-2">
-              <Label>대상 버전</Label>
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
-                <Flame className="h-4 w-4 text-orange-500" />
-                <span className="font-medium">{hotfixBaseVersion}</span>
-              </div>
-            </div>
+      {/* 코멘트 */}
+      <div className="space-y-2">
+        <Label htmlFor="comment">
+          코멘트 <span className="text-destructive">*</span>
+        </Label>
+        <Textarea
+          id="comment"
+          placeholder="핫픽스에 대한 설명을 입력하세요"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          disabled={isUploading}
+          rows={3}
+        />
+      </div>
 
-            {/* 코멘트 */}
-            <div className="space-y-2">
-              <Label htmlFor="comment">
-                코멘트 <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="comment"
-                placeholder="핫픽스에 대한 설명을 입력하세요"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                disabled={isUploading}
-                rows={3}
-              />
-            </div>
+      {/* 담당 엔지니어 */}
+      <div className="space-y-2">
+        <Label htmlFor="engineerId">담당 엔지니어</Label>
+        <Combobox
+          options={[
+            { value: '__none__', label: '선택 안함' },
+            ...engineers.map((e: Engineer) => ({
+              value: String(e.engineerId),
+              label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+            })),
+          ]}
+          value={engineerId !== null ? String(engineerId) : '__none__'}
+          onValueChange={(value) =>
+            setEngineerId(value === '__none__' ? null : Number(value))
+          }
+          placeholder="선택 안함"
+          searchPlaceholder="엔지니어 검색..."
+          disabled={isUploading}
+        />
+        <p className="text-xs text-muted-foreground">
+          DB 패치 스크립트의 기본 담당자로 설정됩니다.
+        </p>
+      </div>
 
-            {/* 담당 엔지니어 */}
-            <div className="space-y-2">
-              <Label htmlFor="engineerId">담당 엔지니어</Label>
-              <Combobox
-                options={[
-                  { value: '__none__', label: '선택 안함' },
-                  ...engineers.map((e: Engineer) => ({
-                    value: String(e.engineerId),
-                    label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
-                  })),
-                ]}
-                value={engineerId !== null ? String(engineerId) : '__none__'}
-                onValueChange={(value) =>
-                  setEngineerId(value === '__none__' ? null : Number(value))
-                }
-                placeholder="선택 안함"
-                searchPlaceholder="엔지니어 검색..."
-                disabled={isUploading}
-              />
-              <p className="text-xs text-muted-foreground">
-                DB 패치 스크립트의 기본 담당자로 설정됩니다.
-              </p>
-            </div>
-
-            {/* 파일 업로드 */}
-            <div className="space-y-2">
-              <Label>
-                핫픽스 파일 <span className="text-destructive">*</span>
-              </Label>
-              <FileDropzone
-                file={selectedFile}
-                onFileChange={setSelectedFile}
-                accept={['.zip']}
-                onError={handleFileError}
-                disabled={isUploading}
-                heightClass="h-28"
-                hint="ZIP 파일만 지원"
-              />
-            </div>
-
-            {/* 버튼 영역 */}
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isUploading}
-                className="flex-1"
-              >
-                취소
-              </Button>
-              <Button
-                type="submit"
-                disabled={!comment.trim() || !selectedFile || isUploading}
-                className="flex-1"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    생성 중...
-                  </>
-                ) : (
-                  '핫픽스 생성'
-                )}
-              </Button>
-            </div>
-          </form>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      {/* 파일 업로드 */}
+      <div className="space-y-2">
+        <Label>
+          핫픽스 파일 <span className="text-destructive">*</span>
+        </Label>
+        <FileDropzone
+          file={selectedFile}
+          onFileChange={setSelectedFile}
+          accept={['.zip']}
+          onError={handleFileError}
+          disabled={isUploading}
+          heightClass="h-28"
+          hint="ZIP 파일만 지원"
+        />
+      </div>
+    </FormSheet>
   )
 }

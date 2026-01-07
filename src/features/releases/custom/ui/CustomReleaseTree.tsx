@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Star } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -8,16 +8,23 @@ import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { findLatestVersionIdByCustomer } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/ui/tooltip'
 
-/** 최신 버전 표시용 배지 */
-function LatestBadge() {
+/** 최신 버전 표시용 아이콘 */
+function LatestIndicator() {
   return (
-    <Badge
-      variant="latest"
-      className="text-[10px] px-1 py-0 h-4 leading-none"
-    >
-      LATEST
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+      </TooltipTrigger>
+      <TooltipContent side="top" className="text-xs">
+        최신 버전
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -229,8 +236,8 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
                                     )}>
                                       {version.version}
                                     </span>
+                                    {latestVersionMap.get(customer.customerCode) === version.versionId && <LatestIndicator />}
                                     <div className="flex gap-1 ml-auto items-center">
-                                      {latestVersionMap.get(customer.customerCode) === version.versionId && <LatestBadge />}
                                       {version.fileCategories && version.fileCategories.length > 0 && (
                                         <>
                                           {version.fileCategories.map((category) => (

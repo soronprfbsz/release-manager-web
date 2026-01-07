@@ -19,33 +19,76 @@ import {
 
 type FormMode = 'create' | 'edit' | null
 
+// 기존 방식: { create: string; edit: string } 또는 단일 string/ReactNode
+type TitleDescriptionValue = { create: ReactNode; edit: ReactNode } | ReactNode
+
 interface FormSheetProps {
-  mode: FormMode
+  /** 폼 모드. null이면 시트가 닫힘. open prop 사용 시 무시됨 */
+  mode?: FormMode
+  /** 시트 열림 상태 (mode 대신 사용 가능) */
+  open?: boolean
+  /** 헤더 아이콘 */
   icon: LucideIcon
-  title: { create: string; edit: string }
-  description: { create: string; edit: string }
-  submitLabel?: { create: string; edit: string }
+  /** 아이콘 색상 클래스 (예: 'text-orange-500') */
+  iconClassName?: string
+  /** 시트 제목 */
+  title: TitleDescriptionValue
+  /** 시트 설명 */
+  description: TitleDescriptionValue
+  /** 제출 버튼 라벨 */
+  submitLabel?: TitleDescriptionValue
+  /** 제출 버튼 아이콘 */
+  submitIcon?: LucideIcon
+  /** 제출 중 상태 */
   isSubmitting: boolean
+  /** 제출 버튼 비활성화 여부 */
+  submitDisabled?: boolean
+  /** 제출 핸들러 */
   onSubmit: () => void
+  /** 닫기 핸들러 */
   onClose: () => void
+  /** 폼 필드들 */
   children: ReactNode
+  /** 폼 필드 앞에 렌더링할 컨텐츠 (안내 배너 등) */
+  headerContent?: ReactNode
+  /** 시트 너비 */
   width?: string
+  /** 취소 버튼 숨김 여부 */
   hideCancel?: boolean
+  /** 스크롤 영역 높이 */
+  scrollHeight?: string
+}
+
+function getValue(value: TitleDescriptionValue, mode: FormMode): ReactNode {
+  if (typeof value === 'object' && value !== null && 'create' in value && 'edit' in value) {
+    return mode === 'create' ? value.create : value.edit
+  }
+  return value
 }
 
 export function FormSheet({
   mode,
+  open,
   icon: Icon,
+  iconClassName,
   title,
   description,
   submitLabel = { create: '등록', edit: '수정' },
+  submitIcon: SubmitIcon,
   isSubmitting,
+  submitDisabled = false,
   onSubmit,
   onClose,
   children,
+  headerContent,
   width = 'w-[400px] sm:max-w-[400px]',
   hideCancel = false,
+  scrollHeight = 'h-[calc(100vh-180px)]',
 }: FormSheetProps) {
+  // open prop 우선, 없으면 mode로 판단
+  const isOpen = open !== undefined ? open : mode !== null
+  const currentMode = mode ?? 'create'
+
   // Enter 키 처리를 위한 form submit 핸들러
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,19 +96,20 @@ export function FormSheet({
   }
 
   return (
-    <Sheet open={mode !== null} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={isOpen} onOpenChange={(openState) => !openState && onClose()}>
       <SheetContent className={width}>
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Icon className="h-5 w-5" />
-            {mode === 'create' ? title.create : title.edit}
+            <Icon className={`h-5 w-5 ${iconClassName ?? ''}`} />
+            {getValue(title, currentMode)}
           </SheetTitle>
           <SheetDescription>
-            {mode === 'create' ? description.create : description.edit}
+            {getValue(description, currentMode)}
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
+        <ScrollArea className={`${scrollHeight} mt-6 pr-4`}>
+          {headerContent}
           <form onSubmit={handleFormSubmit}>
             <div className="space-y-5">
               {children}
@@ -73,17 +117,26 @@ export function FormSheet({
               {/* 버튼 */}
               <div className={hideCancel ? 'pt-4' : 'flex gap-2 pt-4'}>
                 {!hideCancel && (
-                  <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                  <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="flex-1">
                     취소
                   </Button>
                 )}
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || submitDisabled}
                   className={hideCancel ? 'w-full' : 'flex-1'}
                 >
-                  {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  {mode === 'create' ? submitLabel.create : submitLabel.edit}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {getValue(submitLabel, currentMode)} 중...
+                    </>
+                  ) : (
+                    <>
+                      {SubmitIcon && <SubmitIcon className="h-4 w-4 mr-2" />}
+                      {getValue(submitLabel, currentMode)}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

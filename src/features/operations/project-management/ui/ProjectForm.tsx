@@ -129,13 +129,15 @@ export function ProjectForm({
             />
           </div>
 
-          {/* 활성 상태 (수정 모드에서만) */}
-          {isEditMode && onEnabledChange && (
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="isEnabled">활성 상태</Label>
+          {/* 활성 상태 */}
+          {onEnabledChange && (
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-1">
+                <Label htmlFor="isEnabled" className="cursor-pointer font-medium">
+                  활성 상태
+                </Label>
                 <p className="text-xs text-muted-foreground">
-                  비활성화하면 프로젝트 선택 목록에서 제외됩니다.
+                  비활성화하면 프로젝트가 관리 대상에서 제외됩니다.
                 </p>
               </div>
               <Switch
