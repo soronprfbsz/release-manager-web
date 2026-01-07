@@ -19,7 +19,7 @@ import {
   type PublishingTabHandle,
 } from '@/widgets/infrastructure/resource'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 import { Button } from '@/shared/ui/button'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
@@ -51,6 +51,7 @@ const TAB_CONFIG = {
 } as const
 
 export function ResourcePage() {
+  const { icon: pageIcon } = usePageIcon()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'services'
 
@@ -102,7 +103,7 @@ export function ResourcePage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('infrastructure_resources')}
+      icon={pageIcon}
       title="리소스 관리"
       actions={
         <>

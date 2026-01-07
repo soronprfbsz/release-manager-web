@@ -6,7 +6,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { PlugZap, Unplug, Upload } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
   SshConnectionSheet,
@@ -23,6 +23,7 @@ import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function TerminalPage() {
+  const { icon: pageIcon } = usePageIcon()
   // 로컬 UI 상태
   const [connectionSheetOpen, setConnectionSheetOpen] = useState(false)
   const [fileTransferFormOpen, setFileTransferFormOpen] = useState(false)
@@ -60,7 +61,7 @@ export function TerminalPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('remote_terminal')}
+      icon={pageIcon}
       title="터미널"
       actions={
         <>

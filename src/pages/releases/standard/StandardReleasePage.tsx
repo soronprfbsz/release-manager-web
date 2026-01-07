@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 
-import { Tag, RefreshCw, Plus } from 'lucide-react'
+import { RefreshCw, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
 import { VersionCreateForm } from '@/widgets/releases'
 
-import { usePermission } from '@/shared/lib/hooks'
+import { getMenuIcon } from '@/shared/config/menu-icons'
+import { usePermission, usePageIcon } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
 import { ReleaseTree, VersionDetailPanel, type SelectedVersionInfo, type SelectedVersionData } from '@/features/releases/standard'
@@ -36,6 +37,7 @@ export function StandardReleasePage() {
   const location = useLocation()
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddVersion } = usePermission()
+  const { icon: pageIcon, iconName } = usePageIcon()
   const [selectedState, setSelectedState] = useState<SelectedState | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [prevProjectId, setPrevProjectId] = useState(projectId)
@@ -137,7 +139,7 @@ export function StandardReleasePage() {
 
   return (
     <PageLayout
-      icon={<Tag className="h-5 w-5 text-primary" />}
+      icon={pageIcon}
       title="버전 관리 (Standard)"
       actions={
         <>
@@ -174,7 +176,7 @@ export function StandardReleasePage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Tag className="h-4 w-4" />
+                {getMenuIcon(iconName, 'h-4 w-4')}
                 버전 트리
                 {treeData && (
                   <span className="text-xs text-muted-foreground font-normal ml-auto">

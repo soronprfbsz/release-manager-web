@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import { useAuthStore, useProjectStore } from '@/shared/store'
 
@@ -62,6 +62,7 @@ function getVersionsFromTree(
 }
 
 export function PatchGeneratePage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
   const user = useAuthStore((state) => state.user)
   const projectId = useProjectStore((state) => state.projectId)
@@ -136,7 +137,7 @@ export function PatchGeneratePage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('patch_generate')}
+      icon={pageIcon}
       title="패치 생성"
     >
       {/* Two Column Layout */}

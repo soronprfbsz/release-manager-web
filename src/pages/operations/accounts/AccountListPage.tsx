@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 import { RefreshCw, User } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
   AccountTable,
@@ -41,6 +41,7 @@ interface PaginationState {
 }
 
 export function AccountListPage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Pagination state
@@ -134,7 +135,7 @@ export function AccountListPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('operation_accounts')}
+      icon={pageIcon}
       title="계정 관리"
       actions={
         <Tooltip>

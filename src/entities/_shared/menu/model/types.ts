@@ -11,6 +11,8 @@ export interface MenuResponse {
   menuId: string
   menuName: string
   menuUrl?: string
+  icon?: string              // 아이콘명 (Lucide React)
+  isIconVisible?: boolean    // 아이콘 표시 여부
   description?: string
   isDescriptionVisible?: boolean
   isLineBreak?: boolean

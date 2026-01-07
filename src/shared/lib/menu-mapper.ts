@@ -9,6 +9,8 @@
 export interface MenuItem {
   menuId: string
   label: string
+  icon?: string              // 아이콘명 (Lucide React)
+  isIconVisible?: boolean    // 아이콘 표시 여부
   description?: string
   isDescriptionVisible?: boolean
   isLineBreak?: boolean
@@ -23,6 +25,8 @@ export function convertMenuResponseToMenuItem(menu: {
   menuId: string
   menuName: string
   menuUrl?: string
+  icon?: string
+  isIconVisible?: boolean
   description?: string
   isDescriptionVisible?: boolean
   isLineBreak?: boolean
@@ -31,6 +35,8 @@ export function convertMenuResponseToMenuItem(menu: {
   return {
     menuId: menu.menuId,
     label: menu.menuName,
+    icon: menu.icon,
+    isIconVisible: menu.isIconVisible,
     description: menu.description,
     isDescriptionVisible: menu.isDescriptionVisible,
     isLineBreak: menu.isLineBreak,

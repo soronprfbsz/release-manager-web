@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react'
 
 import { Plus, RefreshCw, Users } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
   EngineerTable,
@@ -58,6 +58,7 @@ const INITIAL_FILTERS: EngineerFiltersState = {
 }
 
 export function EngineerListPage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Filter state
@@ -200,7 +201,7 @@ export function EngineerListPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('operation_engineers')}
+      icon={pageIcon}
       title="엔지니어 관리"
       actions={
         <>

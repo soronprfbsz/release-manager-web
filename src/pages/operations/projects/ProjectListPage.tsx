@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { Plus, RefreshCw } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
   useProjects,
@@ -38,6 +38,7 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 }
 
 export function ProjectListPage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Form state
@@ -161,7 +162,7 @@ export function ProjectListPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('operation_projects')}
+      icon={pageIcon}
       title="프로젝트 관리"
       actions={
         <>

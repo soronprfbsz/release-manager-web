@@ -16,7 +16,7 @@ import {
     FileDiff,
 } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import { Button } from '@/shared/ui/button'
 import {
@@ -140,6 +140,7 @@ const actionIconConfig: Record<FileSyncActionType, { icon: typeof Plus; destruct
 type TabType = 'analysis' | 'ignored'
 
 export function FileSyncPage() {
+    const { icon: pageIcon } = usePageIcon()
     const [searchParams, setSearchParams] = useSearchParams()
     const currentTab = (searchParams.get('tab') as TabType) || 'analysis'
 
@@ -478,7 +479,7 @@ export function FileSyncPage() {
 
     return (
         <PageLayout
-            icon={getPageIconById('operation_filesync')}
+            icon={pageIcon}
             title="파일 동기화"
             actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
         >

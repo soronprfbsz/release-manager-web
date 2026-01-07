@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Tag, RefreshCw, Plus } from 'lucide-react'
+import { RefreshCw, Plus } from 'lucide-react'
 
 import { CustomVersionCreateForm } from '@/widgets/releases'
 
@@ -9,8 +9,8 @@ import { VersionDetailPanel, type SelectedVersionData } from '@/features/release
 
 import { useAllCustomReleaseTree } from '@/entities/releases/release'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
-import { usePermission } from '@/shared/lib/hooks'
+import { getMenuIcon } from '@/shared/config/menu-icons'
+import { usePermission, usePageIcon } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
 import { getCategoryShortName } from '@/shared/lib/utils/category'
@@ -35,6 +35,7 @@ interface SelectedState {
 export function CustomReleasePage() {
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddVersion } = usePermission()
+  const { icon: pageIcon, iconName } = usePageIcon()
   const [selectedState, setSelectedState] = useState<SelectedState | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [prevProjectId, setPrevProjectId] = useState(projectId)
@@ -127,7 +128,7 @@ export function CustomReleasePage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('version_custom')}
+      icon={pageIcon}
       title="버전 관리 (Custom)"
       actions={
         <>
@@ -163,7 +164,7 @@ export function CustomReleasePage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Tag className="h-4 w-4" />
+                {getMenuIcon(iconName, 'h-4 w-4')}
                 커스텀 버전 트리
                 {treeData && (
                   <span className="text-xs text-muted-foreground font-normal ml-auto">

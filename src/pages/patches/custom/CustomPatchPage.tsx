@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, RefreshCw, Package } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import { PatchFileExplorer } from '@/widgets/patches'
 
@@ -60,6 +60,7 @@ const INITIAL_FORM_DATA: CustomPatchCreateFormData = {
 }
 
 export function CustomPatchPage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
   const user = useAuthStore((state) => state.user)
   const projectId = useProjectStore((state) => state.projectId)
@@ -213,7 +214,7 @@ export function CustomPatchPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('patch_custom')}
+      icon={pageIcon}
       title="패치 관리 (Custom)"
       description="커스텀 릴리즈 기반 패치를 생성하고 관리합니다."
       actions={

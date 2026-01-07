@@ -7,7 +7,7 @@ import { useState, useMemo } from 'react'
 
 import { Plus, RefreshCw, Building2 } from 'lucide-react'
 
-import { getPageIconById } from '@/shared/config/menu-icons'
+import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
   CustomerTable,
@@ -59,6 +59,7 @@ const INITIAL_FILTERS: CustomerFiltersState = {
 }
 
 export function CustomerListPage() {
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Filter state
@@ -213,7 +214,7 @@ export function CustomerListPage() {
 
   return (
     <PageLayout
-      icon={getPageIconById('operation_customers')}
+      icon={pageIcon}
       title="고객사 관리"
       actions={
         <>

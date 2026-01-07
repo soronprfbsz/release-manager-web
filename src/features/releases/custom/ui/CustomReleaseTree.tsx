@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Tag, Building2, Flame } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -120,8 +120,7 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
   if (customers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-26rem)] text-muted-foreground">
-        <Tag className="h-12 w-12 mb-2 opacity-50" />
-        <p className="text-sm">커스텀 릴리즈 버전이 없습니다.</p>
+        <p className="text-sm">릴리즈 버전이 없습니다.</p>
       </div>
     )
   }

@@ -7,7 +7,7 @@ import { ProjectSelector } from '@/widgets/_shared/project-selector'
 import { ThemeToggle } from '@/widgets/_shared/theme-toggle'
 
 import { ROUTES } from '@/shared/config/constants'
-import { getMenuIconById } from '@/shared/config/menu-icons'
+import { getMenuIcon } from '@/shared/config/menu-icons'
 import { cn } from '@/shared/lib/utils'
 import { useAuthStore } from '@/shared/store'
 import { Avatar } from '@/shared/ui/avatar'
@@ -83,7 +83,10 @@ export function NavigationBar() {
                 <NavigationMenuItem key={item.label}>
                   {item.children && item.children.length > 0 ? (
                     <>
-                      <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                      <NavigationMenuTrigger className="gap-1.5">
+                        {item.isIconVisible && item.icon && getMenuIcon(item.icon)}
+                        {item.label}
+                      </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         {(() => {
                           // description이 표시되는 아이템이 있는지 확인 (2-depth, 3-depth 모두)
@@ -146,19 +149,20 @@ export function NavigationBar() {
                                           return (
                                             <div className={cn('grid gap-1', hasAnyDesc ? 'grid-cols-2' : 'grid-cols-1')}>
                                               {filteredChildren.map((subChild) => {
-                                                const hasDesc = subChild.isDescriptionVisible && subChild.description
-                                                const icon = getMenuIconById(subChild.menuId)
+                                                const showDesc = subChild.isDescriptionVisible && subChild.description
+                                                const showIcon = subChild.isIconVisible && subChild.icon
+                                                const icon = showIcon ? getMenuIcon(subChild.icon) : null
                                                 return (
                                                   <NavigationMenuLink key={subChild.label} asChild>
                                                     <Link
                                                       to={subChild.path!}
                                                       className={cn(
                                                         'group/item flex items-start gap-2 rounded-md transition-all duration-200',
-                                                        hasDesc ? 'p-2' : 'px-2 py-1.5',
+                                                        showDesc ? 'p-2' : 'px-2 py-1.5',
                                                         subChild.isLineBreak && 'col-span-2'
                                                       )}
                                                     >
-                                                      {hasDesc && icon && (
+                                                      {showIcon && icon && (
                                                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
                                                           {icon}
                                                         </div>
@@ -167,7 +171,7 @@ export function NavigationBar() {
                                                         <div className="text-sm font-medium leading-tight group-hover/item:text-primary transition-colors">
                                                           {subChild.label}
                                                         </div>
-                                                        {hasDesc && (
+                                                        {showDesc && (
                                                           <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                                                             {subChild.description}
                                                           </p>
@@ -254,8 +258,9 @@ interface ModernListItemProps {
 function ModernListItem({ item }: ModernListItemProps) {
   if (!item.path) return null
 
-  const hasDesc = item.isDescriptionVisible && item.description
-  const icon = getMenuIconById(item.menuId)
+  const showDesc = item.isDescriptionVisible && item.description
+  const showIcon = item.isIconVisible && item.icon
+  const icon = showIcon ? getMenuIcon(item.icon) : null
 
   return (
     <div className={cn(item.isLineBreak && 'col-span-2')}>
@@ -264,10 +269,10 @@ function ModernListItem({ item }: ModernListItemProps) {
           to={item.path}
           className={cn(
             'group/item flex items-start gap-2 rounded-md transition-all duration-200',
-            hasDesc ? 'p-2' : 'px-2 py-1.5'
+            showDesc ? 'p-2' : 'px-2 py-1.5'
           )}
         >
-          {hasDesc && icon && (
+          {showIcon && icon && (
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
               {icon}
             </div>
@@ -276,7 +281,7 @@ function ModernListItem({ item }: ModernListItemProps) {
             <div className="text-sm font-medium leading-tight group-hover/item:text-primary transition-colors">
               {item.label}
             </div>
-            {hasDesc && (
+            {showDesc && (
               <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                 {item.description}
               </p>

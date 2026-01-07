@@ -3,149 +3,73 @@
  * 메뉴 아이콘 중앙 집중 관리
  *
  * NavigationBar와 각 페이지 헤더에서 동일한 아이콘을 사용하도록 함
+ * 
+ * Lucide 아이콘: DB에 저장된 아이콘명으로 자동 매핑 (예: "rocket", "file-diff")
+ * React-Icons: 특수 아이콘은 명시적 매핑 필요 (예: "mariadb", "resources")
  */
 
 import * as React from 'react'
 
-import {
-  Terminal,
-  Server,
-  Package,
-  GitBranch,
-  Users,
-  Building2,
-  User,
-  FolderKanban,
-  FileDiff,
-  Layers,
-} from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import { GrResources } from 'react-icons/gr'
 import { SiMariadb } from 'react-icons/si'
 
 /**
- * 아이콘 설정 타입
+ * kebab-case를 PascalCase로 변환
+ * 예: "file-diff" → "FileDiff", "rocket" → "Rocket"
  */
-interface IconConfig {
-  icon: React.ReactNode
-  iconLarge: React.ReactNode  // 페이지 헤더용 (h-5 w-5)
+function toPascalCase(str: string): string {
+  return str
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('')
 }
 
 /**
- * menuId → 아이콘 매핑
- * 각 페이지 헤더와 동일한 아이콘 사용
+ * React-Icons 특수 아이콘 매핑 (Lucide에 없는 아이콘)
  */
-const menuIconConfig: Record<string, IconConfig> = {
-  // 원격 작업
-  remote_mariadb: {
-    icon: <SiMariadb className="h-4 w-4" />,
-    iconLarge: <SiMariadb className="h-5 w-5 text-primary" />,
-  },
-  remote_terminal: {
-    icon: <Terminal className="h-4 w-4" />,
-    iconLarge: <Terminal className="h-5 w-5 text-primary" />,
-  },
-
-  // 인프라
-  infrastructure_resources: {
-    icon: <GrResources className="h-4 w-4" />,
-    iconLarge: <GrResources className="h-5 w-5 text-primary" />,
-  },
-  infrastructure_services: {
-    icon: <Server className="h-4 w-4" />,
-    iconLarge: <Server className="h-5 w-5 text-primary" />,
-  },
-
-  // 버전/패치 관리
-  version_standard: {
-    icon: <Package className="h-4 w-4" />,
-    iconLarge: <Package className="h-5 w-5 text-primary" />,
-  },
-  version_custom: {
-    icon: <GitBranch className="h-4 w-4" />,
-    iconLarge: <GitBranch className="h-5 w-5 text-primary" />,
-  },
-  patch_standard: {
-    icon: <Package className="h-4 w-4" />,
-    iconLarge: <Package className="h-5 w-5 text-primary" />,
-  },
-  patch_custom: {
-    icon: <GitBranch className="h-4 w-4" />,
-    iconLarge: <GitBranch className="h-5 w-5 text-primary" />,
-  },
-  patch_generate: {
-    icon: <Layers className="h-4 w-4" />,
-    iconLarge: <Layers className="h-5 w-5 text-primary" />,
-  },
-
-  // 운영 관리
-  operation_customers: {
-    icon: <Building2 className="h-4 w-4" />,
-    iconLarge: <Building2 className="h-5 w-5 text-primary" />,
-  },
-  operation_engineers: {
-    icon: <Users className="h-4 w-4" />,
-    iconLarge: <Users className="h-5 w-5 text-primary" />,
-  },
-  operation_accounts: {
-    icon: <User className="h-4 w-4" />,
-    iconLarge: <User className="h-5 w-5 text-primary" />,
-  },
-  operation_projects: {
-    icon: <FolderKanban className="h-4 w-4" />,
-    iconLarge: <FolderKanban className="h-5 w-5 text-primary" />,
-  },
-  operation_filesync: {
-    icon: <FileDiff className="h-4 w-4" />,
-    iconLarge: <FileDiff className="h-5 w-5 text-primary" />,
-  },
+const reactIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  mariadb: SiMariadb,
+  'si-mariadb': SiMariadb,
+  resources: GrResources,
+  'gr-resources': GrResources,
 }
 
 /**
- * path → menuId 매핑 (페이지에서 사용)
+ * 아이콘명으로 아이콘 컴포넌트 가져오기
+ * 
+ * 1. React-Icons 먼저 확인 (특수 아이콘)
+ * 2. Lucide 아이콘 동적 로딩 (아이콘명을 PascalCase로 변환하여 자동 매핑)
+ * 
+ * @param iconName API에서 받은 아이콘명 (예: "rocket", "file-diff", "mariadb")
+ * @param className 아이콘에 적용할 CSS 클래스
+ * @returns React 노드 또는 null
+ * 
+ * @example
+ * getMenuIcon('rocket', 'h-5 w-5')     // → <Rocket className="h-5 w-5" />
+ * getMenuIcon('file-diff', 'h-4 w-4') // → <FileDiff className="h-4 w-4" />
+ * getMenuIcon('mariadb', 'h-4 w-4')   // → <SiMariadb className="h-4 w-4" />
  */
-const pathToMenuId: Record<string, string> = {
-  '/development-support/remote-jobs/mariadb': 'remote_mariadb',
-  '/development-support/remote-jobs/terminal': 'remote_terminal',
-  '/development-support/infrastructure/resources': 'infrastructure_resources',
-  '/development-support/infrastructure/services': 'infrastructure_services',
-  '/releases/standard': 'version_standard',
-  '/releases/custom': 'version_custom',
-  '/patches/standard': 'patch_standard',
-  '/patches/custom': 'patch_custom',
-  '/patches/generate': 'patch_generate',
-  '/operations/customers': 'operation_customers',
-  '/operations/engineers': 'operation_engineers',
-  '/operations/accounts': 'operation_accounts',
-  '/operations/projects': 'operation_projects',
-  '/operations/file-sync': 'operation_filesync',
+export function getMenuIcon(iconName: string | undefined, className: string = 'h-4 w-4'): React.ReactNode {
+  if (!iconName) return null
+  
+  const lowerName = iconName.toLowerCase()
+  
+  // 1. React-Icons 확인 (특수 아이콘)
+  const ReactIconComponent = reactIconMap[lowerName]
+  if (ReactIconComponent) {
+    return <ReactIconComponent className={className} />
+  }
+  
+  // 2. Lucide 아이콘 동적 로딩
+  const pascalCaseName = toPascalCase(iconName)
+  const LucideIconComponent = (LucideIcons as Record<string, unknown>)[pascalCaseName] as LucideIcons.LucideIcon | undefined
+  
+  if (LucideIconComponent && typeof LucideIconComponent === 'function') {
+    return <LucideIconComponent className={className} />
+  }
+  
+  // 아이콘을 찾지 못한 경우 null 반환
+  return null
 }
 
-/**
- * menuId로 네비게이션 메뉴용 아이콘 가져오기
- */
-export function getMenuIconById(menuId: string): React.ReactNode {
-  return menuIconConfig[menuId]?.icon || null
-}
-
-/**
- * menuId로 페이지 헤더용 아이콘 가져오기
- */
-export function getPageIconById(menuId: string): React.ReactNode {
-  return menuIconConfig[menuId]?.iconLarge || null
-}
-
-/**
- * path로 페이지 헤더용 아이콘 가져오기
- */
-export function getPageIconByPath(path: string): React.ReactNode {
-  const menuId = pathToMenuId[path]
-  if (!menuId) return null
-  return menuIconConfig[menuId]?.iconLarge || null
-}
-
-/**
- * path로 menuId 가져오기
- */
-export function getMenuIdByPath(path: string): string | undefined {
-  return pathToMenuId[path]
-}
