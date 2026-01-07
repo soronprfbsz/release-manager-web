@@ -5,7 +5,7 @@
  * NavigationBar와 각 페이지 헤더에서 동일한 아이콘을 사용하도록 함
  * 
  * Lucide 아이콘: DB에 저장된 아이콘명으로 자동 매핑 (예: "rocket", "file-diff")
- * React-Icons: 특수 아이콘은 명시적 매핑 필요 (예: "mariadb", "resources")
+ * React-Icons: 명시적 매핑 필요 (예: "mariadb", "resources")
  */
 
 import * as React from 'react'
@@ -63,10 +63,12 @@ export function getMenuIcon(iconName: string | undefined, className: string = 'h
   
   // 2. Lucide 아이콘 동적 로딩
   const pascalCaseName = toPascalCase(iconName)
-  const LucideIconComponent = (LucideIcons as Record<string, unknown>)[pascalCaseName] as LucideIcons.LucideIcon | undefined
+  const LucideIconComponent = (LucideIcons as Record<string, unknown>)[pascalCaseName]
   
-  if (LucideIconComponent && typeof LucideIconComponent === 'function') {
-    return <LucideIconComponent className={className} />
+  // Lucide 아이콘은 forwardRef로 래핑되어 있으므로 $$typeof로 React 컴포넌트인지 확인
+  if (LucideIconComponent && typeof LucideIconComponent === 'object' && '$$typeof' in LucideIconComponent) {
+    const IconComponent = LucideIconComponent as React.ComponentType<{ className?: string }>
+    return <IconComponent className={className} />
   }
   
   // 아이콘을 찾지 못한 경우 null 반환

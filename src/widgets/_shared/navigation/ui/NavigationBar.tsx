@@ -260,7 +260,8 @@ function ModernListItem({ item }: ModernListItemProps) {
 
   const showDesc = item.isDescriptionVisible && item.description
   const showIcon = item.isIconVisible && item.icon
-  const icon = showIcon ? getMenuIcon(item.icon) : null
+  // description이 있을 때는 큰 아이콘, 없을 때는 작은 아이콘
+  const icon = showIcon ? getMenuIcon(item.icon, showDesc ? 'h-4 w-4' : 'h-4 w-4') : null
 
   return (
     <div className={cn(item.isLineBreak && 'col-span-2')}>
@@ -268,14 +269,21 @@ function ModernListItem({ item }: ModernListItemProps) {
         <Link
           to={item.path}
           className={cn(
-            'group/item flex items-start gap-2 rounded-md transition-all duration-200',
-            showDesc ? 'p-2' : 'px-2 py-1.5'
+            'group/item flex rounded-md transition-all duration-200',
+            showDesc ? 'items-start gap-2 p-2' : 'items-center gap-2 px-2 py-1.5'
           )}
         >
-          {showIcon && icon && (
+          {/* description이 있을 때: 배경 박스 + 아이콘 */}
+          {showDesc && showIcon && icon && (
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
               {icon}
             </div>
+          )}
+          {/* description이 없을 때: 작은 아이콘만 (배경 없음) */}
+          {!showDesc && showIcon && icon && (
+            <span className="text-muted-foreground group-hover/item:text-primary transition-colors">
+              {icon}
+            </span>
           )}
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium leading-tight group-hover/item:text-primary transition-colors">
