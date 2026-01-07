@@ -3,12 +3,13 @@
  * 파일 리소스 관리 탭 - 파일 업로드/수정/삭제 전체 기능
  */
 
-import { useState, forwardRef, useImperativeHandle } from 'react'
+import { useState, forwardRef, useImperativeHandle, useMemo } from 'react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import {
   resourceApi,
   useResources,
+  useResourceFileContent,
   useUploadResource,
   useUpdateResource,
   useDeleteResource,
@@ -27,6 +28,8 @@ import {
 } from '@/features/infrastructure/resource-management'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { base64ToBlob, base64ToText, isPdfFile, isImageFile } from '@/shared/lib/utils/file-content'
+import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 
 const INITIAL_FORM_DATA: ResourceUploadFormData = {
   file: null,
@@ -53,6 +56,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     const [isUploadOpen, setIsUploadOpen] = useState(false)
     const [editingResource, setEditingResource] = useState<ResourceFile | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<ResourceFile | null>(null)
+    const [viewingResource, setViewingResource] = useState<ResourceFile | null>(null)
 
     // Upload form state
     const [formData, setFormData] = useState<ResourceUploadFormData>(INITIAL_FORM_DATA)
@@ -88,6 +92,34 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     const { data: subCategoryList = [] } = useCodesByType(subCategoryCodeType, {
       enabled: !!subCategoryCodeType,
     })
+
+    // 파일 내용 조회
+    const isPdf = viewingResource ? isPdfFile(viewingResource.fileName) : false
+    const isImage = viewingResource ? isImageFile(viewingResource.fileName) : false
+    const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useResourceFileContent(
+      viewingResource?.resourceFileId ?? 0,
+      viewingResource !== null
+    )
+
+    // isBinary가 true면 Base64를 디코딩하여 Blob 또는 텍스트로 변환
+    const decodedContent = useMemo(() => {
+      if (!fileContentData?.content) return null
+      if (fileContentData.isBinary) {
+        if (!isPdf && !isImage) {
+          return base64ToText(fileContentData.content)
+        }
+        return null
+      }
+      return fileContentData.content
+    }, [fileContentData, isPdf, isImage])
+
+    const binaryBlob = useMemo(() => {
+      if (!fileContentData?.isBinary || !fileContentData?.content) return null
+      if (isPdf || isImage) {
+        return base64ToBlob(fileContentData.content, fileContentData.mimeType)
+      }
+      return null
+    }, [fileContentData, isPdf, isImage])
 
     // Mutations
     const uploadMutation = useUploadResource({
@@ -184,6 +216,10 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
       resourceApi.download(resource.resourceFileId)
     }
 
+    const handleViewResource = (resource: ResourceFile) => {
+      setViewingResource(resource)
+    }
+
     const handleEditResource = (resource: ResourceFile) => {
       setEditingResource(resource)
     }
@@ -219,6 +255,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
               onDownload={handleDownload}
               onDelete={setDeleteTarget}
               onEdit={handleEditResource}
+              onView={handleViewResource}
             />
           )}
         </div>
@@ -252,6 +289,23 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
           resourceName={deleteTarget?.resourceFileName || deleteTarget?.fileName || ''}
           onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.resourceFileId)}
           onClose={() => setDeleteTarget(null)}
+        />
+
+        {/* File Content Viewer Modal */}
+        <FileContentViewerModal
+          open={viewingResource !== null}
+          onOpenChange={(open) => !open && setViewingResource(null)}
+          fileName={viewingResource?.fileName || ''}
+          content={decodedContent}
+          isLoading={isLoadingContent && !isPdf && !isImage}
+          error={!isPdf && !isImage ? (contentError as Error | null) : null}
+          onDownload={() => viewingResource && handleDownload(viewingResource)}
+          pdfBlob={isPdf ? binaryBlob : null}
+          isPdfLoading={isPdf && isLoadingContent}
+          pdfError={isPdf ? (contentError as Error | null) : null}
+          imageBlob={isImage ? binaryBlob : null}
+          isImageLoading={isImage && isLoadingContent}
+          imageError={isImage ? (contentError as Error | null) : null}
         />
       </>
     )

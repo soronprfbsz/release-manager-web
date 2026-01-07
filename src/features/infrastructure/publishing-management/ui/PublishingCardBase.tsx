@@ -23,7 +23,7 @@ interface PublishingCardBaseProps {
   categoryIndex?: number
   /** 드래그 핸들 props */
   dragHandleProps?: any
-  /** 메인 액션 버튼 (미리보기, 다운로드 등) */
+  /** 메인 액션 버튼 (열기, 다운로드 등) */
   actionButton: ReactNode
   /** 헤더 액션 버튼들 (수정, 삭제 등) */
   headerActions?: ReactNode

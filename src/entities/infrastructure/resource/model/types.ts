@@ -56,3 +56,14 @@ export interface LinkResourceCreateRequest {
   description?: string
   createdBy?: string // API Guide includes this
 }
+
+/** 리소스 파일 내용 */
+export interface ResourceFileContent {
+  resourceFileId: number
+  path: string
+  fileName: string
+  size: number
+  mimeType?: string      // MIME 타입 (예: application/x-sh, application/pdf)
+  isBinary?: boolean     // true면 content가 Base64 인코딩됨
+  content: string
+}

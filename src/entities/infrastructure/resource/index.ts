@@ -7,6 +7,7 @@ export type {
   ResourceFile,
   ResourceFileUploadRequest,
   ResourceFileUpdateRequest,
+  ResourceFileContent,
   LinkResource,
   LinkResourceCreateRequest,
 } from './model/types'
@@ -16,6 +17,7 @@ export {
   resourceKeys,
   useResources,
   useResource,
+  useResourceFileContent,
   useUploadResource,
   useUpdateResource,
   useDeleteResource,

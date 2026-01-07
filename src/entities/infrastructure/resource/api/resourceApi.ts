@@ -1,12 +1,13 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { ResourceFile, ResourceFileUpdateRequest } from '../model/types'
+import type { ResourceFile, ResourceFileUpdateRequest, ResourceFileContent } from '../model/types'
 
 const ENDPOINTS = {
   list: '/api/resources',
   detail: (id: number) => `/api/resources/${id}`,
   download: (id: number) => `/api/resources/${id}/download`,
+  fileContent: (id: number) => `/api/resources/${id}/file-content`,
   reorder: '/api/resources/order',
 } as const
 
@@ -83,5 +84,11 @@ export const resourceApi = {
   /** 리소스 파일 순서 변경 */
   reorderResources: async (fileCategory: string, resourceFileIds: number[]): Promise<void> => {
     await apiClient.patch(ENDPOINTS.reorder, { fileCategory, resourceFileIds })
+  },
+
+  /** 리소스 파일 내용 조회 */
+  getFileContent: async (id: number): Promise<ResourceFileContent> => {
+    const response = await apiClient.get<ResourceFileContent>(ENDPOINTS.fileContent(id))
+    return response
   },
 }

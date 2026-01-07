@@ -12,7 +12,7 @@ import {
 } from '@tanstack/react-query'
 
 import { resourceApi } from '../api/resourceApi'
-import type { ResourceFile, ResourceFileUploadRequest, ResourceFileUpdateRequest } from '../model/types'
+import type { ResourceFile, ResourceFileUploadRequest, ResourceFileUpdateRequest, ResourceFileContent } from '../model/types'
 
 // ============================================================================
 // Query Keys Factory
@@ -24,6 +24,7 @@ export const resourceKeys = {
   list: (params?: { keyword?: string }) => [...resourceKeys.lists(), params] as const,
   details: () => [...resourceKeys.all, 'detail'] as const,
   detail: (id: number) => [...resourceKeys.details(), id] as const,
+  fileContent: (id: number) => [...resourceKeys.all, 'file-content', id] as const,
 }
 
 // ============================================================================
@@ -55,6 +56,23 @@ export function useResource(
     queryKey: resourceKeys.detail(id),
     queryFn: () => resourceApi.getDetail(id),
     enabled: !!id,
+    ...options,
+  })
+}
+
+/**
+ * 리소스 파일 내용 조회 훅
+ */
+export function useResourceFileContent(
+  id: number,
+  enabled: boolean = true,
+  options?: Omit<UseQueryOptions<ResourceFileContent, Error>, 'queryKey' | 'queryFn' | 'enabled'>
+) {
+  return useQuery({
+    queryKey: resourceKeys.fileContent(id),
+    queryFn: () => resourceApi.getFileContent(id),
+    enabled: enabled && !!id,
+    staleTime: Infinity, // 파일 내용은 변경되지 않음
     ...options,
   })
 }

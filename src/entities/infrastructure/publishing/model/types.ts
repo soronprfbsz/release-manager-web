@@ -13,7 +13,7 @@ export interface PublishingFileItem {
   sortOrder: number
 }
 
-/** HTML 파일 정보 (미리보기용) */
+/** HTML 파일 정보 (열기용) */
 export interface PublishingHtmlFile {
   fileName: string
   serveUrl: string
@@ -30,7 +30,7 @@ export interface PublishingListItem {
   sortOrder: number
   fileCount: number
   createdAt: string
-  htmlFiles: PublishingHtmlFile[]  // HTML 파일 목록 (미리보기용)
+  htmlFiles: PublishingHtmlFile[]  // HTML 파일 목록 (열기용)
 }
 
 /** 퍼블리싱 상세 */

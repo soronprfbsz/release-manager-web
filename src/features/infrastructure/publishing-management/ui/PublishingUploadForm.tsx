@@ -132,7 +132,7 @@ export function PublishingUploadForm({
                 onChange={(e) =>
                   onFormDataChange({ ...formData, publishingName: e.target.value })
                 }
-                placeholder="예: 대시보드 v1.0"
+                placeholder="예: A사 대시보드"
               />
             </div>
 

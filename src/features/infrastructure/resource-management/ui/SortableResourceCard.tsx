@@ -13,6 +13,7 @@ interface SortableResourceCardProps {
   onDownload: (resource: ResourceFile) => void
   onDelete: (resource: ResourceFile) => void
   onEdit?: (resource: ResourceFile) => void
+  onView?: (resource: ResourceFile) => void
   categoryIndex?: number
 }
 
@@ -21,6 +22,7 @@ export function SortableResourceCard({
   onDownload,
   onDelete,
   onEdit,
+  onView,
   categoryIndex,
 }: SortableResourceCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -44,6 +46,7 @@ export function SortableResourceCard({
         onDownload={onDownload}
         onDelete={onDelete}
         onEdit={onEdit}
+        onView={onView}
         dragHandleProps={{ ...attributes, ...listeners }}
         categoryIndex={categoryIndex}
       />

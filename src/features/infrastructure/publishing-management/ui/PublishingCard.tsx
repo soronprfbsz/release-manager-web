@@ -3,7 +3,7 @@
  * 퍼블리싱 카드 컴포넌트
  */
 
-import { ChevronDown, Download, Edit2, Eye, FileText, FolderOpen } from 'lucide-react'
+import { ChevronDown, Download, Edit2, ExternalLink, FileText, FolderOpen } from 'lucide-react'
 
 import { publishingApi, type PublishingListItem } from '@/entities/infrastructure/publishing'
 import { Button } from '@/shared/ui/button'
@@ -47,8 +47,8 @@ export function PublishingCard({
     publishingApi.download(publishing.publishingId)
   }
 
-  // 미리보기 버튼 렌더링
-  const renderPreviewButton = () => {
+  // 열기 버튼 렌더링
+  const renderOpenButton = () => {
     if (htmlFiles.length === 0) {
       // HTML 파일이 없으면 비활성화 버튼
       return (
@@ -57,8 +57,8 @@ export function PublishingCard({
           className="flex-1"
           disabled
         >
-          <Eye className="h-4 w-4 mr-2" />
-          미리보기
+          <ExternalLink className="h-4 w-4 mr-2" />
+          열기
         </Button>
       )
     }
@@ -71,8 +71,8 @@ export function PublishingCard({
           className="flex-1"
           onClick={() => handleOpenHtmlFile(htmlFiles[0].serveUrl)}
         >
-          <Eye className="h-4 w-4 mr-2" />
-          미리보기
+          <ExternalLink className="h-4 w-4 mr-2" />
+          열기
         </Button>
       )
     }
@@ -85,8 +85,8 @@ export function PublishingCard({
             variant="outline"
             className="flex-1"
           >
-            <Eye className="h-4 w-4 mr-2" />
-            미리보기
+            <ExternalLink className="h-4 w-4 mr-2" />
+            열기
             <ChevronDown className="h-4 w-4 ml-2" />
           </Button>
         </DropdownMenuTrigger>
@@ -120,11 +120,11 @@ export function PublishingCard({
     )
   }
 
-  // 액션 버튼 영역 (미리보기 + 다운로드)
+  // 액션 버튼 영역 (열기 + 다운로드)
   const renderActionButtons = () => {
     return (
       <div className="flex gap-2">
-        {renderPreviewButton()}
+        {renderOpenButton()}
         {renderDownloadButton()}
       </div>
     )
