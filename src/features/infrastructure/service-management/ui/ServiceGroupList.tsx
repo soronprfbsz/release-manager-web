@@ -3,8 +3,8 @@
  * 서비스 타입별 그룹 목록 컴포넌트
  */
 
-import { useMemo } from 'react'
-import { Server } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Server, ChevronDown, ChevronRight } from 'lucide-react'
 
 import type { Service } from '@/entities/infrastructure/service'
 import { useReorderServices } from '@/entities/infrastructure/service'
@@ -29,6 +29,9 @@ export function ServiceGroupList({
 }: ServiceGroupListProps) {
   const reorderMutation = useReorderServices()
   const { data: serviceTypes = [] } = useCodesByType(CODE_TYPE.SERVICE_TYPE)
+  // 카테고리별 펼침/접힘 상태 (기본: 모두 펼침)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const [isInitialized, setIsInitialized] = useState(false)
 
   // Group services by serviceType
   const groupedServices = services.reduce(
@@ -47,6 +50,24 @@ export function ServiceGroupList({
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .filter((type) => groupedServices[type.value]) // 실제 서비스가 있는 타입만
   }, [serviceTypes, groupedServices])
+
+  // 초기 로드 시 모든 카테고리 펼침
+  if (!isInitialized && sortedServiceTypes.length > 0) {
+    setExpandedCategories(new Set(sortedServiceTypes.map(t => t.value)))
+    setIsInitialized(true)
+  }
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev)
+      if (next.has(category)) {
+        next.delete(category)
+      } else {
+        next.add(category)
+      }
+      return next
+    })
+  }
 
   // 각 그룹별로 독립적인 handleReorder 생성
   const createHandleReorder = (serviceType: string) => (reorderedServices: Service[]) => {
@@ -77,33 +98,45 @@ export function ServiceGroupList({
             key={serviceType.value}
             className="space-y-4 py-8 first:pt-0 last:pb-0 border-t first:border-t-0"
           >
-            {/* Group Header */}
-            <div className="flex items-center gap-3">
+            {/* Group Header with Toggle */}
+            <button
+              onClick={() => toggleCategory(serviceType.value)}
+              className="flex items-center gap-3 w-full text-left group"
+            >
               <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
                 <Icon className="h-5 w-5 text-foreground" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold text-base">{serviceType.name}</h3>
                 <p className="text-xs text-muted-foreground">{serviceList.length}개의 서비스</p>
               </div>
-            </div>
+              <div className="text-muted-foreground group-hover:text-foreground transition-colors">
+                {expandedCategories.has(serviceType.value) ? (
+                  <ChevronDown className="h-5 w-5" />
+                ) : (
+                  <ChevronRight className="h-5 w-5" />
+                )}
+              </div>
+            </button>
 
-            {/* Card Grid with Sortable */}
-            <SortableList
-              items={serviceList}
-              onReorder={createHandleReorder(serviceType.value)}
-              keyExtractor={(service) => service.serviceId}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-              strategy="grid"
-              renderItem={(service) => (
-                <SortableServiceCard
-                  service={service}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onManageComponents={onManageComponents}
-                />
-              )}
-            />
+            {/* Card Grid with Sortable - Collapsible */}
+            {expandedCategories.has(serviceType.value) && (
+              <SortableList
+                items={serviceList}
+                onReorder={createHandleReorder(serviceType.value)}
+                keyExtractor={(service) => service.serviceId}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                strategy="grid"
+                renderItem={(service) => (
+                  <SortableServiceCard
+                    service={service}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onManageComponents={onManageComponents}
+                  />
+                )}
+              />
+            )}
           </div>
         )
       })}
