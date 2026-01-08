@@ -34,28 +34,58 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  
+  // 이전 크기를 저장하여 불필요한 업데이트 방지
+  const lastContainerSizeRef = useRef<{ width: number; height: number } | null>(null)
+  // ResizeObserver 콜백 디바운싱
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // 컨테이너 크기 측정
+  // 컨테이너 크기 측정 (디바운싱 + threshold 적용)
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
-        const width = containerRef.current.clientWidth - 16 // 패딩 고려
-        const height = containerRef.current.clientHeight - 16
-        setContainerSize(width > 0 && height > 0 ? { width, height } : null)
+        // 스크롤바 공간을 고려한 고정 여백 (스크롤바 유무와 상관없이 일정한 크기)
+        const width = containerRef.current.clientWidth - 32 // 패딩 + 스크롤바 공간
+        const height = containerRef.current.clientHeight - 32
+        
+        // 이전 크기와 비교하여 10px 이상 차이가 날 때만 업데이트 (진동 방지)
+        const lastSize = lastContainerSizeRef.current
+        const threshold = 10
+        
+        if (
+          width > 0 && height > 0 &&
+          (!lastSize || 
+           Math.abs(lastSize.width - width) > threshold || 
+           Math.abs(lastSize.height - height) > threshold)
+        ) {
+          lastContainerSizeRef.current = { width, height }
+          setContainerSize({ width, height })
+        }
       }
     }
 
     // 초기 측정을 약간 지연시켜 레이아웃이 완료된 후 측정
     const timeoutId = setTimeout(updateSize, 100)
 
-    // ResizeObserver로 컨테이너 크기 변경 감지
-    const resizeObserver = new ResizeObserver(updateSize)
+    // ResizeObserver로 컨테이너 크기 변경 감지 (디바운싱 적용)
+    const resizeObserver = new ResizeObserver(() => {
+      // 이전 디바운스 타이머 취소
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current)
+      }
+      // 150ms 디바운싱으로 연속 호출 방지
+      resizeTimeoutRef.current = setTimeout(updateSize, 150)
+    })
+    
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current)
     }
 
     return () => {
       clearTimeout(timeoutId)
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current)
+      }
       resizeObserver.disconnect()
     }
   }, [file])
@@ -79,7 +109,8 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
       fitWidth = containerSize.height * pageAspectRatio
     }
 
-    return fitWidth * scale
+    // 정수로 반올림하여 서브픽셀 렌더링 문제 방지
+    return Math.floor(fitWidth * scale)
   }, [containerSize, pageSize, scale])
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
