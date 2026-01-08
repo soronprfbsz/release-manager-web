@@ -24,19 +24,19 @@ interface PublishingFiltersProps {
 
 export function PublishingFilters({ filters, onFiltersChange }: PublishingFiltersProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full items-center gap-4">
       {/* Category Filter */}
       <Select
-        value={filters.publishingCategory}
+        value={filters.publishingCategory || 'all'}
         onValueChange={(value) =>
           onFiltersChange({ ...filters, publishingCategory: value === 'all' ? '' : value })
         }
       >
-        <SelectTrigger className="h-8 w-[140px] text-sm">
-          <SelectValue placeholder="전체 카테고리" />
+        <SelectTrigger className="h-9 w-[140px] text-sm shrink-0">
+          <SelectValue placeholder="전체" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">전체 카테고리</SelectItem>
+          <SelectItem value="all">전체</SelectItem>
           {PUBLISHING_CATEGORIES.map((cat) => (
             <SelectItem key={cat.value} value={cat.value}>
               {cat.label}
@@ -46,13 +46,13 @@ export function PublishingFilters({ filters, onFiltersChange }: PublishingFilter
       </Select>
 
       {/* Keyword Search */}
-      <div className="relative">
+      <div className="relative flex-1">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={filters.keyword}
           onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
           placeholder="검색..."
-          className="pl-8 h-8 w-[180px] text-sm"
+          className="pl-8 h-9 w-full text-sm"
         />
       </div>
     </div>

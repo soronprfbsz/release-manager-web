@@ -355,7 +355,7 @@ export function FileContentViewerModal({
           {/* 텍스트 파일 뷰어 */}
           {!isPdf && !isImage && (
             <>
-              <ScrollArea className={`w-full rounded-md border ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+              <ScrollArea className={`w-full rounded-md ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
                 <div className="min-w-max">
                   {isLoading && (
                     <div className="flex items-center justify-center p-8 gap-2">

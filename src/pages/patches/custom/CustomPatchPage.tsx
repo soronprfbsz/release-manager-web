@@ -38,12 +38,9 @@ import {
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { DataTablePagination } from '@/shared/ui/data-table-pagination'
-import { ErrorDisplay } from '@/shared/ui/error-display'
+import { DataTableCard } from '@/shared/ui/data-table-card'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { TypographyMuted } from '@/shared/ui/typography'
 
 interface PaginationState {
   pageIndex: number
@@ -235,57 +232,30 @@ export function CustomPatchPage() {
       }
     >
       {/* Patch List Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <GitBranch className="h-5 w-5" />
-              커스텀 패치 목록
-            </div>
-            {patchList.length > 0 && (
-              <TypographyMuted>총 {patchesData?.totalElements || 0}개</TypographyMuted>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          ) : error ? (
-            <ErrorDisplay
-              title="패치 목록을 불러오는 중 오류가 발생했습니다."
-              error={error as Error}
-              onRetry={refetch}
-            />
-          ) : (
-            <>
-              <PatchTable
-                patches={patchList}
-                sort={sort}
-                isDeleting={deleteMutation.isPending}
-                showDelete={canDeletePatch}
-                onSort={handleSort}
-                onViewFiles={handleViewFiles}
-                onDownload={handleDownload}
-                onDelete={handleDeleteClick}
-                viewportHeight="calc(100vh - 27rem)"
-                emptyIcon={GitBranch}
-              />
-              {patchList.length > 0 && (
-                <div className="pt-4">
-                  <DataTablePagination
-                    pageIndex={pagination.pageIndex}
-                    pageSize={pagination.pageSize}
-                    totalElements={patchesData?.totalElements || 0}
-                    onPaginationChange={setPagination}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <DataTableCard
+        icon={GitBranch}
+        title="커스텀 패치 목록"
+        isLoading={isLoading}
+        error={error as Error | null}
+        onRetry={refetch}
+        hasData={patchList.length > 0}
+        totalElements={patchesData?.totalElements || 0}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+      >
+        <PatchTable
+          patches={patchList}
+          sort={sort}
+          isDeleting={deleteMutation.isPending}
+          showDelete={canDeletePatch}
+          onSort={handleSort}
+          onViewFiles={handleViewFiles}
+          onDownload={handleDownload}
+          onDelete={handleDeleteClick}
+          viewportHeight="calc(100vh - 27rem)"
+          emptyIcon={GitBranch}
+        />
+      </DataTableCard>
 
       {/* Custom Patch Create Form */}
       <CustomPatchCreateForm

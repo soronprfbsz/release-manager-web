@@ -33,8 +33,7 @@ import { useProjects } from '@/entities/operations/project'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { DataTablePagination } from '@/shared/ui/data-table-pagination'
+import { DataTableCard } from '@/shared/ui/data-table-card'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
@@ -230,46 +229,26 @@ export function CustomerListPage() {
       }
     >
       {/* Customer List Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              고객사 목록
-            </CardTitle>
-            <CustomerFilters filters={filters} onFiltersChange={setFilters} />
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          ) : (
-            <>
-              <CustomerTable
-                customers={customerList}
-                sort={sort}
-                onSort={handleSort}
-                onEdit={openEditModal}
-                onDelete={setDeleteConfirmId}
-                onToggleStatus={handleToggleStatus}
-                viewportHeight="calc(100vh - 27rem)"
-              />
-              {customerList.length > 0 && (
-                <div className="pt-4">
-                  <DataTablePagination
-                    pageIndex={pagination.pageIndex}
-                    pageSize={pagination.pageSize}
-                    totalElements={customerData?.totalElements || 0}
-                    onPaginationChange={setPagination}
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <DataTableCard
+        icon={Building2}
+        title="고객사 목록"
+        filters={<CustomerFilters filters={filters} onFiltersChange={setFilters} />}
+        isLoading={isLoading}
+        hasData={customerList.length > 0}
+        totalElements={customerData?.totalElements || 0}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+      >
+        <CustomerTable
+          customers={customerList}
+          sort={sort}
+          onSort={handleSort}
+          onEdit={openEditModal}
+          onDelete={setDeleteConfirmId}
+          onToggleStatus={handleToggleStatus}
+          viewportHeight="calc(100vh - 27rem)"
+        />
+      </DataTableCard>
 
       {/* Form Sheet */}
       <CustomerForm

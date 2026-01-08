@@ -432,7 +432,7 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-muted/50 rounded-md p-4 whitespace-pre-wrap text-sm">
+              <div className="whitespace-pre-wrap text-sm">
                 {version.comment}
               </div>
             </CardContent>

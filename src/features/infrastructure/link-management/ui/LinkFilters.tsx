@@ -16,14 +16,14 @@ interface LinkFiltersProps {
 
 export function LinkFilters({ filters, onFiltersChange }: LinkFiltersProps) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative">
+    <div className="flex w-full items-center gap-4">
+      <div className="relative flex-1">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={filters.keyword}
           onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
           placeholder="검색..."
-          className="pl-8 h-8 w-[180px] text-sm"
+          className="pl-8 h-9 w-full text-sm"
         />
       </div>
     </div>
