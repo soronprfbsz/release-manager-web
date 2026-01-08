@@ -55,18 +55,18 @@ export const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: '개발 지원',
+    label: '업무 지원',
     children: [
       {
         label: '원격 작업',
         children: [
           {
             label: 'MariaDB',
-            path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.MARIADB,
+            path: ROUTES.SUPPORT.REMOTE_JOBS.MARIADB,
           },
           {
             label: '터미널',
-            path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.TERMINAL,
+            path: ROUTES.SUPPORT.REMOTE_JOBS.TERMINAL,
           },
         ],
       },
@@ -75,11 +75,11 @@ export const menuItems: MenuItem[] = [
         children: [
           {
             label: '리소스',
-            path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.RESOURCES,
+            path: ROUTES.SUPPORT.INFRASTRUCTURE.RESOURCES,
           },
           {
             label: '서비스',
-            path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.SERVICES,
+            path: ROUTES.SUPPORT.INFRASTRUCTURE.SERVICES,
           },
         ],
       },

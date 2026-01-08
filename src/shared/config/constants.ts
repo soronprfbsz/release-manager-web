@@ -29,14 +29,14 @@ export const ROUTES = {
     PROJECTS: '/operations/projects',
     FILE_SYNC: '/operations/file-sync',
   },
-  DEVELOPMENT_SUPPORT: {
+  SUPPORT: {
     REMOTE_JOBS: {
-      MARIADB: '/development-support/remote-jobs/mariadb',
-      TERMINAL: '/development-support/remote-jobs/terminal',
+      MARIADB: '/support/remote-jobs/mariadb',
+      TERMINAL: '/support/remote-jobs/terminal',
     },
     INFRASTRUCTURE: {
-      RESOURCES: '/development-support/infrastructure/resources',
-      SERVICES: '/development-support/infrastructure/services',
+      RESOURCES: '/support/infrastructure/resources',
+      SERVICES: '/support/infrastructure/services',
     },
   },
 } as const

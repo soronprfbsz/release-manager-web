@@ -37,13 +37,13 @@ export type MenuId =
   | 'operation_customers'
   | 'operation_engineers'
   | 'operation_accounts'
-  // 개발 지원 (1depth)
-  | 'development_support'
-  // 원격 작업 (2depth under development_support)
+  // 업무 지원 (1depth)
+  | 'support'
+  // 원격 작업 (2depth under support)
   | 'remote_jobs'
   | 'remote_mariadb'
   | 'remote_terminal'
-  // 인프라 (2depth under development_support)
+  // 인프라 (2depth under support)
   | 'infrastructure'
   | 'infrastructure_resources'
   | 'infrastructure_services'

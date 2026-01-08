@@ -131,7 +131,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.MARIADB,
+    path: ROUTES.SUPPORT.REMOTE_JOBS.MARIADB,
     element: (
       <ProtectedRoute>
         <MainLayout>
@@ -141,7 +141,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.DEVELOPMENT_SUPPORT.REMOTE_JOBS.TERMINAL,
+    path: ROUTES.SUPPORT.REMOTE_JOBS.TERMINAL,
     element: (
       <ProtectedRoute>
         <MainLayout>
@@ -151,7 +151,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.DEVELOPMENT_SUPPORT.INFRASTRUCTURE.RESOURCES,
+    path: ROUTES.SUPPORT.INFRASTRUCTURE.RESOURCES,
     element: (
       <ProtectedRoute>
         <MainLayout>
