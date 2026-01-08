@@ -3,7 +3,7 @@
  * 고객사 생성/수정 폼 컴포넌트
  */
 
-import { Building2 } from 'lucide-react'
+import { getFormIcon } from '@/shared/config/domain-icons'
 
 import type { Project } from '@/entities/operations/project'
 
@@ -45,7 +45,7 @@ export function CustomerForm({
   return (
     <FormSheet
       mode={mode}
-      icon={Building2}
+      icon={getFormIcon(mode, 'customer')}
       title={{ create: '고객사 생성', edit: '고객사 수정' }}
       description={{
         create: '새 고객사 정보를 입력하세요.',

@@ -7,11 +7,12 @@ import {
   ArrowRight,
   Calendar,
   Download,
+  Eye,
   FileText,
-  Package,
+  Tag,
   Trash2,
   User,
-  Eye,
+  type LucideIcon,
 } from 'lucide-react'
 
 import type { CumulativePatch } from '@/entities/patches/patch'
@@ -49,6 +50,8 @@ interface PatchTableProps {
   onDelete: (patch: CumulativePatch) => void
   /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 27rem)") */
   viewportHeight?: string
+  /** EmptyState에 사용할 아이콘 */
+  emptyIcon?: LucideIcon
 }
 
 export function PatchTable({
@@ -61,11 +64,12 @@ export function PatchTable({
   onDownload,
   onDelete,
   viewportHeight,
+  emptyIcon: EmptyIcon = Tag,
 }: PatchTableProps) {
   if (patches.length === 0) {
     return (
       <EmptyState
-        icon={Package}
+        icon={EmptyIcon}
         title="생성된 패치가 없습니다."
         description="패치 생성 버튼을 눌러 새 패치를 생성하세요."
       />

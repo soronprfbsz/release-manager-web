@@ -3,6 +3,15 @@
  * 위젯 모듈 통합 export
  */
 
+// Common Widgets (여러 도메인에서 공유)
+export {
+  FileExplorer,
+  type FileExplorerProps,
+  type FileNode,
+  type FileTreeData,
+  type FileContentData,
+} from './common'
+
 // Shared Widgets
 export {
   NavigationBar,
@@ -20,6 +29,9 @@ export {
   type LinkResourceTabHandle,
   FileResourceTab,
   type FileResourceTabHandle,
+  PublishingTab,
+  type PublishingTabHandle,
+  PublishingFileExplorer,
 } from './infrastructure'
 
 // Remote Jobs Widgets

@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Plus, RefreshCw, Package } from 'lucide-react'
+import { Plus, RefreshCw, Tag } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -275,7 +275,7 @@ export function StandardPatchPage() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
+              <Tag className="h-5 w-5" />
               표준 패치 목록
             </div>
             {patchList.length > 0 && (
@@ -334,6 +334,7 @@ export function StandardPatchPage() {
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}
         onClose={handleFormClose}
+        icon={pageIcon}
       />
 
       {/* File Explorer */}

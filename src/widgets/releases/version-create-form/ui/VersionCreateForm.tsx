@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Info, Tag, ChevronRight, Pencil } from 'lucide-react'
+import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import { useProjectStore } from '@/shared/store'
@@ -36,6 +36,8 @@ interface VersionCreateFormProps {
   onSuccess: () => void
   /** 최신 버전 정보 */
   latestVersion?: string
+  /** 페이지 헤더와 동일한 아이콘 */
+  icon?: LucideIcon
 }
 
 type VersionBumpType = 'major' | 'minor' | 'patch'
@@ -68,7 +70,7 @@ function bumpVersion(version: string, type: VersionBumpType): string {
   }
 }
 
-export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion }: VersionCreateFormProps) {
+export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion, icon: PageIcon = Tag }: VersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
   const [version, setVersion] = useState('')
   const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
@@ -275,7 +277,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   return (
     <FormSheet
       open={open}
-      icon={Tag}
+      icon={PageIcon}
       title="버전 생성"
       description="새로운 릴리즈 버전을 생성합니다."
       submitLabel="생성"

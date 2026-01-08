@@ -272,7 +272,7 @@ export function HomePage() {
 
       {/* Quick Guide */}
       <div className="flex-shrink-0">
-        <TypographyLarge className="mb-3">Guide</TypographyLarge>
+        <TypographyLarge className="mb-3">Quick Guide</TypographyLarge>
         <Card>
           <CardContent className="p-5">
             <div className="flex items-start gap-4">

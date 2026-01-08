@@ -3,7 +3,7 @@
  * 계정 수정 폼 컴포넌트
  */
 
-import { User } from 'lucide-react'
+import { getFormIcon } from '@/shared/config/domain-icons'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -40,7 +40,7 @@ export function AccountForm({
   return (
     <FormSheet
       mode="edit"
-      icon={User}
+      icon={getFormIcon('edit', 'account')}
       title={{ create: '', edit: '계정 수정' }}
       description={{
         create: '',

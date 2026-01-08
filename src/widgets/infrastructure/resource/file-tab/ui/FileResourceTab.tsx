@@ -15,23 +15,23 @@ import {
   useDeleteResource,
   type ResourceFile,
   type ResourceFileUpdateRequest,
-} from '@/entities/infrastructure/resource'
+} from '@/entities/infrastructure/file'
 
 import {
-  ResourceGroupList,
-  ResourceUploadForm,
-  ResourceEditForm,
-  ResourceDeleteModal,
-  ResourceFilters,
-  type ResourceUploadFormData,
-  type ResourceFiltersState,
-} from '@/features/infrastructure/resource-management'
+  FileGroupList,
+  FileUploadForm,
+  FileEditForm,
+  FileDeleteModal,
+  FileFilters,
+  type FileUploadFormData,
+  type FileFiltersState,
+} from '@/features/infrastructure/file-management'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { base64ToBlob, base64ToText, isPdfFile, isImageFile } from '@/shared/lib/utils/file-content'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 
-const INITIAL_FORM_DATA: ResourceUploadFormData = {
+const INITIAL_FORM_DATA: FileUploadFormData = {
   file: null,
   fileCategory: '',
   subCategory: '',
@@ -59,11 +59,11 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     const [viewingResource, setViewingResource] = useState<ResourceFile | null>(null)
 
     // Upload form state
-    const [formData, setFormData] = useState<ResourceUploadFormData>(INITIAL_FORM_DATA)
+    const [formData, setFormData] = useState<FileUploadFormData>(INITIAL_FORM_DATA)
     const [uploadProgress, setUploadProgress] = useState(0)
 
     // Filter state
-    const [filters, setFilters] = useState<ResourceFiltersState>({ keyword: '' })
+    const [filters, setFilters] = useState<FileFiltersState>({ category: '', keyword: '' })
 
     // Queries
     const {
@@ -124,7 +124,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     // Mutations
     const uploadMutation = useUploadResource({
       onSuccess: () => {
-        toast({ title: '업로드 완료', description: '리소스 파일이 등록되었습니다.' })
+        toast({ title: '업로드 완료', description: '파일이 등록되었습니다.' })
         closeUploadModal()
       },
       onError: (error: Error) => {
@@ -134,7 +134,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     const updateMutation = useUpdateResource({
       onSuccess: () => {
-        toast({ title: '수정 완료', description: '리소스 파일 정보가 수정되었습니다.' })
+        toast({ title: '수정 완료', description: '파일 정보가 수정되었습니다.' })
         setEditingResource(null)
       },
       onError: (error: Error) => {
@@ -144,7 +144,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     const deleteMutation = useDeleteResource({
       onSuccess: () => {
-        toast({ title: '삭제 완료', description: '리소스 파일이 삭제되었습니다.' })
+        toast({ title: '삭제 완료', description: '파일이 삭제되었습니다.' })
         setDeleteTarget(null)
       },
       onError: (error: Error) => {
@@ -191,8 +191,8 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
       }
       if (!formData.resourceFileName.trim()) {
         toast({
-          title: '리소스명 입력 필요',
-          description: '리소스명을 입력해주세요.',
+          title: '파일명 입력 필요',
+          description: '파일명을 입력해주세요.',
           variant: 'destructive',
         })
         return
@@ -237,19 +237,19 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
         <div className="space-y-6">
           {/* Filters */}
           <div className="flex justify-end">
-            <ResourceFilters filters={filters} onFiltersChange={setFilters} />
+            <FileFilters filters={filters} onFiltersChange={setFilters} />
           </div>
 
-          {/* Resource List */}
+          {/* File List */}
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="flex flex-col items-center gap-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                <p className="text-sm text-muted-foreground">리소스 목록을 불러오는 중...</p>
+                <p className="text-sm text-muted-foreground">파일 목록을 불러오는 중...</p>
               </div>
             </div>
           ) : (
-            <ResourceGroupList
+            <FileGroupList
               resources={resourceList}
               categories={fileCategoryList}
               onDownload={handleDownload}
@@ -261,7 +261,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
         </div>
 
         {/* File Upload Form */}
-        <ResourceUploadForm
+        <FileUploadForm
           isOpen={isUploadOpen}
           formData={formData}
           categories={fileCategoryList}
@@ -274,7 +274,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
         />
 
         {/* File Edit Form */}
-        <ResourceEditForm
+        <FileEditForm
           isOpen={editingResource !== null}
           resource={editingResource}
           isSubmitting={updateMutation.isPending}
@@ -283,10 +283,10 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
         />
 
         {/* File Delete Modal */}
-        <ResourceDeleteModal
+        <FileDeleteModal
           isOpen={deleteTarget !== null}
           isDeleting={deleteMutation.isPending}
-          resourceName={deleteTarget?.resourceFileName || deleteTarget?.fileName || ''}
+          fileName={deleteTarget?.resourceFileName || deleteTarget?.fileName || ''}
           onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.resourceFileId)}
           onClose={() => setDeleteTarget(null)}
         />

@@ -5,7 +5,6 @@
 
 // UI Components
 export { PublishingCard } from './ui/PublishingCard'
-export { PublishingCardBase } from './ui/PublishingCardBase'
 export { SortablePublishingCard } from './ui/SortablePublishingCard'
 export { PublishingGroupList } from './ui/PublishingGroupList'
 export { PublishingUploadForm } from './ui/PublishingUploadForm'

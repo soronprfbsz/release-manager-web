@@ -3,7 +3,7 @@
  * 퍼블리싱 카드 컴포넌트
  */
 
-import { ChevronDown, Download, Edit2, ExternalLink, FileText, FolderOpen } from 'lucide-react'
+import { ChevronDown, Download, Pencil, ExternalLink, FileText, FolderSearch } from 'lucide-react'
 
 import { publishingApi, type PublishingListItem } from '@/entities/infrastructure/publishing'
 import { Button } from '@/shared/ui/button'
@@ -13,9 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
+import { ResourceCard } from '@/shared/ui/resource-card'
 
 import { getSubCategoryIcon, getSubCategoryLabel } from '../lib/publishingHelpers'
-import { PublishingCardBase } from './PublishingCardBase'
 
 interface PublishingCardProps {
   publishing: PublishingListItem
@@ -23,7 +23,6 @@ interface PublishingCardProps {
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
   dragHandleProps?: any
-  categoryIndex?: number
 }
 
 export function PublishingCard({
@@ -32,7 +31,6 @@ export function PublishingCard({
   onEdit,
   onViewFiles,
   dragHandleProps,
-  categoryIndex = 0,
 }: PublishingCardProps) {
   const icon = getSubCategoryIcon(publishing.subCategory)
   const htmlFiles = publishing.htmlFiles || []
@@ -131,26 +129,15 @@ export function PublishingCard({
   }
 
   return (
-    <PublishingCardBase
+    <ResourceCard
       title={publishing.publishingName}
       subtitle={getSubCategoryLabel(publishing.subCategory)}
       description={publishing.description}
       icon={icon}
-      categoryIndex={categoryIndex}
       dragHandleProps={dragHandleProps}
       onDelete={() => onDelete(publishing)}
       headerActions={
         <div className="flex items-center gap-1">
-          {onViewFiles && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onViewFiles(publishing)}
-              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
-            >
-              <FolderOpen className="h-4 w-4" />
-            </Button>
-          )}
           {onEdit && (
             <Button
               variant="ghost"
@@ -158,7 +145,17 @@ export function PublishingCard({
               onClick={() => onEdit(publishing)}
               className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
             >
-              <Edit2 className="h-4 w-4" />
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+          {onViewFiles && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewFiles(publishing)}
+              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+            >
+              <FolderSearch className="h-4 w-4" />
             </Button>
           )}
         </div>

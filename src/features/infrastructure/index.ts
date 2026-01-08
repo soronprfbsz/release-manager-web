@@ -3,25 +3,34 @@
  * 인프라 관련 기능 모음
  */
 
-// Resource Management
+// Link Management
 export {
-  ResourceCard,
-  ResourceGroupList,
-  ResourceUploadForm,
-  ResourceEditForm,
-  ResourceDeleteModal,
-  LinkResourceList,
-  LinkResourceForm,
-  ResourceFilters,
+  LinkCard,
+  SortableLinkCard,
+  LinkGroupList,
+  LinkList,
+  LinkForm,
+  getLinkIcon,
+  getLinkGroupIcon,
+} from './link-management'
+
+// File Management
+export {
+  FileCard,
+  SortableFileCard,
+  FileGroupList,
+  FileUploadForm,
+  FileEditForm,
+  FileDeleteModal,
+  FileFilters,
   getFileTypeIcon,
-  getResourceColorClass,
-  getGroupColorClass,
-  getGroupIcon,
+  getFileSubCategoryIcon,
+  getFileGroupIcon,
   formatFileSize,
-  type ResourceUploadFormData,
-  type ResourceUploadMode,
-  type ResourceFiltersState,
-} from './resource-management'
+  type FileUploadFormData,
+  type FileUploadMode,
+  type FileFiltersState,
+} from './file-management'
 
 // Service Management
 export {
@@ -50,7 +59,6 @@ export {
 // Publishing Management
 export {
   PublishingCard,
-  PublishingCardBase,
   SortablePublishingCard,
   PublishingGroupList,
   PublishingUploadForm,

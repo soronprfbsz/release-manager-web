@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Info, Tag } from 'lucide-react'
+import { Info, Tag, type LucideIcon } from 'lucide-react'
 
 import { useCustomers, type Customer } from '@/entities/operations/customer'
 import { useProjectStore } from '@/shared/store'
@@ -28,11 +28,13 @@ interface CustomVersionCreateFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  /** 페이지 헤더와 동일한 아이콘 */
+  icon?: LucideIcon
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024 // 10GB
 
-export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: CustomVersionCreateFormProps) {
+export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: PageIcon = Tag }: CustomVersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
   const [customerId, setCustomerId] = useState<number | null>(null)
   const [customBaseVersionId, setCustomBaseVersionId] = useState<number | null>(null)
@@ -265,7 +267,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess }: Custo
   return (
     <FormSheet
       open={open}
-      icon={Tag}
+      icon={PageIcon}
       title="커스텀 버전 생성"
       description="고객사별 커스텀 릴리즈 버전을 생성합니다."
       submitLabel="생성"

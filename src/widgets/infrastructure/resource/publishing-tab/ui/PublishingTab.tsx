@@ -25,7 +25,7 @@ import {
   type PublishingFiltersState,
 } from '@/features/infrastructure/publishing-management'
 
-import { PublishingFileExplorer } from '@/widgets/infrastructure/publishing-file-explorer'
+import { PublishingFileExplorer } from './PublishingFileExplorer'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 

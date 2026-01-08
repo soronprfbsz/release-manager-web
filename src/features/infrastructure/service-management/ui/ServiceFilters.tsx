@@ -4,6 +4,8 @@
  */
 
 import { Search } from 'lucide-react'
+
+import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 import {
   Select,
   SelectContent,
@@ -20,6 +22,8 @@ interface ServiceFiltersProps {
 }
 
 export function ServiceFilters({ filters, onFiltersChange }: ServiceFiltersProps) {
+  const { data: serviceTypes = [] } = useCodesByType(CODE_TYPE.SERVICE_TYPE)
+
   return (
     <div className="flex flex-wrap items-center gap-4">
       {/* 서비스 타입 필터 */}
@@ -34,10 +38,11 @@ export function ServiceFilters({ filters, onFiltersChange }: ServiceFiltersProps
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">전체</SelectItem>
-          <SelectItem value="infraeye1">InfraEye 1</SelectItem>
-          <SelectItem value="infraeye2">InfraEye 2</SelectItem>
-          <SelectItem value="infra">Infra</SelectItem>
-          <SelectItem value="etc">기타</SelectItem>
+          {serviceTypes.map((type) => (
+            <SelectItem key={type.value} value={type.value}>
+              {type.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

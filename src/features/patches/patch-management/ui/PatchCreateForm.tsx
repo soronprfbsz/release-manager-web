@@ -3,7 +3,7 @@
  * 패치 생성 폼 컴포넌트
  */
 
-import { ArrowRight, Layers } from 'lucide-react'
+import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
 import type { Customer } from '@/entities/operations'
 import type { Engineer } from '@/entities/operations'
@@ -36,6 +36,8 @@ interface PatchCreateFormProps {
   onFormDataChange: (data: PatchCreateFormData) => void
   onSubmit: () => void
   onClose: () => void
+  /** 페이지 헤더와 동일한 아이콘 */
+  icon?: LucideIcon
 }
 
 export function PatchCreateForm({
@@ -49,6 +51,7 @@ export function PatchCreateForm({
   onFormDataChange,
   onSubmit,
   onClose,
+  icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
   const handleFromVersionChange = (value: string) => {
     onFormDataChange({
@@ -65,11 +68,11 @@ export function PatchCreateForm({
   return (
     <FormSheet
       open={isOpen}
-      icon={Layers}
+      icon={PageIcon}
       title="패치 생성"
       description="선택한 버전 범위 내의 모든 변경사항이 하나의 패치 파일로 생성됩니다."
       submitLabel="패치 생성"
-      submitIcon={Layers}
+      submitIcon={PageIcon}
       isSubmitting={isSubmitting}
       submitDisabled={!formData.fromVersion || !formData.toVersion}
       onSubmit={onSubmit}

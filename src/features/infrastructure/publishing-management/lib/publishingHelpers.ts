@@ -4,49 +4,22 @@
  */
 
 import { createElement } from 'react'
-import {
-  LayoutDashboard,
-  FileText,
-  Monitor,
-  Component,
-  Layout,
-  Package,
-  Layers,
-  Globe,
-} from 'lucide-react'
-
-/** 서브카테고리별 아이콘 매핑 */
-const SUB_CATEGORY_ICONS: Record<string, any> = {
-  DASHBOARD: LayoutDashboard,
-  REPORT: FileText,
-  MONITORING: Monitor,
-  COMPONENT: Component,
-  LAYOUT: Layout,
-  ETC: Layers,
-}
-
-/** 카테고리별 아이콘 매핑 */
-const CATEGORY_ICONS: Record<string, any> = {
-  INFRAEYE1: Package,
-  INFRAEYE2: Layers,
-  COMMON: Component,
-  ETC: Globe,
-}
+import { Globe } from 'lucide-react'
 
 /**
  * 서브카테고리에 따른 아이콘 반환
+ * 모든 퍼블리싱은 탭 아이콘과 동일한 Globe 아이콘 사용
  */
-export function getSubCategoryIcon(subCategory: string | null) {
-  const IconComponent = SUB_CATEGORY_ICONS[subCategory?.toUpperCase() || ''] || Layers
-  return createElement(IconComponent, { className: 'h-5 w-5 text-primary' })
+export function getSubCategoryIcon(_subCategory: string | null) {
+  return createElement(Globe, { className: 'h-5 w-5 text-primary' })
 }
 
 /**
  * 카테고리(제품) 그룹 아이콘 반환
+ * 모든 카테고리는 탭 아이콘과 동일한 Globe 아이콘 사용
  */
-export function getCategoryIcon(category: string) {
-  const IconComponent = CATEGORY_ICONS[category?.toUpperCase()] || Globe
-  return createElement(IconComponent, { className: 'h-5 w-5' })
+export function getCategoryIcon(_category: string) {
+  return createElement(Globe, { className: 'h-5 w-5' })
 }
 
 /**

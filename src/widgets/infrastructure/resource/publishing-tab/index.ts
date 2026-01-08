@@ -4,4 +4,5 @@
  */
 
 export { PublishingTab, type PublishingTabHandle } from './ui/PublishingTab'
+export { PublishingFileExplorer } from './ui/PublishingFileExplorer'
 

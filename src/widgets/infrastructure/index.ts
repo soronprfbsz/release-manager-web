@@ -10,6 +10,7 @@ export {
   type LinkResourceTabHandle,
   FileResourceTab,
   type FileResourceTabHandle,
+  PublishingTab,
+  type PublishingTabHandle,
+  PublishingFileExplorer,
 } from './resource'
-
-export { PublishingFileExplorer } from './publishing-file-explorer'

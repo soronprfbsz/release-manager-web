@@ -3,7 +3,7 @@
  * 서비스 생성/수정 폼
  */
 
-import { Server } from 'lucide-react'
+import { getFormIcon } from '@/shared/config/domain-icons'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -40,7 +40,7 @@ export function ServiceForm({
   return (
     <FormSheet
       mode={mode}
-      icon={Server}
+      icon={getFormIcon(mode, 'service')}
       title={{ create: '서비스 생성', edit: '서비스 수정' }}
       description={{
         create: '새 서비스 정보를 입력하세요.',

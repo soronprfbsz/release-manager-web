@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Plus, RefreshCw, Package } from 'lucide-react'
+import { Plus, RefreshCw, GitBranch } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -249,7 +249,7 @@ export function CustomPatchPage() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
+              <GitBranch className="h-5 w-5" />
               커스텀 패치 목록
             </div>
             {patchList.length > 0 && (
@@ -280,6 +280,7 @@ export function CustomPatchPage() {
                 onDownload={handleDownload}
                 onDelete={handleDeleteClick}
                 viewportHeight="calc(100vh - 27rem)"
+                emptyIcon={GitBranch}
               />
               {patchList.length > 0 && (
                 <div className="pt-4">
@@ -309,6 +310,7 @@ export function CustomPatchPage() {
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}
         onClose={handleFormClose}
+        icon={pageIcon}
       />
 
       {/* File Explorer */}
@@ -317,6 +319,7 @@ export function CustomPatchPage() {
         onOpenChange={setFileExplorerOpen}
         patchId={selectedPatch?.patchId || null}
         patchName={selectedPatch?.patchName || ''}
+        icon={GitBranch}
       />
 
       {/* Delete Modal */}

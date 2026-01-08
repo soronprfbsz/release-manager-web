@@ -4,6 +4,8 @@
  */
 
 import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
+
+import { getDomainIcon } from '@/shared/config/domain-icons'
 import { useQuery } from '@tanstack/react-query'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
@@ -99,7 +101,7 @@ export function PublishingUploadForm({
   return (
     <FormSheet
       open={isOpen}
-      icon={Upload}
+      icon={getDomainIcon('publishing')}
       title="퍼블리싱 추가"
       description="HTML, CSS, 이미지 등이 포함된 ZIP 파일을 업로드합니다."
       submitLabel="업로드"

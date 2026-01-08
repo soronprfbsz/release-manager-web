@@ -95,18 +95,10 @@ export function getComponentTypeIcon(type: ComponentType): LucideIcon {
 /**
  * 컴포넌트 타입 폰트 색상 클래스 반환
  * 서비스 카드 내 컴포넌트 목록에서 사용
+ * 다른 탭(링크, 파일, 퍼블리싱)과 동일하게 primary 색상 사용
  */
-export function getComponentTypeTextColor(type: ComponentType): string {
-  switch (type) {
-    case 'WEB':
-      return 'text-[hsl(var(--chart-1))]'
-    case 'DATABASE':
-      return 'text-[hsl(var(--chart-2))]'
-    case 'ENGINE':
-      return 'text-[hsl(var(--chart-3))]'
-    default:
-      return 'text-muted-foreground'
-  }
+export function getComponentTypeTextColor(_type: ComponentType): string {
+  return 'text-primary'
 }
 
 /**

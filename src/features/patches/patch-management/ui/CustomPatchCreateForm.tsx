@@ -3,7 +3,7 @@
  * 커스텀 패치 생성 폼 컴포넌트 (FormSheet 기반)
  */
 
-import { ArrowRight, GitBranch, Layers } from 'lucide-react'
+import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
 import type { Engineer } from '@/entities/operations'
 import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
@@ -29,6 +29,8 @@ interface CustomPatchCreateFormProps {
   onFormDataChange: (data: CustomPatchCreateFormData) => void
   onSubmit: () => void
   onClose: () => void
+  /** 페이지 헤더와 동일한 아이콘 */
+  icon?: LucideIcon
 }
 
 export function CustomPatchCreateForm({
@@ -43,6 +45,7 @@ export function CustomPatchCreateForm({
   onFormDataChange,
   onSubmit,
   onClose,
+  icon: PageIcon = GitBranch,
 }: CustomPatchCreateFormProps) {
   // 승인된 버전만 필터링
   const approvedVersions = versions.filter((v) => v.isApproved)
@@ -68,11 +71,11 @@ export function CustomPatchCreateForm({
   return (
     <FormSheet
       open={isOpen}
-      icon={GitBranch}
+      icon={PageIcon}
       title="커스텀 패치 생성"
       description="고객사의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다."
       submitLabel="패치 생성"
-      submitIcon={Layers}
+      submitIcon={PageIcon}
       isSubmitting={isSubmitting}
       submitDisabled={!formData.customerId || !formData.fromVersion || !formData.toVersion}
       onSubmit={onSubmit}

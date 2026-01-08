@@ -12,14 +12,14 @@ import {
   useDeleteLinkResource,
   type LinkResource,
   type LinkResourceCreateRequest,
-} from '@/entities/infrastructure/resource'
+} from '@/entities/infrastructure/link'
 
 import {
-  LinkResourceList,
-  LinkResourceForm,
-  ResourceFilters,
-  type ResourceFiltersState,
-} from '@/features/infrastructure/resource-management'
+  LinkList,
+  LinkForm,
+  LinkFilters,
+  type LinkFiltersState,
+} from '@/features/infrastructure/link-management'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {
@@ -52,7 +52,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
     const [deleteLinkTarget, setDeleteLinkTarget] = useState<LinkResource | null>(null)
 
     // Filter state
-    const [filters, setFilters] = useState<ResourceFiltersState>({ keyword: '' })
+    const [filters, setFilters] = useState<LinkFiltersState>({ category: '', keyword: '' })
 
     // Queries
     const {
@@ -128,7 +128,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
         <div className="space-y-6">
           {/* Filters */}
           <div className="flex justify-end">
-            <ResourceFilters filters={filters} onFiltersChange={setFilters} />
+            <LinkFilters filters={filters} onFiltersChange={setFilters} />
           </div>
 
           {/* Link List */}
@@ -140,7 +140,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
               </div>
             </div>
           ) : (
-            <LinkResourceList
+            <LinkList
               resources={linkResourceList}
               onDelete={setDeleteLinkTarget}
               onEdit={handleEditLink}
@@ -149,7 +149,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
         </div>
 
         {/* Link Add/Edit Form (Sheet) */}
-        <LinkResourceForm
+        <LinkForm
           isOpen={isLinkAddOpen}
           mode={editingLink ? 'update' : 'create'}
           initialData={editingLink}

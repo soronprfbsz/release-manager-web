@@ -1,11 +1,13 @@
 /**
  * Resource Page
- * 리소스 관리 페이지 - 서비스, 링크, 파일 탭 조합
+ * 리소스 관리 페이지 - 서비스, 링크, 파일 등 탭 조합
  */
 
 import { useRef } from 'react'
 
-import { Plus, RefreshCw, Server, Link as LinkIcon, FolderOpen, Globe } from 'lucide-react'
+import { Plus, RefreshCw } from 'lucide-react'
+
+import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -29,22 +31,22 @@ type TabType = 'services' | 'links' | 'files' | 'publishing'
 
 const TAB_CONFIG = {
   services: {
-    icon: Server,
+    icon: DOMAIN_ICONS.service,
     label: '서비스',
     addTooltip: '서비스 추가',
   },
   links: {
-    icon: LinkIcon,
+    icon: DOMAIN_ICONS.link,
     label: '링크',
     addTooltip: '링크 추가',
   },
   files: {
-    icon: FolderOpen,
+    icon: DOMAIN_ICONS.file,
     label: '파일',
     addTooltip: '파일 업로드',
   },
   publishing: {
-    icon: Globe,
+    icon: DOMAIN_ICONS.publishing,
     label: '퍼블리싱',
     addTooltip: '퍼블리싱 업로드',
   },

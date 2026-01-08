@@ -5,22 +5,14 @@
 
 import { useState } from 'react'
 
-import { Loader2, Upload } from 'lucide-react'
+import { Upload, type LucideIcon } from 'lucide-react'
 
 import { useCodesByType, CODE_TYPE, type CodeSimpleResponse } from '@/entities/_shared/code'
 
-import { Button } from '@/shared/ui/button'
 import { Combobox } from '@/shared/ui/combobox'
+import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/shared/ui/sheet'
 
 import type { FileSyncResult, ResourceRegisterItem } from '../api/types'
 
@@ -30,6 +22,8 @@ interface ResourceRegisterFormProps {
   item: FileSyncResult | null
   isSubmitting: boolean
   onSubmit: (data: ResourceRegisterItem) => void
+  /** 페이지 헤더와 동일한 아이콘 */
+  icon?: LucideIcon
 }
 
 export function ResourceRegisterForm({
@@ -38,6 +32,7 @@ export function ResourceRegisterForm({
   item,
   isSubmitting,
   onSubmit,
+  icon: PageIcon = Upload,
 }: ResourceRegisterFormProps) {
   const [resourceFileName, setResourceFileName] = useState('')
   const [fileCategory, setFileCategory] = useState('')
@@ -68,8 +63,7 @@ export function ResourceRegisterForm({
     onOpenChange(false)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (!item) return
 
     const data: ResourceRegisterItem = {
@@ -84,118 +78,82 @@ export function ResourceRegisterForm({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[450px] sm:max-w-[450px]">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            리소스 파일 등록
-          </SheetTitle>
-          <SheetDescription>
-            파일을 리소스로 등록합니다. 추가 정보를 입력하세요.
-          </SheetDescription>
-        </SheetHeader>
+    <FormSheet
+      open={open}
+      icon={PageIcon}
+      title="리소스 파일 등록"
+      description="파일을 리소스로 등록합니다. 추가 정보를 입력하세요."
+      submitLabel="등록"
+      submitIcon={Upload}
+      isSubmitting={isSubmitting}
+      onSubmit={handleSubmit}
+      onClose={handleClose}
+      width="w-[450px] sm:max-w-[450px]"
+    >
+      {/* 파일 정보 표시 */}
+      {item && (
+        <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+          <div className="text-sm">
+            <span className="text-muted-foreground">파일명: </span>
+            <span className="font-medium">{item.fileName}</span>
+          </div>
+          <div className="text-xs text-muted-foreground font-mono break-all">
+            {item.filePath}
+          </div>
+        </div>
+      )}
 
-        <ScrollArea className="h-[calc(100vh-180px)] mt-6 pr-4">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 파일 정보 표시 */}
-            {item && (
-              <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">파일명: </span>
-                  <span className="font-medium">{item.fileName}</span>
-                </div>
-                <div className="text-xs text-muted-foreground font-mono break-all">
-                  {item.filePath}
-                </div>
-              </div>
-            )}
+      {/* 대분류 */}
+      <div className="space-y-2">
+        <Label>대분류</Label>
+        <Combobox
+          options={categories.map((cat: CodeSimpleResponse) => ({
+            value: cat.value,
+            label: cat.name,
+          }))}
+          value={fileCategory}
+          onValueChange={handleCategoryChange}
+          placeholder="대분류를 선택하세요 (선택)"
+          searchPlaceholder="대분류 검색..."
+        />
+      </div>
 
-            {/* 대분류 */}
-            <div className="space-y-2">
-              <Label>대분류</Label>
-              <Combobox
-                options={categories.map((cat: CodeSimpleResponse) => ({
-                  value: cat.value,
-                  label: cat.name,
-                }))}
-                value={fileCategory}
-                onValueChange={handleCategoryChange}
-                placeholder="대분류를 선택하세요 (선택)"
-                searchPlaceholder="대분류 검색..."
-              />
-            </div>
+      {/* 소분류 */}
+      {subCategories.length > 0 && (
+        <div className="space-y-2">
+          <Label>소분류</Label>
+          <Combobox
+            options={subCategories.map((cat: CodeSimpleResponse) => ({
+              value: cat.value,
+              label: cat.name,
+            }))}
+            value={subCategory}
+            onValueChange={setSubCategory}
+            placeholder="소분류를 선택하세요 (선택)"
+            searchPlaceholder="소분류 검색..."
+          />
+        </div>
+      )}
 
-            {/* 소분류 */}
-            {subCategories.length > 0 && (
-              <div className="space-y-2">
-                <Label>소분류</Label>
-                <Combobox
-                  options={subCategories.map((cat: CodeSimpleResponse) => ({
-                    value: cat.value,
-                    label: cat.name,
-                  }))}
-                  value={subCategory}
-                  onValueChange={setSubCategory}
-                  placeholder="소분류를 선택하세요 (선택)"
-                  searchPlaceholder="소분류 검색..."
-                />
-              </div>
-            )}
+      {/* 리소스명 */}
+      <div className="space-y-2">
+        <Label>리소스명</Label>
+        <Input
+          value={resourceFileName}
+          onChange={(e) => setResourceFileName(e.target.value)}
+          placeholder="리소스 이름 (선택, 미입력시 파일명 사용)"
+        />
+      </div>
 
-            {/* 리소스명 */}
-            <div className="space-y-2">
-              <Label>리소스명</Label>
-              <Input
-                value={resourceFileName}
-                onChange={(e) => setResourceFileName(e.target.value)}
-                placeholder="리소스 이름 (선택, 미입력시 파일명 사용)"
-              />
-            </div>
-
-            {/* 설명 */}
-            <div className="space-y-2">
-              <Label>설명</Label>
-              <Input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="리소스에 대한 설명 (선택)"
-              />
-            </div>
-
-            {/* 버튼 */}
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                취소
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    등록 중...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    등록
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      {/* 설명 */}
+      <div className="space-y-2">
+        <Label>설명</Label>
+        <Input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="리소스에 대한 설명 (선택)"
+        />
+      </div>
+    </FormSheet>
   )
 }
-

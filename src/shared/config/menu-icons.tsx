@@ -31,8 +31,6 @@ function toPascalCase(str: string): string {
 const reactIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   mariadb: SiMariadb,
   'si-mariadb': SiMariadb,
-  resources: GrResources,
-  'gr-resources': GrResources,
 }
 
 /**

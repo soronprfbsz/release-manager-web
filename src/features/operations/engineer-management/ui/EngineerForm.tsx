@@ -3,7 +3,7 @@
  * 엔지니어 생성/수정 폼 컴포넌트
  */
 
-import { Users } from 'lucide-react'
+import { getFormIcon } from '@/shared/config/domain-icons'
 
 import type { CodeSimpleResponse } from '@/entities/_shared/code'
 import type { Department } from '@/entities/_shared/department'
@@ -40,7 +40,7 @@ export function EngineerForm({
   return (
     <FormSheet
       mode={mode}
-      icon={Users}
+      icon={getFormIcon(mode, 'engineer')}
       title={{ create: '엔지니어 등록', edit: '엔지니어 수정' }}
       description={{
         create: '새 엔지니어 정보를 입력하세요.',
