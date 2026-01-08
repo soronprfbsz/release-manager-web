@@ -69,8 +69,8 @@ export function FileGroupList({
   }
 
   const createHandleReorder = (category: string) => (reorderedResources: ResourceFile[]) => {
-    const resourceFileIds = reorderedResources.map((r) => r.resourceFileId)
-    reorderMutation.mutate({ fileCategory: category, resourceFileIds })
+    const fileIds = reorderedResources.map((r) => r.resourceFileId)
+    reorderMutation.mutate({ fileCategory: category, fileIds })
   }
 
   if (resources.length === 0) {

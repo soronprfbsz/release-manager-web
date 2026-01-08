@@ -11,7 +11,6 @@
 import * as React from 'react'
 
 import * as LucideIcons from 'lucide-react'
-import { GrResources } from 'react-icons/gr'
 import { SiMariadb } from 'react-icons/si'
 
 /**

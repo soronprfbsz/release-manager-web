@@ -761,7 +761,6 @@ export function FileSyncPage() {
                 item={registerItem}
                 isSubmitting={registerResourceMutation.isPending}
                 onSubmit={handleResourceRegister}
-                icon={pageIcon}
             />
             <BackupRegisterForm
                 open={registerSheetOpen === 'BACKUP_FILE'}
@@ -769,7 +768,6 @@ export function FileSyncPage() {
                 item={registerItem}
                 isSubmitting={registerBackupMutation.isPending}
                 onSubmit={handleBackupRegister}
-                icon={pageIcon}
             />
             <PatchRegisterForm
                 open={registerSheetOpen === 'PATCH_FILE'}
@@ -777,7 +775,6 @@ export function FileSyncPage() {
                 item={registerItem}
                 isSubmitting={registerPatchMutation.isPending}
                 onSubmit={handlePatchRegister}
-                icon={pageIcon}
             />
             <ReleaseRegisterForm
                 open={registerSheetOpen === 'RELEASE_FILE'}
@@ -785,7 +782,6 @@ export function FileSyncPage() {
                 item={registerItem}
                 isSubmitting={registerReleaseMutation.isPending}
                 onSubmit={handleReleaseRegister}
-                icon={pageIcon}
             />
         </PageLayout>
     )

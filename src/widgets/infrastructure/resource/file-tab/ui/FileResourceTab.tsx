@@ -226,7 +226,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     const handleEditResourceSubmit = (data: ResourceFileUpdateRequest) => {
       if (editingResource) {
-        updateMutation.mutate({ resourceFileId: editingResource.resourceFileId, data })
+        updateMutation.mutate({ fileId: editingResource.resourceFileId, data })
       }
     }
 

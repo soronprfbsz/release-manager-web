@@ -247,7 +247,6 @@ export function StandardReleasePage() {
         onOpenChange={setCreateDialogOpen}
         onSuccess={handleCreateSuccess}
         latestVersion={treeData?.majorMinorGroups ? findLatestVersionString(treeData.majorMinorGroups) ?? undefined : undefined}
-        icon={pageIcon}
       />
     </PageLayout>
   )

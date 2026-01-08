@@ -110,7 +110,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
     // Handlers
     const handleLinkSubmit = (data: LinkResourceCreateRequest) => {
       if (editingLink) {
-        updateLinkMutation.mutate({ resourceLinkId: editingLink.resourceLinkId, data })
+        updateLinkMutation.mutate({ linkId: editingLink.resourceLinkId, data })
       } else {
         createLinkMutation.mutate(data)
       }

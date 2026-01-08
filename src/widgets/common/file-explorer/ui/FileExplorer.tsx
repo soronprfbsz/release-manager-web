@@ -4,7 +4,7 @@
  * - 패치, 퍼블리싱 등 여러 도메인에서 사용
  */
 
-import { useState, useMemo, type ReactNode } from 'react'
+import { useState, useMemo } from 'react'
 
 import { Folder, FolderOpen, File, ChevronRight, ChevronDown, type LucideIcon } from 'lucide-react'
 

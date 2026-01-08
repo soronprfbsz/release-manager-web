@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { BsDatabaseDown } from 'react-icons/bs'
+import { Database } from 'lucide-react'
 
 import { mariadbApi, type MariaDBBackupRequest } from '@/entities/remote-jobs/mariadb'
 
@@ -88,11 +88,11 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
   return (
     <FormSheet
       open={open}
-      icon={BsDatabaseDown}
+      icon={Database}
       title="MariaDB 백업 실행"
       description="MariaDB 데이터베이스를 백업합니다."
       submitLabel="백업 실행"
-      submitIcon={BsDatabaseDown}
+      submitIcon={Database}
       isSubmitting={backupMutation.isPending}
       onSubmit={handleSubmit}
       onClose={handleClose}

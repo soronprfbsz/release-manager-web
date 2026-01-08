@@ -15,7 +15,6 @@ interface SortablePublishingCardProps {
   onDelete: (publishing: PublishingListItem) => void
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
-  categoryIndex?: number
 }
 
 export function SortablePublishingCard({
@@ -23,7 +22,6 @@ export function SortablePublishingCard({
   onDelete,
   onEdit,
   onViewFiles,
-  categoryIndex,
 }: SortablePublishingCardProps) {
   const {
     attributes,
@@ -49,7 +47,6 @@ export function SortablePublishingCard({
         onEdit={onEdit}
         onViewFiles={onViewFiles}
         dragHandleProps={listeners}
-        categoryIndex={categoryIndex}
       />
     </div>
   )

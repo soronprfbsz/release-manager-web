@@ -124,7 +124,6 @@ export function PublishingGroupList({
                     onDelete={onDelete}
                     onEdit={onEdit}
                     onViewFiles={onViewFiles}
-                    categoryIndex={0}
                   />
                 )}
               />

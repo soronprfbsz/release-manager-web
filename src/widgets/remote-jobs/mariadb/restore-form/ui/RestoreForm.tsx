@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { BsDatabaseUp } from 'react-icons/bs'
+import { RotateCcw } from 'lucide-react'
 
 import { mariadbApi, type MariaDBRestoreRequest, type BackupFile } from '@/entities/remote-jobs/mariadb'
 
@@ -92,11 +92,11 @@ export function RestoreForm({ open, onOpenChange, backupFiles, onSuccess }: Rest
   return (
     <FormSheet
       open={open}
-      icon={BsDatabaseUp}
+      icon={RotateCcw}
       title="MariaDB 복원 실행"
       description="백업 파일로부터 MariaDB 데이터베이스를 복원합니다."
       submitLabel="복원 실행"
-      submitIcon={BsDatabaseUp}
+      submitIcon={RotateCcw}
       isSubmitting={restoreMutation.isPending}
       submitDisabled={!selectedBackupFileId}
       onSubmit={handleSubmit}

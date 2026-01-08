@@ -234,7 +234,6 @@ export function CustomReleasePage() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={handleCreateSuccess}
-        icon={pageIcon}
       />
     </PageLayout>
   )

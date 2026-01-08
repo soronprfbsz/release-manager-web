@@ -18,7 +18,6 @@ import {
   GitBranch,
   Globe,
   Link as LinkIcon,
-  Package,
   Pencil,
   RotateCcw,
   Server,

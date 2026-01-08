@@ -310,7 +310,6 @@ export function CustomPatchPage() {
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}
         onClose={handleFormClose}
-        icon={pageIcon}
       />
 
       {/* File Explorer */}
