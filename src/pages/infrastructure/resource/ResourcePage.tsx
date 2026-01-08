@@ -67,23 +67,6 @@ export function ResourcePage() {
     setSearchParams({ tab: value })
   }
 
-  const _handleRefresh = () => {
-    switch (currentTab) {
-      case 'services':
-        serviceTabRef.current?.refresh()
-        break
-      case 'links':
-        linkTabRef.current?.refresh()
-        break
-      case 'files':
-        fileTabRef.current?.refresh()
-        break
-      case 'publishing':
-        publishingTabRef.current?.refresh()
-        break
-    }
-  }
-
   const handleAdd = () => {
     switch (currentTab) {
       case 'services':
