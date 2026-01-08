@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 
-import { HardDrive, RefreshCw } from 'lucide-react'
+import { HardDrive } from 'lucide-react'
 import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
 
 import { usePageIcon } from '@/shared/lib/hooks'
@@ -203,16 +203,6 @@ export function MariaDBPage() {
       title="MariaDB"
       actions={
         <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => refetch()} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button onClick={() => setBackupDialogOpen(true)} variant="outline" size="icon">

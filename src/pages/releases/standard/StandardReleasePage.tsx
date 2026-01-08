@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { RefreshCw, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
 import { VersionCreateForm } from '@/widgets/releases'
@@ -143,16 +143,6 @@ export function StandardReleasePage() {
       title="버전 관리 (Standard)"
       actions={
         <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={handleRefresh} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
           {canAddVersion && (
             <Tooltip>
               <TooltipTrigger asChild>

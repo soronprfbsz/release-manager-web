@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Plus, RefreshCw, Tag } from 'lucide-react'
+import { Plus, Tag } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -245,16 +245,6 @@ export function StandardPatchPage() {
       description="표준 릴리즈 기반 패치를 생성하고 관리합니다."
       actions={
         <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => refetch()} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
           {canAddPatch && (
             <Tooltip>
               <TooltipTrigger asChild>

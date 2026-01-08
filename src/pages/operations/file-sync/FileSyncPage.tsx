@@ -183,7 +183,7 @@ export function FileSyncPage() {
         registerReleaseMutation.isPending
 
     // Ignored files tab state
-    const { data: ignoredFiles = [], isLoading: isIgnoredLoading, refetch: refetchIgnored } = useIgnoredFiles()
+    const { data: ignoredFiles = [], isLoading: isIgnoredLoading } = useIgnoredFiles()
     const restoreMutation = useRestoreIgnoredFile()
 
     const [results, setResults] = useState<FileSyncResult[]>([])
@@ -458,24 +458,8 @@ export function FileSyncPage() {
         </>
     )
 
-    // 무시된 파일 탭 헤더 액션
-    const getIgnoredHeaderActions = () => (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Button
-                    onClick={() => refetchIgnored()}
-                    variant="outline"
-                    size="icon"
-                    disabled={isIgnoredLoading}
-                >
-                    <RefreshCw className={`h-4 w-4 ${isIgnoredLoading ? 'animate-spin' : ''}`} />
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p>새로고침</p>
-            </TooltipContent>
-        </Tooltip>
-    )
+    // 무시된 파일 탭 헤더 액션 (현재 없음)
+    const getIgnoredHeaderActions = () => null
 
     return (
         <PageLayout

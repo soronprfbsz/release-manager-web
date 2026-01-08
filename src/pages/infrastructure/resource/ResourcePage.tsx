@@ -5,7 +5,7 @@
 
 import { useRef } from 'react'
 
-import { Plus, RefreshCw } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
@@ -67,7 +67,7 @@ export function ResourcePage() {
     setSearchParams({ tab: value })
   }
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     switch (currentTab) {
       case 'services':
         serviceTabRef.current?.refresh()
@@ -108,28 +108,16 @@ export function ResourcePage() {
       icon={pageIcon}
       title="리소스 관리"
       actions={
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={handleRefresh} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={handleAdd} variant="outline" size="icon">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{currentTabConfig.addTooltip}</p>
-            </TooltipContent>
-          </Tooltip>
-        </>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={handleAdd} variant="outline" size="icon">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{currentTabConfig.addTooltip}</p>
+          </TooltipContent>
+        </Tooltip>
       }
     >
       {/* Tabs */}

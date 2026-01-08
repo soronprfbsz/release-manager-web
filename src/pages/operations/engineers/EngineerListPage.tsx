@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from 'react'
 
-import { Plus, RefreshCw, Users } from 'lucide-react'
+import { Plus, Users } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -96,7 +96,7 @@ export function EngineerListPage() {
   const { data: departments = [] } = useDepartments()
   const { data: positions = [] } = useCodesByType(CODE_TYPE.POSITION)
 
-  const { data: engineerData, isLoading, refetch } = useEngineers(queryParams)
+  const { data: engineerData, isLoading } = useEngineers(queryParams)
 
   // Mutations
   const createMutation = useCreateEngineer()
@@ -204,28 +204,16 @@ export function EngineerListPage() {
       icon={pageIcon}
       title="엔지니어 관리"
       actions={
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => refetch()} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={openCreateModal} variant="outline" size="icon">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>엔지니어 등록</p>
-            </TooltipContent>
-          </Tooltip>
-        </>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={openCreateModal} variant="outline" size="icon">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>엔지니어 등록</p>
+          </TooltipContent>
+        </Tooltip>
       }
     >
       {/* Engineer List Card */}

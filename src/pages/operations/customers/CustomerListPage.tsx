@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from 'react'
 
-import { Plus, RefreshCw, Building2 } from 'lucide-react'
+import { Plus, Building2 } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -95,7 +95,7 @@ export function CustomerListPage() {
   }, [filters, pagination, sort])
 
   // Query
-  const { data: customerData, isLoading, refetch } = useCustomers(queryParams)
+  const { data: customerData, isLoading } = useCustomers(queryParams)
 
   // 프로젝트 목록 조회
   const { data: projects = [] } = useProjects()
@@ -217,28 +217,16 @@ export function CustomerListPage() {
       icon={pageIcon}
       title="고객사 관리"
       actions={
-        <>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => refetch()} variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>새로고침</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={openCreateModal} variant="outline" size="icon">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>고객사 생성</p>
-            </TooltipContent>
-          </Tooltip>
-        </>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={openCreateModal} variant="outline" size="icon">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>고객사 생성</p>
+          </TooltipContent>
+        </Tooltip>
       }
     >
       {/* Customer List Card */}

@@ -3,9 +3,10 @@
  * 폼을 위한 공통 Sheet 래퍼 컴포넌트
  */
 
+import type { ComponentType, ReactNode } from 'react'
+
 import { Loader2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
 
 import { Button } from './button'
 import { ScrollArea } from './scroll-area'
@@ -22,13 +23,16 @@ type FormMode = 'create' | 'edit' | null
 // 기존 방식: { create: string; edit: string } 또는 단일 string/ReactNode
 type TitleDescriptionValue = { create: ReactNode; edit: ReactNode } | ReactNode
 
+// LucideIcon 또는 react-icons 등 다른 아이콘 라이브러리 지원
+type IconComponent = LucideIcon | ComponentType<{ className?: string }>
+
 interface FormSheetProps {
   /** 폼 모드. null이면 시트가 닫힘. open prop 사용 시 무시됨 */
   mode?: FormMode
   /** 시트 열림 상태 (mode 대신 사용 가능) */
   open?: boolean
-  /** 헤더 아이콘 */
-  icon: LucideIcon
+  /** 헤더 아이콘 (Lucide 또는 react-icons 등) */
+  icon: IconComponent
   /** 아이콘 색상 클래스 (예: 'text-orange-500') */
   iconClassName?: string
   /** 시트 제목 */
@@ -37,8 +41,8 @@ interface FormSheetProps {
   description: TitleDescriptionValue
   /** 제출 버튼 라벨 */
   submitLabel?: TitleDescriptionValue
-  /** 제출 버튼 아이콘 */
-  submitIcon?: LucideIcon
+  /** 제출 버튼 아이콘 (Lucide 또는 react-icons 등) */
+  submitIcon?: IconComponent
   /** 제출 중 상태 */
   isSubmitting: boolean
   /** 제출 버튼 비활성화 여부 */

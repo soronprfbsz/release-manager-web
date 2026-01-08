@@ -5,7 +5,7 @@
 
 import { useState } from 'react'
 
-import { RefreshCw, User } from 'lucide-react'
+import { User } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -29,11 +29,9 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 interface PaginationState {
   pageIndex: number
@@ -65,7 +63,7 @@ export function AccountListPage() {
   const [filters, setFilters] = useState<AccountFiltersState>({ keyword: '' })
 
   // Query
-  const { data: accountData, isLoading, refetch } = useAccounts({
+  const { data: accountData, isLoading } = useAccounts({
     page: pagination.pageIndex,
     size: pagination.pageSize,
     sort: sort ? `${sort.key},${sort.direction}` : undefined,
@@ -137,18 +135,6 @@ export function AccountListPage() {
     <PageLayout
       icon={pageIcon}
       title="계정 관리"
-      actions={
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={() => refetch()} variant="outline" size="icon">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>새로고침</p>
-          </TooltipContent>
-        </Tooltip>
-      }
     >
       {/* Account List Card */}
       <Card>
