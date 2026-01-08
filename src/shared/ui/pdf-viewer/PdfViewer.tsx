@@ -128,21 +128,59 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
     setPdfError(error)
   }, [])
 
-  const goToPreviousPage = () => {
+  const goToPreviousPage = useCallback(() => {
     setPageNumber((prev) => Math.max(prev - 1, 1))
-  }
+  }, [])
 
-  const goToNextPage = () => {
+  const goToNextPage = useCallback(() => {
     setPageNumber((prev) => Math.min(prev + 1, numPages || 1))
-  }
+  }, [numPages])
 
-  const zoomIn = () => {
+  const zoomIn = useCallback(() => {
     setScale((prev) => Math.min(prev + 0.25, 3.0))
-  }
+  }, [])
 
-  const zoomOut = () => {
+  const zoomOut = useCallback(() => {
     setScale((prev) => Math.max(prev - 0.25, 0.5))
-  }
+  }, [])
+
+  // 키보드 네비게이션
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // 다른 입력 요소에 포커스가 있으면 무시
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
+        return
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          goToPreviousPage()
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          goToNextPage()
+          break
+        case '+':
+        case '=':
+          event.preventDefault()
+          zoomIn()
+          break
+        case '-':
+          event.preventDefault()
+          zoomOut()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [goToPreviousPage, goToNextPage, zoomIn, zoomOut])
 
   if (isLoading) {
     return (
@@ -202,6 +240,20 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+        </div>
+
+        {/* 키보드 단축키 안내 */}
+        <div className="hidden md:flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">←</kbd>
+            <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">→</kbd>
+            <span className="ml-0.5">페이지 이동</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">+</kbd>
+            <kbd className="px-1.5 py-0.5 bg-muted rounded border text-[10px] font-mono">-</kbd>
+            <span className="ml-0.5">확대/축소</span>
+          </span>
         </div>
 
         {/* 줌 컨트롤 */}
