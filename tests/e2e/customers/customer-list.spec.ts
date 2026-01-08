@@ -138,8 +138,8 @@ test.describe('고객사 관리 페이지', () => {
       await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
       // 폼 입력 (dialog 내에서 찾기)
-      await dialog.getByPlaceholder('예: CUSTOMER_A').fill(testCustomer.customerCode)
-      await dialog.getByPlaceholder('예: A회사').fill(testCustomer.customerName)
+      await dialog.getByPlaceholder('e.g. CUSTOMER_A').fill(testCustomer.customerCode)
+      await dialog.getByPlaceholder('e.g. A회사').fill(testCustomer.customerName)
       await dialog.getByPlaceholder('고객사에 대한 설명을 입력하세요').fill(testCustomer.description || '')
 
       // 등록 버튼 클릭
@@ -176,12 +176,12 @@ test.describe('고객사 관리 페이지', () => {
       await expect(dialog.getByText('고객사 수정', { exact: true })).toBeVisible()
 
       // 고객사 코드는 수정 불가 확인
-      await expect(dialog.getByPlaceholder('예: CUSTOMER_A')).toBeDisabled()
+      await expect(dialog.getByPlaceholder('e.g. CUSTOMER_A')).toBeDisabled()
 
       // 고객사명 수정
       const updatedName = `${testCustomer.customerName} (수정됨)`
-      await dialog.getByPlaceholder('예: A회사').clear()
-      await dialog.getByPlaceholder('예: A회사').fill(updatedName)
+      await dialog.getByPlaceholder('e.g. A회사').clear()
+      await dialog.getByPlaceholder('e.g. A회사').fill(updatedName)
 
       // 수정 버튼 클릭
       await dialog.getByRole('button', { name: '수정' }).click()
@@ -303,7 +303,7 @@ test.describe('고객사 관리 페이지', () => {
       await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
       // 일부 데이터 입력
-      await dialog.getByPlaceholder('예: CUSTOMER_A').fill('TEST_CANCEL')
+      await dialog.getByPlaceholder('e.g. CUSTOMER_A').fill('TEST_CANCEL')
 
       // 취소 버튼 클릭
       await dialog.getByRole('button', { name: '취소' }).click()
@@ -337,8 +337,8 @@ async function createTestCustomer(
   await expect(dialog).toBeVisible({ timeout: 5000 })
   await expect(dialog.getByText('고객사 생성', { exact: true })).toBeVisible()
 
-  await dialog.getByPlaceholder('예: CUSTOMER_A').fill(customer.customerCode)
-  await dialog.getByPlaceholder('예: A회사').fill(customer.customerName)
+  await dialog.getByPlaceholder('e.g. CUSTOMER_A').fill(customer.customerCode)
+  await dialog.getByPlaceholder('e.g. A회사').fill(customer.customerName)
   if (customer.description) {
     await dialog.getByPlaceholder('고객사에 대한 설명을 입력하세요').fill(customer.description)
   }

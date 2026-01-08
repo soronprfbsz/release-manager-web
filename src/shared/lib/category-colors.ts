@@ -20,7 +20,7 @@ type ThemeColor = (typeof THEME_COLORS)[number]
 /**
  * 인덱스 기반 theme-color 색상 변수 반환
  * @param index - 카테고리 인덱스 (0부터 시작)
- * @returns theme-color 색상 변수명 (예: 'theme-color-1')
+ * @returns theme-color 색상 변수명 (e.g. 'theme-color-1')
  */
 export function getThemeColorByIndex(index: number): ThemeColor {
   return THEME_COLORS[index % THEME_COLORS.length]

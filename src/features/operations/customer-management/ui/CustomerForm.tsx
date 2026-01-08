@@ -55,23 +55,6 @@ export function CustomerForm({
       onSubmit={onSubmit}
       onClose={onClose}
     >
-      <div className="space-y-2">
-        <Label required>고객사 코드</Label>
-        <Input
-          value={formData.customerCode}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, customerCode: e.target.value })
-          }
-          placeholder="예: customerA"
-          disabled={mode === 'edit'}
-        />
-        {mode === 'edit' && (
-          <TypographyMuted className="text-xs">
-            고객사 코드는 수정할 수 없습니다.
-          </TypographyMuted>
-        )}
-      </div>
-
       {/* 프로젝트 선택 */}
       <div className="space-y-2">
         <Label required>프로젝트</Label>
@@ -103,13 +86,30 @@ export function CustomerForm({
       </div>
 
       <div className="space-y-2">
+        <Label required>고객사 코드</Label>
+        <Input
+          value={formData.customerCode}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, customerCode: e.target.value })
+          }
+          placeholder="e.g. customerA"
+          disabled={mode === 'edit'}
+        />
+        {mode === 'edit' && (
+          <TypographyMuted className="text-xs">
+            고객사 코드는 수정할 수 없습니다.
+          </TypographyMuted>
+        )}
+      </div>
+
+      <div className="space-y-2">
         <Label required>고객사명</Label>
         <Input
           value={formData.customerName}
           onChange={(e) =>
             onFormDataChange({ ...formData, customerName: e.target.value })
           }
-          placeholder="예: B회사"
+          placeholder="e.g. A회사"
         />
       </div>
       <div className="space-y-2">

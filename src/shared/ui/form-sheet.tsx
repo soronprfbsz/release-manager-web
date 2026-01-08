@@ -33,7 +33,7 @@ interface FormSheetProps {
   open?: boolean
   /** 헤더 아이콘 (Lucide 또는 react-icons 등) */
   icon: IconComponent
-  /** 아이콘 색상 클래스 (예: 'text-orange-500') */
+  /** 아이콘 색상 클래스 (e.g. 'text-orange-500') */
   iconClassName?: string
   /** 시트 제목 */
   title: TitleDescriptionValue

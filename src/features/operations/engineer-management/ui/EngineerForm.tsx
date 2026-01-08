@@ -65,31 +65,34 @@ export function EngineerForm({
           searchPlaceholder="소속팀 검색..."
         />
       </div>
-      <div className="space-y-2">
-        <Label required>이름</Label>
-        <Input
-          value={formData.engineerName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, engineerName: e.target.value })
-          }
-          placeholder="예: 신성수"
-          maxLength={50}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>직급</Label>
-        <Combobox
-          options={positions.map((pos) => ({
-            value: pos.value,
-            label: pos.name,
-          }))}
-          value={formData.positionCode}
-          onValueChange={(value) =>
-            onFormDataChange({ ...formData, positionCode: value })
-          }
-          placeholder="직급을 선택하세요"
-          searchPlaceholder="직급 검색..."
-        />
+      {/* 이름 & 직급 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label required>이름</Label>
+          <Input
+            value={formData.engineerName}
+            onChange={(e) =>
+              onFormDataChange({ ...formData, engineerName: e.target.value })
+            }
+            placeholder="e.g. 신성수"
+            maxLength={50}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>직급</Label>
+          <Combobox
+            options={positions.map((pos) => ({
+              value: pos.value,
+              label: pos.name,
+            }))}
+            value={formData.positionCode}
+            onValueChange={(value) =>
+              onFormDataChange({ ...formData, positionCode: value })
+            }
+            placeholder="직급을 선택하세요"
+            searchPlaceholder="직급 검색..."
+          />
+        </div>
       </div>
       <div className="space-y-2">
         <Label required>이메일</Label>
@@ -99,7 +102,7 @@ export function EngineerForm({
           onChange={(e) =>
             onFormDataChange({ ...formData, engineerEmail: e.target.value })
           }
-          placeholder="예: shinss@tscientific.co.kr"
+          placeholder="e.g. engineer@tscientific.co.kr"
           maxLength={100}
         />
       </div>

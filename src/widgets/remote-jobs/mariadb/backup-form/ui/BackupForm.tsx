@@ -6,7 +6,9 @@ import { BsDatabaseDown } from 'react-icons/bs'
 import { mariadbApi, type MariaDBBackupRequest } from '@/entities/remote-jobs/mariadb'
 
 import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
+import { useMariaDBConnectionHistory } from '@/shared/lib/hooks/use-mariadb-connection-history'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { AutocompleteInput } from '@/shared/ui/autocomplete-input'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -21,6 +23,8 @@ interface BackupFormProps {
 
 export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
   const { toast } = useToast()
+  const { saveToHistory, getHostList, getPortList, getDatabaseList, getUsernameList } =
+    useMariaDBConnectionHistory()
   const { startPolling } = useJobPolling({
     onComplete: () => {
       onSuccess() // 백업 목록 새로고침
@@ -38,6 +42,8 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
   const backupMutation = useMutation({
     mutationFn: (request: MariaDBBackupRequest) => mariadbApi.backupMariaDB(request),
     onSuccess: (data) => {
+      // 연결 성공 - 히스토리 저장 (비밀번호 제외)
+      saveToHistory(host, parseInt(port), database, username)
       // job 상태 polling 시작 (진행 중 toast 자동 표시)
       startPolling(data.jobId, '백업')
       handleClose()
@@ -98,42 +104,42 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
     >
-      {/* 호스트 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-backup-host" required>호스트</Label>
-        <Input
-          id="mariadb-backup-host"
-          name="mariadb-backup-host"
-          autoComplete="off"
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
-          placeholder="예: localhost 또는 192.168.0.1"
-          required
-        />
-      </div>
-
-      {/* 포트 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-backup-port" required>포트</Label>
-        <Input
-          id="mariadb-backup-port"
-          name="mariadb-backup-port"
-          type="number"
-          autoComplete="off"
-          value={port}
-          onChange={(e) => setPort(e.target.value)}
-          placeholder="3306"
-          required
-        />
+      {/* 호스트 & 포트 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-backup-host" required>호스트</Label>
+          <AutocompleteInput
+            id="mariadb-backup-host"
+            name="mariadb-backup-host"
+            suggestions={getHostList()}
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="e.g. localhost"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-backup-port" required>포트</Label>
+          <AutocompleteInput
+            id="mariadb-backup-port"
+            name="mariadb-backup-port"
+            type="number"
+            suggestions={getPortList()}
+            value={port}
+            onChange={(e) => setPort(e.target.value)}
+            placeholder="3306"
+            required
+          />
+        </div>
       </div>
 
       {/* 데이터베이스 */}
       <div className="space-y-2">
         <Label htmlFor="mariadb-backup-database" required>데이터베이스</Label>
-        <Input
+        <AutocompleteInput
           id="mariadb-backup-database"
           name="mariadb-backup-database"
-          autoComplete="off"
+          suggestions={getDatabaseList()}
           value={database}
           onChange={(e) => setDatabase(e.target.value)}
           placeholder="데이터베이스 이름"
@@ -141,33 +147,33 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
         />
       </div>
 
-      {/* 사용자명 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-backup-username" required>사용자명</Label>
-        <Input
-          id="mariadb-backup-username"
-          name="mariadb-backup-username"
-          autoComplete="off"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="데이터베이스 사용자명"
-          required
-        />
-      </div>
-
-      {/* 비밀번호 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-backup-password" required>비밀번호</Label>
-        <Input
-          id="mariadb-backup-password"
-          name="mariadb-backup-password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="데이터베이스 비밀번호"
-          required
-        />
+      {/* 사용자명 & 비밀번호 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-backup-username" required>사용자명</Label>
+          <AutocompleteInput
+            id="mariadb-backup-username"
+            name="mariadb-backup-username"
+            suggestions={getUsernameList()}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="사용자명"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-backup-password" required>비밀번호</Label>
+          <Input
+            id="mariadb-backup-password"
+            name="mariadb-backup-password"
+            type="password"
+            autoComplete="off"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="비밀번호"
+            required
+          />
+        </div>
       </div>
 
       {/* 파일명 (선택) */}
@@ -177,7 +183,7 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
           id="fileName"
           value={fileName}
           onChange={(e) => setFileName(e.target.value)}
-          placeholder="예: production_backup_2025 (선택)"
+          placeholder="e.g. production_backup_2025 (선택)"
         />
         <p className="text-xs text-muted-foreground">
           생략 시 기본 파일명으로 생성됩니다. (.sql 확장자는 자동으로 추가됩니다)

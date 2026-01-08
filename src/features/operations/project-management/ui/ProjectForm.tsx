@@ -60,11 +60,11 @@ export function ProjectForm({
       {/* 프로젝트 ID */}
       <div className="grid gap-2">
         <Label htmlFor="projectId">
-          프로젝트 ID <span className="text-destructive">*</span>
+          프로젝트 코드 <span className="text-destructive">*</span>
         </Label>
         <Input
           id="projectId"
-          placeholder="예: my-project"
+          placeholder="e.g. my-project"
           value={formData.projectId}
           onChange={(e) => handleChange('projectId', e.target.value)}
           disabled={isEditMode}

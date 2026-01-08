@@ -339,7 +339,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         ) : (
           <Input
             id="version"
-            placeholder="예: 1.0.0"
+            placeholder="e.g. 1.0.0"
             value={version}
             onChange={(e) => setVersion(e.target.value)}
             required

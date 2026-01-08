@@ -10,7 +10,7 @@ export interface MenuPathItem {
 
 /**
  * 현재 경로에 해당하는 메뉴의 전체 경로를 찾는 훅
- * 예: [{ label: "개발 지원" }, { label: "원격 작업" }, { label: "MariaDB", path: "/..." }]
+ * e.g. [{ label: "개발 지원" }, { label: "원격 작업" }, { label: "MariaDB", path: "/..." }]
  */
 export function useMenuPath(): MenuPathItem[] {
   const location = useLocation()

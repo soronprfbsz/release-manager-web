@@ -84,7 +84,7 @@ export function BackupRegisterForm({
         <Input
           value={fileCategory}
           onChange={(e) => setFileCategory(e.target.value)}
-          placeholder="카테고리 (선택, 예: MARIADB)"
+          placeholder="카테고리 (선택, e.g. MARIADB)"
         />
         <p className="text-xs text-muted-foreground">
           미입력 시 파일 경로에서 자동 추론됩니다.

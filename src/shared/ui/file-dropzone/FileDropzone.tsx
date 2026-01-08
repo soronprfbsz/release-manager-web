@@ -23,7 +23,7 @@ export interface FileDropzoneProps {
   file: File | null
   /** 파일 변경 핸들러 */
   onFileChange: (file: File | null) => void
-  /** 허용 파일 확장자 (예: ['.zip', '.pdf']) - 없으면 모든 파일 허용 */
+  /** 허용 파일 확장자 (e.g. ['.zip', '.pdf']) - 없으면 모든 파일 허용 */
   accept?: string[]
   /** 최대 파일 크기 (bytes) */
   maxSize?: number

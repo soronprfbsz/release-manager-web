@@ -183,12 +183,9 @@ export function PatchGenerateFormCard({
           <Input
             value={formData.patchName}
             onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
-            placeholder="미입력 시 자동 생성 (예: 20260102_1.0.0_1.1.0)"
+            placeholder="미입력 시 자동 생성 (e.g. 20260102_1.0.0_1.1.0)"
             maxLength={100}
           />
-          <TypographyMuted className="text-xs">
-            최대 100자. 미입력 시 날짜와 버전 정보로 자동 생성됩니다.
-          </TypographyMuted>
         </div>
 
         {/* Description */}
@@ -197,7 +194,7 @@ export function PatchGenerateFormCard({
           <Textarea
             value={formData.description}
             onChange={(e) => onFormDataChange({ ...formData, description: e.target.value })}
-            placeholder="패치에 대한 설명을 입력하세요 (예: 특정 버그 수정, 기능 추가 등)"
+            placeholder="패치에 대한 설명을 입력하세요 (e.g. 특정 버그 수정, 기능 추가 등)"
             className="min-h-[80px]"
           />
         </div>

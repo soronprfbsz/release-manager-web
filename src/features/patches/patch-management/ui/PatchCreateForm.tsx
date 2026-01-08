@@ -129,50 +129,51 @@ export function PatchCreateForm({
         )}
       </div>
 
-      {/* 고객사 */}
-      <div className="space-y-2">
-        <Label>고객사</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...customers.map((c) => ({
-              value: c.customerCode,
-              label: `${c.customerName} (${c.customerCode})`,
-            })),
-          ]}
-          value={formData.customerCode || '__none__'}
-          onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
-              customerCode: value === '__none__' ? '' : value,
-            })
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="고객사 검색..."
-        />
-      </div>
+      {/* 고객사 & 담당 엔지니어 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>고객사</Label>
+          <Combobox
+            options={[
+              { value: '__none__', label: '선택 안함' },
+              ...customers.map((c) => ({
+                value: c.customerCode,
+                label: `${c.customerName} (${c.customerCode})`,
+              })),
+            ]}
+            value={formData.customerCode || '__none__'}
+            onValueChange={(value) =>
+              onFormDataChange({
+                ...formData,
+                customerCode: value === '__none__' ? '' : value,
+              })
+            }
+            placeholder="선택 안함"
+            searchPlaceholder="고객사 검색..."
+          />
+        </div>
 
-      {/* 담당 엔지니어 */}
-      <div className="space-y-2">
-        <Label>담당 엔지니어</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...engineers.map((e) => ({
-              value: String(e.engineerId),
-              label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
-            })),
-          ]}
-          value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
-          onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
-              engineerId: value === '__none__' ? null : Number(value),
-            })
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="엔지니어 검색..."
-        />
+        <div className="space-y-2">
+          <Label>담당 엔지니어</Label>
+          <Combobox
+            options={[
+              { value: '__none__', label: '선택 안함' },
+              ...engineers.map((e) => ({
+                value: String(e.engineerId),
+                label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+              })),
+            ]}
+            value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+            onValueChange={(value) =>
+              onFormDataChange({
+                ...formData,
+                engineerId: value === '__none__' ? null : Number(value),
+              })
+            }
+            placeholder="선택 안함"
+            searchPlaceholder="엔지니어 검색..."
+          />
+        </div>
       </div>
 
       {/* 패치명 */}
@@ -183,12 +184,9 @@ export function PatchCreateForm({
           onChange={(e) =>
             onFormDataChange({ ...formData, patchName: e.target.value })
           }
-          placeholder="미입력 시 자동 생성 (예: 20260102_1.0.0_1.1.0)"
+          placeholder="미입력 시 자동 생성 (e.g. 20260102_1.0.0_1.1.0)"
           maxLength={100}
         />
-        <TypographyMuted className="text-xs">
-          최대 100자. 미입력 시 날짜와 버전 정보로 자동 생성됩니다.
-        </TypographyMuted>
       </div>
 
       {/* 설명 */}

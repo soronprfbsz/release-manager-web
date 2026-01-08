@@ -327,7 +327,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         </Label>
         <Input
           id="customVersion"
-          placeholder={latestVersionForCustomer ? `마지막 버전: ${latestVersionForCustomer}` : '예: 1.0.0'}
+          placeholder={latestVersionForCustomer ? `마지막 버전: ${latestVersionForCustomer}` : 'e.g. 1.0.0'}
           value={customVersion}
           onChange={(e) => setCustomVersion(e.target.value)}
           required

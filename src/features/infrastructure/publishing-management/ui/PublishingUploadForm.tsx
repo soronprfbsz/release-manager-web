@@ -120,24 +120,51 @@ export function PublishingUploadForm({
           onChange={(e) =>
             onFormDataChange({ ...formData, publishingName: e.target.value })
           }
-          placeholder="예: A사 대시보드"
+          placeholder="e.g. A사 대시보드"
         />
       </div>
 
-      {/* Category Select */}
-      <div className="space-y-2">
-        <Label required>카테고리</Label>
-        <Select onValueChange={handleCategoryChange} value={formData.publishingCategory}>
-          <SelectTrigger>
-            <SelectValue placeholder="카테고리를 선택하세요" />
-          </SelectTrigger>
-          <SelectContent>
-            {categoryList.map((code) => (
-              <SelectItem key={code.value} value={code.value}>{code.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Category & Customer Select */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label required>카테고리</Label>
+          <Select onValueChange={handleCategoryChange} value={formData.publishingCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="카테고리를 선택하세요" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryList.map((code) => (
+                <SelectItem key={code.value} value={code.value}>{code.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>고객사</Label>
+          <Combobox
+            options={[
+              { value: '__none__', label: '선택 안함' },
+              ...customers.map((c) => ({
+                value: String(c.customerId),
+                label: `${c.customerName} (${c.customerCode})`,
+              })),
+            ]}
+            value={formData.customerId ? String(formData.customerId) : '__none__'}
+            onValueChange={(value) =>
+              onFormDataChange({
+                ...formData,
+                customerId: value === '__none__' || !value ? null : Number(value),
+              })
+            }
+            placeholder="선택 안함"
+            searchPlaceholder="고객사 검색..."
+          />
+        </div>
       </div>
+      <TypographyMuted className="text-xs -mt-2">
+        고객사를 선택하면 해당 고객사 전용 퍼블리싱으로 설정됩니다.
+      </TypographyMuted>
 
       {/* Sub Category Select */}
       {formData.publishingCategory && (
@@ -164,32 +191,6 @@ export function PublishingUploadForm({
           </Select>
         </div>
       )}
-
-      {/* Customer Select */}
-      <div className="space-y-2">
-        <Label>고객사</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...customers.map((c) => ({
-              value: String(c.customerId),
-              label: `${c.customerName} (${c.customerCode})`,
-            })),
-          ]}
-          value={formData.customerId ? String(formData.customerId) : '__none__'}
-          onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
-              customerId: value === '__none__' || !value ? null : Number(value),
-            })
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="고객사 검색..."
-        />
-        <TypographyMuted className="text-xs">
-          고객사를 선택하면 해당 고객사 전용 퍼블리싱으로 설정됩니다.
-        </TypographyMuted>
-      </div>
 
       {/* File Select with Drag & Drop */}
       <div className="space-y-2">

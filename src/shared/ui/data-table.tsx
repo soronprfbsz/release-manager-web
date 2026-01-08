@@ -29,7 +29,7 @@ interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   headerHeight?: number
   /** 스크롤 없이 전체 표시 (높이 제한 없음) */
   autoHeight?: boolean
-  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 20rem)") - 설정 시 visibleRows 무시 */
+  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") - 설정 시 visibleRows 무시 */
   viewportHeight?: string
 }
 

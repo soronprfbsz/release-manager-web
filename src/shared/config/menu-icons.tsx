@@ -4,8 +4,8 @@
  *
  * NavigationBar와 각 페이지 헤더에서 동일한 아이콘을 사용하도록 함
  * 
- * Lucide 아이콘: DB에 저장된 아이콘명으로 자동 매핑 (예: "rocket", "file-diff")
- * React-Icons: 명시적 매핑 필요 (예: "mariadb", "resources")
+ * Lucide 아이콘: DB에 저장된 아이콘명으로 자동 매핑 (e.g. "rocket", "file-diff")
+ * React-Icons: 명시적 매핑 필요 (e.g. "mariadb", "resources")
  */
 
 import * as React from 'react'
@@ -15,7 +15,7 @@ import { SiMariadb } from 'react-icons/si'
 
 /**
  * kebab-case를 PascalCase로 변환
- * 예: "file-diff" → "FileDiff", "rocket" → "Rocket"
+ * e.g. "file-diff" → "FileDiff", "rocket" → "Rocket"
  */
 function toPascalCase(str: string): string {
   return str
@@ -38,7 +38,7 @@ const reactIconMap: Record<string, React.ComponentType<{ className?: string }>> 
  * 1. React-Icons 먼저 확인 (특수 아이콘)
  * 2. Lucide 아이콘 동적 로딩 (아이콘명을 PascalCase로 변환하여 자동 매핑)
  * 
- * @param iconName API에서 받은 아이콘명 (예: "rocket", "file-diff", "mariadb")
+ * @param iconName API에서 받은 아이콘명 (e.g. "rocket", "file-diff", "mariadb")
  * @param className 아이콘에 적용할 CSS 클래스
  * @returns React 노드 또는 null
  * 

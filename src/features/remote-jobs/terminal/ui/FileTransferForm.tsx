@@ -342,7 +342,7 @@ export function FileTransferForm({
                   <Label htmlFor="remotePath">원격 경로 (선택사항)</Label>
                   <Input
                     id="remotePath"
-                    placeholder="예: /release-manager/uploads"
+                    placeholder="e.g. /release-manager/uploads"
                     value={remotePath}
                     onChange={(e) => setRemotePath(e.target.value)}
                     autoComplete="off"

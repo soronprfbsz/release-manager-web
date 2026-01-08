@@ -47,7 +47,7 @@ interface CustomerTableProps {
   onEdit: (customer: Customer) => void
   onDelete: (customerId: number) => void
   onToggleStatus: (customer: Customer) => void
-  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 20rem)") */
+  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") */
   viewportHeight?: string
 }
 

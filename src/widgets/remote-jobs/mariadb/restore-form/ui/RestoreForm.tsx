@@ -6,7 +6,9 @@ import { BsDatabaseUp } from 'react-icons/bs'
 import { mariadbApi, type MariaDBRestoreRequest, type BackupFile } from '@/entities/remote-jobs/mariadb'
 
 import { useJobPolling } from '@/shared/lib/hooks/use-job-polling'
+import { useMariaDBConnectionHistory } from '@/shared/lib/hooks/use-mariadb-connection-history'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { AutocompleteInput } from '@/shared/ui/autocomplete-input'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -28,6 +30,8 @@ interface RestoreFormProps {
 
 export function RestoreForm({ open, onOpenChange, backupFiles, onSuccess }: RestoreFormProps) {
   const { toast } = useToast()
+  const { saveToHistory, getHostList, getPortList, getUsernameList } =
+    useMariaDBConnectionHistory()
   const { startPolling } = useJobPolling({
     onComplete: () => {
       onSuccess()
@@ -43,6 +47,8 @@ export function RestoreForm({ open, onOpenChange, backupFiles, onSuccess }: Rest
   const restoreMutation = useMutation({
     mutationFn: (request: MariaDBRestoreRequest) => mariadbApi.restoreMariaDB(request),
     onSuccess: (data) => {
+      // 연결 성공 - 히스토리 저장 (비밀번호 제외, 복원은 database 없이 저장)
+      saveToHistory(host, parseInt(port), '', username)
       // job 상태 polling 시작 (진행 중 toast 자동 표시)
       startPolling(data.jobId, '복원')
       handleClose()
@@ -127,62 +133,62 @@ export function RestoreForm({ open, onOpenChange, backupFiles, onSuccess }: Rest
         )}
       </div>
 
-      {/* 호스트 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-restore-host" required>호스트</Label>
-        <Input
-          id="mariadb-restore-host"
-          name="mariadb-restore-host"
-          autoComplete="off"
-          value={host}
-          onChange={(e) => setHost(e.target.value)}
-          placeholder="예: localhost 또는 192.168.0.1"
-          required
-        />
+      {/* 호스트 & 포트 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-restore-host" required>호스트</Label>
+          <AutocompleteInput
+            id="mariadb-restore-host"
+            name="mariadb-restore-host"
+            suggestions={getHostList()}
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="e.g. localhost"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-restore-port" required>포트</Label>
+          <AutocompleteInput
+            id="mariadb-restore-port"
+            name="mariadb-restore-port"
+            type="number"
+            suggestions={getPortList()}
+            value={port}
+            onChange={(e) => setPort(e.target.value)}
+            placeholder="3306"
+            required
+          />
+        </div>
       </div>
 
-      {/* 포트 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-restore-port" required>포트</Label>
-        <Input
-          id="mariadb-restore-port"
-          name="mariadb-restore-port"
-          type="number"
-          autoComplete="off"
-          value={port}
-          onChange={(e) => setPort(e.target.value)}
-          placeholder="3306"
-          required
-        />
-      </div>
-
-      {/* 사용자명 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-restore-username" required>사용자명</Label>
-        <Input
-          id="mariadb-restore-username"
-          name="mariadb-restore-username"
-          autoComplete="off"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="데이터베이스 사용자명"
-          required
-        />
-      </div>
-
-      {/* 비밀번호 */}
-      <div className="space-y-2">
-        <Label htmlFor="mariadb-restore-password" required>비밀번호</Label>
-        <Input
-          id="mariadb-restore-password"
-          name="mariadb-restore-password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="데이터베이스 비밀번호"
-          required
-        />
+      {/* 사용자명 & 비밀번호 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-restore-username" required>사용자명</Label>
+          <AutocompleteInput
+            id="mariadb-restore-username"
+            name="mariadb-restore-username"
+            suggestions={getUsernameList()}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="사용자명"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="mariadb-restore-password" required>비밀번호</Label>
+          <Input
+            id="mariadb-restore-password"
+            name="mariadb-restore-password"
+            type="password"
+            autoComplete="off"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="비밀번호"
+            required
+          />
+        </div>
       </div>
 
       {/* 경고 메시지 */}

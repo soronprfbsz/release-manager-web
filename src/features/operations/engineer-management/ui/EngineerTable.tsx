@@ -42,7 +42,7 @@ interface EngineerTableProps {
   onSort: (key: string) => void
   onEdit: (engineer: Engineer) => void
   onDelete: (engineerId: number) => void
-  /** 뷰포트 기반 동적 높이 (예: "calc(100vh - 27rem)") */
+  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 27rem)") */
   viewportHeight?: string
 }
 
