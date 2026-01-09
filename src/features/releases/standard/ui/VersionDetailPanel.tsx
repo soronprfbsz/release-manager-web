@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { Calendar, User, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame } from 'lucide-react'
+import { Calendar, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame, UserX } from 'lucide-react'
 
 import {
   releaseApi,
@@ -16,6 +16,7 @@ import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useProjectStore } from '@/shared/store'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { formatFileSize } from '@/shared/lib/utils/format'
+import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { base64ToBlob, base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile } from '@/shared/lib/utils/file-content'
 import {
   AlertDialog,
@@ -43,13 +44,17 @@ export interface SelectedVersionData {
   version: string
   createdAt: string
   createdByEmail: string
-  createdByAvatarStyle?: string
-  createdByAvatarSeed?: string
+  createdByAvatarStyle?: string | null
+  createdByAvatarSeed?: string | null
+  isDeletedCreator?: boolean
   comment: string
   releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
   isApproved: boolean
   approvedBy: string | null
+  approvedByAvatarStyle?: string | null
+  approvedByAvatarSeed?: string | null
+  isDeletedApprover?: boolean
   approvedAt: string | null
 }
 
@@ -388,26 +393,52 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <TypographyMuted className="text-sm">생성자:</TypographyMuted>
-                <TypographySmall>{version.createdByEmail || '-'}</TypographySmall>
+                <TypographyMuted className="text-sm">생성자</TypographyMuted>
+                {version.isDeletedCreator ? (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+                    <UserX className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                ) : (
+                  <DiceBearAvatar
+                    seed={version.createdByAvatarSeed || version.createdByEmail}
+                    style={(version.createdByAvatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
+                    size={20}
+                    name={version.createdByEmail}
+                  />
+                )}
+                <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                  {version.createdByEmail || '-'}
+                </TypographySmall>
               </div>
               <div className="flex items-center gap-2">
+                <TypographyMuted className="text-sm">생성일시</TypographyMuted>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <TypographyMuted className="text-sm">생성일시:</TypographyMuted>
                 <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
               </div>
               {version.isApproved && version.approvedBy && (
                 <>
                   <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <TypographyMuted className="text-sm">승인자:</TypographyMuted>
-                    <TypographySmall>{version.approvedBy}</TypographySmall>
+                    <TypographyMuted className="text-sm">승인자</TypographyMuted>
+                    {version.isDeletedApprover ? (
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+                        <UserX className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <DiceBearAvatar
+                        seed={version.approvedByAvatarSeed || version.approvedBy}
+                        style={(version.approvedByAvatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
+                        size={20}
+                        name={version.approvedBy}
+                      />
+                    )}
+                    <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
+                      {version.approvedBy}
+                    </TypographySmall>
                   </div>
                   {version.approvedAt && (
                     <div className="flex items-center gap-2">
+                      <TypographyMuted className="text-sm">승인일시</TypographyMuted>
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <TypographyMuted className="text-sm">승인일시:</TypographyMuted>
                       <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
                     </div>
                   )}
@@ -415,8 +446,8 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
               )}
               {baseVersion && (
                 <div className="flex items-center gap-2 col-span-2">
+                  <TypographyMuted className="text-sm">기준 표준본</TypographyMuted>
                   <GitBranch className="h-4 w-4 text-muted-foreground" />
-                  <TypographyMuted className="text-sm">기준 표준본:</TypographyMuted>
                   <TypographySmall>{baseVersion}</TypographySmall>
                 </div>
               )}

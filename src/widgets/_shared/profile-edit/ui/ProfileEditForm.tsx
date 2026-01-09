@@ -5,6 +5,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Save, Lock, Eye, EyeOff, User, Shuffle, Check } from 'lucide-react'
@@ -73,6 +74,7 @@ function generateRandomSeed(): string {
 }
 
 export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
+  const queryClient = useQueryClient()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
   const { toast } = useToast()
@@ -175,6 +177,13 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
               avatarStyle: data.avatarStyle,
               avatarSeed: data.avatarSeed,
             })
+          }
+
+          // 아바타 변경 시 관련 쿼리 캐시 무효화
+          if (request.avatarStyle || request.avatarSeed) {
+            queryClient.invalidateQueries({ queryKey: ['releases'] })
+            queryClient.invalidateQueries({ queryKey: ['patches'] })
+            queryClient.invalidateQueries({ queryKey: ['versionTree'] })
           }
 
           // 저장 성공 후 원본 값 갱신

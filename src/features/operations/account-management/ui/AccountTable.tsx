@@ -12,6 +12,7 @@ import {
 import type { Account } from '@/entities/operations/account'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { StatusBadge } from '@/shared/ui/status-badge'
@@ -110,7 +111,17 @@ export function AccountTable({
                   {account.status === 'ACTIVE' ? '활성' : '비활성'}
                 </StatusBadge>
               </TableCell>
-              <TableCell className="font-medium">{account.accountName}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <DiceBearAvatar
+                    seed={account.avatarSeed || account.email}
+                    style={(account.avatarStyle as AvatarStyleKey) || 'initials'}
+                    name={account.accountName}
+                    size={28}
+                  />
+                  <span className="font-medium">{account.accountName}</span>
+                </div>
+              </TableCell>
               <TableCell>
                 <TypographyMuted>{account.email}</TypographyMuted>
               </TableCell>

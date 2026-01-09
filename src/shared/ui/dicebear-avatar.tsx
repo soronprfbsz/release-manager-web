@@ -52,8 +52,8 @@ export const DEFAULT_AVATAR_STYLE: AvatarStyleKey = 'initials'
 // Recommended styles for profile selection (subset of all styles)
 export const RECOMMENDED_AVATAR_STYLES: AvatarStyleKey[] = [
   'initials',
-  'bottts',  
-  // 'pixelArt',
+  'bottts',
+  'pixelArt',
   'identicon',
   'shapes',
   'thumbs',

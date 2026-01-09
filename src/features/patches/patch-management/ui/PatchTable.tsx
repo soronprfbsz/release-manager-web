@@ -12,12 +12,14 @@ import {
   Tag,
   Trash2,
   User,
+  UserX,
   type LucideIcon,
 } from 'lucide-react'
 
 import type { CumulativePatch } from '@/entities/patches/patch'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import {
@@ -179,11 +181,25 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 <TruncatedCell
-                  tooltipText={patch.createdByEmail}
-                  className="flex items-center gap-1 text-sm"
+                  tooltipText={patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
+                  className="flex items-center gap-2 text-sm"
                 >
-                  <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  <span>{patch.createdByEmail}</span>
+                  {patch.isDeletedCreator ? (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted flex-shrink-0">
+                      <UserX className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <DiceBearAvatar
+                      seed={patch.createdByAvatarSeed || patch.createdByEmail}
+                      style={(patch.createdByAvatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
+                      size={20}
+                      name={patch.createdByEmail}
+                      className="flex-shrink-0"
+                    />
+                  )}
+                  <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                    {patch.createdByEmail}
+                  </span>
                 </TruncatedCell>
               </TableCell>
               <TableCell>

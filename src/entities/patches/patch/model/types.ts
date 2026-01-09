@@ -13,8 +13,9 @@ export interface CumulativePatch {
   toVersion: string
   patchName: string
   createdByEmail: string
-  createdByAvatarStyle?: string
-  createdByAvatarSeed?: string
+  createdByAvatarStyle?: string | null
+  createdByAvatarSeed?: string | null
+  isDeletedCreator?: boolean
   description: string | null
   engineerId: number | null
   engineerName: string | null

@@ -10,6 +10,8 @@ export interface Account {
   accountName: string
   role: string
   status: string
+  avatarStyle?: string
+  avatarSeed?: string
   lastLoginAt: string | null
   createdAt: string
 }
