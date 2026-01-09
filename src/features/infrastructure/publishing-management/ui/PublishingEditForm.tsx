@@ -176,7 +176,7 @@ export function PublishingEditForm({
       mode="edit"
     >
       <Form {...form}>
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="publishingCategory"
@@ -260,9 +260,6 @@ export function PublishingEditForm({
             placeholder="선택 안함"
             searchPlaceholder="고객사 검색..."
           />
-          <p className="text-xs text-muted-foreground">
-            고객사를 선택하면 해당 고객사 전용 퍼블리싱으로 설정됩니다.
-          </p>
         </div>
 
         <FormField

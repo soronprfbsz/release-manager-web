@@ -85,33 +85,35 @@ export function CustomerForm({
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label required>고객사 코드</Label>
-        <Input
-          value={formData.customerCode}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, customerCode: e.target.value })
-          }
-          placeholder="e.g. customerA"
-          disabled={mode === 'edit'}
-        />
-        {mode === 'edit' && (
-          <TypographyMuted className="text-xs">
-            고객사 코드는 수정할 수 없습니다.
-          </TypographyMuted>
-        )}
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label required>고객사 코드</Label>
+          <Input
+            value={formData.customerCode}
+            onChange={(e) =>
+              onFormDataChange({ ...formData, customerCode: e.target.value })
+            }
+            placeholder="e.g. customerA"
+            disabled={mode === 'edit'}
+          />
+        </div>
 
-      <div className="space-y-2">
-        <Label required>고객사명</Label>
-        <Input
-          value={formData.customerName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, customerName: e.target.value })
-          }
-          placeholder="e.g. A회사"
-        />
+        <div className="space-y-2">
+          <Label required>고객사명</Label>
+          <Input
+            value={formData.customerName}
+            onChange={(e) =>
+              onFormDataChange({ ...formData, customerName: e.target.value })
+            }
+            placeholder="e.g. A회사"
+          />
+        </div>
       </div>
+      {mode === 'edit' && (
+        <TypographyMuted className="text-xs -mt-2">
+          고객사 코드는 수정할 수 없습니다.
+        </TypographyMuted>
+      )}
       <div className="space-y-2">
         <Label>설명</Label>
         <Textarea

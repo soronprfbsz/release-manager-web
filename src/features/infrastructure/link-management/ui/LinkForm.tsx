@@ -124,7 +124,7 @@ export function LinkForm({
       mode={mode === 'update' ? 'edit' : 'create'}
     >
       <Form {...form}>
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="linkCategory"

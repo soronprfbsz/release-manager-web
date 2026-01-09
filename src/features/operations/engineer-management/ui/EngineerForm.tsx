@@ -74,7 +74,7 @@ export function EngineerForm({
             onChange={(e) =>
               onFormDataChange({ ...formData, engineerName: e.target.value })
             }
-            placeholder="e.g. 신성수"
+            placeholder="e.g. 홍길동"
             maxLength={50}
           />
         </div>

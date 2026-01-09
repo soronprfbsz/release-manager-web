@@ -112,18 +112,6 @@ export function PublishingUploadForm({
       onClose={onClose}
       headerContent={headerContent}
     >
-      {/* Publishing Name Input */}
-      <div className="space-y-2">
-        <Label required>퍼블리싱명</Label>
-        <Input
-          value={formData.publishingName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, publishingName: e.target.value })
-          }
-          placeholder="e.g. A사 대시보드"
-        />
-      </div>
-
       {/* Category & Customer Select */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -162,9 +150,6 @@ export function PublishingUploadForm({
           />
         </div>
       </div>
-      <TypographyMuted className="text-xs -mt-2">
-        고객사를 선택하면 해당 고객사 전용 퍼블리싱으로 설정됩니다.
-      </TypographyMuted>
 
       {/* Sub Category Select */}
       {formData.publishingCategory && (
@@ -192,16 +177,15 @@ export function PublishingUploadForm({
         </div>
       )}
 
-      {/* File Select with Drag & Drop */}
+      {/* Publishing Name Input */}
       <div className="space-y-2">
-        <Label required>ZIP 파일</Label>
-        <FileDropzone
-          file={formData.file}
-          onFileChange={(file) => onFormDataChange({ ...formData, file })}
-          accept={['.zip']}
-          disabled={isUploading}
-          icon={<FileArchive className="h-6 w-6 text-muted-foreground" />}
-          hint="ZIP 파일만 지원"
+        <Label required>퍼블리싱명</Label>
+        <Input
+          value={formData.publishingName}
+          onChange={(e) =>
+            onFormDataChange({ ...formData, publishingName: e.target.value })
+          }
+          placeholder="e.g. A사 대시보드"
         />
       </div>
 
@@ -215,6 +199,19 @@ export function PublishingUploadForm({
           }
           placeholder="퍼블리싱에 대한 상세 설명을 입력하세요"
           rows={3}
+        />
+      </div>
+
+      {/* File Select with Drag & Drop */}
+      <div className="space-y-2">
+        <Label required>ZIP 파일</Label>
+        <FileDropzone
+          file={formData.file}
+          onFileChange={(file) => onFormDataChange({ ...formData, file })}
+          accept={['.zip']}
+          disabled={isUploading}
+          icon={<FileArchive className="h-6 w-6 text-muted-foreground" />}
+          hint="ZIP 파일만 지원"
         />
       </div>
 

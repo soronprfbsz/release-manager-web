@@ -95,17 +95,6 @@ export function FileUploadForm({
         </div>
       )}
 
-      {/* File Select with Drag & Drop */}
-      <div className="space-y-2">
-        <Label required>파일</Label>
-        <FileDropzone
-          file={formData.file}
-          onFileChange={(file) => onFormDataChange({ ...formData, file })}
-          disabled={isUploading}
-          placeholder="클릭하거나 파일을 드래그하세요"
-        />
-      </div>
-
       {/* Resource Name Input */}
       <div className="space-y-2">
         <Label required>파일명</Label>
@@ -127,6 +116,17 @@ export function FileUploadForm({
             onFormDataChange({ ...formData, description: e.target.value })
           }
           placeholder="파일에 대한 상세 설명을 입력하세요"
+        />
+      </div>
+
+      {/* File Select with Drag & Drop */}
+      <div className="space-y-2">
+        <Label required>파일</Label>
+        <FileDropzone
+          file={formData.file}
+          onFileChange={(file) => onFormDataChange({ ...formData, file })}
+          disabled={isUploading}
+          placeholder="클릭하거나 파일을 드래그하세요"
         />
       </div>
 

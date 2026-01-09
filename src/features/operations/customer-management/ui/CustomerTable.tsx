@@ -148,7 +148,7 @@ export function CustomerTable({
                 </StatusBadge>
               </TableCell>
               <TableCell>
-                <TypographyInlineCode className="bg-transparent">
+                <TypographyInlineCode className="bg-transparent font-normal">
                   {customer.customerCode}
                 </TypographyInlineCode>
               </TableCell>
