@@ -5,7 +5,6 @@
 
 import {
   ArrowRight,
-  Calendar,
   Download,
   Eye,
   FileText,
@@ -156,43 +155,43 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 {patch.customerName ? (
-                  <div className="text-sm">
+                  <div>
                     <div>{patch.customerName}</div>
-                    <TypographyMuted className="text-xs">
+                    <TypographyMuted className="text-sm">
                       ({patch.customerCode})
                     </TypographyMuted>
                   </div>
                 ) : (
-                  <TypographyMuted className="text-sm">-</TypographyMuted>
+                  <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
                 {patch.engineerName ? (
                   <TruncatedCell
                     tooltipText={patch.engineerName}
-                    className="flex items-center gap-1 text-sm"
+                    className="flex items-center gap-2"
                   >
-                    <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     <span>{patch.engineerName}</span>
                   </TruncatedCell>
                 ) : (
-                  <TypographyMuted className="text-sm">-</TypographyMuted>
+                  <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
                 <TruncatedCell
                   tooltipText={patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2"
                 >
                   {patch.isDeletedCreator ? (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted flex-shrink-0">
-                      <UserX className="h-3 w-3 text-muted-foreground" />
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted flex-shrink-0">
+                      <UserX className="h-4 w-4 text-muted-foreground" />
                     </div>
                   ) : (
                     <DiceBearAvatar
                       seed={patch.createdByAvatarSeed || patch.createdByEmail}
                       style={(patch.createdByAvatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
-                      size={20}
+                      size={28}
                       name={patch.createdByEmail}
                       className="flex-shrink-0"
                     />
@@ -207,22 +206,16 @@ export function PatchTable({
                   <TruncatedCell
                     tooltipText={patch.description}
                     maxLines={2}
-                    className="text-sm text-muted-foreground"
+                    className="text-muted-foreground"
                   >
                     {patch.description}
                   </TruncatedCell>
                 ) : (
-                  <TypographyMuted className="text-sm">-</TypographyMuted>
+                  <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
-              <TableCell>
-                <TruncatedCell
-                  tooltipText={formatDateTime(patch.createdAt)}
-                  className="flex items-center gap-1 text-muted-foreground"
-                >
-                  <Calendar className="h-3 w-3 flex-shrink-0" />
-                  <span className="text-sm">{formatDateTime(patch.createdAt)}</span>
-                </TruncatedCell>
+              <TableCell className="whitespace-nowrap">
+                <TypographyMuted>{formatDateTime(patch.createdAt)}</TypographyMuted>
               </TableCell>
               <TableCell>
                 <TableActionMenu>

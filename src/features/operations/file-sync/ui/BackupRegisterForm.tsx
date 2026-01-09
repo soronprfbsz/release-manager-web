@@ -10,6 +10,7 @@ import { Database, type LucideIcon } from 'lucide-react'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Textarea } from '@/shared/ui/textarea'
 
 import type { FileSyncResult, BackupRegisterItem } from '../api/types'
 
@@ -94,10 +95,11 @@ export function BackupRegisterForm({
       {/* 설명 */}
       <div className="space-y-2">
         <Label>설명</Label>
-        <Input
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="백업 파일에 대한 설명 (선택)"
+          placeholder="백업 파일에 대한 설명"
+          rows={3}
         />
       </div>
     </FormSheet>
