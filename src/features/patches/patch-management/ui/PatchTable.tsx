@@ -7,7 +7,7 @@ import {
   ArrowRight,
   Download,
   Eye,
-  FileText,
+  FolderArchive,
   Tag,
   Trash2,
   User,
@@ -135,7 +135,7 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <FolderArchive className="h-4 w-4 text-muted-foreground" />
                   <TypographyInlineCode className="bg-transparent font-normal">
                     {patch.patchName}
                   </TypographyInlineCode>
