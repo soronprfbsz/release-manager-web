@@ -64,7 +64,13 @@ export const useAuthStore = create<AuthState>()(
               const response = await sessionApi.refresh()
               apiClient.setAccessToken(response.data.accessToken)
               const accountInfo = response.data.accountInfo
-              set({ user: accountInfo, isLoading: false }, false, 'initAuth/success')
+              // 서버 응답에 아바타 정보가 없으면 기존 값 유지
+              const mergedUser: AccountInfo = {
+                ...accountInfo,
+                avatarStyle: accountInfo.avatarStyle ?? currentUser.avatarStyle,
+                avatarSeed: accountInfo.avatarSeed ?? currentUser.avatarSeed,
+              }
+              set({ user: mergedUser, isLoading: false }, false, 'initAuth/success')
             } catch {
               apiClient.clearAccessToken()
               set({ user: null, isLoading: false }, false, 'initAuth/failure')

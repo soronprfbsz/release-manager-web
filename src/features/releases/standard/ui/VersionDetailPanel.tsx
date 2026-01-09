@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { Calendar, FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame, UserX } from 'lucide-react'
+import { FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame, UserX } from 'lucide-react'
 
 import {
   releaseApi,
@@ -412,7 +412,6 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
               </div>
               <div className="flex items-center gap-2">
                 <TypographyMuted className="text-sm">생성일시</TypographyMuted>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
                 <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
               </div>
               {version.isApproved && version.approvedBy && (
@@ -438,7 +437,6 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
                   {version.approvedAt && (
                     <div className="flex items-center gap-2">
                       <TypographyMuted className="text-sm">승인일시</TypographyMuted>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
                       <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
                     </div>
                   )}
