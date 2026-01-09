@@ -11,14 +11,13 @@ import {
   Tag,
   Trash2,
   User,
-  UserX,
   type LucideIcon,
 } from 'lucide-react'
 
 import type { CumulativePatch } from '@/entities/patches/patch'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
+import { UserAvatar } from '@/shared/ui/user-avatar'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import {
@@ -108,6 +107,7 @@ export function PatchTable({
             >
               담당 엔지니어
             </SortableTableHead>
+            <TableHead className="w-40">설명</TableHead>
             <SortableTableHead
               className="w-44"
               id="createdBy"
@@ -116,7 +116,6 @@ export function PatchTable({
             >
               생성자
             </SortableTableHead>
-            <TableHead className="w-40">설명</TableHead>
             <SortableTableHead
               className="w-40"
               id="createdAt"
@@ -179,29 +178,6 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                <TruncatedCell
-                  tooltipText={patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
-                  className="flex items-center gap-2"
-                >
-                  {patch.isDeletedCreator ? (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted flex-shrink-0">
-                      <UserX className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  ) : (
-                    <DiceBearAvatar
-                      seed={patch.createdByAvatarSeed || patch.createdByEmail}
-                      style={(patch.createdByAvatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
-                      size={28}
-                      name={patch.createdByEmail}
-                      className="flex-shrink-0"
-                    />
-                  )}
-                  <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
-                    {patch.createdByEmail}
-                  </span>
-                </TruncatedCell>
-              </TableCell>
-              <TableCell>
                 {patch.description ? (
                   <TruncatedCell
                     tooltipText={patch.description}
@@ -213,6 +189,23 @@ export function PatchTable({
                 ) : (
                   <TypographyMuted>-</TypographyMuted>
                 )}
+              </TableCell>
+              <TableCell>
+                <TruncatedCell
+                  tooltipText={patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
+                  className="flex items-center gap-2"
+                >
+                  <UserAvatar
+                    email={patch.createdByEmail}
+                    avatarStyle={patch.createdByAvatarStyle}
+                    avatarSeed={patch.createdByAvatarSeed}
+                    isDeleted={patch.isDeletedCreator}
+                    size={28}
+                  />
+                  <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                    {patch.createdByEmail}
+                  </span>
+                </TruncatedCell>
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <TypographyMuted>{formatDateTime(patch.createdAt)}</TypographyMuted>

@@ -10,8 +10,10 @@ import {
   HardDrive,
   ScrollText,
   Trash2,
-  User,
 } from 'lucide-react'
+
+import { cn } from '@/shared/lib/utils'
+import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import type { BackupFile } from '@/entities/remote-jobs/mariadb'
 
@@ -89,6 +91,13 @@ export function BackupFileTable({
               파일명
             </SortableTableHead>
             <SortableTableHead
+              id="description"
+              currentSort={sort}
+              onSort={onSort}
+            >
+              설명
+            </SortableTableHead>
+            <SortableTableHead
               id="fileSize"
               currentSort={sort}
               onSort={onSort}
@@ -96,7 +105,6 @@ export function BackupFileTable({
             >
               파일 크기
             </SortableTableHead>
-            <TableHead className="w-64">설명</TableHead>
             <SortableTableHead
               id="createdBy"
               currentSort={sort}
@@ -124,19 +132,16 @@ export function BackupFileTable({
               </TableCell>
               <TableCell>
                 <div
-                  className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                  className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors max-w-[200px]"
                   onClick={() => onFileClick(file)}
                 >
                   <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <TruncatedCell tooltipText={file.fileName}>
-                    <TypographyInlineCode className="bg-transparent truncate">
+                    <TypographyInlineCode className="bg-transparent truncate block w-full">
                       {file.fileName}
                     </TypographyInlineCode>
                   </TruncatedCell>
                 </div>
-              </TableCell>
-              <TableCell>
-                <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
               </TableCell>
               <TableCell>
                 {file.description ? (
@@ -151,12 +156,23 @@ export function BackupFileTable({
                 )}
               </TableCell>
               <TableCell>
+                <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
+              </TableCell>
+              <TableCell>
                 <TruncatedCell
-                  tooltipText={file.createdByEmail}
-                  className="flex items-center gap-1 text-muted-foreground"
+                  tooltipText={file.isDeletedCreator ? '삭제된 사용자' : file.createdByEmail}
+                  className="flex items-center gap-2 text-muted-foreground"
                 >
-                  <User className="h-3 w-3 flex-shrink-0" />
-                  <span className="text-sm truncate">{file.createdByEmail}</span>
+                  <UserAvatar
+                    email={file.createdByEmail}
+                    avatarStyle={file.createdByAvatarStyle}
+                    avatarSeed={file.createdByAvatarSeed}
+                    isDeleted={file.isDeletedCreator}
+                    size={28}
+                  />
+                  <span className={cn('text-sm truncate', file.isDeletedCreator && 'text-muted-foreground')}>
+                    {file.createdByEmail}
+                  </span>
                 </TruncatedCell>
               </TableCell>
               <TableCell>

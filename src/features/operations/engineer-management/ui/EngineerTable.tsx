@@ -113,7 +113,7 @@ export function EngineerTable({
               onSort={onSort}
               className="w-28"
             >
-              등록일
+              생성일시
             </SortableTableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>

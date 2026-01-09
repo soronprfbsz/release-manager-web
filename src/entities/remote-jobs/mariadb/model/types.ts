@@ -18,6 +18,7 @@ export interface BackupFile {
   createdByEmail: string
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
+  isDeletedCreator?: boolean
   createdAt: string
 }
 
