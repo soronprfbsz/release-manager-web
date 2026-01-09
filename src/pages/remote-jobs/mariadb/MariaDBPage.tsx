@@ -234,7 +234,6 @@ export function MariaDBPage() {
               <HardDrive className="h-5 w-5" />
               백업 파일 목록
             </div>
-            {totalElements > 0 && <TypographyMuted>총 {totalElements}개</TypographyMuted>}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

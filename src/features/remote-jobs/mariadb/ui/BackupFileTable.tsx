@@ -87,6 +87,7 @@ export function BackupFileTable({
               id="fileName"
               currentSort={sort}
               onSort={onSort}
+              className="min-w-[22rem] w-40"
             >
               파일명
             </SortableTableHead>
@@ -101,7 +102,7 @@ export function BackupFileTable({
               id="fileSize"
               currentSort={sort}
               onSort={onSort}
-              className="w-28"
+              className="w-32"
             >
               파일 크기
             </SortableTableHead>
@@ -109,7 +110,7 @@ export function BackupFileTable({
               id="createdBy"
               currentSort={sort}
               onSort={onSort}
-              className="w-48"
+              className="w-56"
             >
               생성자
             </SortableTableHead>
