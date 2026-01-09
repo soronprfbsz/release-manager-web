@@ -123,7 +123,7 @@ export function NavigationBar() {
 
                           return (
                             <div className="p-3" style={{ minWidth: `${minWidth}px` }}>
-                              <div className={cn('grid gap-3', needsTwoColumns ? 'grid-cols-2' : 'grid-cols-1')}>
+                              <div className={cn('grid gap-1.5', needsTwoColumns ? 'grid-cols-2' : 'grid-cols-1')}>
                                 {item.children!.map((child, childIndex) => {
                                   const hasChildren = child.children && child.children.length > 0
 
@@ -133,7 +133,7 @@ export function NavigationBar() {
                                         key={child.label}
                                         className={cn(
                                           'col-span-2',
-                                          childIndex > 0 && 'pt-1.5'
+                                          childIndex > 0 && 'pt-0.5'
                                         )}
                                       >
                                         {/* 섹션 헤더 */}
