@@ -74,13 +74,9 @@ export function CustomerForm({
             ))}
           </SelectContent>
         </Select>
-        {mode === 'edit' ? (
+        {mode === 'edit' && (
           <TypographyMuted className="text-xs">
             프로젝트는 수정할 수 없습니다.
-          </TypographyMuted>
-        ) : (
-          <TypographyMuted className="text-xs">
-            고객사에서 사용하는 프로젝트를 선택하세요.
           </TypographyMuted>
         )}
       </div>

@@ -7,7 +7,9 @@ import {
   CheckCircle,
   Building2,
   TrendingUp,
-  Info
+  Info,
+  Tag,
+  GitBranch,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -186,15 +188,17 @@ export function HomePage() {
                       className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {patch.releaseType === 'STANDARD' ? (
+                          <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        ) : (
+                          <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        )}
                         <TypographyInlineCode className="bg-transparent truncate">
                           {patch.patchName}
                         </TypographyInlineCode>
                         <span className="text-xs text-muted-foreground flex-shrink-0">
                           ({patch.fromVersion} → {patch.toVersion})
                         </span>
-                        <Badge variant="outline" className="text-xs flex-shrink-0">
-                          {patch.releaseType === 'STANDARD' ? '표준' : '커스텀'}
-                        </Badge>
                       </div>
                       <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
                     </Link>
