@@ -136,7 +136,7 @@ export function PatchTable({
               <TableCell>
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <TypographyInlineCode className="bg-transparent">
+                  <TypographyInlineCode className="bg-transparent font-normal">
                     {patch.patchName}
                   </TypographyInlineCode>
                 </div>
@@ -179,11 +179,11 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 <TruncatedCell
-                  tooltipText={patch.createdBy}
+                  tooltipText={patch.createdByEmail}
                   className="flex items-center gap-1 text-sm"
                 >
                   <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  <span>{patch.createdBy}</span>
+                  <span>{patch.createdByEmail}</span>
                 </TruncatedCell>
               </TableCell>
               <TableCell>

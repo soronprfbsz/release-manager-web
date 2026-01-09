@@ -12,7 +12,9 @@ export interface CumulativePatch {
   fromVersion: string
   toVersion: string
   patchName: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   description: string | null
   engineerId: number | null
   engineerName: string | null
@@ -28,7 +30,9 @@ export interface CumulativePatchDetail {
   toVersion: string
   patchName: string
   outputPath: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   description: string | null
   engineerId: number | null
   engineerName: string | null
@@ -42,7 +46,7 @@ export interface CumulativePatchGenerateRequest {
   customerId?: number
   fromVersion: string
   toVersion: string
-  createdBy: string
+  createdByEmail: string
   engineerId?: number
   description?: string
   patchName?: string
@@ -55,7 +59,7 @@ export interface CustomPatchGenerateRequest {
   customerId: number
   fromVersion: string
   toVersion: string
-  createdBy: string
+  createdByEmail: string
   description?: string
   engineerId?: number
   patchName?: string

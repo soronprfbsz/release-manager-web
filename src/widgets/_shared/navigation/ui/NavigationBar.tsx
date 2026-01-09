@@ -1,8 +1,10 @@
-import { LogOut, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
+import { LogOut, ChevronDown, User } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 import { useMenus, type MenuItem } from '@/entities/_shared/menu'
 
+import { ProfileEditForm } from '@/widgets/_shared/profile-edit'
 import { ProjectSelector } from '@/widgets/_shared/project-selector'
 import { ThemeToggle } from '@/widgets/_shared/theme-toggle'
 
@@ -10,8 +12,8 @@ import { ROUTES } from '@/shared/config/constants'
 import { getMenuIcon } from '@/shared/config/menu-icons'
 import { cn } from '@/shared/lib/utils'
 import { useAuthStore } from '@/shared/store'
-import { Avatar } from '@/shared/ui/avatar'
 import { Badge } from '@/shared/ui/badge'
+import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +37,9 @@ export function NavigationBar() {
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
   const location = useLocation()
+
+  // Profile edit dialog state
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
   // 동적 메뉴 데이터 로드
   const { data: menusData, isLoading: isMenusLoading, error: menusError } = useMenus()
@@ -218,14 +223,24 @@ export function NavigationBar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar name={user.accountName} size="sm" />
+                  <DiceBearAvatar
+                    seed={user.avatarSeed || user.email}
+                    style={(user.avatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
+                    size={28}
+                    name={user.accountName}
+                  />
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex items-center gap-3">
-                    <Avatar name={user.accountName} size="md" />
+                    <DiceBearAvatar
+                      seed={user.avatarSeed || user.email}
+                      style={(user.avatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
+                      size={32}
+                      name={user.accountName}
+                    />
                     <div className="flex flex-col space-y-1.5">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium leading-none">{user.accountName}</span>
@@ -238,6 +253,10 @@ export function NavigationBar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
+                  <User className="mr-2 h-4 w-4" />
+                  내 정보 수정
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   로그아웃
@@ -247,6 +266,12 @@ export function NavigationBar() {
           )}
         </div>
       </div>
+
+      {/* Profile Edit Form */}
+      <ProfileEditForm
+        open={isProfileDialogOpen}
+        onOpenChange={setIsProfileDialogOpen}
+      />
     </header>
   )
 }

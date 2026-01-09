@@ -14,6 +14,9 @@ export interface File {
   filePath: string
   fileSize: number
   description: string | null
+  createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   createdAt: string
 }
 

@@ -49,7 +49,7 @@ export function ProjectSelector({ className }: ProjectSelectorProps) {
           <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[200px]">
+      <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
         <DropdownMenuLabel>프로젝트 선택</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {projects.map((project) => {
@@ -60,16 +60,10 @@ export function ProjectSelector({ className }: ProjectSelectorProps) {
               onClick={() => selectProject(project.projectId)}
               className={cn(
                 'cursor-pointer',
-                isSelected && 'bg-primary/10'
+                isSelected && 'bg-primary/10 text-primary'
               )}
             >
-              <FolderKanban className={cn(
-                "h-4 w-4 mr-2 flex-shrink-0",
-                isSelected && "text-primary"
-              )} />
-              <span className={cn(
-                isSelected && "text-primary"
-              )}>{project.projectName}</span>
+              {project.projectName}
             </DropdownMenuItem>
           )
         })}

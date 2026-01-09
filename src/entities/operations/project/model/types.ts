@@ -8,6 +8,9 @@ export interface Project {
   projectName: string
   description: string | null
   isEnabled: boolean
+  createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   createdAt: string
   updatedAt: string
 }

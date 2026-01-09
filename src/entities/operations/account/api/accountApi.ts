@@ -1,11 +1,12 @@
 import { apiClient } from '@/shared/api/client'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
 
-import type { Account, AccountUpdateRequest } from '../model/types'
+import type { Account, AccountUpdateRequest, MyAccount, MyAccountUpdateRequest } from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/accounts',
   byId: (id: number) => `/api/accounts/${id}`,
+  me: '/api/accounts/me',
 } as const
 
 export const accountApi = {
@@ -33,5 +34,17 @@ export const accountApi = {
   /** 계정 삭제 */
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(ENDPOINTS.byId(id))
+  },
+
+  /** 내 정보 조회 */
+  getMe: async (): Promise<MyAccount> => {
+    const response = await apiClient.get<MyAccount>(ENDPOINTS.me)
+    return response
+  },
+
+  /** 내 정보 수정 */
+  updateMe: async (request: MyAccountUpdateRequest): Promise<MyAccount> => {
+    const response = await apiClient.patch<MyAccount>(ENDPOINTS.me, request)
+    return response
   },
 }

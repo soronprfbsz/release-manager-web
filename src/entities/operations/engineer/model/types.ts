@@ -13,6 +13,12 @@ export interface Engineer {
   departmentId: number | null
   departmentName: string | null
   description: string | null
+  createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
+  updatedByEmail?: string
+  updatedByAvatarStyle?: string
+  updatedByAvatarSeed?: string
   createdAt: string
   updatedAt: string
 }

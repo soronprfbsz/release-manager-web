@@ -67,47 +67,49 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="animate-pulse h-16 bg-muted rounded" />
-              ) : latestInstall ? (
-                <Link
-                  to={ROUTES.RELEASES.STANDARD}
-                  state={{ selectedVersionId: latestInstall.releaseVersionId }}
-                  className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
-                      {latestInstall.fileCategories && latestInstall.fileCategories.length > 0 && (
-                        <>
-                          {latestInstall.fileCategories.map((category) => (
-                            <Badge
-                              key={category}
-                              variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                              className="text-xs px-1.5 py-0.5"
-                            >
-                              {getCategoryShortName(category)}
-                            </Badge>
-                          ))}
-                        </>
-                      )}
+              <div className="h-[6.5rem]">
+                {isLoading ? (
+                  <div className="animate-pulse h-full bg-muted rounded" />
+                ) : latestInstall ? (
+                  <Link
+                    to={ROUTES.RELEASES.STANDARD}
+                    state={{ selectedVersionId: latestInstall.releaseVersionId }}
+                    className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <TypographyInlineCode className="text-2xl bg-transparent">{latestInstall.version}</TypographyInlineCode>
+                        {latestInstall.fileCategories && latestInstall.fileCategories.length > 0 && (
+                          <>
+                            {latestInstall.fileCategories.map((category) => (
+                              <Badge
+                                key={category}
+                                variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                className="text-xs px-1.5 py-0.5"
+                              >
+                                {getCategoryShortName(category)}
+                              </Badge>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  </div>
-                  <div className="flex items-center gap-4 mt-2">
-                    <TypographyMuted className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {latestInstall.createdBy}
-                    </TypographyMuted>
-                    <TypographyMuted className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(latestInstall.createdAt)}
-                    </TypographyMuted>
-                  </div>
-                </Link>
-              ) : (
-                <TypographyMuted>설치본이 없습니다.</TypographyMuted>
-              )}
+                    <div className="flex items-center gap-4 mt-2">
+                      <TypographyMuted className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {latestInstall.createdBy}
+                      </TypographyMuted>
+                      <TypographyMuted className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {formatDate(latestInstall.createdAt)}
+                      </TypographyMuted>
+                    </div>
+                  </Link>
+                ) : (
+                  <TypographyMuted>설치본이 없습니다.</TypographyMuted>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -120,42 +122,44 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="animate-pulse space-y-2">
-                  {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
-                </div>
-              ) : recentVersions.length > 0 ? (
-                <div className="space-y-2">
-                  {recentVersions.map((version) => (
-                    <Link
-                      key={version.releaseVersionId}
-                      to={ROUTES.RELEASES.STANDARD}
-                      state={{ selectedVersionId: version.releaseVersionId }}
-                      className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
-                        {version.fileCategories && version.fileCategories.length > 0 && (
-                          <div className="flex gap-1 flex-shrink-0">
-                            {version.fileCategories.map((category) => (
-                              <Badge
-                                key={category}
-                                variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                className="text-[10px] px-1 py-0 h-4 leading-none"
-                              >
-                                {getCategoryShortName(category)}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <TypographyMuted className="text-xs flex-shrink-0">{formatDate(version.createdAt)}</TypographyMuted>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
-              )}
+                            <div className="h-[6.5rem]">
+                {isLoading ? (
+                  <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
+                    {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
+                  </div>
+                ) : recentVersions.length > 0 ? (
+                  <div className="space-y-2">
+                    {recentVersions.map((version) => (
+                      <Link
+                        key={version.releaseVersionId}
+                        to={ROUTES.RELEASES.STANDARD}
+                        state={{ selectedVersionId: version.releaseVersionId }}
+                        className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
+                          {version.fileCategories && version.fileCategories.length > 0 && (
+                            <div className="flex gap-1 flex-shrink-0">
+                              {version.fileCategories.map((category) => (
+                                <Badge
+                                  key={category}
+                                  variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                  className="text-[10px] px-1 py-0 h-4 leading-none"
+                                >
+                                  {getCategoryShortName(category)}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <TypographyMuted className="text-xs flex-shrink-0">{formatDate(version.createdAt)}</TypographyMuted>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -168,11 +172,12 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="animate-pulse space-y-2">
-                  {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
-                </div>
-              ) : recentPatches.length > 0 ? (
+                            <div className="h-[6.5rem]">
+                {isLoading ? (
+                  <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
+                    {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
+                  </div>
+                ) : recentPatches.length > 0 ? (
                 <div className="space-y-2">
                   {recentPatches.map((patch) => (
                     <Link
@@ -197,7 +202,8 @@ export function HomePage() {
                 </div>
               ) : (
                 <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

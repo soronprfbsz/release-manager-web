@@ -3,12 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { PaginationParams } from '@/shared/api/types'
 
 import { accountApi } from '../api/accountApi'
-import type { AccountUpdateRequest } from '../model/types'
+import type { AccountUpdateRequest, MyAccountUpdateRequest } from '../model/types'
 
 export const accountKeys = {
   all: ['accounts'] as const,
   lists: () => [...accountKeys.all, 'list'] as const,
   list: (params?: PaginationParams & { keyword?: string }) => [...accountKeys.lists(), params] as const,
+  me: () => [...accountKeys.all, 'me'] as const,
 }
 
 /** 계정 목록 조회 */
@@ -40,6 +41,26 @@ export function useDeleteAccount() {
     mutationFn: (id: number) => accountApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountKeys.lists() })
+    },
+  })
+}
+
+/** 내 정보 조회 */
+export function useMyAccount() {
+  return useQuery({
+    queryKey: accountKeys.me(),
+    queryFn: () => accountApi.getMe(),
+  })
+}
+
+/** 내 정보 수정 */
+export function useUpdateMyAccount() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: MyAccountUpdateRequest) => accountApi.updateMe(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountKeys.me() })
     },
   })
 }

@@ -15,6 +15,8 @@
     "test:report": "playwright show-report"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.2.4",
+    "@dicebear/core": "^9.2.4",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
@@ -48,6 +50,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.453.0",
     "pdfjs-dist": "^5.4.530",
     "react": "^19.2.1",
@@ -67,6 +70,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
+    "@types/jszip": "^3.4.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/sockjs-client": "^1.5.4",

@@ -8,6 +8,8 @@ export interface AccountInfo {
   email: string
   accountName: string
   role: string
+  avatarStyle?: string
+  avatarSeed?: string
 }
 
 export interface SignUpRequest {

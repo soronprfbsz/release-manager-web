@@ -191,7 +191,7 @@ export function MariaDBPage() {
     } else if (key === 'createdAt') {
       comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     } else if (key === 'createdBy') {
-      comparison = a.createdBy.localeCompare(b.createdBy)
+      comparison = a.createdByEmail.localeCompare(b.createdByEmail)
     }
 
     return direction === 'asc' ? comparison : -comparison

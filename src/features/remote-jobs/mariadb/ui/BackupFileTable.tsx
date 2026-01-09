@@ -152,11 +152,11 @@ export function BackupFileTable({
               </TableCell>
               <TableCell>
                 <TruncatedCell
-                  tooltipText={file.createdBy}
+                  tooltipText={file.createdByEmail}
                   className="flex items-center gap-1 text-muted-foreground"
                 >
                   <User className="h-3 w-3 flex-shrink-0" />
-                  <span className="text-sm truncate">{file.createdBy}</span>
+                  <span className="text-sm truncate">{file.createdByEmail}</span>
                 </TruncatedCell>
               </TableCell>
               <TableCell>

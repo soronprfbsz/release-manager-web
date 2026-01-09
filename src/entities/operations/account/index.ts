@@ -6,6 +6,8 @@
 export type {
   Account,
   AccountUpdateRequest,
+  MyAccount,
+  MyAccountUpdateRequest,
 } from './model/types'
 
 // API
@@ -17,4 +19,6 @@ export {
   useAccounts,
   useUpdateAccount,
   useDeleteAccount,
+  useMyAccount,
+  useUpdateMyAccount,
 } from './queries/accountQueries'

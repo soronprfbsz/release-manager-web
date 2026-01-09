@@ -42,7 +42,9 @@ export interface SelectedVersionData {
   versionId: number
   version: string
   createdAt: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   comment: string
   releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
@@ -388,7 +390,7 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <TypographyMuted className="text-sm">생성자:</TypographyMuted>
-                <TypographySmall>{version.createdBy || '-'}</TypographySmall>
+                <TypographySmall>{version.createdByEmail || '-'}</TypographySmall>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />

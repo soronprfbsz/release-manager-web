@@ -20,6 +20,12 @@ export interface Customer {
   isActive: boolean
   hasCustomVersion: boolean
   project: CustomerProject | null
+  createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
+  updatedByEmail?: string
+  updatedByAvatarStyle?: string
+  updatedByAvatarSeed?: string
   createdAt: string
   updatedAt: string
 }

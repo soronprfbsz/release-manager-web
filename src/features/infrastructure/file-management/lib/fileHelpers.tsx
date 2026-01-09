@@ -13,6 +13,7 @@ import {
   Server,
 } from 'lucide-react'
 
+import { FaDocker } from "react-icons/fa"
 import { RiFileExcel2Line } from "react-icons/ri"
 import { VscFileMedia, VscFile } from "react-icons/vsc"
 import { LuFileTerminal } from "react-icons/lu"
@@ -131,6 +132,8 @@ export const getFileGroupIcon = (category: string) => {
       return <LayoutDashboard className="w-5 h-5" />
     case 'SHEET':
       return <Table className="w-5 h-5" />
+    case 'DOCKER':
+      return <FaDocker className="w-5 h-5" />
     default:
       return <FolderOpen className="w-5 h-5" />
   }

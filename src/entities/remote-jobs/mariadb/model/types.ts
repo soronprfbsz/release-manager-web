@@ -15,7 +15,9 @@ export interface BackupFile {
   fileSize: number
   fileSizeFormatted: string
   description: string | null
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   createdAt: string
 }
 

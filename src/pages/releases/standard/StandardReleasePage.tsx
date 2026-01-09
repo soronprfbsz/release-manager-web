@@ -91,7 +91,7 @@ export function StandardReleasePage() {
                 versionId: foundHotfix.versionId,
                 version: foundHotfix.fullVersion,
                 createdAt: foundHotfix.createdAt,
-                createdBy: foundHotfix.createdBy || '',
+                createdByEmail: foundHotfix.createdByEmail || '',
                 comment: foundHotfix.comment || '',
                 isApproved: foundHotfix.isApproved ?? false,
                 approvedBy: foundHotfix.approvedBy ?? null,

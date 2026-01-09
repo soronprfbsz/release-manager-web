@@ -183,7 +183,7 @@ export function BackupForm({ open, onOpenChange, onSuccess }: BackupFormProps) {
           id="fileName"
           value={fileName}
           onChange={(e) => setFileName(e.target.value)}
-          placeholder="e.g. production_backup_2025 (선택)"
+          placeholder="e.g. production_backup_2025"
         />
         <p className="text-xs text-muted-foreground">
           생략 시 기본 파일명으로 생성됩니다. (.sql 확장자는 자동으로 추가됩니다)

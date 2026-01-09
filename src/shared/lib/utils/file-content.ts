@@ -73,9 +73,17 @@ export function isImageFile(fileName: string): boolean {
 }
 
 /**
- * 파일 확장자로 바이너리 파일 여부 확인 (PDF 또는 이미지)
+ * 파일 확장자로 압축 파일 여부 확인
+ */
+export function isZipFile(fileName: string): boolean {
+  const ext = fileName.toLowerCase().split('.').pop()
+  return ['zip', 'jar', 'war', 'ear'].includes(ext || '')
+}
+
+/**
+ * 파일 확장자로 바이너리 파일 여부 확인 (PDF, 이미지, 압축파일)
  */
 export function isBinaryFileByExtension(fileName: string): boolean {
-  return isPdfFile(fileName) || isImageFile(fileName)
+  return isPdfFile(fileName) || isImageFile(fileName) || isZipFile(fileName)
 }
 

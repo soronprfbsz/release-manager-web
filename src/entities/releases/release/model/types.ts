@@ -16,7 +16,7 @@ export interface HotfixNode {
   /** 전체 버전 문자열 (e.g. 1.1.0.1) */
   fullVersion: string
   createdAt: string
-  createdBy?: string
+  createdByEmail?: string
   comment?: string
   isApproved?: boolean
   approvedBy?: string | null
@@ -29,7 +29,9 @@ export interface VersionNode {
   versionId: number
   version: string
   createdAt: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   comment: string
   releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
@@ -77,7 +79,9 @@ export interface ReleaseVersionDetail {
   /** 전체 버전 문자열 (e.g. 1.3.2.1) */
   fullVersion: string
   majorMinor: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   comment: string
   customVersion: string | null
   isApproved: boolean

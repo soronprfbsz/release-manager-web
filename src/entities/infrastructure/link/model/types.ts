@@ -12,6 +12,9 @@ export interface Link {
   linkUrl: string
   description: string | null
   sortOrder: number
+  createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   createdAt: string
   updatedAt?: string
 }

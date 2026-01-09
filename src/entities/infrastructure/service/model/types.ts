@@ -34,9 +34,13 @@ export interface Service {
   description: string | null
   components: ServiceComponent[]
   createdAt: string
-  createdBy: string
+  createdByEmail: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
   updatedAt: string
-  updatedBy: string | null
+  updatedByEmail: string | null
+  updatedByAvatarStyle?: string
+  updatedByAvatarSeed?: string
 }
 
 /**

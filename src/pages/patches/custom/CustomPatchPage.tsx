@@ -152,7 +152,7 @@ export function CustomPatchPage() {
       customerId: formData.customerId,
       fromVersion: formData.fromVersion,
       toVersion: formData.toVersion,
-      createdBy: user?.email || '',
+      createdByEmail: user?.email || '',
       engineerId: formData.engineerId || undefined,
       description: formData.description || undefined,
       patchName: formData.patchName || undefined,

@@ -54,7 +54,7 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
           <div className="space-y-2">
             <label htmlFor="login-email" className="text-sm font-medium">
               이메일 <span className="text-destructive">*</span>

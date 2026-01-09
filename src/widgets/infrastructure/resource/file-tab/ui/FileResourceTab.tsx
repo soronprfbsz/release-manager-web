@@ -27,9 +27,11 @@ import {
   type FileFiltersState,
 } from '@/features/infrastructure/file-management'
 
+import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { base64ToBlob, base64ToText, isPdfFile, isImageFile } from '@/shared/lib/utils/file-content'
+import { base64ToBlob, base64ToText, isPdfFile, isImageFile, isZipFile } from '@/shared/lib/utils/file-content'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 
 const INITIAL_FORM_DATA: FileUploadFormData = {
   file: null,
@@ -96,6 +98,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     // 파일 내용 조회
     const isPdf = viewingResource ? isPdfFile(viewingResource.fileName) : false
     const isImage = viewingResource ? isImageFile(viewingResource.fileName) : false
+    const isZip = viewingResource ? isZipFile(viewingResource.fileName) : false
     const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useResourceFileContent(
       viewingResource?.resourceFileId ?? 0,
       viewingResource !== null
@@ -105,21 +108,21 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     const decodedContent = useMemo(() => {
       if (!fileContentData?.content) return null
       if (fileContentData.isBinary) {
-        if (!isPdf && !isImage) {
+        if (!isPdf && !isImage && !isZip) {
           return base64ToText(fileContentData.content)
         }
         return null
       }
       return fileContentData.content
-    }, [fileContentData, isPdf, isImage])
+    }, [fileContentData, isPdf, isImage, isZip])
 
     const binaryBlob = useMemo(() => {
       if (!fileContentData?.isBinary || !fileContentData?.content) return null
-      if (isPdf || isImage) {
+      if (isPdf || isImage || isZip) {
         return base64ToBlob(fileContentData.content, fileContentData.mimeType)
       }
       return null
-    }, [fileContentData, isPdf, isImage])
+    }, [fileContentData, isPdf, isImage, isZip])
 
     // Mutations
     const uploadMutation = useUploadResource({
@@ -291,22 +294,34 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
           onClose={() => setDeleteTarget(null)}
         />
 
-        {/* File Content Viewer Modal */}
-        <FileContentViewerModal
-          open={viewingResource !== null}
-          onOpenChange={(open) => !open && setViewingResource(null)}
-          fileName={viewingResource?.fileName || ''}
-          content={decodedContent}
-          isLoading={isLoadingContent && !isPdf && !isImage}
-          error={!isPdf && !isImage ? (contentError as Error | null) : null}
-          onDownload={() => viewingResource && handleDownload(viewingResource)}
-          pdfBlob={isPdf ? binaryBlob : null}
-          isPdfLoading={isPdf && isLoadingContent}
-          pdfError={isPdf ? (contentError as Error | null) : null}
-          imageBlob={isImage ? binaryBlob : null}
-          isImageLoading={isImage && isLoadingContent}
-          imageError={isImage ? (contentError as Error | null) : null}
-        />
+        {/* File Content Viewer - ZIP은 FileExplorer Sheet, 나머지는 Modal */}
+        {isZip ? (
+          <ZipFileExplorer
+            open={viewingResource !== null}
+            onOpenChange={(open) => !open && setViewingResource(null)}
+            zipBlob={binaryBlob}
+            fileName={viewingResource?.fileName || ''}
+            icon={DOMAIN_ICONS.file}
+            isLoading={isLoadingContent}
+            error={contentError as Error | null}
+          />
+        ) : (
+          <FileContentViewerModal
+            open={viewingResource !== null}
+            onOpenChange={(open) => !open && setViewingResource(null)}
+            fileName={viewingResource?.fileName || ''}
+            content={decodedContent}
+            isLoading={isLoadingContent && !isPdf && !isImage}
+            error={!isPdf && !isImage ? (contentError as Error | null) : null}
+            onDownload={() => viewingResource && handleDownload(viewingResource)}
+            pdfBlob={isPdf ? binaryBlob : null}
+            isPdfLoading={isPdf && isLoadingContent}
+            pdfError={isPdf ? (contentError as Error | null) : null}
+            imageBlob={isImage ? binaryBlob : null}
+            isImageLoading={isImage && isLoadingContent}
+            imageError={isImage ? (contentError as Error | null) : null}
+          />
+        )}
       </>
     )
   }
