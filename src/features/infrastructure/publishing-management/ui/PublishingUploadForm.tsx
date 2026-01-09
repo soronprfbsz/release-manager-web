@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
-import { TypographyMuted } from '@/shared/ui/typography'
 
 import type { PublishingUploadFormData } from '../model/types'
 
