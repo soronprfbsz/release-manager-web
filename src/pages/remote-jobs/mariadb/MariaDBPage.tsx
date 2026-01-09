@@ -39,7 +39,6 @@ import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { TypographyMuted } from '@/shared/ui/typography'
 
 export function MariaDBPage() {
   const { icon: pageIcon } = usePageIcon()
