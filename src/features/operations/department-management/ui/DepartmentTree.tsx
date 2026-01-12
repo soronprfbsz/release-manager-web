@@ -48,6 +48,8 @@ interface DepartmentTreeProps {
   selectedId: number | null
   dropTargetId?: number | null
   dropPosition?: DropPosition | null
+  /** 현재 드래그 중인 부서 ID (sortOrder 계산 시 제외하기 위해) */
+  draggedDepartmentId?: number | null
   onSelect: (department: DepartmentTreeType) => void
   onCreateChild: (parentId: number) => void
   onAssignAccount: (departmentId: number) => void
@@ -70,6 +72,7 @@ interface TreeNodeProps {
   selectedId: number | null
   dropTargetId?: number | null
   dropPosition?: DropPosition | null
+  draggedDepartmentId?: number | null
   expandedIds: Set<number>
   onToggleExpand: (id: number) => void
   onSelect: (department: DepartmentTreeType) => void
@@ -92,6 +95,7 @@ function TreeNode({
   selectedId,
   dropTargetId,
   dropPosition,
+  draggedDepartmentId,
   expandedIds,
   onToggleExpand,
   onSelect,
@@ -113,40 +117,39 @@ function TreeNode({
   const isRootDepartment = node.depth === 0
   const isDraggable = !isRootDepartment
 
-  // 현재 노드의 인덱스와 형제 정보
-  const nodeIndex = siblings.findIndex((s) => s.departmentId === node.departmentId)
+  // 드래그 중인 부서를 제외한 형제 목록에서의 인덱스 계산
+  // 백엔드에서도 드래그 부서를 제외하고 정렬하므로 동일한 기준 사용
+  const siblingsExcludingDragged = draggedDepartmentId
+    ? siblings.filter((s) => s.departmentId !== draggedDepartmentId)
+    : siblings
+  const nodeIndexExcludingDragged = siblingsExcludingDragged.findIndex(
+    (s) => s.departmentId === node.departmentId
+  )
 
-  /** 드롭 시 sortOrder 계산 */
+  /**
+   * 드롭 시 목표 위치(sortOrder) 계산
+   * - 백엔드에서 드래그 부서를 제외한 형제 목록에서 1부터 순차적으로 재정렬
+   * - before: 현재 노드 위치 (해당 위치에 삽입하면 기존 노드들이 뒤로 밀림)
+   * - after: 현재 노드 위치 + 1
+   * - child: 자식 목록의 맨 뒤 (자식 수 + 1, 드래그 부서 제외)
+   */
   const calculateSortOrder = (position: DropPosition): number => {
     if (position === 'child') {
-      // 자식으로 추가: 기존 자식들 중 마지막 sortOrder + 1
-      if (node.children && node.children.length > 0) {
-        const maxSort = Math.max(...node.children.map((c) => c.sortOrder))
-        return maxSort + 1
-      }
-      return 1
+      // 자식으로 추가: 드래그 부서를 제외한 자식 목록의 맨 뒤
+      const childrenExcludingDragged = draggedDepartmentId
+        ? (node.children ?? []).filter((c) => c.departmentId !== draggedDepartmentId)
+        : (node.children ?? [])
+      return childrenExcludingDragged.length + 1
     }
 
     if (position === 'before') {
-      // 현재 노드 앞에 삽입
-      if (nodeIndex === 0) {
-        // 첫 번째 노드 앞: 무조건 1 (서버에서 기존 항목들 재정렬 필요)
-        return 1
-      }
-      // 이전 노드와 현재 노드 사이
-      const prevNode = siblings[nodeIndex - 1]
-      return Math.max(1, Math.floor((prevNode.sortOrder + node.sortOrder) / 2))
+      // 현재 노드 앞에 삽입: 드래그 부서 제외한 인덱스 + 1
+      return nodeIndexExcludingDragged + 1
     }
 
     // position === 'after'
-    // 현재 노드 뒤에 삽입
-    if (nodeIndex === siblings.length - 1) {
-      // 마지막 노드 뒤: 현재 노드의 sortOrder + 1
-      return node.sortOrder + 1
-    }
-    // 현재 노드와 다음 노드 사이
-    const nextNode = siblings[nodeIndex + 1]
-    return Math.max(1, Math.floor((node.sortOrder + nextNode.sortOrder) / 2))
+    // 현재 노드 뒤에 삽입: 드래그 부서 제외한 인덱스 + 2
+    return nodeIndexExcludingDragged + 2
   }
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -366,6 +369,7 @@ function TreeNode({
               selectedId={selectedId}
               dropTargetId={dropTargetId}
               dropPosition={dropPosition}
+              draggedDepartmentId={draggedDepartmentId}
               expandedIds={expandedIds}
               onToggleExpand={onToggleExpand}
               onSelect={onSelect}
@@ -391,6 +395,7 @@ export function DepartmentTree({
   selectedId,
   dropTargetId,
   dropPosition,
+  draggedDepartmentId,
   onSelect,
   onCreateChild,
   onAssignAccount,
@@ -447,6 +452,7 @@ export function DepartmentTree({
           selectedId={selectedId}
           dropTargetId={dropTargetId}
           dropPosition={dropPosition}
+          draggedDepartmentId={draggedDepartmentId}
           expandedIds={expandedIds}
           onToggleExpand={handleToggleExpand}
           onSelect={onSelect}

@@ -441,6 +441,7 @@ export function DepartmentPage() {
                     selectedId={(showAllAccounts || showUnassigned) ? null : selectedDepartmentId}
                     dropTargetId={dropTargetDeptId}
                     dropPosition={dropPosition}
+                    draggedDepartmentId={draggedDepartment?.departmentId ?? null}
                     onSelect={handleSelect}
                     onCreateChild={openCreateForm}
                     onAssignAccount={handleAssignAccount}
