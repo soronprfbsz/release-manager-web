@@ -5,9 +5,10 @@
 
 import { useState } from 'react'
 
-import { Plus, Building2, Users, UserX } from 'lucide-react'
+import { Plus, Users, UserX } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
+import { getMenuIcon } from '@/shared/config/menu-icons'
 
 import {
   DepartmentTree,
@@ -56,7 +57,7 @@ import { Switch } from '@/shared/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function DepartmentPage() {
-  const { icon: pageIcon } = usePageIcon()
+  const { icon: pageIcon, iconName: pageIconName } = usePageIcon()
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -410,8 +411,8 @@ export function DepartmentPage() {
         <Card className="lg:col-span-2 flex flex-col overflow-hidden">
           <CardHeader className="pb-3 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Building2 className="h-4 w-4" />
+              <CardTitle className="flex items-center gap-2 text-lg">
+                {getMenuIcon(pageIconName, 'h-5 w-5')}
                 조직도
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -434,6 +435,7 @@ export function DepartmentPage() {
                 </div>
               ) : (
                 <>
+                  {/* 부서 트리 */}
                   <DepartmentTree
                     data={treeData}
                     selectedId={(showAllAccounts || showUnassigned) ? null : selectedDepartmentId}
@@ -450,41 +452,45 @@ export function DepartmentPage() {
                     onDragLeave={handleDragLeaveDepartment}
                     onDrop={handleDropOnDepartment}
                   />
-                  {/* 전체 계정 / 미배치 계정 항목 */}
-                  <div className="border-t mt-2 pt-2 px-2 space-y-1">
+
+                  {/* 구분선 + 전체 계정 / 미배치 계정 (트리와 같은 레벨) */}
+                  <div className="mx-3 my-2 border-t border-border/50" />
+                  <div className="px-1 pb-2 space-y-0.5">
                     {/* 전체 계정 */}
                     <div
-                      className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors ${
+                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
                         showAllAccounts
                           ? 'bg-primary/10 text-primary'
                           : 'hover:bg-muted/50'
                       }`}
+                      style={{ paddingLeft: '8px' }}
                       onClick={handleSelectAllAccounts}
                     >
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <div className="w-4" /> {/* Spacer for alignment with tree */}
+                      <div className="w-5" /> {/* Spacer for expand button */}
+                      <Users className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm font-medium">전체 계정</span>
-                      {allAccountsData?.content && allAccountsData.content.length > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          ({allAccountsData.content.length})
-                        </span>
-                      )}
+                      <span className="text-sm text-muted-foreground">
+                        ({allAccountsData?.content?.length ?? 0})
+                      </span>
                     </div>
                     {/* 미배치 계정 */}
                     <div
-                      className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer transition-colors ${
+                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
                         showUnassigned
                           ? 'bg-primary/10 text-primary'
                           : 'hover:bg-muted/50'
                       }`}
+                      style={{ paddingLeft: '8px' }}
                       onClick={handleSelectUnassigned}
                     >
-                      <UserX className="h-4 w-4 text-muted-foreground" />
+                      <div className="w-4" /> {/* Spacer for alignment with tree */}
+                      <div className="w-5" /> {/* Spacer for expand button */}
+                      <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm font-medium">미배치 계정</span>
-                      {unassignedAccountsData?.content && unassignedAccountsData.content.length > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          ({unassignedAccountsData.content.length})
-                        </span>
-                      )}
+                      <span className="text-sm text-muted-foreground">
+                        ({unassignedAccountsData?.content?.length ?? 0})
+                      </span>
                     </div>
                   </div>
                 </>
