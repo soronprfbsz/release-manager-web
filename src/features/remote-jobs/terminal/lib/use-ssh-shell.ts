@@ -3,12 +3,13 @@
  * SSH 터미널 세션 관리 및 비즈니스 로직
  */
 
-import { useCallback, type RefObject } from 'react'
+import { useCallback, useEffect, type RefObject } from 'react'
 
 import { useConnectShell, useDisconnectShell } from '@/entities/remote-jobs/terminal'
 import type { ShellConnectRequest, OutputMessage } from '@/entities/remote-jobs/terminal'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useSshSessionStore, type SshSession } from '@/shared/store/useSshSessionStore'
+import { useAuthStore } from '@/shared/store/useAuthStore'
 
 import { useSshShellWebSocket } from './use-ssh-shell-websocket'
 import { validateSshConnectionForm } from '../model/validation'
@@ -56,6 +57,41 @@ export function useSshShell(
   const connectMutation = useConnectShell()
   const disconnectMutation = useDisconnectShell()
 
+  const user = useAuthStore((state) => state.user)
+
+  // 컴포넌트 마운트 시 세션 사용자 검증
+  /* useEffect(() => {
+    if (session && user) {
+      if (session.userEmail !== user.email) {
+        // 세션 사용자와 현재 로그인 사용자가 다르면 세션 종료
+        // (비동기 처리로 인해 렌더링 중 업데이트 방지)
+        setTimeout(() => {
+          disconnect() // disconnect 함수가 정의되기 전이므로 아래 disconnect 로직을 직접 호출하거나 useEffect 위치를 아래로 이동해야 함
+          // 하지만 disconnect 함수는 useCallback으로 정의되어 있어서 순서 문제가 있음.
+          // 여기서 직접 store action을 호출하는 것이 안전함.
+          if (session.sessionId) {
+             clearHistory(session.sessionId)
+          }
+           clearSession()
+           terminalRef.current?.clear()
+        }, 0)
+      }
+    } else if (session && !user) {
+         // 로그아웃 상태면 세션 종료
+        setTimeout(() => {
+             if (session.sessionId) {
+                clearHistory(session.sessionId)
+             }
+            clearSession()
+            terminalRef.current?.clear()
+        }, 0)
+    }
+  }, [session, user, clearHistory, clearSession, terminalRef]) */
+  // 위 useEffect 로직은 disconnect 정의 후에 작성하거나, store action을 직접 사용해야 함.
+  // 간단하게 useEffect를 disconnect 정의 아래에 추가하거나, 여기서 store action을 사용.
+
+  // 그냥 disconnect 함수 정의 후에 useEffect를 배치하는 것이 깔끔함 via multi-chunk editing.
+
   // WebSocket 메시지 핸들러
   const handleWebSocketMessage = useCallback(
     (message: OutputMessage) => {
@@ -70,7 +106,7 @@ export function useSshShell(
           }
           clearSession()
           terminalRef.current?.clear()
-          
+
           toast({
             title: '연결 종료',
             description: 'SSH 연결이 종료되었습니다.',
@@ -104,7 +140,7 @@ export function useSshShell(
     }
     clearSession()
     terminalRef.current?.clear()
-    
+
     toast({
       title: '연결 종료',
       description: 'SSH 연결이 종료되었습니다.',
@@ -156,6 +192,7 @@ export function useSshShell(
           sessionId: response.terminalId,
           host: response.host,
           username: formData.username,
+          userEmail: user?.email || '',
         })
 
         toast({
@@ -210,6 +247,27 @@ export function useSshShell(
       })
     }
   }, [session, wsDisconnect, disconnectMutation, clearHistory, clearSession, terminalRef, toast])
+
+  // 세션 사용자 검증 (다른 사용자로 로그인 시 이전 세션 정리)
+  useEffect(() => {
+    if (session && user) {
+      if (session.userEmail !== user.email) {
+        // 세션 사용자와 현재 로그인 사용자가 다르면 세션 종료
+        if (session.sessionId) {
+          clearHistory(session.sessionId)
+        }
+        clearSession()
+        terminalRef.current?.clear()
+      }
+    } else if (session && !user) {
+      // 로그아웃 상태면 세션 종료
+      if (session.sessionId) {
+        clearHistory(session.sessionId)
+      }
+      clearSession()
+      terminalRef.current?.clear()
+    }
+  }, [session, user, clearHistory, clearSession, terminalRef])
 
   return {
     session,

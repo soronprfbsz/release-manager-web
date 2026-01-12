@@ -17,6 +17,7 @@ export interface SshSession {
   sessionId: string
   host: string
   username: string
+  userEmail: string
 }
 
 interface SshSessionState {
