@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 import { Layers, type LucideIcon } from 'lucide-react'
 
-import { useCustomers, useEngineers, type Customer, type Engineer } from '@/entities/operations'
+import { useCustomers, useAccounts, type Customer, type Account } from '@/entities/operations'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -34,19 +34,19 @@ export function PatchRegisterForm({
   onSubmit,
   icon: PageIcon = Layers,
 }: PatchRegisterFormProps) {
-  const [engineerId, setEngineerId] = useState<number | null>(null)
+  const [assigneeId, setAssigneeId] = useState<number | null>(null)
   const [customerCode, setCustomerCode] = useState('')
   const [description, setDescription] = useState('')
 
-  // 고객사 및 엔지니어 목록 조회
+  // 고객사 및 계정 목록 조회
   const { data: customersResponse } = useCustomers()
-  const { data: engineersResponse } = useEngineers()
+  const { data: accountsResponse } = useAccounts()
 
   const customers = customersResponse?.content ?? []
-  const engineers = engineersResponse?.content ?? []
+  const accounts = accountsResponse?.content ?? []
 
   const handleClose = () => {
-    setEngineerId(null)
+    setAssigneeId(null)
     setCustomerCode('')
     setDescription('')
     onOpenChange(false)
@@ -57,7 +57,7 @@ export function PatchRegisterForm({
 
     const data: PatchRegisterItem = {
       id: item.id,
-      ...(engineerId !== null && { engineerId }),
+      ...(assigneeId !== null && { assigneeId }),
       ...(customerCode && { customerCode }),
       ...(description.trim() && { description: description.trim() }),
     }
@@ -114,23 +114,23 @@ export function PatchRegisterForm({
         </p>
       </div>
 
-      {/* 담당 엔지니어 */}
+      {/* 담당자 */}
       <div className="space-y-2">
-        <Label>담당 엔지니어</Label>
+        <Label>담당자</Label>
         <Combobox
           options={[
             { value: '__none__', label: '선택 안함' },
-            ...engineers.map((e: Engineer) => ({
-              value: String(e.engineerId),
-              label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+            ...accounts.map((a: Account) => ({
+              value: String(a.accountId),
+              label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
             })),
           ]}
-          value={engineerId !== null ? String(engineerId) : '__none__'}
+          value={assigneeId !== null ? String(assigneeId) : '__none__'}
           onValueChange={(value) =>
-            setEngineerId(value === '__none__' ? null : Number(value))
+            setAssigneeId(value === '__none__' ? null : Number(value))
           }
           placeholder="선택 안함"
-          searchPlaceholder="엔지니어 검색..."
+          searchPlaceholder="담당자 검색..."
         />
       </div>
 

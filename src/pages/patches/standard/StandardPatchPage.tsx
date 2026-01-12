@@ -24,8 +24,7 @@ import {
   validatePatchForm,
 } from '@/features/patches/patch-management'
 
-import { customerApi } from '@/entities/operations'
-import { engineerApi } from '@/entities/operations'
+import { customerApi, accountApi } from '@/entities/operations'
 import {
   patchApi,
   usePatches,
@@ -52,7 +51,7 @@ const INITIAL_FORM_DATA: PatchCreateFormData = {
   fromVersion: '',
   toVersion: '',
   customerCode: '',
-  engineerId: null,
+  assigneeId: null,
   description: '',
   includeAllBuildVersions: false,
   patchName: '',
@@ -133,9 +132,9 @@ export function StandardPatchPage() {
     enabled: isFormOpen,
   })
 
-  const { data: engineers } = useQuery({
-    queryKey: ['engineers-all'],
-    queryFn: () => engineerApi.getList({ size: 1000 }),
+  const { data: accounts } = useQuery({
+    queryKey: ['accounts-engineer'],
+    queryFn: () => accountApi.getList({ size: 10000, departmentType: 'ENGINEER' }),
     enabled: isFormOpen,
   })
 
@@ -178,7 +177,7 @@ export function StandardPatchPage() {
       fromVersion: formData.fromVersion,
       toVersion: formData.toVersion,
       createdByEmail: user?.email || '',
-      engineerId: formData.engineerId || undefined,
+      assigneeId: formData.assigneeId || undefined,
       description: formData.description || undefined,
       includeAllBuildVersions: formData.includeAllBuildVersions || undefined,
       patchName: formData.patchName || undefined,
@@ -288,7 +287,7 @@ export function StandardPatchPage() {
         formData={formData}
         versions={versions}
         customers={customers?.content || []}
-        engineers={engineers?.content || []}
+        accounts={accounts?.content || []}
         isVersionsLoading={isTreeLoading}
         isSubmitting={generateMutation.isPending}
         onFormDataChange={setFormData}

@@ -8,7 +8,7 @@ import { ResourcePage } from '@/pages/infrastructure'
 import { MariaDBPage, TerminalPage } from '@/pages/remote-jobs'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
-import { EngineerListPage } from '@/pages/operations/engineers'
+import { DepartmentPage } from '@/pages/operations/departments'
 import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
 import { CustomPatchPage } from '@/pages/patches/custom'
 import { StandardPatchPage } from '@/pages/patches/standard'
@@ -91,11 +91,11 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.OPERATIONS.ENGINEERS,
+    path: ROUTES.OPERATIONS.DEPARTMENTS,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <EngineerListPage />
+          <DepartmentPage />
         </MainLayout>
       </ProtectedRoute>
     ),

@@ -18,8 +18,7 @@ import {
   validatePatchForm,
 } from '@/features/patches/patch-management'
 
-import { customerApi } from '@/entities/operations'
-import { engineerApi } from '@/entities/operations'
+import { customerApi, accountApi } from '@/entities/operations'
 import { useGenerateStandardPatch, type CumulativePatchGenerateRequest } from '@/entities/patches/patch'
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
@@ -30,7 +29,7 @@ const INITIAL_FORM_DATA: PatchCreateFormData = {
   fromVersion: '',
   toVersion: '',
   customerCode: '',
-  engineerId: null,
+  assigneeId: null,
   description: '',
   includeAllBuildVersions: false,
   patchName: '',
@@ -81,9 +80,9 @@ export function PatchGeneratePage() {
     queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
   })
 
-  const { data: engineers } = useQuery({
-    queryKey: ['engineers-all'],
-    queryFn: () => engineerApi.getList({ size: 1000 }),
+  const { data: accounts } = useQuery({
+    queryKey: ['accounts-engineer'],
+    queryFn: () => accountApi.getList({ size: 10000, departmentType: 'ENGINEER' }),
   })
 
   const versions = getVersionsFromTree(treeData)
@@ -111,7 +110,7 @@ export function PatchGeneratePage() {
       fromVersion: formData.fromVersion,
       toVersion: formData.toVersion,
       createdByEmail: user?.email || '',
-      engineerId: formData.engineerId || undefined,
+      assigneeId: formData.assigneeId || undefined,
       description: formData.description || undefined,
       includeAllBuildVersions: formData.includeAllBuildVersions || undefined,
       patchName: formData.patchName || undefined,
@@ -147,7 +146,7 @@ export function PatchGeneratePage() {
           formData={formData}
           versions={versions}
           customers={customers?.content || []}
-          engineers={engineers?.content || []}
+          accounts={accounts?.content || []}
           isVersionsLoading={isTreeLoading}
           isSubmitting={generateMutation.isPending}
           onReleaseTypeChange={setReleaseType}
@@ -159,7 +158,7 @@ export function PatchGeneratePage() {
           releaseType={releaseType}
           formData={formData}
           customers={customers?.content || []}
-          engineers={engineers?.content || []}
+          accounts={accounts?.content || []}
           userEmail={user?.email}
         />
       </div>

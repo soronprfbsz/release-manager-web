@@ -7,7 +7,7 @@ export interface PatchCreateFormData {
   fromVersion: string
   toVersion: string
   customerCode: string
-  engineerId: number | null
+  assigneeId: number | null
   description: string
   includeAllBuildVersions: boolean
   patchName: string
@@ -17,7 +17,7 @@ export interface CustomPatchCreateFormData {
   customerId: number | null
   fromVersion: string
   toVersion: string
-  engineerId: number | null
+  assigneeId: number | null
   description: string
   patchName: string
 }

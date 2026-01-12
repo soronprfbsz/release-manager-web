@@ -5,7 +5,7 @@
 
 import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
-import type { Engineer } from '@/entities/operations'
+import type { Account } from '@/entities/operations'
 import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
 
 import { Combobox } from '@/shared/ui/combobox'
@@ -22,7 +22,7 @@ interface CustomPatchCreateFormProps {
   formData: CustomPatchCreateFormData
   customers: CustomPatchCustomer[]
   versions: CustomPatchVersion[]
-  engineers: Engineer[]
+  accounts: Account[]
   isCustomersLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
@@ -38,7 +38,7 @@ export function CustomPatchCreateForm({
   formData,
   customers,
   versions,
-  engineers,
+  accounts,
   isCustomersLoading,
   isVersionsLoading,
   isSubmitting,
@@ -151,26 +151,26 @@ export function CustomPatchCreateForm({
         )}
       </div>
 
-      {/* 담당 엔지니어 */}
+      {/* 담당자 */}
       <div className="space-y-2">
-        <Label>담당 엔지니어</Label>
+        <Label>담당자</Label>
         <Combobox
           options={[
             { value: '__none__', label: '선택 안함' },
-            ...engineers.map((e) => ({
-              value: String(e.engineerId),
-              label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+            ...accounts.map((a) => ({
+              value: String(a.accountId),
+              label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
             })),
           ]}
-          value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+          value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
           onValueChange={(value) =>
             onFormDataChange({
               ...formData,
-              engineerId: value === '__none__' ? null : Number(value),
+              assigneeId: value === '__none__' ? null : Number(value),
             })
           }
           placeholder="선택 안함"
-          searchPlaceholder="엔지니어 검색..."
+          searchPlaceholder="담당자 검색..."
         />
       </div>
 

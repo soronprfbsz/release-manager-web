@@ -107,7 +107,7 @@ export interface BackupRegisterRequest {
 // 패치 파일 등록
 export interface PatchRegisterItem {
     id: string                    // 필수
-    engineerId?: number           // 선택: 담당 엔지니어 ID
+    assigneeId?: number           // 선택: 담당자 ID
     customerCode?: string         // 선택: 고객사 코드 (커스텀 패치)
     description?: string          // 선택
 }

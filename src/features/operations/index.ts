@@ -28,18 +28,6 @@ export {
   type ValidationResult,
 } from './customer-management'
 
-// Engineer Management
-export {
-  EngineerTable,
-  EngineerForm,
-  EngineerFilters,
-  EngineerDeleteModal,
-  validateEngineerForm,
-  type EngineerFormData,
-  type EngineerFiltersState,
-  type EngineerFormMode,
-} from './engineer-management'
-
 // Project Management
 export {
   ProjectCard,
@@ -50,5 +38,18 @@ export {
   type ProjectFormData,
   type ProjectFormMode,
 } from './project-management'
+
+// Department Management
+export {
+  DepartmentTree,
+  DepartmentForm,
+  DepartmentDetail,
+  DepartmentDeleteDialog,
+  DepartmentMoveDialog,
+  validateDepartmentForm,
+  INITIAL_DEPARTMENT_FORM_DATA,
+  type DepartmentFormData,
+  type DepartmentFormMode,
+} from './department-management'
 
 // File Sync (not re-exported as it has its own page component)

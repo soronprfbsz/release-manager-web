@@ -5,8 +5,7 @@
 
 import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
-import type { Customer } from '@/entities/operations'
-import type { Engineer } from '@/entities/operations'
+import type { Customer, Account } from '@/entities/operations'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -30,7 +29,7 @@ interface PatchCreateFormProps {
   formData: PatchCreateFormData
   versions: string[]
   customers: Customer[]
-  engineers: Engineer[]
+  accounts: Account[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onFormDataChange: (data: PatchCreateFormData) => void
@@ -45,7 +44,7 @@ export function PatchCreateForm({
   formData,
   versions,
   customers,
-  engineers,
+  accounts,
   isVersionsLoading,
   isSubmitting,
   onFormDataChange,
@@ -129,7 +128,7 @@ export function PatchCreateForm({
         )}
       </div>
 
-      {/* 고객사 & 담당 엔지니어 */}
+      {/* 고객사 & 담당자 */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>고객사</Label>
@@ -154,24 +153,24 @@ export function PatchCreateForm({
         </div>
 
         <div className="space-y-2">
-          <Label>담당 엔지니어</Label>
+          <Label>담당자</Label>
           <Combobox
             options={[
               { value: '__none__', label: '선택 안함' },
-              ...engineers.map((e) => ({
-                value: String(e.engineerId),
-                label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+              ...accounts.map((a) => ({
+                value: String(a.accountId),
+                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
               })),
             ]}
-            value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
             onValueChange={(value) =>
               onFormDataChange({
                 ...formData,
-                engineerId: value === '__none__' ? null : Number(value),
+                assigneeId: value === '__none__' ? null : Number(value),
               })
             }
             placeholder="선택 안함"
-            searchPlaceholder="엔지니어 검색..."
+            searchPlaceholder="담당자 검색..."
           />
         </div>
       </div>

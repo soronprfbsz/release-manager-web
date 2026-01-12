@@ -1,22 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { PaginationParams } from '@/shared/api/types'
-
-import { accountApi } from '../api/accountApi'
+import { accountApi, type AccountListParams } from '../api/accountApi'
 import type { AccountUpdateRequest, MyAccountUpdateRequest } from '../model/types'
 
 export const accountKeys = {
   all: ['accounts'] as const,
   lists: () => [...accountKeys.all, 'list'] as const,
-  list: (params?: PaginationParams & { keyword?: string }) => [...accountKeys.lists(), params] as const,
+  list: (params?: AccountListParams) => [...accountKeys.lists(), params] as const,
+  byDepartment: (departmentId: number | null) => [...accountKeys.all, 'department', departmentId] as const,
   me: () => [...accountKeys.all, 'me'] as const,
 }
 
 /** 계정 목록 조회 */
-export function useAccounts(params?: PaginationParams & { keyword?: string }) {
+export function useAccounts(params?: AccountListParams) {
   return useQuery({
     queryKey: accountKeys.list(params),
     queryFn: () => accountApi.getList(params),
+  })
+}
+
+/** 부서별 계정 목록 조회 (기본: 하위 부서 포함) */
+export function useAccountsByDepartment(
+  departmentId: number | null,
+  options?: { enabled?: boolean; includeSubDepartments?: boolean }
+) {
+  const includeSubDepartments = options?.includeSubDepartments ?? true
+  return useQuery({
+    queryKey: [...accountKeys.byDepartment(departmentId), { includeSubDepartments }],
+    queryFn: () => accountApi.getList({ departmentId, size: 10000, includeSubDepartments }),
+    enabled: options?.enabled ?? true,
   })
 }
 

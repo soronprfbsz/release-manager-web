@@ -10,6 +10,8 @@ export type {
   MyAccountUpdateRequest,
 } from './model/types'
 
+export type { AccountListParams } from './api/accountApi'
+
 // API
 export { accountApi } from './api/accountApi'
 
@@ -17,6 +19,7 @@ export { accountApi } from './api/accountApi'
 export {
   accountKeys,
   useAccounts,
+  useAccountsByDepartment,
   useUpdateAccount,
   useDeleteAccount,
   useMyAccount,

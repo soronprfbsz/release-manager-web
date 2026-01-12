@@ -9,14 +9,30 @@ const ENDPOINTS = {
   me: '/api/accounts/me',
 } as const
 
+export interface AccountListParams extends PaginationParams {
+  keyword?: string
+  departmentId?: number | null  // null = 미배치 계정
+  includeSubDepartments?: boolean  // true = 하위 부서 포함
+  departmentType?: string  // 부서 타입 필터 (e.g. 'ENGINEER')
+}
+
 export const accountApi = {
   /** 계정 목록 조회 (페이징) */
-  getList: async (params?: PaginationParams & { keyword?: string }): Promise<PageResponse<Account>> => {
+  getList: async (params?: AccountListParams): Promise<PageResponse<Account>> => {
     const queryParams = new URLSearchParams()
     if (params?.page !== undefined) queryParams.append('page', String(params.page))
     if (params?.size !== undefined) queryParams.append('size', String(params.size))
     if (params?.sort) queryParams.append('sort', params.sort)
     if (params?.keyword) queryParams.append('keyword', params.keyword)
+    if (params?.departmentId !== undefined) {
+      queryParams.append('departmentId', String(params.departmentId))
+    }
+    if (params?.includeSubDepartments !== undefined) {
+      queryParams.append('includeSubDepartments', String(params.includeSubDepartments))
+    }
+    if (params?.departmentType) {
+      queryParams.append('departmentType', params.departmentType)
+    }
 
     const queryString = queryParams.toString()
     const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base

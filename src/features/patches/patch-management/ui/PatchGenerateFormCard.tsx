@@ -6,8 +6,7 @@
 import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import type { Customer } from '@/entities/operations'
-import type { Engineer } from '@/entities/operations'
+import type { Customer, Account } from '@/entities/operations'
 
 import { ROUTES } from '@/shared/config/constants'
 import { Button } from '@/shared/ui/button'
@@ -28,7 +27,7 @@ interface PatchGenerateFormCardProps {
   formData: PatchCreateFormData
   versions: string[]
   customers: Customer[]
-  engineers: Engineer[]
+  accounts: Account[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onReleaseTypeChange: (type: ReleaseType) => void
@@ -41,7 +40,7 @@ export function PatchGenerateFormCard({
   formData,
   versions,
   customers,
-  engineers,
+  accounts,
   isVersionsLoading,
   isSubmitting,
   onReleaseTypeChange,
@@ -154,26 +153,26 @@ export function PatchGenerateFormCard({
           />
         </div>
 
-        {/* Assigned Engineer */}
+        {/* 담당자 */}
         <div className="space-y-2">
-          <Label>담당 엔지니어</Label>
+          <Label>담당자</Label>
           <Combobox
             options={[
               { value: '__none__', label: '선택 안함' },
-              ...engineers.map((e) => ({
-                value: String(e.engineerId),
-                label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+              ...accounts.map((a) => ({
+                value: String(a.accountId),
+                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
               })),
             ]}
-            value={formData.engineerId !== null ? String(formData.engineerId) : '__none__'}
+            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
             onValueChange={(value) =>
               onFormDataChange({
                 ...formData,
-                engineerId: value === '__none__' || !value ? null : Number(value),
+                assigneeId: value === '__none__' || !value ? null : Number(value),
               })
             }
             placeholder="선택 안함"
-            searchPlaceholder="엔지니어 검색..."
+            searchPlaceholder="담당자 검색..."
           />
         </div>
 

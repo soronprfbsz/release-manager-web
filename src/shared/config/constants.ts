@@ -24,7 +24,7 @@ export const ROUTES = {
   },
   OPERATIONS: {
     CUSTOMERS: '/operations/customers',
-    ENGINEERS: '/operations/engineers',
+    DEPARTMENTS: '/operations/departments',
     ACCOUNTS: '/operations/accounts',
     PROJECTS: '/operations/projects',
     FILE_SYNC: '/operations/file-sync',

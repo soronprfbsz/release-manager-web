@@ -17,8 +17,8 @@ export interface CumulativePatch {
   createdByAvatarSeed?: string | null
   isDeletedCreator?: boolean
   description: string | null
-  engineerId: number | null
-  engineerName: string | null
+  assigneeId: number | null
+  assigneeName: string | null
   createdAt: string
 }
 
@@ -35,8 +35,8 @@ export interface CumulativePatchDetail {
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
   description: string | null
-  engineerId: number | null
-  engineerName: string | null
+  assigneeId: number | null
+  assigneeName: string | null
   createdAt: string
   updatedAt: string
 }
@@ -48,7 +48,7 @@ export interface CumulativePatchGenerateRequest {
   fromVersion: string
   toVersion: string
   createdByEmail: string
-  engineerId?: number
+  assigneeId?: number
   description?: string
   patchName?: string
   includeAllBuildVersions?: boolean
@@ -62,7 +62,7 @@ export interface CustomPatchGenerateRequest {
   toVersion: string
   createdByEmail: string
   description?: string
-  engineerId?: number
+  assigneeId?: number
   patchName?: string
 }
 

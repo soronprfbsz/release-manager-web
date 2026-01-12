@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { Flame, AlertTriangle } from 'lucide-react'
 
-import { useEngineers, type Engineer } from '@/entities/operations'
+import { useAccounts, type Account } from '@/entities/operations'
 
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -33,18 +33,18 @@ export function HotfixCreateForm({
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   
   const [comment, setComment] = useState('')
-  const [engineerId, setEngineerId] = useState<number | null>(null)
+  const [assigneeId, setAssigneeId] = useState<number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
 
-  // 엔지니어 목록 조회
-  const { data: engineersResponse } = useEngineers()
-  const engineers = engineersResponse?.content ?? []
+  // 담당자 목록 조회
+  const { data: accountsResponse } = useAccounts()
+  const accounts = accountsResponse?.content ?? []
 
   const resetForm = () => {
     setComment('')
-    setEngineerId(null)
+    setAssigneeId(null)
     setSelectedFile(null)
     setIsUploading(false)
     setUploadCompleted(false)
@@ -98,7 +98,7 @@ export function HotfixCreateForm({
         hotfixBaseVersionId,
         comment,
         selectedFile,
-        engineerId ?? undefined,
+        assigneeId ?? undefined,
         (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -189,23 +189,23 @@ export function HotfixCreateForm({
         />
       </div>
 
-      {/* 담당 엔지니어 */}
+      {/* 담당자 */}
       <div className="space-y-2">
-        <Label htmlFor="engineerId">담당 엔지니어</Label>
+        <Label htmlFor="assigneeId">담당자</Label>
         <Combobox
           options={[
             { value: '__none__', label: '선택 안함' },
-            ...engineers.map((e: Engineer) => ({
-              value: String(e.engineerId),
-              label: `${e.engineerName} (${e.departmentName || '부서 없음'})`,
+            ...accounts.map((a: Account) => ({
+              value: String(a.accountId),
+              label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
             })),
           ]}
-          value={engineerId !== null ? String(engineerId) : '__none__'}
+          value={assigneeId !== null ? String(assigneeId) : '__none__'}
           onValueChange={(value) =>
-            setEngineerId(value === '__none__' ? null : Number(value))
+            setAssigneeId(value === '__none__' ? null : Number(value))
           }
           placeholder="선택 안함"
-          searchPlaceholder="엔지니어 검색..."
+          searchPlaceholder="담당자 검색..."
           disabled={isUploading}
         />
         <p className="text-xs text-muted-foreground">

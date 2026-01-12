@@ -8,16 +8,27 @@ export interface Account {
   accountId: number
   email: string
   accountName: string
-  role: string
-  status: string
+  phone: string | null
+  position: string | null
+  positionName: string | null
+  departmentId: number | null
+  departmentName: string | null
   avatarStyle?: string
   avatarSeed?: string
+  role: string
+  status: string
   lastLoginAt: string | null
   createdAt: string
 }
 
+/** 계정 수정 요청 (ADMIN 전용) */
 export interface AccountUpdateRequest {
   accountName?: string
+  phone?: string
+  position?: string
+  departmentId?: number | null
+  /** true 전송 시 부서 배치 해제 */
+  unassignDepartment?: boolean
   role?: string
   status?: string
 }

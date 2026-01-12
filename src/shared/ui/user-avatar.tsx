@@ -11,6 +11,8 @@ import { cn } from '@/shared/lib/utils'
 interface UserAvatarProps {
     /** 사용자 이메일 (또는 이름) */
     email: string
+    /** 사용자 이름 (initials 스타일에서 사용) */
+    accountName?: string | null
     /** 아바타 스타일 (DiceBear) */
     avatarStyle?: string | null
     /** 아바타 시드 */
@@ -25,6 +27,7 @@ interface UserAvatarProps {
 
 export function UserAvatar({
     email,
+    accountName,
     avatarStyle,
     avatarSeed,
     isDeleted = false,
@@ -50,7 +53,7 @@ export function UserAvatar({
             seed={avatarSeed || email}
             style={(avatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE}
             size={size}
-            name={email}
+            name={accountName || email}
             className={cn('flex-shrink-0', className)}
         />
     )

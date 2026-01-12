@@ -5,8 +5,7 @@
 
 import { Layers } from 'lucide-react'
 
-import type { Customer } from '@/entities/operations'
-import type { Engineer } from '@/entities/operations'
+import type { Customer, Account } from '@/entities/operations'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
@@ -19,7 +18,7 @@ interface PatchPreviewCardProps {
   releaseType: ReleaseType
   formData: PatchCreateFormData
   customers: Customer[]
-  engineers: Engineer[]
+  accounts: Account[]
   userEmail?: string
 }
 
@@ -27,11 +26,11 @@ export function PatchPreviewCard({
   releaseType,
   formData,
   customers,
-  engineers,
+  accounts,
   userEmail,
 }: PatchPreviewCardProps) {
   const selectedCustomer = customers.find((c) => c.customerCode === formData.customerCode)
-  const selectedEngineer = engineers.find((e) => e.engineerId === formData.engineerId)
+  const selectedAssignee = accounts.find((a) => a.accountId === formData.assigneeId)
 
   if (!formData.fromVersion || !formData.toVersion) {
     return (
@@ -80,10 +79,10 @@ export function PatchPreviewCard({
               <TypographyMuted>생성자</TypographyMuted>
               <TypographySmall>{userEmail}</TypographySmall>
             </div>
-            {selectedEngineer && (
+            {selectedAssignee && (
               <div className="flex justify-between">
-                <TypographyMuted>담당 엔지니어</TypographyMuted>
-                <TypographySmall>{selectedEngineer.engineerName}</TypographySmall>
+                <TypographyMuted>담당자</TypographyMuted>
+                <TypographySmall>{selectedAssignee.accountName}</TypographySmall>
               </div>
             )}
             {formData.description && (

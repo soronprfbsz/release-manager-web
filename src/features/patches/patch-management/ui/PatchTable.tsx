@@ -101,11 +101,11 @@ export function PatchTable({
             </SortableTableHead>
             <SortableTableHead
               className="w-40"
-              id="engineerName"
+              id="assigneeName"
               currentSort={sort}
               onSort={onSort}
             >
-              담당 엔지니어
+              담당자
             </SortableTableHead>
             <TableHead className="w-40">설명</TableHead>
             <SortableTableHead
@@ -165,13 +165,13 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                {patch.engineerName ? (
+                {patch.assigneeName ? (
                   <TruncatedCell
-                    tooltipText={patch.engineerName}
+                    tooltipText={patch.assigneeName}
                     className="flex items-center gap-2"
                   >
                     <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span>{patch.engineerName}</span>
+                    <span>{patch.assigneeName}</span>
                   </TruncatedCell>
                 ) : (
                   <TypographyMuted>-</TypographyMuted>
