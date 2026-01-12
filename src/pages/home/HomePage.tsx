@@ -124,7 +124,7 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-                            <div className="h-[6.5rem]">
+              <div className="h-[6.5rem]">
                 {isLoading ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
@@ -139,7 +139,7 @@ export function HomePage() {
                         className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <TypographyInlineCode className="bg-transparent flex-shrink-0">{version.version}</TypographyInlineCode>
+                          <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal">{version.version}</TypographyInlineCode>
                           {version.fileCategories && version.fileCategories.length > 0 && (
                             <div className="flex gap-1 flex-shrink-0">
                               {version.fileCategories.map((category) => (
@@ -174,38 +174,38 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-                            <div className="h-[6.5rem]">
+              <div className="h-[6.5rem]">
                 {isLoading ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
                   </div>
                 ) : recentPatches.length > 0 ? (
-                <div className="space-y-2">
-                  {recentPatches.map((patch) => (
-                    <Link
-                      key={patch.patchId}
-                      to={ROUTES.PATCHES.STANDARD}
-                      className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        {patch.releaseType === 'STANDARD' ? (
-                          <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        ) : (
-                          <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        )}
-                        <TypographyInlineCode className="bg-transparent truncate">
-                          {patch.patchName}
-                        </TypographyInlineCode>
-                        <span className="text-xs text-muted-foreground flex-shrink-0">
-                          ({patch.fromVersion} → {patch.toVersion})
-                        </span>
-                      </div>
-                      <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
+                  <div className="space-y-2">
+                    {recentPatches.map((patch) => (
+                      <Link
+                        key={patch.patchId}
+                        to={ROUTES.PATCHES.STANDARD}
+                        className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {patch.releaseType === 'STANDARD' ? (
+                            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          ) : (
+                            <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          )}
+                          <TypographyInlineCode className="bg-transparent truncate font-normal">
+                            {patch.patchName}
+                          </TypographyInlineCode>
+                          <span className="text-xs text-muted-foreground flex-shrink-0">
+                            ({patch.fromVersion} → {patch.toVersion})
+                          </span>
+                        </div>
+                        <TypographyMuted className="text-xs flex-shrink-0">{formatDate(patch.createdAt)}</TypographyMuted>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
                 )}
               </div>
             </CardContent>
