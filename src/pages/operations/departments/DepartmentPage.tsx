@@ -469,7 +469,7 @@ export function DepartmentPage() {
                       <div className="w-4" /> {/* Spacer for alignment with tree */}
                       <div className="w-5" /> {/* Spacer for expand button */}
                       <Users className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm font-medium">전체 계정</span>
+                      <span className="text-base font-medium">전체 계정</span>
                       <span className="text-sm text-muted-foreground">
                         ({allAccountsData?.content?.length ?? 0})
                       </span>
@@ -487,7 +487,7 @@ export function DepartmentPage() {
                       <div className="w-4" /> {/* Spacer for alignment with tree */}
                       <div className="w-5" /> {/* Spacer for expand button */}
                       <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm font-medium">미배치 계정</span>
+                      <span className="text-base font-medium">미배치 계정</span>
                       <span className="text-sm text-muted-foreground">
                         ({unassignedAccountsData?.content?.length ?? 0})
                       </span>
