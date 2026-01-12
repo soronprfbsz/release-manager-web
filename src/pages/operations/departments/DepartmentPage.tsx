@@ -252,10 +252,8 @@ export function DepartmentPage() {
             description: `${accountToMove.accountName}님이 이동되었습니다.`,
           })
           setAccountToMove(null)
-          // Invalidate both department's account lists and tree
-          queryClient.invalidateQueries({ queryKey: accountKeys.byDepartment(selectedDepartmentId) })
-          queryClient.invalidateQueries({ queryKey: accountKeys.byDepartment(newDepartmentId) })
-          queryClient.invalidateQueries({ queryKey: accountKeys.lists() })
+          // Invalidate all account queries (including unassigned) and department tree
+          queryClient.invalidateQueries({ queryKey: accountKeys.all })
           queryClient.invalidateQueries({ queryKey: departmentKeys.tree() })
         },
         onError: createErrorHandler(toast, '이동 실패'),
@@ -278,8 +276,8 @@ export function DepartmentPage() {
           description: `${accountIds.length}명의 계정이 배정되었습니다.`,
         })
         setAssignDialogOpen(false)
-        queryClient.invalidateQueries({ queryKey: accountKeys.byDepartment(selectedDepartmentId) })
-        queryClient.invalidateQueries({ queryKey: accountKeys.lists() })
+        // Invalidate all account queries (including unassigned) and department tree
+        queryClient.invalidateQueries({ queryKey: accountKeys.all })
         queryClient.invalidateQueries({ queryKey: departmentKeys.tree() })
       })
       .catch(() => {
@@ -349,9 +347,8 @@ export function DepartmentPage() {
                 title: '이동 완료',
                 description: `${draggedAccount.accountName}님이 이동되었습니다.`,
               })
-              queryClient.invalidateQueries({ queryKey: accountKeys.byDepartment(selectedDepartmentId) })
-              queryClient.invalidateQueries({ queryKey: accountKeys.byDepartment(targetDepartmentId) })
-              queryClient.invalidateQueries({ queryKey: accountKeys.lists() })
+              // Invalidate all account queries (including unassigned) and department tree
+              queryClient.invalidateQueries({ queryKey: accountKeys.all })
               queryClient.invalidateQueries({ queryKey: departmentKeys.tree() })
             },
             onError: createErrorHandler(toast, '이동 실패'),
