@@ -64,9 +64,13 @@ export const useAuthStore = create<AuthState>()(
               const response = await sessionApi.refresh()
               apiClient.setAccessToken(response.data.accessToken)
               const accountInfo = response.data.accountInfo
-              // 서버 응답에 아바타 정보가 없으면 기존 값 유지
+              // 서버 응답에 정보가 없으면 기존 값 유지
               const mergedUser: AccountInfo = {
                 ...accountInfo,
+                position: accountInfo.position ?? currentUser.position,
+                positionName: accountInfo.positionName ?? currentUser.positionName,
+                departmentId: accountInfo.departmentId ?? currentUser.departmentId,
+                departmentName: accountInfo.departmentName ?? currentUser.departmentName,
                 avatarStyle: accountInfo.avatarStyle ?? currentUser.avatarStyle,
                 avatarSeed: accountInfo.avatarSeed ?? currentUser.avatarSeed,
               }

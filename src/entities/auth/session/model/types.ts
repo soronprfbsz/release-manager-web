@@ -9,6 +9,8 @@ export interface AccountInfo {
   accountName: string
   position: string | null
   positionName: string | null
+  departmentId: number | null
+  departmentName: string | null
   role: string
   avatarStyle?: string
   avatarSeed?: string
@@ -18,6 +20,7 @@ export interface SignUpRequest {
   email: string
   password: string
   accountName: string
+  position?: string
 }
 
 export interface SignUpResponse {

@@ -79,27 +79,29 @@ export function AccountForm({
           이메일은 수정할 수 없습니다.
         </TypographyMuted>
       </div>
-      <div className="space-y-2">
-        <Label>이름</Label>
-        <Input
-          value={formData.accountName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, accountName: e.target.value })
-          }
-          placeholder="기본 사용자"
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>직책</Label>
-        <Combobox
-          options={positionOptions}
-          value={formData.position}
-          onValueChange={(value) =>
-            onFormDataChange({ ...formData, position: value })
-          }
-          placeholder="직책을 선택하세요"
-          searchPlaceholder="직책 검색..."
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>이름</Label>
+          <Input
+            value={formData.accountName}
+            onChange={(e) =>
+              onFormDataChange({ ...formData, accountName: e.target.value })
+            }
+            placeholder="기본 사용자"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>직책</Label>
+          <Combobox
+            options={positionOptions}
+            value={formData.position}
+            onValueChange={(value) =>
+              onFormDataChange({ ...formData, position: value })
+            }
+            placeholder="직책을 선택하세요"
+            searchPlaceholder="직책 검색..."
+          />
+        </div>
       </div>
       <div className="space-y-2">
         <Label>권한</Label>

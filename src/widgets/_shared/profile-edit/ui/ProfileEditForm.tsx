@@ -354,41 +354,42 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
           <Input value={user?.email || ''} disabled className="bg-muted" />
         </div>
 
-        {/* 이름 */}
-        <FormField
-          control={form.control}
-          name="accountName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>이름 <span className="text-destructive">*</span></FormLabel>
-              <FormControl>
-                <Input placeholder="이름을 입력하세요" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* 이름 & 직책 */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="accountName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>이름 <span className="text-destructive">*</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="이름을 입력하세요" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* 직책 */}
-        <FormField
-          control={form.control}
-          name="position"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>직책</FormLabel>
-              <FormControl>
-                <Combobox
-                  options={positionOptions}
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                  placeholder="직책을 선택하세요"
-                  searchPlaceholder="직책 검색..."
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="position"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>직책</FormLabel>
+                <FormControl>
+                  <Combobox
+                    options={positionOptions}
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                    placeholder="직책을 선택하세요"
+                    searchPlaceholder="직책 검색..."
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* 새 비밀번호 */}
         <FormField
