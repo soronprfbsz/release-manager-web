@@ -90,6 +90,14 @@ export function AccountTable({
               상태
             </SortableTableHead>
             <SortableTableHead
+              id="departmentName"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-32"
+            >
+              부서
+            </SortableTableHead>
+            <SortableTableHead
               id="accountName"
               currentSort={sort}
               onSort={onSort}
@@ -149,6 +157,9 @@ export function AccountTable({
                 <StatusBadge variant={account.status === 'ACTIVE' ? 'active' : 'inactive'}>
                   {account.status === 'ACTIVE' ? '활성' : '비활성'}
                 </StatusBadge>
+              </TableCell>
+              <TableCell>
+                <TypographyMuted>{account.departmentName || '-'}</TypographyMuted>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
