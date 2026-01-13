@@ -11,6 +11,7 @@ import {
 
 import type { Account } from '@/entities/operations/account'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { DataTable } from '@/shared/ui/data-table'
@@ -55,6 +56,8 @@ export function AccountTable({
   onDelete,
   viewportHeight,
 }: AccountTableProps) {
+  const { isAdmin } = usePermission()
+
   if (accounts.length === 0) {
     return (
       <EmptyState
@@ -133,7 +136,7 @@ export function AccountTable({
             >
               생성일시
             </SortableTableHead>
-            <TableHead className="w-12 text-center"></TableHead>
+            {isAdmin && <TableHead className="w-12 text-center"></TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -179,21 +182,23 @@ export function AccountTable({
               <TableCell className="whitespace-nowrap">
                 <TypographyMuted>{formatDateTime(account.createdAt)}</TypographyMuted>
               </TableCell>
-              <TableCell>
-                <TableActionMenu>
-                  <TableActionMenuItem onClick={() => onEdit(account)}>
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    수정
-                  </TableActionMenuItem>
-                  <TableActionMenuItem
-                    onClick={() => onDelete(account.accountId)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    삭제
-                  </TableActionMenuItem>
-                </TableActionMenu>
-              </TableCell>
+              {isAdmin && (
+                <TableCell>
+                  <TableActionMenu>
+                    <TableActionMenuItem onClick={() => onEdit(account)}>
+                      <Edit2 className="mr-2 h-4 w-4" />
+                      수정
+                    </TableActionMenuItem>
+                    <TableActionMenuItem
+                      onClick={() => onDelete(account.accountId)}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      삭제
+                    </TableActionMenuItem>
+                  </TableActionMenu>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
