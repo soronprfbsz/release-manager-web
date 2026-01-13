@@ -27,6 +27,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { Loader2 } from 'lucide-react'
 
 import {
@@ -155,10 +156,16 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
               <StickyNote className="h-4 w-4" />
               특이사항
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={handleCreate}>
-              <Plus className="h-4 w-4 mr-1" />
-              등록
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={handleCreate}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>특이사항 등록</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </CardHeader>
         <CardContent className="p-0">
