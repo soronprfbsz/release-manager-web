@@ -11,7 +11,7 @@ export interface CustomerNote {
   createdAt: string
   updatedAt: string
   createdByEmail: string
-  createdByAccountName: string
+  createdByName: string
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
   updatedByEmail?: string

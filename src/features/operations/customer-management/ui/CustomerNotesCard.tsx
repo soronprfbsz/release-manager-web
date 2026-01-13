@@ -13,6 +13,7 @@ import {
   FileQuestion,
 } from 'lucide-react'
 
+import { useAuthStore } from '@/shared/store'
 import {
   useCustomerNotes,
   useCreateCustomerNote,
@@ -43,6 +44,7 @@ interface CustomerNotesCardProps {
 
 export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
   const { toast } = useToast()
+  const user = useAuthStore((state) => state.user)
 
   // 특이사항 목록 조회
   const { data: notes = [], isLoading } = useCustomerNotes(customerId)
@@ -180,8 +182,8 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
               <p className="text-sm">등록된 특이사항이 없습니다.</p>
             </div>
           ) : (
-            <ScrollArea className="h-[300px]">
-              <div className="p-4 space-y-3">
+            <ScrollArea className="h-auto max-h-[300px]">
+              <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {notes.map((note) => (
                   <div
                     key={note.noteId}
@@ -191,22 +193,26 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                     <div className="flex items-center justify-between mb-1">
                       <h4 className="text-sm font-semibold">{note.title}</h4>
                       <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => handleEdit(note)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(note)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleEdit(note)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => handleDelete(note)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -218,11 +224,11 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                       <DiceBearAvatar
                         seed={note.createdByAvatarSeed || note.createdByEmail}
                         style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                        name={note.createdByAccountName}
+                        name={note.createdByName}
                         size={20}
                       />
-                      <span className="text-xs text-muted-foreground">
-                        {note.createdByAccountName}
+                      <span className="text-xs font-medium">
+                        {note.createdByName}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {formatDateTime(note.createdAt)}
