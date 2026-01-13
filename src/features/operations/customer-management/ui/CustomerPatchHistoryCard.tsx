@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Package,
   FileBox,
@@ -12,15 +13,33 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Trash2,
+  Loader2,
 } from 'lucide-react'
 
-import { usePatches } from '@/entities/patches/patch'
+import {
+  usePatchHistories,
+  useDeletePatchHistory,
+  patchKeys,
+  type CumulativePatch,
+} from '@/entities/patches/patch'
 import type { Customer } from '@/entities/operations/customer'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Loader2 } from 'lucide-react'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
@@ -49,18 +68,24 @@ const DEFAULT_PAGE_SIZE = 5
 export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardProps) {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [deleteTarget, setDeleteTarget] = useState<CumulativePatch | null>(null)
 
-  // 해당 고객사의 패치 목록 조회 (페이징)
-  const { data: patchesResponse, isLoading } = usePatches(
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  const { canDeletePatch } = usePermission()
+  const deleteMutation = useDeletePatchHistory()
+
+  // 해당 고객사의 패치 이력 조회 (페이징)
+  const { data: patchesResponse, isLoading } = usePatchHistories(
     {
       page,
       size: pageSize,
-      projectId: customer.project?.projectId,
-      customerCode: customer.customerCode,
+      projectId: customer.project?.projectId ?? '',
+      customerId: customer.customerId,
       sort: 'createdAt,desc',
     },
     {
-      enabled: !!customer.project?.projectId,
+      enabled: !!customer.project?.projectId && !!customer.customerId,
     }
   )
 
@@ -73,6 +98,29 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
     setPage(0) // 페이지 크기 변경 시 첫 페이지로 이동
   }
 
+  const handleDelete = () => {
+    if (!deleteTarget) return
+
+    deleteMutation.mutate(deleteTarget.patchId, {
+      onSuccess: () => {
+        toast({
+          title: '삭제 완료',
+          description: '패치 이력이 삭제되었습니다.',
+        })
+        // 패치 이력 목록 갱신
+        queryClient.invalidateQueries({ queryKey: patchKeys.histories() })
+        setDeleteTarget(null)
+      },
+      onError: () => {
+        toast({
+          variant: 'destructive',
+          title: '삭제 실패',
+          description: '패치 이력 삭제에 실패했습니다.',
+        })
+      },
+    })
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -82,7 +130,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
             패치 이력
           </CardTitle>
           <span className="text-xs text-muted-foreground">
-            {totalElements}건
+            총 {totalElements}건
           </span>
         </div>
       </CardHeader>
@@ -106,9 +154,9 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                     <TableRow>
                       <TableHead className="w-[50px] text-center">No</TableHead>
                       <TableHead className="w-[300px]">패치명</TableHead>
-                      <TableHead className="w-[100px]">버전</TableHead>
+                      <TableHead className="w-[120px]">버전</TableHead>
                       <TableHead>설명</TableHead>
-                      <TableHead className="w-[80px]">담당자</TableHead>
+                      <TableHead className="w-[100px]">담당자</TableHead>
                       <TableHead className="w-[160px] whitespace-nowrap">생성일시</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -118,8 +166,19 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                         <TableCell className="text-center text-muted-foreground text-sm">
                           {patch.rowNumber}
                         </TableCell>
-                        <TableCell className="font-medium truncate max-w-[180px]">
-                          {patch.patchName}
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-1">
+                            <span className="truncate max-w-[250px]">{patch.patchName}</span>
+                            {canDeletePatch && (
+                              <button
+                                type="button"
+                                className="p-1 flex-shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                                onClick={() => setDeleteTarget(patch)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs">
                           {patch.fromVersion} → {patch.toVersion}
@@ -220,6 +279,31 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
           </>
         )}
       </CardContent>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>패치 이력 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-medium text-foreground">{deleteTarget?.patchName}</span>
+              {' '}패치 이력을 삭제하시겠습니까?
+              <br />
+              삭제된 이력은 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

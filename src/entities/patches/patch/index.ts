@@ -22,6 +22,7 @@ export { patchApi } from './api/patchApi'
 export {
   patchKeys,
   usePatches,
+  usePatchHistories,
   usePatch,
   usePatchFileStructure,
   usePatchFileContent,
@@ -30,4 +31,5 @@ export {
   useGenerateStandardPatch,
   useGenerateCustomPatch,
   useDeletePatch,
+  useDeletePatchHistory,
 } from './queries/patchQueries'

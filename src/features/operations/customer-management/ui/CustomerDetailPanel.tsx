@@ -50,6 +50,9 @@ export function CustomerDetailPanel({
               <CardTitle className="text-lg truncate">
                 {customer.customerName}
               </CardTitle>
+              <span className="text-muted-foreground text-sm">
+                [{customer.customerCode}]
+              </span>
               <StatusBadge
                 variant={customer.isActive ? 'active' : 'inactive'}
               >
@@ -62,27 +65,15 @@ export function CustomerDetailPanel({
               )}
             </div>
             <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-              <span>[{customer.customerCode}]</span>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="flex items-center gap-1 cursor-default">
                     <Calendar className="h-3 w-3" />
-                    {formatDateTime(customer.createdAt)}
+                    {formatDateTime(customer.updatedAt || customer.createdAt)}
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>등록일</TooltipContent>
+                <TooltipContent>최종 수정일</TooltipContent>
               </Tooltip>
-              {customer.updatedAt && customer.updatedAt !== customer.createdAt && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="flex items-center gap-1 cursor-default">
-                      <Calendar className="h-3 w-3" />
-                      {formatDateTime(customer.updatedAt)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>수정일</TooltipContent>
-                </Tooltip>
-              )}
               {customer.description && (
                 <Tooltip>
                   <TooltipTrigger asChild>

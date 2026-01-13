@@ -442,6 +442,7 @@ export function DepartmentPage() {
                     dropTargetId={dropTargetDeptId}
                     dropPosition={dropPosition}
                     draggedDepartmentId={draggedDepartment?.departmentId ?? null}
+                    isDraggingAccount={!!draggedAccount}
                     onSelect={handleSelect}
                     onCreateChild={openCreateForm}
                     onAssignAccount={handleAssignAccount}
@@ -459,11 +460,10 @@ export function DepartmentPage() {
                   <div className="px-1 pb-2 space-y-0.5">
                     {/* 전체 계정 */}
                     <div
-                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
-                        showAllAccounts
-                          ? 'bg-primary/10 text-primary'
-                          : 'hover:bg-muted/50'
-                      }`}
+                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showAllAccounts
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-muted/50'
+                        }`}
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectAllAccounts}
                     >
@@ -476,11 +476,10 @@ export function DepartmentPage() {
                     </div>
                     {/* 미배치 계정 */}
                     <div
-                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${
-                        showUnassigned
-                          ? 'bg-primary/10 text-primary'
-                          : 'hover:bg-muted/50'
-                      }`}
+                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showUnassigned
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-muted/50'
+                        }`}
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectUnassigned}
                     >

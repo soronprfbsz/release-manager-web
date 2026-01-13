@@ -50,6 +50,8 @@ interface DepartmentTreeProps {
   dropPosition?: DropPosition | null
   /** 현재 드래그 중인 부서 ID (sortOrder 계산 시 제외하기 위해) */
   draggedDepartmentId?: number | null
+  /** 계정 드래그 중 여부 (순서 변경 불가, 오직 부서 내부로만 이동 가능) */
+  isDraggingAccount?: boolean
   onSelect: (department: DepartmentTreeType) => void
   onCreateChild: (parentId: number) => void
   onAssignAccount: (departmentId: number) => void
@@ -73,6 +75,7 @@ interface TreeNodeProps {
   dropTargetId?: number | null
   dropPosition?: DropPosition | null
   draggedDepartmentId?: number | null
+  isDraggingAccount?: boolean
   expandedIds: Set<number>
   onToggleExpand: (id: number) => void
   onSelect: (department: DepartmentTreeType) => void
@@ -96,6 +99,7 @@ function TreeNode({
   dropTargetId,
   dropPosition,
   draggedDepartmentId,
+  isDraggingAccount,
   expandedIds,
   onToggleExpand,
   onSelect,
@@ -178,7 +182,11 @@ function TreeNode({
 
     // 드롭 위치 결정 (상단 30%, 중앙 40%, 하단 30%)
     let position: DropPosition
-    if (y < height * 0.3) {
+
+    // 계정 드래그 중일 때는 항상 'child'로만 드롭 가능
+    if (isDraggingAccount) {
+      position = 'child'
+    } else if (y < height * 0.3) {
       position = 'before'
     } else if (y > height * 0.7) {
       position = 'after'
@@ -207,7 +215,11 @@ function TreeNode({
 
     // 드롭 위치 결정 (상단 30%, 중앙 40%, 하단 30%)
     let position: DropPosition
-    if (y < height * 0.3) {
+
+    // 계정 드래그 중일 때는 항상 'child'로만 드롭 가능
+    if (isDraggingAccount) {
+      position = 'child'
+    } else if (y < height * 0.3) {
       position = 'before'
     } else if (y > height * 0.7) {
       position = 'after'
@@ -227,8 +239,8 @@ function TreeNode({
 
   return (
     <div>
-      {/* Before indicator */}
-      {isDropTarget && dropPosition === 'before' && (
+      {/* Before indicator - 계정 드래그 중일 때는 표시하지 않음 */}
+      {isDropTarget && dropPosition === 'before' && !isDraggingAccount && (
         <div
           className="h-0.5 bg-primary mx-2 rounded-full"
           style={{ marginLeft: `${level * 20 + 8}px` }}
@@ -348,8 +360,8 @@ function TreeNode({
         </DropdownMenu>
       </div>
 
-      {/* After indicator */}
-      {isDropTarget && dropPosition === 'after' && (
+      {/* After indicator - 계정 드래그 중일 때는 표시하지 않음 */}
+      {isDropTarget && dropPosition === 'after' && !isDraggingAccount && (
         <div
           className="h-0.5 bg-primary mx-2 rounded-full"
           style={{ marginLeft: `${level * 20 + 8}px` }}
@@ -370,6 +382,7 @@ function TreeNode({
               dropTargetId={dropTargetId}
               dropPosition={dropPosition}
               draggedDepartmentId={draggedDepartmentId}
+              isDraggingAccount={isDraggingAccount}
               expandedIds={expandedIds}
               onToggleExpand={onToggleExpand}
               onSelect={onSelect}
@@ -396,6 +409,7 @@ export function DepartmentTree({
   dropTargetId,
   dropPosition,
   draggedDepartmentId,
+  isDraggingAccount,
   onSelect,
   onCreateChild,
   onAssignAccount,
@@ -453,6 +467,7 @@ export function DepartmentTree({
           dropTargetId={dropTargetId}
           dropPosition={dropPosition}
           draggedDepartmentId={draggedDepartmentId}
+          isDraggingAccount={isDraggingAccount}
           expandedIds={expandedIds}
           onToggleExpand={handleToggleExpand}
           onSelect={onSelect}

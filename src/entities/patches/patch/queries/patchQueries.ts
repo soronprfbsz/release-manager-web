@@ -21,6 +21,9 @@ export const patchKeys = {
   lists: () => [...patchKeys.all, 'list'] as const,
   list: (params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string }) =>
     [...patchKeys.lists(), params] as const,
+  histories: () => [...patchKeys.all, 'histories'] as const,
+  history: (params: { projectId: string; customerId: number; page?: number; size?: number; sort?: string }) =>
+    [...patchKeys.histories(), params] as const,
   details: () => [...patchKeys.all, 'detail'] as const,
   detail: (id: number) => [...patchKeys.details(), id] as const,
   fileStructure: (id: number) => [...patchKeys.all, 'file-structure', id] as const,
@@ -39,6 +42,18 @@ export const usePatches = (
   useQuery({
     queryKey: patchKeys.list(params),
     queryFn: () => patchApi.getList(params),
+    ...options,
+  })
+
+/** 고객사별 패치 이력 조회 */
+export const usePatchHistories = (
+  params: { projectId: string; customerId: number; page?: number; size?: number; sort?: string },
+  options?: Omit<UseQueryOptions<PageResponse<CumulativePatch>>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: patchKeys.history(params),
+    queryFn: () => patchApi.getHistories(params),
+    enabled: !!params.projectId && !!params.customerId,
     ...options,
   })
 
@@ -135,6 +150,17 @@ export const useDeletePatch = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
       queryClient.invalidateQueries({ queryKey: patchKeys.details() })
+    },
+  })
+}
+
+export const useDeletePatchHistory = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (historyId: number) => patchApi.deleteHistory(historyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patchKeys.histories() })
     },
   })
 }

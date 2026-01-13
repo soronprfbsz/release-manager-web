@@ -14,6 +14,8 @@ import type {
 
 const ENDPOINTS = {
   base: '/api/patches',
+  histories: '/api/patch-histories',
+  historyById: (id: number) => `/api/patch-histories/${id}`,
   // Standard patch
   generateStandard: '/api/patches/standard/generate',
   // Custom patch
@@ -45,6 +47,25 @@ export const patchApi = {
 
     const response = await apiClient.get<PageResponse<CumulativePatch>>(url)
     return response
+  },
+
+  /** 고객사별 패치 이력 조회 (페이징) */
+  getHistories: async (params: PaginationParams & { projectId: string; customerId: number }): Promise<PageResponse<CumulativePatch>> => {
+    const queryParams = new URLSearchParams()
+    queryParams.append('projectId', params.projectId)
+    queryParams.append('customerId', String(params.customerId))
+    if (params.page !== undefined) queryParams.append('page', String(params.page))
+    if (params.size !== undefined) queryParams.append('size', String(params.size))
+    if (params.sort) queryParams.append('sort', params.sort)
+
+    const url = `${ENDPOINTS.histories}?${queryParams.toString()}`
+    const response = await apiClient.get<PageResponse<CumulativePatch>>(url)
+    return response
+  },
+
+  /** 패치 이력 삭제 */
+  deleteHistory: async (id: number): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.historyById(id))
   },
 
   /** 패치 상세 조회 */

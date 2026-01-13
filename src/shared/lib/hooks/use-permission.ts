@@ -30,7 +30,7 @@ const HIDDEN_ROLES = {
   // 패치 관리
   patch: {
     add: ['GUEST'] as Role[],              // 추가: ADMIN, USER 가능
-    delete: ['GUEST', 'USER'] as Role[],   // 삭제: ADMIN만 가능
+    delete: ['GUEST'] as Role[],           // 삭제: ADMIN, USER 가능
   },
 } as const
 
