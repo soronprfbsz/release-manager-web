@@ -153,7 +153,6 @@ export function FileDropzone({
 
   // 기본 아이콘 결정
   const DefaultIcon = accept?.includes('.zip') ? FileArchive : Upload
-  const SelectedFileIcon = fileIcon || (accept?.includes('.zip') ? FileArchive : FileIcon)
 
   return (
     <>
@@ -169,12 +168,14 @@ export function FileDropzone({
       {file ? (
         // 파일 선택됨
         <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50">
-          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-            {isValidElement(SelectedFileIcon) ? (
-              SelectedFileIcon
-            ) : typeof SelectedFileIcon === 'function' ? (
-              <SelectedFileIcon className="h-6 w-6 text-primary" />
-            ) : null}
+          <div className="flex-shrink-0">
+            {isValidElement(fileIcon) ? (
+              fileIcon
+            ) : file.name.toLowerCase().endsWith('.zip') ? (
+              <FileArchive className="h-6 w-6 text-muted-foreground" />
+            ) : (
+              <FileIcon className="h-6 w-6 text-muted-foreground" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{file.name}</p>

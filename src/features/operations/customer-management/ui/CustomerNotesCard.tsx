@@ -25,7 +25,6 @@ import {
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -151,26 +150,24 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
 
   return (
     <>
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <StickyNote className="h-4 w-4" />
-              특이사항
-            </CardTitle>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="icon" onClick={handleCreate}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>특이사항 등록</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-semibold flex items-center gap-2">
+            <StickyNote className="h-4 w-4" />
+            특이사항
+          </h3>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleCreate}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>특이사항 등록</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div>
           {isLoading ? (
             <div className="flex items-center justify-center py-8 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -183,14 +180,14 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
             </div>
           ) : (
             <ScrollArea className="h-auto max-h-[300px]">
-              <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {notes.map((note) => (
                   <div
                     key={note.noteId}
-                    className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors"
                   >
                     {/* Title */}
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-semibold">{note.title}</h4>
                       <div className="flex items-center gap-1">
                         {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
@@ -217,10 +214,10 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                     </div>
 
                     {/* Content */}
-                    <p className="text-sm whitespace-pre-wrap text-muted-foreground">{note.content}</p>
+                    <p className="text-sm whitespace-pre-wrap text-muted-foreground mb-3">{note.content}</p>
 
                     {/* Footer - Author & Date */}
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2 pt-3 border-t border-border/30">
                       <DiceBearAvatar
                         seed={note.createdByAvatarSeed || note.createdByEmail}
                         style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
@@ -244,8 +241,8 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
               </div>
             </ScrollArea>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Note Form */}
       <CustomerNoteForm

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, GitBranch, Flame } from 'lucide-react'
+import { FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, Tag, Flame } from 'lucide-react'
 
 import {
   releaseApi,
@@ -30,7 +30,6 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -316,159 +315,156 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-6 px-6 py-4">
         {/* Basic Info */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Info className="h-4 w-4" />
-                  기본 정보
-                </CardTitle>
-                {isHotfix && (
-                  <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
-                )}
-                {version.isApproved ? (
-                  <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
-                ) : (
-                  <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600 dark:text-yellow-500">미승인</Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {/* 핫픽스 생성 버튼 - 핫픽스가 아닌 일반 버전에서만 표시 */}
-                {canAddVersion && !isHotfix && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setHotfixDialogOpen(true)}
-                      >
-                        <Flame className="h-4 w-4 text-orange-500" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>핫픽스 생성</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                {canApproveVersion && !version.isApproved && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleApprove}
-                        disabled={approveMutation.isPending}
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>승인하기</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                {canDeleteVersion && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setDeleteDialogOpen(true)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>삭제</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <TypographyMuted className="text-sm">생성자</TypographyMuted>
-                <UserAvatar
-                  email={version.createdByEmail}
-                  avatarStyle={version.createdByAvatarStyle}
-                  avatarSeed={version.createdByAvatarSeed}
-                  isDeleted={version.isDeletedCreator}
-                  size={20}
-                />
-                <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
-                  {version.createdByEmail || '-'}
-                </TypographySmall>
-              </div>
-              <div className="flex items-center gap-2">
-                <TypographyMuted className="text-sm">생성일시</TypographyMuted>
-                <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
-              </div>
-              {version.isApproved && version.approvedBy && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <TypographyMuted className="text-sm">승인자</TypographyMuted>
-                    <UserAvatar
-                      email={version.approvedBy}
-                      avatarStyle={version.approvedByAvatarStyle}
-                      avatarSeed={version.approvedByAvatarSeed}
-                      isDeleted={version.isDeletedApprover}
-                      size={20}
-                    />
-                    <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
-                      {version.approvedBy}
-                    </TypographySmall>
-                  </div>
-                  {version.approvedAt && (
-                    <div className="flex items-center gap-2">
-                      <TypographyMuted className="text-sm">승인일시</TypographyMuted>
-                      <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
-                    </div>
-                  )}
-                </>
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                기본 정보
+              </h3>
+              {isHotfix && (
+                <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
+              )}
+              {version.isApproved ? (
+                <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
+              ) : (
+                <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600 dark:text-yellow-500">미승인</Badge>
               )}
               {baseVersion && (
-                <div className="flex items-center gap-2 col-span-2">
-                  <TypographyMuted className="text-sm">기준 표준본</TypographyMuted>
-                  <GitBranch className="h-4 w-4 text-muted-foreground" />
-                  <TypographySmall>{baseVersion}</TypographySmall>
-                </div>
+                <span className="flex items-center gap-1.5 text-muted-foreground text-sm ml-2">
+                  <Tag className="h-3.5 w-3.5" />
+                  기준 표준본 {baseVersion}
+                </span>
               )}
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              {/* 핫픽스 생성 버튼 - 핫픽스가 아닌 일반 버전에서만 표시 */}
+              {canAddVersion && !isHotfix && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setHotfixDialogOpen(true)}
+                    >
+                      <Flame className="h-4 w-4 text-orange-500" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>핫픽스 생성</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              {canApproveVersion && !version.isApproved && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleApprove}
+                      disabled={approveMutation.isPending}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>승인하기</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              {canDeleteVersion && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setDeleteDialogOpen(true)}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>삭제</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <TypographyMuted className="text-sm">생성자</TypographyMuted>
+              <UserAvatar
+                email={version.createdByEmail}
+                avatarStyle={version.createdByAvatarStyle}
+                avatarSeed={version.createdByAvatarSeed}
+                isDeleted={version.isDeletedCreator}
+                size={20}
+              />
+              <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                {version.createdByEmail || '-'}
+              </TypographySmall>
+            </div>
+            <div className="flex items-center gap-2">
+              <TypographyMuted className="text-sm">생성일시</TypographyMuted>
+              <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
+            </div>
+            {version.isApproved && version.approvedBy && (
+              <>
+                <div className="flex items-center gap-2">
+                  <TypographyMuted className="text-sm">승인자</TypographyMuted>
+                  <UserAvatar
+                    email={version.approvedBy}
+                    avatarStyle={version.approvedByAvatarStyle}
+                    avatarSeed={version.approvedByAvatarSeed}
+                    isDeleted={version.isDeletedApprover}
+                    size={20}
+                  />
+                  <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
+                    {version.approvedBy}
+                  </TypographySmall>
+                </div>
+                {version.approvedAt && (
+                  <div className="flex items-center gap-2">
+                    <TypographyMuted className="text-sm">승인일시</TypographyMuted>
+                    <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Patch Notes / Comment */}
         {version.comment && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
+          <>
+            <hr className="border-border" />
+            <div>
+              <h3 className="text-base font-semibold flex items-center gap-2 mb-4">
                 <FileText className="h-4 w-4" />
                 코멘트
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-wrap text-sm">
-                {version.comment}
+              </h3>
+              <div className="p-4 rounded-lg bg-muted/40">
+                <div className="whitespace-pre-wrap text-sm">
+                  {version.comment}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </>
         )}
 
         {/* Release Files - Tree Structure */}
         {fileStructure && (
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
+          <>
+            <hr className="border-border" />
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold flex items-center gap-2">
                   <File className="h-4 w-4" />
                   파일
-                </CardTitle>
+                </h3>
                 {hasFiles && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -486,8 +482,6 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
                   </Tooltip>
                 )}
               </div>
-            </CardHeader>
-            <CardContent>
               {!hasFiles ? (
                 <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                   <File className="h-8 w-8 mb-2 opacity-50" />
@@ -510,8 +504,8 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </>
         )}
 
         {/* File Content Viewer Modal */}

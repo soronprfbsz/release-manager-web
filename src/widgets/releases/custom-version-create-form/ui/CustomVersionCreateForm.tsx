@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Info, Tag, type LucideIcon } from 'lucide-react'
+import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
 import { useCustomers, type Customer } from '@/entities/operations/customer'
 import { useProjectStore } from '@/shared/store'
 import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
 
+import { cn } from '@/shared/lib/utils'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -32,13 +33,52 @@ interface CustomVersionCreateFormProps {
   icon?: LucideIcon
 }
 
+type VersionBumpType = 'major' | 'minor' | 'patch'
+
 const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024 // 10GB
+const DEFAULT_VERSION = '1.0.0'
+
+/** 버전 문자열 파싱 */
+function parseVersion(version: string): { major: number; minor: number; patch: number } | null {
+  const match = version.match(/^(\d+)\.(\d+)\.(\d+)/)
+  if (!match) return null
+  return {
+    major: parseInt(match[1], 10),
+    minor: parseInt(match[2], 10),
+    patch: parseInt(match[3], 10),
+  }
+}
+
+/** 커스텀 버전에서 커스텀 버전 부분만 추출 (예: 1.1.0-customerB.1.0.0 -> 1.0.0) */
+function extractCustomVersionPart(fullVersion: string): string | null {
+  // 형식: {표준본버전}-{고객코드}.{커스텀버전} (예: 1.1.0-customerB.1.0.0)
+  // 마지막 버전 패턴(X.Y.Z)을 찾아서 추출
+  const match = fullVersion.match(/(\d+\.\d+\.\d+)$/)
+  return match ? match[1] : null
+}
+
+/** 버전 증가 */
+function bumpVersion(version: string, type: VersionBumpType): string {
+  const parsed = parseVersion(version)
+  if (!parsed) return ''
+
+  switch (type) {
+    case 'major':
+      return `${parsed.major + 1}.0.0`
+    case 'minor':
+      return `${parsed.major}.${parsed.minor + 1}.0`
+    case 'patch':
+      return `${parsed.major}.${parsed.minor}.${parsed.patch + 1}`
+  }
+}
 
 export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: PageIcon = Tag }: CustomVersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
   const [customerId, setCustomerId] = useState<number | null>(null)
   const [customBaseVersionId, setCustomBaseVersionId] = useState<number | null>(null)
   const [customVersion, setCustomVersion] = useState('')
+  const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
+  const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [isApproved, setIsApproved] = useState(false)
@@ -77,6 +117,35 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     return findLatestVersionString(customerNode.majorMinorGroups)
   }, [selectedCustomer, customTreeData])
 
+  // 커스텀 버전 부분만 추출 (예: 1.1.0-customerB.1.0.0 -> 1.0.0)
+  const currentCustomVersion = useMemo(() => {
+    if (!latestVersionForCustomer) return null
+    return extractCustomVersionPart(latestVersionForCustomer)
+  }, [latestVersionForCustomer])
+
+  // 자동 계산된 버전
+  const calculatedVersion = useMemo(() => {
+    if (!customerId) return ''
+    // 버전이 없는 경우 (최초 버전) 기본값 1.0.0
+    if (!latestVersionForCustomer || !currentCustomVersion) return DEFAULT_VERSION
+    return bumpVersion(currentCustomVersion, bumpType)
+  }, [customerId, latestVersionForCustomer, currentCustomVersion, bumpType])
+
+  // 실제 사용될 버전 (수동 입력 모드면 customVersion, 아니면 calculatedVersion)
+  const effectiveVersion = isManualInput ? customVersion : calculatedVersion
+
+  // 버전 타입 버튼 스타일
+  const getButtonStyle = (type: VersionBumpType) => {
+    const isSelected = bumpType === type && !isManualInput
+    return cn(
+      'flex-1 py-2 rounded-lg text-sm font-medium',
+      'cursor-pointer',
+      isSelected
+        ? 'bg-primary text-primary-foreground border-primary'
+        : 'bg-background hover:bg-accent border-border hover:border-primary/50'
+    )
+  }
+
   const createMutation = useMutation({
     mutationFn: async () => {
       setUploadCompleted(false)
@@ -96,7 +165,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       await releaseApi.createCustomVersion(
         projectId,
         customerId!,
-        customVersion,
+        effectiveVersion,
         comment,
         file!,
         isApproved,
@@ -108,7 +177,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     onSuccess: () => {
       toast({
         title: '커스텀 버전 생성 완료',
-        description: `버전 ${customVersion}이(가) 성공적으로 생성되었습니다.`,
+        description: `버전 ${effectiveVersion}이(가) 성공적으로 생성되었습니다.`,
       })
       handleClose()
       onSuccess()
@@ -127,6 +196,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     setCustomerId(null)
     setCustomBaseVersionId(null)
     setCustomVersion('')
+    setBumpType('patch')
+    setIsManualInput(false)
     setComment('')
     setFile(null)
     setIsApproved(false)
@@ -154,7 +225,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       return
     }
 
-    if (!customVersion.trim()) {
+    if (!effectiveVersion.trim()) {
       toast({
         title: '입력 오류',
         description: '버전을 입력해주세요.',
@@ -293,6 +364,9 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
           onValueChange={(value) => {
             setCustomerId(value ? Number(value) : null)
             setCustomBaseVersionId(null) // 고객사 변경 시 customBaseVersionId 초기화
+            setBumpType('patch') // 고객사 변경 시 버전 타입 초기화
+            setIsManualInput(false) // 고객사 변경 시 수동 입력 모드 해제
+            setCustomVersion('') // 고객사 변경 시 버전 초기화
           }}
           placeholder="고객사를 선택하세요"
           searchPlaceholder="고객사 검색..."
@@ -321,17 +395,97 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="customVersion" required>
-          버전
-        </Label>
-        <Input
-          id="customVersion"
-          placeholder={latestVersionForCustomer ? `마지막 버전: ${latestVersionForCustomer}` : 'e.g. 1.0.0'}
-          value={customVersion}
-          onChange={(e) => setCustomVersion(e.target.value)}
-          required
-        />
+      {/* 버전 선택 영역 */}
+      <div className="space-y-3">
+        <Label required>버전</Label>
+
+        {customerId && !isManualInput ? (
+          <div className="rounded-lg border bg-card p-4 space-y-4">
+            {/* 버전 타입 선택 버튼 (최초 버전이 아닌 경우에만 표시) */}
+            {currentCustomVersion && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className={getButtonStyle('major')}
+                  onClick={() => setBumpType('major')}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">MAJOR</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">주요 변경</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className={getButtonStyle('minor')}
+                  onClick={() => setBumpType('minor')}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">MINOR</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">기능 추가</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className={getButtonStyle('patch')}
+                  onClick={() => setBumpType('patch')}
+                >
+                  <div className="text-center">
+                    <div className="font-semibold">PATCH</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">버그 수정</div>
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {/* 새 버전 표시 */}
+            <div className="flex items-center justify-center gap-3 py-2 bg-muted/50 rounded-md">
+              {currentCustomVersion ? (
+                <>
+                  <span className="text-muted-foreground">{currentCustomVersion}</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-bold text-primary">{calculatedVersion}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-muted-foreground text-sm">최초 버전</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-bold text-primary">{calculatedVersion}</span>
+                </>
+              )}
+            </div>
+          </div>
+        ) : customerId ? (
+          <Input
+            id="customVersion"
+            placeholder="e.g. 1.0.0"
+            value={customVersion}
+            onChange={(e) => setCustomVersion(e.target.value)}
+            required
+          />
+        ) : (
+          <Input
+            id="customVersion"
+            placeholder="고객사를 먼저 선택하세요"
+            disabled
+          />
+        )}
+
+        {/* 직접 입력 토글 */}
+        {customerId && (
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => {
+              setIsManualInput(!isManualInput)
+              if (!isManualInput) {
+                setCustomVersion(calculatedVersion)
+              }
+            }}
+          >
+            <Pencil className="h-3 w-3" />
+            {isManualInput ? '자동 입력' : '직접 입력'}
+          </button>
+        )}
       </div>
 
       <div className="space-y-2">

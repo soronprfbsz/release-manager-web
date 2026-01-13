@@ -73,7 +73,7 @@ function TreeRootNode({
     <div>
       <div
         className={cn(
-          'group flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
+          'group flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
           isSelected
             ? 'bg-primary/10 text-primary'
             : 'hover:bg-muted/50'
@@ -109,7 +109,7 @@ function TreeRootNode({
 
       {/* Children */}
       {isExpanded && children && (
-        <div className="ml-4 grid grid-cols-2 gap-x-2">{children}</div>
+        <div className="ml-4 mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5">{children}</div>
       )}
     </div>
   )
@@ -125,7 +125,7 @@ function CustomerNode({
   return (
     <div
       className={cn(
-        'group flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
+        'group flex items-center gap-1.5 py-2.5 px-3 rounded-md cursor-pointer transition-all select-none',
         isSelected
           ? 'bg-primary/10 text-primary'
           : 'hover:bg-muted/50',
@@ -134,7 +134,7 @@ function CustomerNode({
       onClick={() => onSelect(customer)}
     >
       {/* Customer Icon */}
-      <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 
       {/* Customer Name */}
       <span className="truncate text-sm">
@@ -142,14 +142,14 @@ function CustomerNode({
       </span>
 
       {/* Customer Code */}
-      <span className="text-xs text-muted-foreground flex-shrink-0">
-        [{customer.customerCode}]
+      <span className="text-[11px] text-muted-foreground/70 flex-shrink-0">
+        {customer.customerCode}
       </span>
 
       {/* Inactive Badge */}
       {!customer.isActive && (
-        <span className="text-xs text-orange-500 flex-shrink-0">
-          (비활성)
+        <span className="text-[10px] text-orange-500 flex-shrink-0">
+          비활성
         </span>
       )}
 
@@ -162,10 +162,10 @@ function CustomerNode({
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreHorizontal className="h-3.5 w-3.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -295,6 +295,7 @@ export function CustomerTree({
           </TreeRootNode>
 
           {/* Custom Root */}
+          <div className="mt-2" />
           <TreeRootNode
             label="Custom"
             icon={<GitBranch className="h-4 w-4 shrink-0" />}

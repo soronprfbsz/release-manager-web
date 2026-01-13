@@ -3,12 +3,12 @@
  * 고객사 상세 패널 컴포넌트 (우측 패널)
  */
 
-import { Building2, Calendar, FileText } from 'lucide-react'
+import { Building2, Calendar } from 'lucide-react'
 
 import type { Customer } from '@/entities/operations/customer'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card, CardContent } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -40,64 +40,59 @@ export function CustomerDetailPanel({
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <CardHeader className="pb-3 border-b flex-shrink-0">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 flex-shrink-0">
-            <Building2 className="h-5 w-5 text-primary" />
+      <div className="px-6 py-3 flex-shrink-0 border-b">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 flex-shrink-0">
+            <Building2 className="h-4 w-4 text-primary" />
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-lg truncate">
-                {customer.customerName}
-              </CardTitle>
-              <span className="text-muted-foreground text-sm">
-                [{customer.customerCode}]
-              </span>
-              <StatusBadge
-                variant={customer.isActive ? 'active' : 'inactive'}
-              >
-                {customer.isActive ? '활성' : '비활성'}
-              </StatusBadge>
-              {customer.hasCustomVersion && (
-                <span className="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                  커스텀
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 min-w-0">
+            {customer.description ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="flex items-center gap-1 cursor-default">
-                    <Calendar className="h-3 w-3" />
-                    {formatDateTime(customer.updatedAt || customer.createdAt)}
-                  </span>
+                  <h2 className="text-base font-semibold truncate cursor-default">
+                    {customer.customerName}
+                  </h2>
                 </TooltipTrigger>
-                <TooltipContent>최종 수정일</TooltipContent>
+                <TooltipContent>
+                  <p className="max-w-[300px]">{customer.description}</p>
+                </TooltipContent>
               </Tooltip>
-              {customer.description && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="flex items-center gap-1 cursor-default truncate max-w-[200px]">
-                      <FileText className="h-3 w-3 flex-shrink-0" />
-                      {customer.description}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-[300px]">{customer.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
+            ) : (
+              <h2 className="text-base font-semibold truncate">
+                {customer.customerName}
+              </h2>
+            )}
+            <span className="text-muted-foreground text-sm">
+              [{customer.customerCode}]
+            </span>
+            <StatusBadge
+              variant={customer.isActive ? 'active' : 'inactive'}
+            >
+              {customer.isActive ? '활성' : '비활성'}
+            </StatusBadge>
           </div>
+          <span className="flex-1" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground cursor-default flex-shrink-0">
+                <Calendar className="h-3 w-3" />
+                {formatDateTime(customer.updatedAt || customer.createdAt)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>최종 수정일</TooltipContent>
+          </Tooltip>
         </div>
-      </CardHeader>
+      </div>
 
       {/* Content */}
       <CardContent className="flex-1 overflow-hidden p-0">
         <ScrollArea className="h-full">
-          <div className="p-4 space-y-4">
+          <div className="px-8 pb-8 pt-6 space-y-10">
             {/* 특이사항 */}
             <CustomerNotesCard customerId={customer.customerId} />
+
+            {/* 구분선 */}
+            <hr className="border-border" />
 
             {/* 패치 이력 */}
             <CustomerPatchHistoryCard customer={customer} />

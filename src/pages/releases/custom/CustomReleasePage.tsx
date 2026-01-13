@@ -147,11 +147,11 @@ export function CustomReleasePage() {
       }
     >
       {/* Content */}
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-4 h-[calc(100vh-18rem)]">
         {/* Tree Panel */}
-        <div className="col-span-3">
-          <Card>
-            <CardHeader className="pb-3">
+        <div className="col-span-3 h-full overflow-hidden">
+          <Card className="h-full flex flex-col overflow-hidden">
+            <CardHeader className="pb-3 flex-shrink-0">
               <CardTitle className="text-base flex items-center gap-2">
                 {getMenuIcon(iconName, 'h-4 w-4')}
                 커스텀 버전 트리
@@ -162,8 +162,8 @@ export function CustomReleasePage() {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[calc(100vh-24rem)]">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
                 {isTreeLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -181,10 +181,10 @@ export function CustomReleasePage() {
         </div>
 
         {/* Detail Panel */}
-        <div className="col-span-9">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+        <div className="col-span-9 h-full overflow-hidden">
+          <Card className="h-full flex flex-col overflow-hidden">
+            <CardHeader className="pb-3 flex-shrink-0 border-b">
+              <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
                 <span>버전 정보</span>
                 {selectedState && (
                   <>
@@ -206,8 +206,8 @@ export function CustomReleasePage() {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[calc(100vh-24rem)]">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
                 <VersionDetailPanel
                   version={selectedVersion}
                   isHotfix={selectedState?.isHotfix}

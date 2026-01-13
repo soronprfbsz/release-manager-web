@@ -39,7 +39,6 @@ import {
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
@@ -122,19 +121,17 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            패치 이력
-          </CardTitle>
-          <span className="text-xs text-muted-foreground">
-            총 {totalElements}건
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold flex items-center gap-2">
+          <Package className="h-4 w-4" />
+          패치 이력
+        </h3>
+        <span className="text-xs text-muted-foreground">
+          총 {totalElements}건
+        </span>
+      </div>
+      <div>
         {isLoading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin mr-2" />
@@ -147,26 +144,25 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
           </div>
         ) : (
           <>
-            <div className="rounded-md border">
-              <ScrollArea className="max-h-[250px]">
-                <Table>
+            <ScrollArea className="max-h-[280px]">
+              <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[50px] text-center">No</TableHead>
-                      <TableHead className="w-[300px]">패치명</TableHead>
-                      <TableHead className="w-[120px]">버전</TableHead>
-                      <TableHead>설명</TableHead>
-                      <TableHead className="w-[100px]">담당자</TableHead>
-                      <TableHead className="w-[160px] whitespace-nowrap">생성일시</TableHead>
+                      <TableHead className="w-[50px] text-center py-3">No</TableHead>
+                      <TableHead className="w-[300px] py-3">패치명</TableHead>
+                      <TableHead className="w-[120px] py-3">버전</TableHead>
+                      <TableHead className="py-3">설명</TableHead>
+                      <TableHead className="w-[100px] py-3">담당자</TableHead>
+                      <TableHead className="w-[160px] whitespace-nowrap py-3">생성일시</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {patches.map((patch) => (
                       <TableRow key={patch.patchId}>
-                        <TableCell className="text-center text-muted-foreground text-sm">
+                        <TableCell className="text-center text-muted-foreground text-sm py-3">
                           {patch.rowNumber}
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium py-3">
                           <div className="flex items-center gap-1">
                             <span className="truncate max-w-[250px]">{patch.patchName}</span>
                             {canDeletePatch && (
@@ -180,10 +176,10 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs py-3">
                           {patch.fromVersion} → {patch.toVersion}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground py-3">
                           {patch.description ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -199,21 +195,20 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                             '-'
                           )}
                         </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
+                        <TableCell className="text-muted-foreground text-sm py-3">
                           {patch.assigneeName || '-'}
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap py-3">
                           {formatDateTime(patch.createdAt)}
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              </ScrollArea>
-            </div>
+            </ScrollArea>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between mt-3">
+            <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
                   페이지 당 항목 수
@@ -278,7 +273,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
             </div>
           </>
         )}
-      </CardContent>
+      </div>
 
       {/* 삭제 확인 다이얼로그 */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
@@ -304,6 +299,6 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </div>
   )
 }
