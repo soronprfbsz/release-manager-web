@@ -296,13 +296,13 @@ function TreeNode({
         )}
 
         {/* Department Name */}
-        <span className="truncate text-base font-medium">
+        <span className="truncate text-sm font-medium">
           {node.departmentName}
         </span>
 
         {/* Account Count - 부서명 바로 옆에 표시 (해당 부서 직접 인원만) */}
         {node.accountCount > 0 && (
-          <span className="text-sm text-muted-foreground flex-shrink-0">
+          <span className="text-xs text-muted-foreground flex-shrink-0">
             ({node.accountCount})
           </span>
         )}

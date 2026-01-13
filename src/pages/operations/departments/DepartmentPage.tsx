@@ -411,8 +411,8 @@ export function DepartmentPage() {
         <Card className="lg:col-span-2 flex flex-col overflow-hidden">
           <CardHeader className="pb-3 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                {getMenuIcon(pageIconName, 'h-5 w-5')}
+              <CardTitle className="flex items-center gap-2 text-base">
+                {getMenuIcon(pageIconName, 'h-4 w-4')}
                 조직도
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -470,8 +470,8 @@ export function DepartmentPage() {
                       <div className="w-4" /> {/* Spacer for alignment with tree */}
                       <div className="w-5" /> {/* Spacer for expand button */}
                       <Users className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-base font-medium">전체 계정</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm font-medium">전체 계정</span>
+                      <span className="text-xs text-muted-foreground">
                         ({allAccountsData?.content?.length ?? 0})
                       </span>
                     </div>
@@ -488,8 +488,8 @@ export function DepartmentPage() {
                       <div className="w-4" /> {/* Spacer for alignment with tree */}
                       <div className="w-5" /> {/* Spacer for expand button */}
                       <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-base font-medium">미배치 계정</span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm font-medium">미배치 계정</span>
+                      <span className="text-xs text-muted-foreground">
                         ({unassignedAccountsData?.content?.length ?? 0})
                       </span>
                     </div>
