@@ -5,18 +5,9 @@
 
 import { getFormIcon } from '@/shared/config/domain-icons'
 
-import type { Project } from '@/entities/operations/project'
-
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -26,7 +17,6 @@ import type { CustomerFormData, CustomerFormMode } from '../model/types'
 interface CustomerFormProps {
   mode: CustomerFormMode
   formData: CustomerFormData
-  projects: Project[]
   isSubmitting: boolean
   onFormDataChange: (data: CustomerFormData) => void
   onSubmit: () => void
@@ -36,7 +26,6 @@ interface CustomerFormProps {
 export function CustomerForm({
   mode,
   formData,
-  projects,
   isSubmitting,
   onFormDataChange,
   onSubmit,
@@ -55,32 +44,6 @@ export function CustomerForm({
       onSubmit={onSubmit}
       onClose={onClose}
     >
-      {/* 프로젝트 선택 */}
-      <div className="space-y-2">
-        <Label required>프로젝트</Label>
-        <Select
-          value={formData.projectId}
-          onValueChange={(value) => onFormDataChange({ ...formData, projectId: value })}
-          disabled={mode === 'edit'}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="프로젝트를 선택하세요" />
-          </SelectTrigger>
-          <SelectContent>
-            {projects.map((project) => (
-              <SelectItem key={project.projectId} value={project.projectId}>
-                {project.projectName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {mode === 'edit' && (
-          <TypographyMuted className="text-xs">
-            프로젝트는 수정할 수 없습니다.
-          </TypographyMuted>
-        )}
-      </div>
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label required>고객사 코드</Label>

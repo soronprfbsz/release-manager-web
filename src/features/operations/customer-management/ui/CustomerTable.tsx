@@ -7,8 +7,6 @@ import {
   Building2,
   Edit2,
   Trash2,
-  Power,
-  PowerOff,
   Check,
 } from 'lucide-react'
 
@@ -46,7 +44,6 @@ interface CustomerTableProps {
   onSort: (key: string) => void
   onEdit: (customer: Customer) => void
   onDelete: (customerId: number) => void
-  onToggleStatus: (customer: Customer) => void
   /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") */
   viewportHeight?: string
 }
@@ -57,7 +54,6 @@ export function CustomerTable({
   onSort,
   onEdit,
   onDelete,
-  onToggleStatus,
   viewportHeight,
 }: CustomerTableProps) {
   if (customers.length === 0) {
@@ -191,19 +187,6 @@ export function CustomerTable({
                   <TableActionMenuItem onClick={() => onEdit(customer)}>
                     <Edit2 className="mr-2 h-4 w-4" />
                     수정
-                  </TableActionMenuItem>
-                  <TableActionMenuItem onClick={() => onToggleStatus(customer)}>
-                    {customer.isActive ? (
-                      <>
-                        <PowerOff className="mr-2 h-4 w-4" />
-                        비활성화
-                      </>
-                    ) : (
-                      <>
-                        <Power className="mr-2 h-4 w-4" />
-                        활성화
-                      </>
-                    )}
                   </TableActionMenuItem>
                   <TableActionMenuSeparator />
                   <TableActionMenuItem

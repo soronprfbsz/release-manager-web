@@ -10,14 +10,14 @@ import type { CustomerCreateRequest, CustomerUpdateRequest } from '../model/type
 export const customerKeys = {
   all: ['customers'] as const,
   lists: () => [...customerKeys.all, 'list'] as const,
-  list: (params?: PaginationParams & { isActive?: boolean; keyword?: string }) =>
+  list: (params?: PaginationParams & { isActive?: boolean; keyword?: string; projectId?: string }) =>
     [...customerKeys.lists(), params] as const,
   details: () => [...customerKeys.all, 'detail'] as const,
   detail: (id: number) => [...customerKeys.details(), id] as const,
 }
 
 // Query Hooks
-export const useCustomers = (params?: PaginationParams & { isActive?: boolean; keyword?: string }) =>
+export const useCustomers = (params?: PaginationParams & { isActive?: boolean; keyword?: string; projectId?: string }) =>
   useQuery({
     queryKey: customerKeys.list(params),
     queryFn: () => customerApi.getList(params),

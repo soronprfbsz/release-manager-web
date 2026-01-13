@@ -11,13 +11,14 @@ const ENDPOINTS = {
 
 export const customerApi = {
   /** 고객사 목록 조회 (페이징) */
-  getList: async (params?: PaginationParams & { isActive?: boolean; keyword?: string }): Promise<PageResponse<Customer>> => {
+  getList: async (params?: PaginationParams & { isActive?: boolean; keyword?: string; projectId?: string }): Promise<PageResponse<Customer>> => {
     const queryParams = new URLSearchParams()
     if (params?.page !== undefined) queryParams.append('page', String(params.page))
     if (params?.size !== undefined) queryParams.append('size', String(params.size))
     if (params?.sort) queryParams.append('sort', params.sort)
     if (params?.isActive !== undefined) queryParams.append('isActive', String(params.isActive))
     if (params?.keyword) queryParams.append('keyword', params.keyword)
+    if (params?.projectId) queryParams.append('projectId', params.projectId)
 
     const queryString = queryParams.toString()
     const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base

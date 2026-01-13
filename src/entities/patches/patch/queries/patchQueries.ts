@@ -19,7 +19,7 @@ import type {
 export const patchKeys = {
   all: ['patches'] as const,
   lists: () => [...patchKeys.all, 'list'] as const,
-  list: (params?: PaginationParams & { releaseType?: string; projectId?: string }) =>
+  list: (params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string }) =>
     [...patchKeys.lists(), params] as const,
   details: () => [...patchKeys.all, 'detail'] as const,
   detail: (id: number) => [...patchKeys.details(), id] as const,
@@ -33,7 +33,7 @@ export const patchKeys = {
 
 // Query Hooks
 export const usePatches = (
-  params?: PaginationParams & { releaseType?: string; projectId?: string },
+  params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string },
   options?: Omit<UseQueryOptions<PageResponse<CumulativePatch>>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({

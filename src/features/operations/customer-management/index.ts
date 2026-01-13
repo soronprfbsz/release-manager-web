@@ -9,6 +9,15 @@ export { CustomerForm } from './ui/CustomerForm'
 export { CustomerFilters } from './ui/CustomerFilters'
 export { CustomerDeleteModal } from './ui/CustomerDeleteModal'
 
+// UI Components - Operation Tab
+export { CustomerTree } from './ui/CustomerTree'
+export { CustomerDetailPanel } from './ui/CustomerDetailPanel'
+export { CustomerBasicInfoCard } from './ui/CustomerBasicInfoCard'
+export { CustomerPatchHistoryCard } from './ui/CustomerPatchHistoryCard'
+export { CustomerNotesCard } from './ui/CustomerNotesCard'
+export { CustomerNoteForm, type CustomerNoteFormMode, type CustomerNoteFormData, INITIAL_NOTE_FORM_DATA } from './ui/CustomerNoteForm'
+export { CustomerNoteDeleteDialog } from './ui/CustomerNoteDeleteDialog'
+
 // Types
 export type {
   CustomerFormData,

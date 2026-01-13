@@ -1,21 +1,20 @@
 /**
  * Customer List Page
- * 고객사 목록 페이지 - Feature 컴포넌트를 조합하여 구성
+ * 고객사 목록 페이지 - 트리 뷰 + 상세 패널
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 
-import { Plus, Building2 } from 'lucide-react'
+import { Plus, Building2, Search, X } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
 import {
-  CustomerTable,
   CustomerForm,
-  CustomerFilters,
   CustomerDeleteModal,
+  CustomerTree,
+  CustomerDetailPanel,
   type CustomerFormData,
-  type CustomerFiltersState,
   type CustomerFormMode,
   validateCustomerForm,
 } from '@/features/operations/customer-management'
@@ -25,24 +24,18 @@ import {
   useCreateCustomer,
   useUpdateCustomer,
   useDeleteCustomer,
-  useUpdateCustomerStatus,
   type Customer,
 } from '@/entities/operations'
-import { useProjects } from '@/entities/operations/project'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
+import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { DataTableCard } from '@/shared/ui/data-table-card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-
-
-
-interface PaginationState {
-  pageIndex: number
-  pageSize: number
-}
 
 const INITIAL_FORM_DATA: CustomerFormData = {
   customerCode: '',
@@ -52,26 +45,13 @@ const INITIAL_FORM_DATA: CustomerFormData = {
   projectId: '',
 }
 
-const INITIAL_FILTERS: CustomerFiltersState = {
-  keyword: '',
-  isActive: 'all',
-}
-
 export function CustomerListPage() {
   const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
+  const { projectId } = useProjectStore()
 
-  // Filter state
-  const [filters, setFilters] = useState<CustomerFiltersState>(INITIAL_FILTERS)
-
-  // Pagination state
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  })
-
-  // Sort state
-  const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
+  // Selected customer
+  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null)
 
   // Form state
   const [modalMode, setModalMode] = useState<CustomerFormMode>(null)
@@ -81,33 +61,32 @@ export function CustomerListPage() {
   // Delete state
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
 
-  // Computed query params
-  const queryParams = useMemo(() => {
-    const isActiveFilter = filters.isActive === 'all' ? undefined : filters.isActive === 'true'
-    return {
-      isActive: isActiveFilter,
-      keyword: filters.keyword || undefined,
-      page: pagination.pageIndex,
-      size: pagination.pageSize,
-      sort: sort ? `${sort.key},${sort.direction}` : undefined,
-    }
-  }, [filters, pagination, sort])
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('')
 
-  // Query
-  const { data: customerData, isLoading } = useCustomers(queryParams)
+  // 프로젝트 변경 시 선택된 고객사 초기화
+  useEffect(() => {
+    setSelectedCustomerId(null)
+  }, [projectId])
 
-  // 프로젝트 목록 조회
-  const { data: projects = [] } = useProjects()
+  // Query for customers
+  const { data: customersData, isLoading } = useCustomers({
+    size: 10000,
+    projectId: projectId || undefined,
+  })
 
   // Mutations
   const createMutation = useCreateCustomer()
   const updateMutation = useUpdateCustomer()
   const deleteMutation = useDeleteCustomer()
-  const statusMutation = useUpdateCustomerStatus()
+
+  // Derived data
+  const customers = customersData?.content || []
+  const selectedCustomer = customers.find((c) => c.customerId === selectedCustomerId) || null
 
   // Handlers
   const openCreateModal = () => {
-    setFormData(INITIAL_FORM_DATA)
+    setFormData({ ...INITIAL_FORM_DATA, projectId: projectId || '' })
     setEditingCustomer(null)
     setModalMode('create')
   }
@@ -176,40 +155,24 @@ export function CustomerListPage() {
     }
   }
 
-  const handleToggleStatus = (customer: Customer) => {
-    statusMutation.mutate(
-      { id: customer.customerId, isActive: !customer.isActive },
-      {
-        onSuccess: () => {
-          toast({ title: '상태 변경 완료', description: '활성화 상태가 변경되었습니다.' })
-        },
-        onError: createErrorHandler(toast, '상태 변경 실패'),
-      }
-    )
-  }
-
   const handleDeleteConfirm = () => {
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId, {
         onSuccess: () => {
           toast({ title: '삭제 완료', description: '고객사가 삭제되었습니다.' })
           setDeleteConfirmId(null)
+          if (selectedCustomerId === deleteConfirmId) {
+            setSelectedCustomerId(null)
+          }
         },
         onError: createErrorHandler(toast, '삭제 실패'),
       })
     }
   }
 
-  const handleSort = (key: string) => {
-    setSort((current) => {
-      if (current?.key === key) {
-        return current.direction === 'asc' ? { key, direction: 'desc' } : null
-      }
-      return { key, direction: 'asc' }
-    })
+  const handleCustomerSelect = (customer: Customer) => {
+    setSelectedCustomerId(customer.customerId)
   }
-
-  const customerList = customerData?.content || []
 
   return (
     <PageLayout
@@ -228,33 +191,61 @@ export function CustomerListPage() {
         </Tooltip>
       }
     >
-      {/* Customer List Card */}
-      <DataTableCard
-        icon={Building2}
-        title="고객사 목록"
-        filters={<CustomerFilters filters={filters} onFiltersChange={setFilters} />}
-        isLoading={isLoading}
-        hasData={customerList.length > 0}
-        totalElements={customerData?.totalElements || 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-      >
-        <CustomerTable
-          customers={customerList}
-          sort={sort}
-          onSort={handleSort}
-          onEdit={openEditModal}
-          onDelete={setDeleteConfirmId}
-          onToggleStatus={handleToggleStatus}
-          viewportHeight="calc(100vh - 27rem)"
-        />
-      </DataTableCard>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-18rem)]">
+        {/* Left Panel - Customer Tree */}
+        <Card className="lg:col-span-2 flex flex-col overflow-hidden">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <CardTitle className="flex items-center gap-2 text-base flex-shrink-0">
+                <Building2 className="h-4 w-4" />
+                고객사 목록
+              </CardTitle>
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="고객사명 또는 코드 검색..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 pr-8 h-7 text-xs"
+                />
+                {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0.5 top-1/2 -translate-y-1/2 h-6 w-6"
+                    onClick={() => setSearchTerm('')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <CustomerTree
+                customers={customers}
+                selectedId={selectedCustomerId}
+                isLoading={isLoading}
+                searchTerm={searchTerm}
+                onSelect={handleCustomerSelect}
+                onEdit={openEditModal}
+                onDelete={(customer) => setDeleteConfirmId(customer.customerId)}
+              />
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Right Panel - Customer Detail */}
+        <div className="lg:col-span-3 h-full overflow-hidden">
+          <CustomerDetailPanel customer={selectedCustomer} />
+        </div>
+      </div>
 
       {/* Form Sheet */}
       <CustomerForm
         mode={modalMode}
         formData={formData}
-        projects={projects}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}
