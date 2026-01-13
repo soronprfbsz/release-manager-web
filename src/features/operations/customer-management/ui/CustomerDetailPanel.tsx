@@ -3,15 +3,16 @@
  * 고객사 상세 패널 컴포넌트 (우측 패널)
  */
 
-import { Building2 } from 'lucide-react'
+import { Building2, Calendar, FileText } from 'lucide-react'
 
 import type { Customer } from '@/entities/operations/customer'
 
+import { formatDateTime } from '@/shared/lib/utils/date'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { StatusBadge } from '@/shared/ui/status-badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { CustomerBasicInfoCard } from './CustomerBasicInfoCard'
 import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
 import { CustomerNotesCard } from './CustomerNotesCard'
 
@@ -40,11 +41,11 @@ export function CustomerDetailPanel({
     <Card className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <CardHeader className="pb-3 border-b flex-shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 flex-shrink-0">
             <Building2 className="h-5 w-5 text-primary" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <CardTitle className="text-lg truncate">
                 {customer.customerName}
@@ -60,9 +61,42 @@ export function CustomerDetailPanel({
                 </span>
               )}
             </div>
-            <span className="text-xs text-muted-foreground">
-              [{customer.customerCode}]
-            </span>
+            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+              <span>[{customer.customerCode}]</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 cursor-default">
+                    <Calendar className="h-3 w-3" />
+                    {formatDateTime(customer.createdAt)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>등록일</TooltipContent>
+              </Tooltip>
+              {customer.updatedAt && customer.updatedAt !== customer.createdAt && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex items-center gap-1 cursor-default">
+                      <Calendar className="h-3 w-3" />
+                      {formatDateTime(customer.updatedAt)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>수정일</TooltipContent>
+                </Tooltip>
+              )}
+              {customer.description && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex items-center gap-1 cursor-default truncate max-w-[200px]">
+                      <FileText className="h-3 w-3 flex-shrink-0" />
+                      {customer.description}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-[300px]">{customer.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -71,14 +105,11 @@ export function CustomerDetailPanel({
       <CardContent className="flex-1 overflow-hidden p-0">
         <ScrollArea className="h-full">
           <div className="p-4 space-y-4">
-            {/* 기본 정보 */}
-            <CustomerBasicInfoCard customer={customer} />
+            {/* 특이사항 */}
+            <CustomerNotesCard customerId={customer.customerId} />
 
             {/* 패치 이력 */}
             <CustomerPatchHistoryCard customer={customer} />
-
-            {/* 특이사항 */}
-            <CustomerNotesCard customerId={customer.customerId} />
           </div>
         </ScrollArea>
       </CardContent>
