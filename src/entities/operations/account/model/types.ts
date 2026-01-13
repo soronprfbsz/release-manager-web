@@ -38,6 +38,8 @@ export interface MyAccount {
   accountId: number
   email: string
   accountName: string
+  position: string | null
+  positionName: string | null
   role: string
   status: string
   avatarStyle?: string
@@ -50,6 +52,7 @@ export interface MyAccount {
 export interface MyAccountUpdateRequest {
   accountName?: string
   password?: string
+  position?: string
   avatarStyle?: string
   avatarSeed?: string
 }

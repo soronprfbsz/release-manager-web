@@ -78,7 +78,14 @@ export function AccountTable({
             >
               No
             </SortableTableHead>
-            <TableHead className="w-20 text-center">상태</TableHead>
+            <SortableTableHead
+              id="status"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-20 text-center"
+            >
+              상태
+            </SortableTableHead>
             <SortableTableHead
               id="accountName"
               currentSort={sort}
@@ -88,15 +95,44 @@ export function AccountTable({
               이름
             </SortableTableHead>
             <SortableTableHead
+              id="position"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-24"
+            >
+              직책
+            </SortableTableHead>
+            <SortableTableHead
               id="email"
               currentSort={sort}
               onSort={onSort}
             >
               이메일
             </SortableTableHead>
-            <TableHead className="w-28">권한</TableHead>
-            <TableHead className="w-40">마지막 로그인</TableHead>
-            <TableHead className="w-40">생성일시</TableHead>
+            <SortableTableHead
+              id="role"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-28"
+            >
+              권한
+            </SortableTableHead>
+            <SortableTableHead
+              id="lastLoginAt"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-40"
+            >
+              마지막 로그인
+            </SortableTableHead>
+            <SortableTableHead
+              id="createdAt"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-40"
+            >
+              생성일시
+            </SortableTableHead>
             <TableHead className="w-12 text-center"></TableHead>
           </TableRow>
         </TableHeader>
@@ -121,6 +157,9 @@ export function AccountTable({
                   />
                   <span className="font-medium">{account.accountName}</span>
                 </div>
+              </TableCell>
+              <TableCell>
+                <TypographyMuted>{account.positionName || account.position || '-'}</TypographyMuted>
               </TableCell>
               <TableCell>
                 <TypographyMuted>{account.email}</TypographyMuted>

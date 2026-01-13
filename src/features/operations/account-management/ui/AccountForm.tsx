@@ -3,6 +3,8 @@
  * 계정 수정 폼 컴포넌트
  */
 
+import { useCodesByType } from '@/entities/_shared/code'
+
 import { getFormIcon } from '@/shared/config/domain-icons'
 
 import { Combobox } from '@/shared/ui/combobox'
@@ -15,6 +17,7 @@ import { TypographyMuted } from '@/shared/ui/typography'
 import type { AccountFormData } from '../model/types'
 
 interface AccountFormProps {
+  open: boolean
   email: string
   formData: AccountFormData
   isSubmitting: boolean
@@ -30,6 +33,7 @@ const ROLE_OPTIONS = [
 ]
 
 export function AccountForm({
+  open,
   email,
   formData,
   isSubmitting,
@@ -37,8 +41,22 @@ export function AccountForm({
   onSubmit,
   onClose,
 }: AccountFormProps) {
+  // Position 코드 목록 조회
+  const { data: positionCodes = [] } = useCodesByType('POSITION', {
+    enabled: open,
+  })
+
+  const positionOptions = [
+    { value: '', label: '선택 안함' },
+    ...positionCodes.map((code) => ({
+      value: code.value,
+      label: code.name,
+    })),
+  ]
+
   return (
     <FormSheet
+      open={open}
       mode="edit"
       icon={getFormIcon('edit', 'account')}
       title={{ create: '', edit: '계정 수정' }}
@@ -69,6 +87,18 @@ export function AccountForm({
             onFormDataChange({ ...formData, accountName: e.target.value })
           }
           placeholder="기본 사용자"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label>직책</Label>
+        <Combobox
+          options={positionOptions}
+          value={formData.position}
+          onValueChange={(value) =>
+            onFormDataChange({ ...formData, position: value })
+          }
+          placeholder="직책을 선택하세요"
+          searchPlaceholder="직책 검색..."
         />
       </div>
       <div className="space-y-2">

@@ -11,6 +11,7 @@ import * as z from 'zod'
 import { Save, Lock, Eye, EyeOff, User, Shuffle, Check } from 'lucide-react'
 
 import { useUpdateMyAccount, type MyAccountUpdateRequest } from '@/entities/operations/account'
+import { useCodesByType } from '@/entities/_shared/code'
 import { useAuthStore } from '@/shared/store'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 
@@ -31,6 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/ui/form'
+import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -41,6 +43,7 @@ const formSchema = z.object({
     .string()
     .min(2, '이름은 2자 이상이어야 합니다.')
     .max(50, '이름은 50자 이하여야 합니다.'),
+  position: z.string().optional(),
   password: z
     .string()
     .optional()
@@ -97,10 +100,24 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
   // 폼 초기화 여부 추적
   const [isInitialized, setIsInitialized] = useState(false)
 
+  // Position 코드 목록 조회
+  const { data: positionCodes = [] } = useCodesByType('POSITION', {
+    enabled: open,
+  })
+
+  const positionOptions = [
+    { value: '', label: '선택 안함' },
+    ...positionCodes.map((code) => ({
+      value: code.value,
+      label: code.name,
+    })),
+  ]
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       accountName: '',
+      position: '',
       password: '',
       confirmPassword: '',
     },
@@ -111,6 +128,7 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
     if (user && !isInitialized) {
       form.reset({
         accountName: user.accountName,
+        position: user.position || '',
         password: '',
         confirmPassword: '',
       })
@@ -148,6 +166,9 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
       if (values.accountName !== user?.accountName) {
         request.accountName = values.accountName
       }
+      if ((values.position || '') !== (user?.position || '')) {
+        request.position = values.position || undefined
+      }
       if (values.password) {
         request.password = values.password
       }
@@ -174,6 +195,8 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
             setUser({
               ...user,
               accountName: data.accountName,
+              position: data.position,
+              positionName: data.positionName,
               avatarStyle: data.avatarStyle,
               avatarSeed: data.avatarSeed,
             })
@@ -340,6 +363,27 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
               <FormLabel>이름 <span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="이름을 입력하세요" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* 직책 */}
+        <FormField
+          control={form.control}
+          name="position"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>직책</FormLabel>
+              <FormControl>
+                <Combobox
+                  options={positionOptions}
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  placeholder="직책을 선택하세요"
+                  searchPlaceholder="직책 검색..."
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

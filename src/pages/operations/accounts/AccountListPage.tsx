@@ -91,6 +91,7 @@ export function AccountListPage() {
 
     const request: AccountUpdateRequest = {
       accountName: formData.accountName || undefined,
+      position: formData.position || undefined,
       role: formData.role || undefined,
       status: formData.status,
     }
@@ -160,8 +161,9 @@ export function AccountListPage() {
       </DataTableCard>
 
       {/* Form Sheet */}
-      {isFormOpen && editingAccount && (
+      {editingAccount && (
         <AccountForm
+          open={isFormOpen}
           email={editingAccount.email}
           formData={formData}
           isSubmitting={updateMutation.isPending}

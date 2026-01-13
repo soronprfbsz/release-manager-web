@@ -38,9 +38,9 @@ export function PatchRegisterForm({
   const [customerCode, setCustomerCode] = useState('')
   const [description, setDescription] = useState('')
 
-  // 고객사 및 계정 목록 조회
+  // 고객사 및 계정 목록 조회 (담당자는 엔지니어만)
   const { data: customersResponse } = useCustomers()
-  const { data: accountsResponse } = useAccounts()
+  const { data: accountsResponse } = useAccounts({ departmentType: 'ENGINEER', size: 10000 })
 
   const customers = customersResponse?.content ?? []
   const accounts = accountsResponse?.content ?? []

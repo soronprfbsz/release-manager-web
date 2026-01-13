@@ -7,6 +7,8 @@ export interface AccountInfo {
   accountId: number
   email: string
   accountName: string
+  position: string | null
+  positionName: string | null
   role: string
   avatarStyle?: string
   avatarSeed?: string

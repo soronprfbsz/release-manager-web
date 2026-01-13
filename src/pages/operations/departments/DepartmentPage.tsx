@@ -467,8 +467,7 @@ export function DepartmentPage() {
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectAllAccounts}
                     >
-                      <div className="w-4" /> {/* Spacer for alignment with tree */}
-                      <div className="w-5" /> {/* Spacer for expand button */}
+                      <div className="w-4" /> {/* Spacer for drag handle */}
                       <Users className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm font-medium">전체 계정</span>
                       <span className="text-xs text-muted-foreground">
@@ -485,8 +484,7 @@ export function DepartmentPage() {
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectUnassigned}
                     >
-                      <div className="w-4" /> {/* Spacer for alignment with tree */}
-                      <div className="w-5" /> {/* Spacer for expand button */}
+                      <div className="w-4" /> {/* Spacer for drag handle */}
                       <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-sm font-medium">미배치 계정</span>
                       <span className="text-xs text-muted-foreground">

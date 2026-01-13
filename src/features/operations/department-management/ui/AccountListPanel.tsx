@@ -149,6 +149,11 @@ export function AccountListPanel({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-medium truncate">{account.accountName}</span>
+                      {(account.positionName || account.position) && (
+                        <span className="text-xs text-muted-foreground flex-shrink-0">
+                          {account.positionName || account.position}
+                        </span>
+                      )}
                       {account.departmentName && (
                         <Badge variant="outline" className="text-xs flex-shrink-0">
                           {account.departmentName}
