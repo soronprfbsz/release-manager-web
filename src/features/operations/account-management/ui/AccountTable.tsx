@@ -90,14 +90,6 @@ export function AccountTable({
               상태
             </SortableTableHead>
             <SortableTableHead
-              id="departmentName"
-              currentSort={sort}
-              onSort={onSort}
-              className="w-32"
-            >
-              부서
-            </SortableTableHead>
-            <SortableTableHead
               id="accountName"
               currentSort={sort}
               onSort={onSort}
@@ -112,6 +104,14 @@ export function AccountTable({
               className="w-24"
             >
               직책
+            </SortableTableHead>
+            <SortableTableHead
+              id="departmentName"
+              currentSort={sort}
+              onSort={onSort}
+              className="w-40"
+            >
+              부서
             </SortableTableHead>
             <SortableTableHead
               id="email"
@@ -159,9 +159,6 @@ export function AccountTable({
                 </StatusBadge>
               </TableCell>
               <TableCell>
-                <TypographyMuted>{account.departmentName || '-'}</TypographyMuted>
-              </TableCell>
-              <TableCell>
                 <div className="flex items-center gap-2">
                   <DiceBearAvatar
                     seed={account.avatarSeed || account.email}
@@ -176,7 +173,10 @@ export function AccountTable({
                 <TypographyMuted>{account.positionName || account.position || '-'}</TypographyMuted>
               </TableCell>
               <TableCell>
-                <TypographyMuted>{account.email}</TypographyMuted>
+                {account.departmentName || <TypographyMuted>-</TypographyMuted>}
+              </TableCell>
+              <TableCell>
+                {account.email}
               </TableCell>
               <TableCell>
                 <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
