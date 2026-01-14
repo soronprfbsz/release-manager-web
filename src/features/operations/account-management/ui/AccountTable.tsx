@@ -73,14 +73,7 @@ export function AccountTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <SortableTableHead
-              id="rowNumber"
-              currentSort={sort}
-              onSort={onSort}
-              className="w-16 text-center"
-            >
-              No
-            </SortableTableHead>
+            <TableHead className="w-12 text-center">No</TableHead>
             <SortableTableHead
               id="status"
               currentSort={sort}
@@ -124,7 +117,7 @@ export function AccountTable({
               id="role"
               currentSort={sort}
               onSort={onSort}
-              className="w-28"
+              className="w-24 text-center"
             >
               권한
             </SortableTableHead>
@@ -178,7 +171,7 @@ export function AccountTable({
               <TableCell>
                 {account.email}
               </TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
                   {account.role}
                 </span>

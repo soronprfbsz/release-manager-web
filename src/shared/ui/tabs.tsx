@@ -23,7 +23,7 @@ const TabsList = React.forwardRef<
         className={cn(
             "inline-flex items-center text-muted-foreground",
             variant === 'default' && "h-10 justify-center rounded-md bg-muted p-1",
-            variant === 'line' && "w-full justify-start rounded-none border-b bg-transparent h-auto p-0 py-2",
+            variant === 'line' && "w-full justify-start rounded-none bg-transparent h-auto p-0 py-2",
             className
         )}
         {...props}

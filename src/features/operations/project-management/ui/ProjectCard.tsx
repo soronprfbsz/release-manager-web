@@ -3,7 +3,7 @@
  * 프로젝트 카드 컴포넌트
  */
 
-import { Edit2, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 
 import type { Project } from '@/entities/operations/project'
 
@@ -19,7 +19,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   return (
-    <Card className="group relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50 h-full flex flex-col bg-card border border-border">
+    <Card className="group relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50 h-full flex flex-col bg-accent/40 border border-border">
       <CardHeader className="pb-3 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -49,7 +49,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
               onClick={() => onEdit(project)}
               className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
             >
-              <Edit2 className="h-4 w-4" />
+              <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"

@@ -40,7 +40,7 @@
 
   .white {
     /* Fresh Mint Light Mode */
-    --background: 160 25% 96%;
+    --background: 160 20% 96%;
     --foreground: 180 12% 16%;
     --card: 0 0% 100%;
     --card-foreground: 180 12% 16%;
@@ -52,7 +52,7 @@
     --secondary-foreground: 180 12% 16%;
     --muted: 160 20% 93%;
     --muted-foreground: 180 10% 44%;
-    --accent: 155 35% 85%;
+    --accent: 180 30% 88%;
     --accent-foreground: 180 12% 16%;
     --destructive: 355 72% 56%;
     --destructive-foreground: 0 0% 100%;

@@ -75,14 +75,7 @@ export function BackupFileTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <SortableTableHead
-              id="rowNumber"
-              currentSort={sort}
-              onSort={onSort}
-              className="w-16 text-center"
-            >
-              No
-            </SortableTableHead>
+            <TableHead className="w-16 text-center">No</TableHead>
             <SortableTableHead
               id="fileName"
               currentSort={sort}

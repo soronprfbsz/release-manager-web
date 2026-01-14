@@ -31,7 +31,7 @@ import type { PublishingFiltersState } from '@/features/infrastructure/publishin
 
 import { usePageIcon } from '@/shared/lib/hooks'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent } from '@/shared/ui/card'
+import { ContentCard } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
 import {
@@ -257,35 +257,27 @@ export function ResourcePage() {
         </div>
 
         <TabsContent value="services">
-          <Card>
-            <CardContent className="px-8 pt-6 pb-8">
-              <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
-            </CardContent>
-          </Card>
+          <ContentCard>
+            <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
+          </ContentCard>
         </TabsContent>
 
         <TabsContent value="links">
-          <Card>
-            <CardContent className="px-8 pt-6 pb-8">
-              <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
-            </CardContent>
-          </Card>
+          <ContentCard>
+            <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
+          </ContentCard>
         </TabsContent>
 
         <TabsContent value="files">
-          <Card>
-            <CardContent className="px-8 pt-6 pb-8">
-              <FileResourceTab ref={fileTabRef} filters={fileFilters} />
-            </CardContent>
-          </Card>
+          <ContentCard>
+            <FileResourceTab ref={fileTabRef} filters={fileFilters} />
+          </ContentCard>
         </TabsContent>
 
         <TabsContent value="publishing">
-          <Card>
-            <CardContent className="px-8 pt-6 pb-8">
-              <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
-            </CardContent>
-          </Card>
+          <ContentCard>
+            <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
+          </ContentCard>
         </TabsContent>
       </Tabs>
     </PageLayout>

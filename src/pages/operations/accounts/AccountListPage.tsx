@@ -5,7 +5,6 @@
 
 import { useState } from 'react'
 
-import { User } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -29,7 +28,8 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import { DataTableCard } from '@/shared/ui/data-table-card'
+import { ContentCard } from '@/shared/ui/content-layout'
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageLayout } from '@/shared/ui/page-layout'
 
 interface PaginationState {
@@ -137,28 +137,47 @@ export function AccountListPage() {
       title="계정 관리"
     >
       {/* Account List Card */}
-      <DataTableCard
-        icon={User}
-        title="계정 목록"
-        filters={<AccountFilters filters={filters} onFiltersChange={setFilters} />}
-        isLoading={isLoading}
-        hasData={accountList.length > 0}
-        totalElements={accountData?.totalElements || 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
+      <ContentCard
+        header={
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-2 shrink-0">
+              {pageIcon}
+              <span className="font-semibold">계정 목록</span>
+            </div>
+            <AccountFilters filters={filters} onFiltersChange={setFilters} />
+          </div>
+        }
       >
-        <AccountTable
-          accounts={accountList}
-          sort={sort}
-          onSort={handleSort}
-          onEdit={openEditModal}
-          onDelete={(id) => {
-            const account = accountList.find((a) => a.accountId === id)
-            if (account) setDeleteConfirmAccount(account)
-          }}
-          viewportHeight="calc(100vh - 27rem)"
-        />
-      </DataTableCard>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : (
+          <>
+            <AccountTable
+              accounts={accountList}
+              sort={sort}
+              onSort={handleSort}
+              onEdit={openEditModal}
+              onDelete={(id) => {
+                const account = accountList.find((a) => a.accountId === id)
+                if (account) setDeleteConfirmAccount(account)
+              }}
+              viewportHeight="calc(100vh - 24rem)"
+            />
+            {accountList.length > 0 && (
+              <div className="pt-6">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={accountData?.totalElements || 0}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </ContentCard>
 
       {/* Form Sheet */}
       {editingAccount && (

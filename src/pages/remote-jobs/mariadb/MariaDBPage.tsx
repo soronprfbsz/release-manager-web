@@ -33,7 +33,7 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
@@ -226,50 +226,49 @@ export function MariaDBPage() {
       }
     >
       {/* Backup File List Card */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <HardDrive className="h-5 w-5" />
-              백업 파일 목록
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          ) : error ? (
-            <ErrorDisplay
-              title="백업 파일 목록을 불러오는 중 오류가 발생했습니다."
-              error={error as Error}
-              onRetry={refetch}
+      <ContentCard
+        header={
+          <div className="flex items-center gap-2">
+            <HardDrive className="h-5 w-5" />
+            <span className="font-semibold">백업 파일 목록</span>
+          </div>
+        }
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : error ? (
+          <ErrorDisplay
+            title="백업 파일 목록을 불러오는 중 오류가 발생했습니다."
+            error={error as Error}
+            onRetry={refetch}
+          />
+        ) : (
+          <>
+            <BackupFileTable
+              files={sortedBackupList}
+              sort={sort}
+              isDeleting={deleteMutation.isPending}
+              onSort={handleSort}
+              onFileClick={handleFileClick}
+              onLogsClick={handleLogsClick}
+              onDownload={handleDownload}
+              onDelete={handleDeleteClick}
             />
-          ) : (
-            <>
-              <BackupFileTable
-                files={sortedBackupList}
-                sort={sort}
-                isDeleting={deleteMutation.isPending}
-                onSort={handleSort}
-                onFileClick={handleFileClick}
-                onLogsClick={handleLogsClick}
-                onDownload={handleDownload}
-                onDelete={handleDeleteClick}
-              />
-              {sortedBackupList.length > 0 && (
+            {sortedBackupList.length > 0 && (
+              <div className="pt-6">
                 <DataTablePagination
                   pageIndex={pagination.pageIndex}
                   pageSize={pagination.pageSize}
                   totalElements={totalElements}
                   onPaginationChange={setPagination}
                 />
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            )}
+          </>
+        )}
+      </ContentCard>
 
       {/* Backup Form */}
       <BackupForm

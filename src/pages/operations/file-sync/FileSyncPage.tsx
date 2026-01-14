@@ -28,12 +28,7 @@ import {
     TableRow,
     TruncatedText,
 } from '@/shared/ui/table'
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/shared/ui/card'
+import { ContentCard } from '@/shared/ui/content-layout'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import { DataTable } from '@/shared/ui/data-table'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -481,21 +476,19 @@ export function FileSyncPage() {
 
                 {/* 분석 결과 탭 */}
                 <TabsContent value="analysis">
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="flex items-center gap-2">
-                                    <FileDiff className="h-5 w-5" />
-                                    분석 결과
-                                    {results.length > 0 && (
-                                        <span className="text-sm font-normal text-muted-foreground ml-2">
-                                            {results.length}개의 문제가 발견되었습니다.
-                                        </span>
-                                    )}
-                                </CardTitle>
+                    <ContentCard
+                        header={
+                            <div className="flex items-center gap-2">
+                                <FileDiff className="h-5 w-5" />
+                                <span className="font-semibold">분석 결과</span>
+                                {results.length > 0 && (
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {results.length}개의 문제가 발견되었습니다.
+                                    </span>
+                                )}
                             </div>
-                        </CardHeader>
-                        <CardContent>
+                        }
+                    >
                             {results.length === 0 || analyzeMutation.isPending ? (
                                 renderEmptyState()
                             ) : (
@@ -628,27 +621,24 @@ export function FileSyncPage() {
                                     </Table>
                                 </DataTable>
                             )}
-                        </CardContent>
-                    </Card>
+                    </ContentCard>
                 </TabsContent>
 
                 {/* 제외된 파일 탭 */}
                 <TabsContent value="ignored">
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="flex items-center gap-2">
-                                    <ListX className="h-5 w-5" />
-                                    제외된 파일
-                                    {ignoredFiles.length > 0 && (
-                                        <span className="text-sm font-normal text-muted-foreground ml-2">
-                                            {ignoredFiles.length}개의 파일이 제외되어 있습니다.
-                                        </span>
-                                    )}
-                                </CardTitle>
+                    <ContentCard
+                        header={
+                            <div className="flex items-center gap-2">
+                                <ListX className="h-5 w-5" />
+                                <span className="font-semibold">제외된 파일</span>
+                                {ignoredFiles.length > 0 && (
+                                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                                        {ignoredFiles.length}개의 파일이 제외되어 있습니다.
+                                    </span>
+                                )}
                             </div>
-                        </CardHeader>
-                        <CardContent>
+                        }
+                    >
                             {isIgnoredLoading ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
                                     <RotateCw className="h-8 w-8 animate-spin mb-4" />
@@ -727,8 +717,7 @@ export function FileSyncPage() {
                                     </Table>
                                 </DataTable>
                             )}
-                        </CardContent>
-                    </Card>
+                    </ContentCard>
                 </TabsContent>
             </Tabs>
 

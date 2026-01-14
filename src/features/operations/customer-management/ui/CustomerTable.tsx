@@ -71,14 +71,7 @@ export function CustomerTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <SortableTableHead
-              id="rowNumber"
-              currentSort={sort}
-              onSort={onSort}
-              className="w-16 text-center"
-            >
-              No
-            </SortableTableHead>
+            <TableHead className="w-12 text-center">No</TableHead>
             <TableHead className="w-20 text-center">상태</TableHead>
             <SortableTableHead
               id="customerCode"

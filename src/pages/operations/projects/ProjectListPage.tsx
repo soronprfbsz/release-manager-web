@@ -27,6 +27,7 @@ import {
 } from '@/features/operations/project-management'
 
 import { Button } from '@/shared/ui/button'
+import { ContentCard } from '@/shared/ui/content-layout'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -178,17 +179,19 @@ export function ProjectListPage() {
         </Tooltip>
       }
     >
-      {isLoading ? (
+      <ContentCard>
+        {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
-      ) : (
-        <ProjectList
-          projects={projects}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+        ) : (
+          <ProjectList
+            projects={projects}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+      </ContentCard>
 
       {/* 프로젝트 생성/수정 폼 */}
       <ProjectForm

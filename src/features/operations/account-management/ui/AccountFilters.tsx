@@ -18,16 +18,14 @@ interface AccountFiltersProps {
 
 export function AccountFilters({ filters, onFiltersChange }: AccountFiltersProps) {
     return (
-        <div className="flex items-center gap-2">
-            <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                    value={filters.keyword}
-                    onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
-                    placeholder="검색..."
-                    className="pl-8 h-8 w-[180px] text-sm"
-                />
-            </div>
+        <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+                value={filters.keyword}
+                onChange={(e) => onFiltersChange({ ...filters, keyword: e.target.value })}
+                placeholder="검색..."
+                className="pl-8 h-7 w-[160px] text-xs"
+            />
         </div>
     )
 }

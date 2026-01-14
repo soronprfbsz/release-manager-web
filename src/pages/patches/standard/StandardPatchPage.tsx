@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { Plus, Tag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -38,7 +38,9 @@ import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/re
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { DataTableCard } from '@/shared/ui/data-table-card'
+import { ContentCard } from '@/shared/ui/content-layout'
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
+import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
@@ -257,29 +259,50 @@ export function StandardPatchPage() {
       }
     >
       {/* Patch List Card */}
-      <DataTableCard
-        icon={Tag}
-        title="표준 패치 목록"
-        isLoading={isLoading}
-        error={error as Error | null}
-        onRetry={refetch}
-        hasData={patchList.length > 0}
-        totalElements={patchesData?.totalElements || 0}
-        pagination={pagination}
-        onPaginationChange={setPagination}
+      <ContentCard
+        header={
+          <div className="flex items-center gap-2">
+            {pageIcon}
+            <span className="font-semibold">패치 목록</span>
+          </div>
+        }
       >
-        <PatchTable
-          patches={patchList}
-          sort={sort}
-          isDeleting={deleteMutation.isPending}
-          showDelete={canDeletePatch}
-          onSort={handleSort}
-          onViewFiles={handleViewFiles}
-          onDownload={handleDownload}
-          onDelete={handleDeleteClick}
-          viewportHeight="calc(100vh - 27rem)"
-        />
-      </DataTableCard>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : error ? (
+          <ErrorDisplay
+            title="데이터를 불러오는 중 오류가 발생했습니다."
+            error={error as Error}
+            onRetry={refetch}
+          />
+        ) : (
+          <>
+            <PatchTable
+              patches={patchList}
+              sort={sort}
+              isDeleting={deleteMutation.isPending}
+              showDelete={canDeletePatch}
+              onSort={handleSort}
+              onViewFiles={handleViewFiles}
+              onDownload={handleDownload}
+              onDelete={handleDeleteClick}
+              viewportHeight="calc(100vh - 24rem)"
+            />
+            {patchList.length > 0 && (
+              <div className="pt-6">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={patchesData?.totalElements || 0}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </ContentCard>
 
       {/* Patch Create Form */}
       <PatchCreateForm

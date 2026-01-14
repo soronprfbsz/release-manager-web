@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { usePageIcon } from '@/shared/lib/hooks'
+import { cn } from '@/shared/lib/utils'
 
 import { useAuthStore, useProjectStore } from '@/shared/store'
 
@@ -23,6 +24,7 @@ import { useGenerateStandardPatch, type CumulativePatchGenerateRequest } from '@
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { CONTENT_SPACING } from '@/shared/ui/content-layout'
 import { PageLayout } from '@/shared/ui/page-layout'
 
 const INITIAL_FORM_DATA: PatchCreateFormData = {
@@ -140,7 +142,7 @@ export function PatchGeneratePage() {
       title="패치 생성"
     >
       {/* Two Column Layout */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className={cn('grid grid-cols-2', CONTENT_SPACING.SPLIT_GAP)}>
         <PatchGenerateFormCard
           releaseType={releaseType}
           formData={formData}
