@@ -75,7 +75,7 @@ export function BackupFileTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-16 text-center">No</TableHead>
+            <TableHead className="w-16 text-right">No</TableHead>
             <SortableTableHead
               id="fileName"
               currentSort={sort}
@@ -121,7 +121,7 @@ export function BackupFileTable({
         <TableBody>
           {files.map((file) => (
             <TableRow key={file.backupFileId}>
-              <TableCell className="text-center">
+              <TableCell className="text-right">
                 <TypographyMuted>{file.rowNumber}</TypographyMuted>
               </TableCell>
               <TableCell>

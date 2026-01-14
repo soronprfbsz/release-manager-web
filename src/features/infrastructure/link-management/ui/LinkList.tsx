@@ -10,11 +10,12 @@ interface LinkListProps {
   resources: LinkResource[]
   onDelete: (resource: LinkResource) => void
   onEdit?: (resource: LinkResource) => void
+  onAdd?: (category: string) => void
 }
 
-export function LinkList({ resources, onDelete, onEdit }: LinkListProps) {
+export function LinkList({ resources, onDelete, onEdit, onAdd }: LinkListProps) {
   return (
-    <LinkGroupList resources={resources} onDelete={onDelete} onEdit={onEdit} />
+    <LinkGroupList resources={resources} onDelete={onDelete} onEdit={onEdit} onAdd={onAdd} />
   )
 }
 

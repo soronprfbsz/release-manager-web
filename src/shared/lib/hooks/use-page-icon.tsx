@@ -56,7 +56,7 @@ export function usePageIcon(customPath?: string): UsePageIconResult {
 
   const icon = React.useMemo(() => {
     if (!menuItem?.icon) return null
-    return getMenuIcon(menuItem.icon, 'h-5 w-5 text-primary')
+    return getMenuIcon(menuItem.icon, 'h-5 w-5')
   }, [menuItem?.icon])
 
   return {

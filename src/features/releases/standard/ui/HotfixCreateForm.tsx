@@ -134,11 +134,11 @@ export function HotfixCreateForm({
 
   // 핫픽스 안내 배너
   const headerContent = (
-    <div className="mb-5 p-3 rounded-md border border-yellow-500/50 bg-yellow-500/10">
+    <div className="mb-5 p-3 rounded-md border border-accent bg-accent/40">
       <div className="flex gap-2">
-        <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-500 shrink-0 mt-0.5" />
+        <AlertTriangle className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
         <div className="text-xs leading-relaxed">
-          <p className="font-semibold text-yellow-700 dark:text-yellow-400">핫픽스 안내</p>
+          <p className="font-semibold text-foreground">핫픽스 안내</p>
           <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
             <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
             <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>                  

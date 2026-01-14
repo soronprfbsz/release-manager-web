@@ -71,7 +71,7 @@ export function CustomerTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12 text-center">No</TableHead>
+            <TableHead className="w-16 text-right">No</TableHead>
             <TableHead className="w-20 text-center">상태</TableHead>
             <SortableTableHead
               id="customerCode"
@@ -128,7 +128,7 @@ export function CustomerTable({
         <TableBody>
           {customers.map((customer) => (
             <TableRow key={customer.customerId}>
-              <TableCell className="text-center text-muted-foreground">
+              <TableCell className="text-right text-muted-foreground">
                 {customer.rowNumber}
               </TableCell>
               <TableCell className="text-center">

@@ -212,6 +212,11 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
               onEdit={handleEditPublishing}
               onViewFiles={handleViewFiles}
               onReorder={handleReorder}
+              onAdd={(category) => {
+                setFormData({ ...INITIAL_FORM_DATA, publishingCategory: category })
+                setUploadProgress(0)
+                setIsUploadOpen(true)
+              }}
             />
           )}
         </div>

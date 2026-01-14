@@ -274,6 +274,14 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
             onEdit={handleEditService}
             onDelete={handleDeleteService}
             onManageComponents={handleManageComponents}
+            onAdd={(serviceType) => {
+              setServiceFormData({
+                ...INITIAL_SERVICE_FORM,
+                serviceType: serviceType as ServiceFormData['serviceType'],
+              })
+              setEditingService(null)
+              setServiceFormMode('create')
+            }}
           />
         )}
       </div>

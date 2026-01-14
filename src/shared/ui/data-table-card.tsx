@@ -5,7 +5,8 @@
  */
 
 import type { ReactNode } from 'react'
-import type { LucideIcon } from 'lucide-react'
+
+import { TableOfContents } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from './card'
 import { DataTablePagination } from './data-table-pagination'
@@ -17,8 +18,6 @@ interface PaginationState {
 }
 
 interface DataTableCardProps {
-  /** 카드 타이틀 아이콘 */
-  icon: LucideIcon
   /** 카드 타이틀 */
   title: string
   /** 필터 컴포넌트 (검색박스 등) - 유연하게 커스터마이징 가능 */
@@ -42,7 +41,6 @@ interface DataTableCardProps {
 }
 
 export function DataTableCard({
-  icon: Icon,
   title,
   filters,
   totalElements = 0,
@@ -59,7 +57,7 @@ export function DataTableCard({
       <CardHeader className="px-8 pb-3 pt-8">
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="flex items-center gap-2 shrink-0">
-            <Icon className="h-5 w-5" />
+            <TableOfContents className="h-5 w-5" />
             {title}
           </CardTitle>
           {filters && <div className="flex-1 flex justify-end">{filters}</div>}

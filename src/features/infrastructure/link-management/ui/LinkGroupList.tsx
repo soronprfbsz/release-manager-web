@@ -5,13 +5,16 @@
 
 import { useState } from 'react'
 
-import { Link as LinkIcon, ChevronDown, ChevronRight } from 'lucide-react'
+import { Link as LinkIcon, Plus } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import type { LinkResource } from '@/entities/infrastructure/link'
 import { linkResourceApi, linkResourceKeys } from '@/entities/infrastructure/link'
-import { SortableList } from '@/shared/ui/sortable'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import { Button } from '@/shared/ui/button'
+import { CollapsibleSection } from '@/shared/ui/collapsible-section'
+import { SortableList } from '@/shared/ui/sortable'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { getLinkGroupIcon } from '../lib/linkHelpers'
 import { SortableLinkCard } from './SortableLinkCard'
@@ -20,12 +23,15 @@ interface LinkGroupListProps {
   resources: LinkResource[]
   onDelete: (resource: LinkResource) => void
   onEdit?: (resource: LinkResource) => void
+  /** 링크 추가 (카테고리가 선택된 상태로) */
+  onAdd?: (category: string) => void
 }
 
 export function LinkGroupList({
   resources,
   onDelete,
   onEdit,
+  onAdd,
 }: LinkGroupListProps) {
   const queryClient = useQueryClient()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
@@ -61,18 +67,6 @@ export function LinkGroupList({
     setIsInitialized(true)
   }
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }
-
   const createHandleReorder = (category: string) => (reorderedResources: LinkResource[]) => {
     const resourceLinkIds = reorderedResources.map((r) => r.resourceLinkId)
     reorderMutation.mutate({ linkCategory: category, resourceLinkIds })
@@ -93,51 +87,66 @@ export function LinkGroupList({
       {Object.entries(groupedResources).map(([category, links]) => {
         const sortedLinks = [...links].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
         const categoryName = getCategoryName(category)
+        const IconElement = getLinkGroupIcon(category)
 
         return (
-          <div
+          <CollapsibleSection
             key={category}
-            className="space-y-4 mb-14 last:mb-0"
+            iconElement={IconElement}
+            title={categoryName}
+            subtitle={`${links.length}개의 링크`}
+            variant="boxed-icon"
+            expanded={expandedCategories.has(category)}
+            onExpandedChange={(expanded) => {
+              setExpandedCategories(prev => {
+                const next = new Set(prev)
+                if (expanded) {
+                  next.add(category)
+                } else {
+                  next.delete(category)
+                }
+                return next
+              })
+            }}
+            actions={
+              onAdd && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onAdd(category)
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{categoryName} 링크 추가</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            }
+            className="mb-14 last:mb-0"
           >
-            <button
-              onClick={() => toggleCategory(category)}
-              className="flex items-center gap-3 w-full text-left group pb-3 border-b border-border"
-            >
-              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
-                <div className="text-foreground">
-                  {getLinkGroupIcon(category)}
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-base">{categoryName}</h3>
-                <p className="text-xs text-muted-foreground">{links.length}개의 링크</p>
-              </div>
-              <div className="text-muted-foreground group-hover:text-foreground transition-colors">
-                {expandedCategories.has(category) ? (
-                  <ChevronDown className="h-5 w-5" />
-                ) : (
-                  <ChevronRight className="h-5 w-5" />
-                )}
-              </div>
-            </button>
-
-            {expandedCategories.has(category) && (
-              <SortableList
-                items={sortedLinks}
-                onReorder={createHandleReorder(category)}
-                keyExtractor={(resource) => resource.resourceLinkId}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-                strategy="grid"
-                renderItem={(resource) => (
-                  <SortableLinkCard
-                    resource={resource}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                  />
-                )}
-              />
-            )}
-          </div>
+            <SortableList
+              items={sortedLinks}
+              onReorder={createHandleReorder(category)}
+              keyExtractor={(resource) => resource.resourceLinkId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(resource) => (
+                <SortableLinkCard
+                  resource={resource}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                />
+              )}
+            />
+          </CollapsibleSection>
         )
       })}
     </div>

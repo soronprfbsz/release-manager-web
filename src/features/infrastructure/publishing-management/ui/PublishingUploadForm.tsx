@@ -86,8 +86,8 @@ export function PublishingUploadForm({
 
   // Info Box
   const headerContent = (
-    <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-5">
-      <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+    <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/40 border border-accent mb-5">
+      <AlertTriangle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
       <div className="text-sm text-muted-foreground">
         <p className="font-medium text-foreground mb-1">ZIP 파일 요구사항</p>
         <ul className="list-disc list-inside space-y-1 text-xs">

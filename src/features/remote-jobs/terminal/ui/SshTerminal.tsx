@@ -103,8 +103,8 @@ export function SshTerminal({
         <div className="text-center text-muted-foreground max-w-md">
           <Terminal className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p className="mb-4">연결 버튼을 눌러 원격 서버에 연결하세요.</p>
-          <div className="text-xs text-left bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 space-y-1">
-            <p className="font-semibold text-amber-600 dark:text-amber-500">⚠️ 제한사항</p>
+          <div className="text-xs text-left bg-accent/40 border border-accent rounded-lg p-3 space-y-1">
+            <p className="font-semibold text-foreground">⚠️ 제한사항</p>
             <p className="text-muted-foreground">
               vi, vim, nano, top 등 전체 화면 편집기는 지원되지 않습니다.
               <br />

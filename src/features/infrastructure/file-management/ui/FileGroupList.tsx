@@ -5,12 +5,15 @@
 
 import { useState } from 'react'
 
-import { FolderOpen, ChevronDown, ChevronRight } from 'lucide-react'
+import { FolderOpen, Plus } from 'lucide-react'
 
 import type { CodeSimpleResponse } from '@/entities/_shared/code'
 import type { ResourceFile } from '@/entities/infrastructure/file'
 import { useReorderResources } from '@/entities/infrastructure/file'
+import { Button } from '@/shared/ui/button'
+import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { getFileGroupIcon } from '../lib/fileHelpers'
 import { SortableFileCard } from './SortableFileCard'
@@ -22,6 +25,8 @@ interface FileGroupListProps {
   onDelete: (resource: ResourceFile) => void
   onEdit?: (resource: ResourceFile) => void
   onView?: (resource: ResourceFile) => void
+  /** 파일 추가 (카테고리가 선택된 상태로) */
+  onAdd?: (category: string) => void
 }
 
 export function FileGroupList({
@@ -31,6 +36,7 @@ export function FileGroupList({
   onDelete,
   onEdit,
   onView,
+  onAdd,
 }: FileGroupListProps) {
   const reorderMutation = useReorderResources()
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
@@ -56,18 +62,6 @@ export function FileGroupList({
     setIsInitialized(true)
   }
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }
-
   const createHandleReorder = (category: string) => (reorderedResources: ResourceFile[]) => {
     const fileIds = reorderedResources.map((r) => r.resourceFileId)
     reorderMutation.mutate({ fileCategory: category, fileIds })
@@ -85,52 +79,69 @@ export function FileGroupList({
   return (
     <div>
       {Object.entries(groupedResources).map(([category, files]) => {
-        return (
-          <div
-            key={category}
-            className="space-y-4 mb-14 last:mb-0"
-          >
-            <button
-              onClick={() => toggleCategory(category)}
-              className="flex items-center gap-3 w-full text-left group pb-3 border-b border-border"
-            >
-              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
-                <div className="text-foreground">
-                  {getFileGroupIcon(category)}
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-base">{getCategoryLabel(category)}</h3>
-                <p className="text-xs text-muted-foreground">{files.length}개의 파일</p>
-              </div>
-              <div className="text-muted-foreground group-hover:text-foreground transition-colors">
-                {expandedCategories.has(category) ? (
-                  <ChevronDown className="h-5 w-5" />
-                ) : (
-                  <ChevronRight className="h-5 w-5" />
-                )}
-              </div>
-            </button>
+        const categoryLabel = getCategoryLabel(category)
+        const IconElement = getFileGroupIcon(category)
 
-            {expandedCategories.has(category) && (
-              <SortableList
-                items={files}
-                onReorder={createHandleReorder(category)}
-                keyExtractor={(resource) => resource.resourceFileId}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-                strategy="grid"
-                renderItem={(resource) => (
-                  <SortableFileCard
-                    resource={resource}
-                    onDownload={onDownload}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                    onView={onView}
-                  />
-                )}
-              />
-            )}
-          </div>
+        return (
+          <CollapsibleSection
+            key={category}
+            iconElement={IconElement}
+            title={categoryLabel}
+            subtitle={`${files.length}개의 파일`}
+            variant="boxed-icon"
+            expanded={expandedCategories.has(category)}
+            onExpandedChange={(expanded) => {
+              setExpandedCategories(prev => {
+                const next = new Set(prev)
+                if (expanded) {
+                  next.add(category)
+                } else {
+                  next.delete(category)
+                }
+                return next
+              })
+            }}
+            actions={
+              onAdd && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onAdd(category)
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{categoryLabel} 파일 추가</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            }
+            className="mb-14 last:mb-0"
+          >
+            <SortableList
+              items={files}
+              onReorder={createHandleReorder(category)}
+              keyExtractor={(resource) => resource.resourceFileId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(resource) => (
+                <SortableFileCard
+                  resource={resource}
+                  onDownload={onDownload}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                  onView={onView}
+                />
+              )}
+            />
+          </CollapsibleSection>
         )
       })}
     </div>

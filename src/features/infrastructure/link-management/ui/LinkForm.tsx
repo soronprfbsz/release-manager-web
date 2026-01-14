@@ -47,6 +47,8 @@ interface LinkFormProps {
   isOpen: boolean
   mode?: 'create' | 'update'
   initialData?: LinkResource | null
+  /** 생성 모드에서 기본 선택될 카테고리 */
+  defaultCategory?: string
   isSubmitting: boolean
   onSubmit: (data: LinkResourceCreateRequest) => void
   onClose: () => void
@@ -56,6 +58,7 @@ export function LinkForm({
   isOpen,
   mode = 'create',
   initialData,
+  defaultCategory,
   isSubmitting,
   onSubmit,
   onClose,
@@ -91,9 +94,12 @@ export function LinkForm({
         description: initialData.description || '',
       })
     } else if (isOpen && mode === 'create') {
-      form.reset(defaultValues)
+      form.reset({
+        ...defaultValues,
+        linkCategory: defaultCategory || '',
+      })
     }
-  }, [isOpen, mode, initialData, categoryList, form])
+  }, [isOpen, mode, initialData, defaultCategory, categoryList, form])
 
   useEffect(() => {
     if (!isOpen) {

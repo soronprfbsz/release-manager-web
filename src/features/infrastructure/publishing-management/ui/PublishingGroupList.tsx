@@ -5,10 +5,13 @@
 
 import { useState } from 'react'
 
-import { Globe, ChevronDown, ChevronRight } from 'lucide-react'
+import { Globe, Plus } from 'lucide-react'
 
 import type { PublishingListItem } from '@/entities/infrastructure/publishing'
+import { Button } from '@/shared/ui/button'
+import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { getCategoryIcon, getCategoryLabel } from '../lib/publishingHelpers'
 import { SortablePublishingCard } from './SortablePublishingCard'
@@ -19,6 +22,8 @@ interface PublishingGroupListProps {
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
   onReorder?: (category: string, publishingIds: number[]) => void
+  /** 퍼블리싱 추가 (카테고리가 선택된 상태로) */
+  onAdd?: (category: string) => void
 }
 
 export function PublishingGroupList({
@@ -27,6 +32,7 @@ export function PublishingGroupList({
   onEdit,
   onViewFiles,
   onReorder,
+  onAdd,
 }: PublishingGroupListProps) {
   // 카테고리별 펼침/접힘 상태 (기본: 모두 펼침)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
@@ -47,18 +53,6 @@ export function PublishingGroupList({
   if (!isInitialized && Object.keys(groupedPublishings).length > 0) {
     setExpandedCategories(new Set(Object.keys(groupedPublishings)))
     setIsInitialized(true)
-  }
-
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
   }
 
   // 각 그룹별로 독립적인 handleReorder 생성
@@ -82,53 +76,68 @@ export function PublishingGroupList({
   return (
     <div>
       {Object.entries(groupedPublishings).map(([category, items]) => {
-        return (
-          <div
-            key={category}
-            className="space-y-4 mb-14 last:mb-0"
-          >
-            {/* Group Header with Toggle */}
-            <button
-              onClick={() => toggleCategory(category)}
-              className="flex items-center gap-3 w-full text-left group pb-3 border-b border-border"
-            >
-              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
-                <div className="text-foreground">
-                  {getCategoryIcon(category)}
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-base">{getCategoryLabel(category)}</h3>
-                <p className="text-xs text-muted-foreground">{items.length}개의 퍼블리싱</p>
-              </div>
-              <div className="text-muted-foreground group-hover:text-foreground transition-colors">
-                {expandedCategories.has(category) ? (
-                  <ChevronDown className="h-5 w-5" />
-                ) : (
-                  <ChevronRight className="h-5 w-5" />
-                )}
-              </div>
-            </button>
+        const categoryLabel = getCategoryLabel(category)
+        const IconElement = getCategoryIcon(category)
 
-            {/* Card Grid with Sortable - Collapsible */}
-            {expandedCategories.has(category) && (
-              <SortableList
-                items={items}
-                onReorder={createHandleReorder(category)}
-                keyExtractor={(publishing) => publishing.publishingId}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-                strategy="grid"
-                renderItem={(publishing) => (
-                  <SortablePublishingCard
-                    publishing={publishing}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                    onViewFiles={onViewFiles}
-                  />
-                )}
-              />
-            )}
-          </div>
+        return (
+          <CollapsibleSection
+            key={category}
+            iconElement={IconElement}
+            title={categoryLabel}
+            subtitle={`${items.length}개의 퍼블리싱`}
+            variant="boxed-icon"
+            expanded={expandedCategories.has(category)}
+            onExpandedChange={(expanded) => {
+              setExpandedCategories(prev => {
+                const next = new Set(prev)
+                if (expanded) {
+                  next.add(category)
+                } else {
+                  next.delete(category)
+                }
+                return next
+              })
+            }}
+            actions={
+              onAdd && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onAdd(category)
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{categoryLabel} 퍼블리싱 추가</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            }
+            className="mb-14 last:mb-0"
+          >
+            <SortableList
+              items={items}
+              onReorder={createHandleReorder(category)}
+              keyExtractor={(publishing) => publishing.publishingId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(publishing) => (
+                <SortablePublishingCard
+                  publishing={publishing}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                  onViewFiles={onViewFiles}
+                />
+              )}
+            />
+          </CollapsibleSection>
         )
       })}
     </div>

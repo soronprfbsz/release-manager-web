@@ -25,8 +25,8 @@ import {
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
+import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { Loader2 } from 'lucide-react'
 
@@ -150,12 +150,10 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
 
   return (
     <>
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold flex items-center gap-2">
-            <StickyNote className="h-4 w-4" />
-            특이사항
-          </h3>
+      <CollapsibleSection
+        icon={StickyNote}
+        title="특이사항"
+        actions={
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleCreate}>
@@ -166,83 +164,80 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
               <p>특이사항 등록</p>
             </TooltipContent>
           </Tooltip>
-        </div>
-        <div>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              <span className="text-sm">로딩 중...</span>
-            </div>
-          ) : notes.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-              <FileQuestion className="h-10 w-10 mb-2 opacity-50" />
-              <p className="text-sm">등록된 특이사항이 없습니다.</p>
-            </div>
-          ) : (
-            <ScrollArea className="h-auto max-h-[300px]">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {notes.map((note) => (
-                  <div
-                    key={note.noteId}
-                    className="p-4 rounded-lg bg-accent/40 hover:bg-accent/60 transition-colors"
-                  >
-                    {/* Title */}
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-semibold">{note.title}</h4>
-                      <div className="flex items-center gap-1">
-                        {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleEdit(note)}
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => handleDelete(note)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <p className="text-sm whitespace-pre-wrap text-muted-foreground mb-3">{note.content}</p>
-
-                    {/* Footer - Author & Date */}
-                    <div className="flex items-center gap-2 pt-3 border-t border-border/30">
-                      <DiceBearAvatar
-                        seed={note.createdByAvatarSeed || note.createdByEmail}
-                        style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                        name={note.createdByName}
-                        size={20}
-                      />
-                      <span className="text-xs font-medium">
-                        {note.createdByName}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateTime(note.createdAt)}
-                      </span>
-                      {note.updatedAt !== note.createdAt && note.updatedByAccountName && (
-                        <span className="text-xs text-muted-foreground">
-                          (수정됨)
-                        </span>
-                      )}
-                    </div>
+        }
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+            <span className="text-sm">로딩 중...</span>
+          </div>
+        ) : notes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+            <FileQuestion className="h-10 w-10 mb-2 opacity-50" />
+            <p className="text-sm">등록된 특이사항이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {notes.map((note) => (
+              <div
+                key={note.noteId}
+                className="p-4 rounded-lg bg-accent/40 hover:bg-accent/60 transition-colors"
+              >
+                {/* Title */}
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold">{note.title}</h4>
+                  <div className="flex items-center gap-1">
+                    {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleEdit(note)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => handleDelete(note)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
+                    )}
                   </div>
-                ))}
+                </div>
+
+                {/* Content */}
+                <p className="text-sm whitespace-pre-wrap text-muted-foreground mb-3">{note.content}</p>
+
+                {/* Footer - Author & Date */}
+                <div className="flex items-center gap-2 pt-3 border-t border-border/30">
+                  <DiceBearAvatar
+                    seed={note.createdByAvatarSeed || note.createdByEmail}
+                    style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                    name={note.createdByName}
+                    size={20}
+                  />
+                  <span className="text-xs font-medium">
+                    {note.createdByName}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDateTime(note.createdAt)}
+                  </span>
+                  {note.updatedAt !== note.createdAt && note.updatedByAccountName && (
+                    <span className="text-xs text-muted-foreground">
+                      (수정됨)
+                    </span>
+                  )}
+                </div>
               </div>
-            </ScrollArea>
-          )}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </CollapsibleSection>
 
       {/* Note Form */}
       <CustomerNoteForm

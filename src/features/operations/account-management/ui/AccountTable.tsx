@@ -73,12 +73,12 @@ export function AccountTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12 text-center">No</TableHead>
+            <TableHead className="w-16 text-right">No</TableHead>
             <SortableTableHead
               id="status"
               currentSort={sort}
               onSort={onSort}
-              className="w-20 text-center"
+              className="w-28 text-center"
             >
               상태
             </SortableTableHead>
@@ -143,7 +143,7 @@ export function AccountTable({
         <TableBody>
           {accounts.map((account) => (
             <TableRow key={account.accountId}>
-              <TableCell className="text-center text-muted-foreground">
+              <TableCell className="text-right text-muted-foreground">
                 {account.rowNumber}
               </TableCell>
               <TableCell className="text-center">

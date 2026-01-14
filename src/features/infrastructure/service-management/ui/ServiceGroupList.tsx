@@ -4,12 +4,15 @@
  */
 
 import { useMemo, useState } from 'react'
-import { Server, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, Server } from 'lucide-react'
 
 import type { Service } from '@/entities/infrastructure/service'
 import { useReorderServices } from '@/entities/infrastructure/service'
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
+import { Button } from '@/shared/ui/button'
+import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { getServiceTypeIcon } from '../lib/serviceHelpers'
 import { SortableServiceCard } from './SortableServiceCard'
@@ -19,6 +22,8 @@ interface ServiceGroupListProps {
   onEdit: (service: Service) => void
   onDelete: (service: Service) => void
   onManageComponents: (service: Service) => void
+  /** 서비스 추가 (서비스 타입이 선택된 상태로) */
+  onAdd?: (serviceType: string) => void
 }
 
 export function ServiceGroupList({
@@ -26,6 +31,7 @@ export function ServiceGroupList({
   onEdit,
   onDelete,
   onManageComponents,
+  onAdd,
 }: ServiceGroupListProps) {
   const reorderMutation = useReorderServices()
   const { data: serviceTypes = [] } = useCodesByType(CODE_TYPE.SERVICE_TYPE)
@@ -57,18 +63,6 @@ export function ServiceGroupList({
     setIsInitialized(true)
   }
 
-  const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev)
-      if (next.has(category)) {
-        next.delete(category)
-      } else {
-        next.add(category)
-      }
-      return next
-    })
-  }
-
   // 각 그룹별로 독립적인 handleReorder 생성
   const createHandleReorder = (serviceType: string) => (reorderedServices: Service[]) => {
     // 재정렬된 서비스들의 ID 목록
@@ -94,50 +88,64 @@ export function ServiceGroupList({
         const Icon = getServiceTypeIcon(serviceType.value as Service['serviceType'])
 
         return (
-          <div
+          <CollapsibleSection
             key={serviceType.value}
-            className="space-y-4 mb-14 last:mb-0"
+            icon={Icon}
+            title={serviceType.name}
+            subtitle={`${serviceList.length}개의 서비스`}
+            variant="boxed-icon"
+            expanded={expandedCategories.has(serviceType.value)}
+            onExpandedChange={(expanded) => {
+              setExpandedCategories(prev => {
+                const next = new Set(prev)
+                if (expanded) {
+                  next.add(serviceType.value)
+                } else {
+                  next.delete(serviceType.value)
+                }
+                return next
+              })
+            }}
+            actions={
+              onAdd && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onAdd(serviceType.value)
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{serviceType.name} 서비스 추가</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            }
+            className="mb-14 last:mb-0"
           >
-            {/* Group Header with Toggle */}
-            <button
-              onClick={() => toggleCategory(serviceType.value)}
-              className="flex items-center gap-3 w-full text-left group pb-3 border-b border-border"
-            >
-              <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
-                <Icon className="h-5 w-5 text-foreground" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-base">{serviceType.name}</h3>
-                <p className="text-xs text-muted-foreground">{serviceList.length}개의 서비스</p>
-              </div>
-              <div className="text-muted-foreground group-hover:text-foreground transition-colors">
-                {expandedCategories.has(serviceType.value) ? (
-                  <ChevronDown className="h-5 w-5" />
-                ) : (
-                  <ChevronRight className="h-5 w-5" />
-                )}
-              </div>
-            </button>
-
-            {/* Card Grid with Sortable - Collapsible */}
-            {expandedCategories.has(serviceType.value) && (
-              <SortableList
-                items={serviceList}
-                onReorder={createHandleReorder(serviceType.value)}
-                keyExtractor={(service) => service.serviceId}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-                strategy="grid"
-                renderItem={(service) => (
-                  <SortableServiceCard
-                    service={service}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onManageComponents={onManageComponents}
-                  />
-                )}
-              />
-            )}
-          </div>
+            <SortableList
+              items={serviceList}
+              onReorder={createHandleReorder(serviceType.value)}
+              keyExtractor={(service) => service.serviceId}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+              strategy="grid"
+              renderItem={(service) => (
+                <SortableServiceCard
+                  service={service}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onManageComponents={onManageComponents}
+                />
+              )}
+            />
+          </CollapsibleSection>
         )
       })}
     </div>

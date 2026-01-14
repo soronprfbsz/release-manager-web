@@ -192,8 +192,8 @@ export function RestoreForm({ open, onOpenChange, backupFiles, onSuccess }: Rest
       </div>
 
       {/* 경고 메시지 */}
-      <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-        <p className="text-sm text-yellow-600 dark:text-yellow-500">
+      <div className="p-4 bg-accent/40 border border-accent rounded-lg">
+        <p className="text-sm text-foreground">
           <strong>경고:</strong> 복원 작업은 기존 데이터를 덮어씁니다. 신중하게 진행하세요.
         </p>
       </div>

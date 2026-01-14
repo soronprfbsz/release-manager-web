@@ -7,6 +7,8 @@
 
 import * as React from 'react'
 
+import { TableOfContents } from 'lucide-react'
+
 import { cn } from '@/shared/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
@@ -27,6 +29,8 @@ interface ContentCardProps {
   contentClassName?: string
   /** 패딩 없이 사용 (ScrollArea 등에서 직접 제어 시) */
   noPadding?: boolean
+  /** 아이콘 숨김 (기본: false) */
+  hideIcon?: boolean
 }
 
 export function ContentCard({
@@ -37,6 +41,7 @@ export function ContentCard({
   className,
   contentClassName,
   noPadding = false,
+  hideIcon = false,
 }: ContentCardProps) {
   const hasHeader = title || actions || header
 
@@ -53,7 +58,10 @@ export function ContentCard({
         <CardHeader className={cn(CONTENT_SPACING.HEADER_PADDING, 'flex-row items-center justify-between space-y-0')}>
           {header || (
             <>
-              {title && <CardTitle className="text-base font-semibold">{title}</CardTitle>}
+              <CardTitle className="flex items-center gap-2 text-sm min-h-7">
+                {!hideIcon && <TableOfContents className="h-5 w-5" />}
+                {title}
+              </CardTitle>
               {actions && <div className="flex items-center gap-2">{actions}</div>}
             </>
           )}

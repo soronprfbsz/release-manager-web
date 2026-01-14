@@ -138,15 +138,8 @@ export function AccountListPage() {
     >
       {/* Account List Card */}
       <ContentCard
-        header={
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 shrink-0">
-              {pageIcon}
-              <span className="font-semibold">계정 목록</span>
-            </div>
-            <AccountFilters filters={filters} onFiltersChange={setFilters} />
-          </div>
-        }
+        title="계정 목록"
+        actions={<AccountFilters filters={filters} onFiltersChange={setFilters} />}
       >
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
@@ -163,7 +156,7 @@ export function AccountListPage() {
                 const account = accountList.find((a) => a.accountId === id)
                 if (account) setDeleteConfirmAccount(account)
               }}
-              viewportHeight="calc(100vh - 24rem)"
+              viewportHeight="calc(100vh - 27rem)"
             />
             {accountList.length > 0 && (
               <div className="pt-6">

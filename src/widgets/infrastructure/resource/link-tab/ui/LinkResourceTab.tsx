@@ -50,6 +50,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
     const [isLinkAddOpen, setIsLinkAddOpen] = useState(false)
     const [editingLink, setEditingLink] = useState<LinkResource | null>(null)
     const [deleteLinkTarget, setDeleteLinkTarget] = useState<LinkResource | null>(null)
+    const [defaultCategory, setDefaultCategory] = useState<string>('')
 
     // Queries
     const {
@@ -96,6 +97,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
     useImperativeHandle(ref, () => ({
       openAddDialog: () => {
         setEditingLink(null)
+        setDefaultCategory('')
         setIsLinkAddOpen(true)
       },
       refresh: () => {
@@ -136,6 +138,11 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
               resources={linkResourceList}
               onDelete={setDeleteLinkTarget}
               onEdit={handleEditLink}
+              onAdd={(category) => {
+                setEditingLink(null)
+                setDefaultCategory(category)
+                setIsLinkAddOpen(true)
+              }}
             />
           )}
         </div>
@@ -145,6 +152,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
           isOpen={isLinkAddOpen}
           mode={editingLink ? 'update' : 'create'}
           initialData={editingLink}
+          defaultCategory={defaultCategory}
           isSubmitting={editingLink ? updateLinkMutation.isPending : createLinkMutation.isPending}
           onSubmit={handleLinkSubmit}
           onClose={() => setIsLinkAddOpen(false)}

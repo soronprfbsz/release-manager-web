@@ -297,9 +297,9 @@ export function FileContentViewerModal({
 
         {/* 큰 파일 경고 (텍스트 파일만) */}
         {!isPdf && !isImage && isTruncated && (
-          <div className="flex items-center gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm">
-            <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0" />
-            <span className="text-yellow-600 dark:text-yellow-500">
+          <div className="flex items-center gap-2 p-3 bg-accent/40 border border-accent rounded-lg text-sm">
+            <AlertTriangle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-foreground">
               {truncateReason === 'size'
                 ? `파일이 큽니다 (${formatFileSize(contentSize)}). `
                 : `라인 수가 많습니다 (${totalLines.toLocaleString()}줄). `

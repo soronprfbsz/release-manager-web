@@ -307,8 +307,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
                 <p className="text-xs">
                   위 구조로 구성된 <strong>폴더들을 선택</strong>하여 ZIP으로 압축
                 </p>
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded p-2 text-xs space-y-2">
-                  <span className="text-yellow-600 dark:text-yellow-500">⚠️폴더 구조 규칙</span>
+                <div className="bg-accent/40 border border-accent rounded p-2 text-xs space-y-2">
+                  <span className="text-foreground">⚠️폴더 구조 규칙</span>
                   <p className="font-mono bg-muted px-2 py-1 rounded">
                     {'{카테고리}'}/{'{하위카테고리}'}/{'{파일}'}
                   </p>

@@ -273,7 +273,7 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     if (!sessionId) {
       return (
         <div
-          className="h-[calc(100vh-20rem)] flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/50 transition-colors"
+          className="h-[calc(100vh-20rem)] flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/40 transition-colors"
           onClick={onConnect}
         >
           <div className="text-center text-muted-foreground">

@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react'
 
-import { Plus } from 'lucide-react'
+import { Network, Plus } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 
 import { VersionCreateForm } from '@/widgets/releases'
 
-import { getMenuIcon } from '@/shared/config/menu-icons'
 import { usePermission, usePageIcon } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
-import { ReleaseTree, VersionDetailPanel, type SelectedVersionInfo, type SelectedVersionData } from '@/features/releases/standard'
+import { ReleaseTree, VersionDetail, type SelectedVersionInfo, type SelectedVersionData } from '@/features/releases/standard'
 
 import { useStandardReleaseTree } from '@/entities/releases/release'
 
 import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ContentSplit } from '@/shared/ui/content-layout'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
@@ -35,7 +33,7 @@ export function StandardReleasePage() {
   const location = useLocation()
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddVersion } = usePermission()
-  const { icon: pageIcon, iconName } = usePageIcon()
+  const { icon: pageIcon } = usePageIcon()
   const [selectedState, setSelectedState] = useState<SelectedState | null>(null)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [prevProjectId, setPrevProjectId] = useState(projectId)
@@ -135,6 +133,9 @@ export function StandardReleasePage() {
     )
   }
 
+  // 트리 헤더에 표시할 버전 수
+  const versionCount = treeData?.majorMinorGroups.reduce((acc, g) => acc + g.versions.length, 0) || 0
+
   return (
     <PageLayout
       icon={pageIcon}
@@ -156,50 +157,57 @@ export function StandardReleasePage() {
         </>
       }
     >
-
-      {/* Content */}
-      <div className="grid grid-cols-12 gap-4 h-[calc(100vh-18rem)]">
+      <ContentSplit>
         {/* Tree Panel */}
-        <div className="col-span-3 h-full overflow-hidden">
-          <Card className="h-full flex flex-col overflow-hidden">
-            <CardHeader className="pb-3 flex-shrink-0">
-              <CardTitle className="text-base flex items-center gap-2">
-                {getMenuIcon(iconName, 'h-4 w-4')}
+        <ContentSplit.Tree
+          header={
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 text-base font-semibold">
+                <Network className="h-4 w-4" />
                 버전 트리
-                {treeData && (
-                  <span className="text-xs text-muted-foreground font-normal ml-auto">
-                    {treeData.majorMinorGroups.reduce((acc, g) => acc + g.versions.length, 0)}개 버전
-                  </span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                {isTreeLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                  </div>
-                ) : (
-                  <ReleaseTree
-                    majorMinorGroups={treeData?.majorMinorGroups || []}
-                    selectedVersionId={selectedState?.versionId || null}
-                    onSelectVersion={handleSelectVersion}
-                  />
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+              {versionCount > 0 && (
+                <span className="text-xs text-muted-foreground font-normal">
+                  {versionCount}개 버전
+                </span>
+              )}
+            </div>
+          }
+        >
+          {isTreeLoading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            </div>
+          ) : (
+            <ReleaseTree
+              majorMinorGroups={treeData?.majorMinorGroups || []}
+              selectedVersionId={selectedState?.versionId || null}
+              onSelectVersion={handleSelectVersion}
+            />
+          )}
+        </ContentSplit.Tree>
 
         {/* Detail Panel */}
-        <div className="col-span-9 h-full overflow-hidden">
-          <VersionDetailPanel
+        {selectedVersion ? (
+          <VersionDetail.Provider
             version={selectedVersion}
             isHotfix={selectedState?.isHotfix}
             onDelete={handleDeleteSuccess}
+          >
+            <ContentSplit.Detail
+              header={<VersionDetail.Header />}
+            >
+              <VersionDetail.Content />
+            </ContentSplit.Detail>
+            <VersionDetail.Dialogs />
+          </VersionDetail.Provider>
+        ) : (
+          <ContentSplit.Detail
+            isEmpty={true}
+            emptyMessage="버전을 선택해주세요."
           />
-        </div>
-      </div>
+        )}
+      </ContentSplit>
 
       <VersionCreateForm
         open={createDialogOpen}

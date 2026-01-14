@@ -204,6 +204,10 @@ const SortableTableHead = React.forwardRef<HTMLTableCellElement, SortableTableHe
     const isSorted = currentSort?.key === id
     const direction = isSorted ? currentSort.direction : null
 
+    // text-center 또는 text-right 클래스가 있으면 flex 정렬에 반영
+    const isCenter = className?.includes('text-center')
+    const isRight = className?.includes('text-right')
+
     return (
       <TableHead
         ref={ref}
@@ -211,7 +215,11 @@ const SortableTableHead = React.forwardRef<HTMLTableCellElement, SortableTableHe
         onClick={() => onSort(id)}
         {...props}
       >
-        <div className="flex items-center gap-1">
+        <div className={cn(
+          "flex items-center gap-1",
+          isCenter && "justify-center",
+          isRight && "justify-end"
+        )}>
           {children}
           {direction === 'asc' ? (
             <ArrowUp className="h-3 w-3" />

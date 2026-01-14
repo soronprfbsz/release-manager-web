@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 
-import { Plus, Building2, Search, X } from 'lucide-react'
+import { Plus, Network, Search, X, TableOfContents, Calendar } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
 
@@ -29,12 +29,13 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
+import { formatDateTime } from '@/shared/lib/utils/date'
 import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ContentSplit } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { ScrollArea } from '@/shared/ui/scroll-area'
+import { StatusBadge } from '@/shared/ui/status-badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 const INITIAL_FORM_DATA: CustomerFormData = {
@@ -191,15 +192,15 @@ export function CustomerListPage() {
         </Tooltip>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-18rem)]">
+      <ContentSplit>
         {/* Left Panel - Customer Tree */}
-        <Card className="lg:col-span-2 flex flex-col overflow-hidden">
-          <CardHeader className="pb-3 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <CardTitle className="flex items-center gap-2 text-base flex-shrink-0">
-                <Building2 className="h-4 w-4" />
+        <ContentSplit.Tree
+          header={
+            <div className="flex items-center gap-3 w-full">
+              <div className="flex items-center gap-2 text-base font-semibold flex-shrink-0">
+                <Network className="h-4 w-4" />
                 고객사 목록
-              </CardTitle>
+              </div>
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
@@ -220,27 +221,70 @@ export function CustomerListPage() {
                 )}
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <CustomerTree
-                customers={customers}
-                selectedId={selectedCustomerId}
-                isLoading={isLoading}
-                searchTerm={searchTerm}
-                onSelect={handleCustomerSelect}
-                onEdit={openEditModal}
-                onDelete={(customer) => setDeleteConfirmId(customer.customerId)}
-              />
-            </ScrollArea>
-          </CardContent>
-        </Card>
+          }
+        >
+          <CustomerTree
+            customers={customers}
+            selectedId={selectedCustomerId}
+            isLoading={isLoading}
+            searchTerm={searchTerm}
+            onSelect={handleCustomerSelect}
+            onEdit={openEditModal}
+            onDelete={(customer) => setDeleteConfirmId(customer.customerId)}
+          />
+        </ContentSplit.Tree>
 
         {/* Right Panel - Customer Detail */}
-        <div className="lg:col-span-3 h-full overflow-hidden">
-          <CustomerDetailPanel customer={selectedCustomer} />
-        </div>
-      </div>
+        <ContentSplit.Detail
+          isEmpty={!selectedCustomer}
+          emptyMessage="고객사를 선택해주세요."
+          header={
+            selectedCustomer && (
+              <div className="flex items-center gap-2 min-w-0 w-full">
+                <TableOfContents className="h-4 w-4 flex-shrink-0" />
+                <StatusBadge
+                  variant={selectedCustomer.isActive ? 'active' : 'inactive'}
+                >
+                  {selectedCustomer.isActive ? '활성' : '비활성'}
+                </StatusBadge>
+                {selectedCustomer.description ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <h2 className="text-base font-semibold truncate cursor-default">
+                        {selectedCustomer.customerName}
+                      </h2>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-[300px]">{selectedCustomer.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <h2 className="text-base font-semibold truncate">
+                    {selectedCustomer.customerName}
+                  </h2>
+                )}
+                <span className="text-muted-foreground text-sm">
+                  [{selectedCustomer.customerCode}]
+                </span>
+                <span className="flex-1" />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground cursor-default flex-shrink-0">
+                      <Calendar className="h-3 w-3" />
+                      {formatDateTime(selectedCustomer.updatedAt || selectedCustomer.createdAt)}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>최종 수정일</TooltipContent>
+                </Tooltip>
+              </div>
+            )
+          }
+        >
+          {selectedCustomer && (
+            <CustomerDetailPanel customer={selectedCustomer} />
+          )}
+        </ContentSplit.Detail>
+      </ContentSplit>
 
       {/* Form Sheet */}
       <CustomerForm

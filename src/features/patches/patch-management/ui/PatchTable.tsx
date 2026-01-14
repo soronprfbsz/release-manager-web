@@ -81,7 +81,7 @@ export function PatchTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12 text-center">No</TableHead>
+            <TableHead className="w-16 text-right">No</TableHead>
             <SortableTableHead
               className="w-48"
               id="patchName"
@@ -130,7 +130,7 @@ export function PatchTable({
         <TableBody>
           {patches.map((patch) => (
             <TableRow key={patch.patchId}>
-              <TableCell className="text-center text-muted-foreground">
+              <TableCell className="text-right text-muted-foreground">
                 {patch.rowNumber}
               </TableCell>
               <TableCell>

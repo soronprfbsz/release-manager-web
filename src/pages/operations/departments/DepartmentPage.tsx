@@ -5,10 +5,9 @@
 
 import { useState } from 'react'
 
-import { Plus, Users, UserX } from 'lucide-react'
+import { Network, Plus, TableOfContents, Users, UserX } from 'lucide-react'
 
 import { usePageIcon } from '@/shared/lib/hooks'
-import { getMenuIcon } from '@/shared/config/menu-icons'
 
 import {
   DepartmentTree,
@@ -49,15 +48,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ContentSplit } from '@/shared/ui/content-layout'
 import { Label } from '@/shared/ui/label'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Switch } from '@/shared/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function DepartmentPage() {
-  const { icon: pageIcon, iconName: pageIconName } = usePageIcon()
+  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -406,15 +404,15 @@ export function DepartmentPage() {
         </Tooltip>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[calc(100vh-18rem)]">
-        {/* 부서 트리 (2/5) */}
-        <Card className="lg:col-span-2 flex flex-col overflow-hidden">
-          <CardHeader className="pb-3 flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                {getMenuIcon(pageIconName, 'h-4 w-4')}
+      <ContentSplit>
+        {/* 부서 트리 */}
+        <ContentSplit.Tree
+          header={
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 text-base font-semibold">
+                <Network className="h-4 w-4" />
                 조직도
-              </CardTitle>
+              </div>
               <div className="flex items-center gap-2">
                 <Label htmlFor="includeChildAccounts" className="text-xs text-muted-foreground cursor-pointer">
                   하위 부서 포함
@@ -426,81 +424,95 @@ export function DepartmentPage() {
                 />
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              {isTreeLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+          }
+        >
+          {isTreeLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+            </div>
+          ) : (
+            <>
+              {/* 부서 트리 */}
+              <DepartmentTree
+                data={treeData}
+                selectedId={(showAllAccounts || showUnassigned) ? null : selectedDepartmentId}
+                dropTargetId={dropTargetDeptId}
+                dropPosition={dropPosition}
+                draggedDepartmentId={draggedDepartment?.departmentId ?? null}
+                isDraggingAccount={!!draggedAccount}
+                onSelect={handleSelect}
+                onCreateChild={openCreateForm}
+                onAssignAccount={handleAssignAccount}
+                onEdit={openEditForm}
+                onDelete={handleDelete}
+                onDepartmentDragStart={handleDepartmentDragStart}
+                onDepartmentDragEnd={handleDepartmentDragEnd}
+                onDragOver={handleDragOverDepartment}
+                onDragLeave={handleDragLeaveDepartment}
+                onDrop={handleDropOnDepartment}
+              />
+
+              {/* 구분선 + 전체 계정 / 미배치 계정 */}
+              <div className="my-2 border-t border-border/50" />
+              <div className="space-y-0.5">
+                {/* 전체 계정 */}
+                <div
+                  className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showAllAccounts
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-accent'
+                    }`}
+                  style={{ paddingLeft: '8px' }}
+                  onClick={handleSelectAllAccounts}
+                >
+                  <div className="w-4" /> {/* Spacer for drag handle */}
+                  <Users className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm font-medium">전체 계정</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({allAccountsData?.content?.length ?? 0})
+                  </span>
                 </div>
-              ) : (
-                <>
-                  {/* 부서 트리 */}
-                  <DepartmentTree
-                    data={treeData}
-                    selectedId={(showAllAccounts || showUnassigned) ? null : selectedDepartmentId}
-                    dropTargetId={dropTargetDeptId}
-                    dropPosition={dropPosition}
-                    draggedDepartmentId={draggedDepartment?.departmentId ?? null}
-                    isDraggingAccount={!!draggedAccount}
-                    onSelect={handleSelect}
-                    onCreateChild={openCreateForm}
-                    onAssignAccount={handleAssignAccount}
-                    onEdit={openEditForm}
-                    onDelete={handleDelete}
-                    onDepartmentDragStart={handleDepartmentDragStart}
-                    onDepartmentDragEnd={handleDepartmentDragEnd}
-                    onDragOver={handleDragOverDepartment}
-                    onDragLeave={handleDragLeaveDepartment}
-                    onDrop={handleDropOnDepartment}
-                  />
+                {/* 미배치 계정 */}
+                <div
+                  className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showUnassigned
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-accent'
+                    }`}
+                  style={{ paddingLeft: '8px' }}
+                  onClick={handleSelectUnassigned}
+                >
+                  <div className="w-4" /> {/* Spacer for drag handle */}
+                  <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm font-medium">미배치 계정</span>
+                  <span className="text-xs text-muted-foreground">
+                    ({unassignedAccountsData?.content?.length ?? 0})
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
+        </ContentSplit.Tree>
 
-                  {/* 구분선 + 전체 계정 / 미배치 계정 (트리와 같은 레벨) */}
-                  <div className="mx-3 my-2 border-t border-border/50" />
-                  <div className="px-1 pb-2 space-y-0.5">
-                    {/* 전체 계정 */}
-                    <div
-                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showAllAccounts
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-accent'
-                        }`}
-                      style={{ paddingLeft: '8px' }}
-                      onClick={handleSelectAllAccounts}
-                    >
-                      <div className="w-4" /> {/* Spacer for drag handle */}
-                      <Users className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm font-medium">전체 계정</span>
-                      <span className="text-xs text-muted-foreground">
-                        ({allAccountsData?.content?.length ?? 0})
-                      </span>
-                    </div>
-                    {/* 미배치 계정 */}
-                    <div
-                      className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showUnassigned
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-accent'
-                        }`}
-                      style={{ paddingLeft: '8px' }}
-                      onClick={handleSelectUnassigned}
-                    >
-                      <div className="w-4" /> {/* Spacer for drag handle */}
-                      <UserX className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-sm font-medium">미배치 계정</span>
-                      <span className="text-xs text-muted-foreground">
-                        ({unassignedAccountsData?.content?.length ?? 0})
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        {/* 계정 목록 (3/5) */}
-        <div className="lg:col-span-3 h-full overflow-hidden">
+        {/* 계정 목록 */}
+        <ContentSplit.Detail
+          isEmpty={!showAllAccounts && !showUnassigned && !selectedDepartmentId}
+          emptyMessage="부서를 선택해주세요."
+          header={
+            (showAllAccounts || showUnassigned || selectedDepartmentId) && (
+              <div className="flex items-center gap-2 min-w-0">
+                <TableOfContents className="h-4 w-4 flex-shrink-0" />
+                <h3 className="text-base font-semibold truncate">
+                  {showAllAccounts ? '전체 계정' : showUnassigned ? '미배치 계정' : selectedDetail?.departmentName}
+                </h3>
+                {(showAllAccounts || showUnassigned || selectedDetail?.description) && (
+                  <span className="text-xs text-muted-foreground truncate">
+                    {showAllAccounts ? '등록된 모든 계정' : showUnassigned ? '부서 미배치' : selectedDetail?.description}
+                  </span>
+                )}
+              </div>
+            )
+          }
+        >
           <AccountListPanel
-            department={(showAllAccounts || showUnassigned) ? null : (selectedDetail ?? null)}
             accounts={showAllAccounts ? allAccounts : departmentAccounts}
             isLoading={showAllAccounts ? isAllAccountsLoading : (showUnassigned ? isAccountsLoading : (isDetailLoading || isAccountsLoading))}
             showAllAccounts={showAllAccounts}
@@ -509,8 +521,8 @@ export function DepartmentPage() {
             onDragStart={handleAccountDragStart}
             onDragEnd={handleAccountDragEnd}
           />
-        </div>
-      </div>
+        </ContentSplit.Detail>
+      </ContentSplit>
 
       {/* Form Sheet */}
       <DepartmentForm

@@ -251,6 +251,11 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
               onDelete={setDeleteTarget}
               onEdit={handleEditResource}
               onView={handleViewResource}
+              onAdd={(category) => {
+                setFormData({ ...INITIAL_FORM_DATA, fileCategory: category })
+                setUploadProgress(0)
+                setIsUploadOpen(true)
+              }}
             />
           )}
         </div>

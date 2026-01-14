@@ -7,7 +7,7 @@
 import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 
 import { CONTENT_SPACING } from './constants'
@@ -42,9 +42,11 @@ function ContentSplitRoot({ children, className }: ContentSplitProps) {
 
 interface ContentSplitTreeProps {
   /** 패널 제목 */
-  title: string
+  title?: string
   /** 헤더 우측 액션 */
   actions?: React.ReactNode
+  /** 헤더 영역 커스텀 컨텐츠 (title/actions 대신 사용) */
+  header?: React.ReactNode
   /** 자식 요소 */
   children: React.ReactNode
   /** 추가 className */
@@ -54,22 +56,27 @@ interface ContentSplitTreeProps {
 function ContentSplitTree({
   title,
   actions,
+  header,
   children,
   className,
 }: ContentSplitTreeProps) {
   return (
     <Card className={cn(CONTENT_SPACING.TREE_SPAN, 'flex flex-col overflow-hidden', className)}>
-      <CardHeader className="pb-3 flex-shrink-0 flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base font-semibold">{title}</CardTitle>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
-      </CardHeader>
-      <CardContent className="p-0 flex-1 overflow-hidden">
+      <div className="px-6 py-5 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+        {header || (
+          <>
+            <h3 className="text-base font-semibold">{title}</h3>
+            {actions && <div className="flex items-center gap-2">{actions}</div>}
+          </>
+        )}
+      </div>
+      <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="p-4 pt-0">
+          <div className="px-6 pb-5">
             {children}
           </div>
         </ScrollArea>
-      </CardContent>
+      </div>
     </Card>
   )
 }
@@ -79,16 +86,10 @@ function ContentSplitTree({
 // ============================================================================
 
 interface ContentSplitDetailProps {
-  /** 패널 제목 */
-  title?: string
-  /** 부제목 */
-  subtitle?: string
-  /** 헤더 우측 액션 */
-  actions?: React.ReactNode
   /** 헤더 영역 커스텀 컨텐츠 */
   header?: React.ReactNode
   /** 자식 요소 */
-  children: React.ReactNode
+  children?: React.ReactNode
   /** 추가 className */
   className?: string
   /** 빈 상태 표시 여부 */
@@ -98,30 +99,18 @@ interface ContentSplitDetailProps {
 }
 
 function ContentSplitDetail({
-  title,
-  subtitle,
-  actions,
   header,
   children,
   className,
   isEmpty = false,
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
-  const hasHeader = title || subtitle || actions || header
-
+  // Tree와 동일한 구조: Card → 헤더 → ScrollArea → children
   return (
     <Card className={cn(CONTENT_SPACING.DETAIL_SPAN, 'flex flex-col overflow-hidden', className)}>
-      {hasHeader && (
-        <div className="px-6 py-3 border-b flex-shrink-0 flex items-center justify-between">
-          {header || (
-            <>
-              <div>
-                {title && <h3 className="text-base font-semibold">{title}</h3>}
-                {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
-              </div>
-              {actions && <div className="flex items-center gap-2">{actions}</div>}
-            </>
-          )}
+      {header && (
+        <div className="px-6 py-5 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+          {header}
         </div>
       )}
       <div className="flex-1 overflow-hidden">
@@ -131,7 +120,7 @@ function ContentSplitDetail({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className={CONTENT_SPACING.CARD_PADDING}>
+            <div className="px-8 pb-5">
               {children}
             </div>
           </ScrollArea>

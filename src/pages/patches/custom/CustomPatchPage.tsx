@@ -234,14 +234,7 @@ export function CustomPatchPage() {
       }
     >
       {/* Patch List Card */}
-      <ContentCard
-        header={
-          <div className="flex items-center gap-2">
-            {pageIcon}
-            <span className="font-semibold">패치 목록</span>
-          </div>
-        }
-      >
+      <ContentCard title="패치 목록">
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -263,7 +256,7 @@ export function CustomPatchPage() {
               onViewFiles={handleViewFiles}
               onDownload={handleDownload}
               onDelete={handleDeleteClick}
-              viewportHeight="calc(100vh - 24rem)"
+              viewportHeight="calc(100vh - 27rem)"
             />
             {patchList.length > 0 && (
               <div className="pt-6">
