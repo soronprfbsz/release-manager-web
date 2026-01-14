@@ -87,8 +87,8 @@ export function CustomPatchPreviewCard({
               </div>
             )}
           </div>
-          <div className="p-4 bg-blue-500/10 rounded-lg">
-            <p className="text-sm text-blue-600 dark:text-blue-400">
+          <div className="p-4 bg-primary/10 rounded-lg">
+            <p className="text-sm text-primary">
               <strong>{selectedCustomer?.customerName}</strong>의{' '}
               <strong>{formData.fromVersion}</strong> 초과 ~ <strong>{formData.toVersion}</strong>{' '}
               이하 버전의 모든 DB 변경사항이 포함된 패치가 생성됩니다.

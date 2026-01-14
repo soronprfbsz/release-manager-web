@@ -270,7 +270,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <Info className="h-4 w-4" />
             <span className="underline decoration-dotted">버전 파일 생성 방법</span>

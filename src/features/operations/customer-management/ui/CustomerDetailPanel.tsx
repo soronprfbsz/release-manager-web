@@ -45,6 +45,11 @@ export function CustomerDetailPanel({
           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 flex-shrink-0">
             <Building2 className="h-4 w-4 text-primary" />
           </div>
+          <StatusBadge
+            variant={customer.isActive ? 'active' : 'inactive'}
+          >
+            {customer.isActive ? '활성' : '비활성'}
+          </StatusBadge>
           <div className="flex items-center gap-2 min-w-0">
             {customer.description ? (
               <Tooltip>
@@ -65,11 +70,6 @@ export function CustomerDetailPanel({
             <span className="text-muted-foreground text-sm">
               [{customer.customerCode}]
             </span>
-            <StatusBadge
-              variant={customer.isActive ? 'active' : 'inactive'}
-            >
-              {customer.isActive ? '활성' : '비활성'}
-            </StatusBadge>
           </div>
           <span className="flex-1" />
           <Tooltip>
