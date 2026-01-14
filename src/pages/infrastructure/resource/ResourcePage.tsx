@@ -31,6 +31,7 @@ import type { PublishingFiltersState } from '@/features/infrastructure/publishin
 
 import { usePageIcon } from '@/shared/lib/hooks'
 import { Button } from '@/shared/ui/button'
+import { Card, CardContent } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
 import {
@@ -256,19 +257,35 @@ export function ResourcePage() {
         </div>
 
         <TabsContent value="services">
-          <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
+          <Card>
+            <CardContent className="px-8 pt-6 pb-8">
+              <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="links">
-          <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
+          <Card>
+            <CardContent className="px-8 pt-6 pb-8">
+              <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="files">
-          <FileResourceTab ref={fileTabRef} filters={fileFilters} />
+          <Card>
+            <CardContent className="px-8 pt-6 pb-8">
+              <FileResourceTab ref={fileTabRef} filters={fileFilters} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="publishing">
-          <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
+          <Card>
+            <CardContent className="px-8 pt-6 pb-8">
+              <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </PageLayout>

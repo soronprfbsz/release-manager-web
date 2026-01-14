@@ -96,12 +96,12 @@ export function ServiceGroupList({
         return (
           <div
             key={serviceType.value}
-            className="space-y-4 py-8 first:pt-0 last:pb-0 border-t first:border-t-0"
+            className="space-y-4 mb-14 last:mb-0"
           >
             {/* Group Header with Toggle */}
             <button
               onClick={() => toggleCategory(serviceType.value)}
-              className="flex items-center gap-3 w-full text-left group"
+              className="flex items-center gap-3 w-full text-left group pb-3 border-b border-border"
             >
               <div className="p-2 rounded-lg bg-[hsl(var(--header-bg))] border border-border">
                 <Icon className="h-5 w-5 text-foreground" />

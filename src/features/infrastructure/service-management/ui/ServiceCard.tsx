@@ -28,7 +28,7 @@ export function ServiceCard({
 
   return (
     <Card
-      className="group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-card border-border hover:border-primary/50"
+      className="group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-accent/40 border-border hover:border-primary/50"
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">

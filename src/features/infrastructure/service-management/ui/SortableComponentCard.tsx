@@ -42,7 +42,7 @@ export function SortableComponentCard({
   return (
     <div ref={setNodeRef} style={style} className="mb-3 last:mb-0">
       <div
-        className="border rounded-lg p-4 space-y-3 transition-all duration-200 relative bg-background shadow-sm hover:shadow-md hover:border-primary/50"
+        className="border rounded-lg p-4 space-y-3 transition-all duration-200 relative bg-accent/40 shadow-sm hover:shadow-md hover:border-primary/50"
       >
         <div className="flex items-center justify-between gap-2 relative z-10">
           <div className="flex items-center gap-2 flex-1 min-w-0">

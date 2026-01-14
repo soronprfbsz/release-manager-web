@@ -70,7 +70,7 @@ export function ResourceCard({
   }, [description])
 
   return (
-    <Card className="group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-card border-border hover:border-primary/50">
+    <Card className="group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-accent/40 border-border hover:border-primary/50">
       <CardHeader className="pb-3 flex-1">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
