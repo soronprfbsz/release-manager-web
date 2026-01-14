@@ -133,7 +133,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
     return (
       <div>
         <div
-          className="flex items-center gap-2 py-1.5 px-2 hover:bg-muted/50 rounded cursor-pointer"
+          className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer"
           style={{ paddingLeft: `${level * 16 + 8}px` }}
           onClick={() => setIsExpanded(!isExpanded)}
         >
@@ -170,7 +170,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
 
   return (
     <div
-      className={`flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-muted/50 rounded ${
+      className={`flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded ${
         viewable ? 'cursor-pointer' : ''
       }`}
       style={{ paddingLeft: `${level * 16 + 24}px` }}
@@ -178,7 +178,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        <span className={`text-sm truncate ${viewable ? 'hover:text-primary transition-colors' : ''}`}>
+        <span className="text-sm truncate">
           {node.name}
         </span>
       </div>

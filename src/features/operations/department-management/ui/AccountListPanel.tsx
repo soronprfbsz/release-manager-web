@@ -125,7 +125,7 @@ export function AccountListPanel({
                 <div
                   key={account.accountId}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors',
+                    'flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors',
                     'select-none'
                   )}
                 >
@@ -134,7 +134,7 @@ export function AccountListPanel({
                     draggable
                     onDragStart={(e) => handleDragStart(e, account)}
                     onDragEnd={handleDragEnd}
-                    className="cursor-grab active:cursor-grabbing p-1 -m-1 rounded hover:bg-muted/80 flex-shrink-0"
+                    className="cursor-grab active:cursor-grabbing p-1 -m-1 rounded hover:bg-accent flex-shrink-0"
                   >
                     <GripVertical className="h-4 w-4 text-muted-foreground/50" />
                   </div>

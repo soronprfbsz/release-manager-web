@@ -320,7 +320,7 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
                           'relative p-1.5 rounded-lg border-2 transition-all hover:scale-105',
                           isSelected
                             ? 'border-primary bg-primary/10 shadow-sm'
-                            : 'border-transparent hover:border-muted-foreground/30 hover:bg-muted/50'
+                            : 'border-transparent hover:border-muted-foreground/30 hover:bg-accent'
                         )}
                         title={AVATAR_STYLES[styleKey].name}
                       >

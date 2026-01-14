@@ -207,7 +207,7 @@ export function FileDropzone({
             disabled && 'opacity-50 cursor-not-allowed',
             isDragOver
               ? 'border-primary bg-primary/10'
-              : 'hover:border-primary/50 hover:bg-muted/50'
+              : 'hover:border-primary/50 hover:bg-accent'
           )}
         >
           <div className={cn(

@@ -462,7 +462,7 @@ export function DepartmentPage() {
                     <div
                       className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showAllAccounts
                         ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted/50'
+                        : 'hover:bg-accent'
                         }`}
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectAllAccounts}
@@ -478,7 +478,7 @@ export function DepartmentPage() {
                     <div
                       className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showUnassigned
                         ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted/50'
+                        : 'hover:bg-accent'
                         }`}
                       style={{ paddingLeft: '8px' }}
                       onClick={handleSelectUnassigned}

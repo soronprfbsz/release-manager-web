@@ -76,7 +76,7 @@ export function HomePage() {
                   <Link
                     to={ROUTES.RELEASES.STANDARD}
                     state={{ selectedVersionId: latestInstall.releaseVersionId }}
-                    className="block hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                    className="block hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -136,7 +136,7 @@ export function HomePage() {
                         key={version.releaseVersionId}
                         to={ROUTES.RELEASES.STANDARD}
                         state={{ selectedVersionId: version.releaseVersionId }}
-                        className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                        className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal">{version.version}</TypographyInlineCode>
@@ -185,7 +185,7 @@ export function HomePage() {
                       <Link
                         key={patch.patchId}
                         to={ROUTES.PATCHES.STANDARD}
-                        className="flex items-center justify-between text-sm hover:bg-muted/50 -mx-2 px-2 py-1 rounded transition-colors"
+                        className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           {patch.releaseType === 'STANDARD' ? (

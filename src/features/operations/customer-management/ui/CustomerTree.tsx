@@ -76,13 +76,13 @@ function TreeRootNode({
           'group flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
           isSelected
             ? 'bg-primary/10 text-primary'
-            : 'hover:bg-muted/50'
+            : 'hover:bg-accent'
         )}
         onClick={onClick}
       >
         {/* Expand/Collapse Button */}
         <button
-          className="p-0.5 rounded hover:bg-muted"
+          className="p-0.5 rounded hover:bg-accent"
           onClick={(e) => {
             e.stopPropagation()
             onToggle()
@@ -128,7 +128,7 @@ function CustomerNode({
         'group flex items-center gap-1.5 py-2.5 px-3 rounded-md cursor-pointer transition-all select-none',
         isSelected
           ? 'bg-primary/10 text-primary'
-          : 'hover:bg-muted/50',
+          : 'hover:bg-accent',
         !customer.isActive && 'opacity-60'
       )}
       onClick={() => onSelect(customer)}

@@ -6,53 +6,53 @@ type ThemeType =
     | 'gruvbox'
 
 export const XTERM_THEMES: Record<ThemeType, ITheme> = {
-    // Default Black (Matches card background in black theme)
+    // Fresh Mint Dark Mode (Default dark theme)
     black: {
-        background: '#171717', // Same as --card in black theme (0 0% 9%)
-        foreground: '#c9d1d9', // Soft grey text
-        cursor: '#58a6ff',
-        cursorAccent: '#171717',
-        selectionBackground: '#3a3a3a',
-        black: '#171717',
-        red: '#ff7b72',
-        green: '#7ee787',
-        yellow: '#d29922',
-        blue: '#58a6ff',
-        magenta: '#bc8cff',
-        cyan: '#39c5cf',
-        white: '#b1bac4',
-        brightBlack: '#6e7681',
-        brightRed: '#ffa198',
-        brightGreen: '#a5d6a7',
-        brightYellow: '#e3b341',
+        background: '#181d1c', // Fresh Mint dark card (160 12% 11%)
+        foreground: '#ebf2f0', // Fresh Mint dark foreground (160 8% 95%)
+        cursor: '#7ebfab', // Fresh Mint dark primary (155 32% 58%)
+        cursorAccent: '#181d1c',
+        selectionBackground: '#26342f', // Fresh Mint dark accent
+        black: '#181d1c',
+        red: '#e64b5a', // Soft red (--destructive)
+        green: '#7ebfab', // Fresh sage (--primary dark)
+        yellow: '#d4a544',
+        blue: '#5baec7',
+        magenta: '#b39ddb',
+        cyan: '#48d1cc',
+        white: '#a9bfba',
+        brightBlack: '#9eb5b0', // Muted foreground
+        brightRed: '#f07178',
+        brightGreen: '#8ccab7',
+        brightYellow: '#f0c674',
         brightBlue: '#79c0ff',
         brightMagenta: '#d2a8ff',
         brightCyan: '#56d4dd',
-        brightWhite: '#f0f6fc',
+        brightWhite: '#ebf2f0',
     },
-    // Default White (Matches card background in light theme)
+    // Fresh Mint Light Mode (Default light theme)
     white: {
-        background: '#ffffff', // Same as --card in light theme (0 0% 100%)
-        foreground: '#334155', // Slate-700
-        cursor: '#0f172a', // Slate-900
+        background: '#ffffff', // White cards (Fresh Mint light)
+        foreground: '#252d2e', // Deep teal-gray text (--foreground)
+        cursor: '#539c85', // Fresh sage green (--primary)
         cursorAccent: '#ffffff',
-        selectionBackground: '#cbd5e1', // Slate-300
-        black: '#0f172a',
-        red: '#ef4444',
-        green: '#10b981',
-        yellow: '#f59e0b',
-        blue: '#3b82f6',
-        magenta: '#a855f7',
-        cyan: '#06b6d4',
-        white: '#cbd5e1',
-        brightBlack: '#64748b',
-        brightRed: '#f87171',
-        brightGreen: '#34d399',
-        brightYellow: '#fbbf24',
-        brightBlue: '#60a5fa',
-        brightMagenta: '#c084fc',
-        brightCyan: '#22d3ee',
-        brightWhite: '#f1f5f9',
+        selectionBackground: '#d9ede6', // Light sage accent (--accent)
+        black: '#252d2e',
+        red: '#e64b5a', // Soft red (--destructive)
+        green: '#539c85', // Fresh sage green (--primary)
+        yellow: '#d4a017',
+        blue: '#4a90a4',
+        magenta: '#9370db',
+        cyan: '#20b2aa',
+        white: '#d5e6e0',
+        brightBlack: '#697172', // Muted teal-gray (--muted-foreground)
+        brightRed: '#f07178',
+        brightGreen: '#6db39a',
+        brightYellow: '#f0c674',
+        brightBlue: '#5baec7',
+        brightMagenta: '#b39ddb',
+        brightCyan: '#48d1cc',
+        brightWhite: '#f0f9f6', // Soft mint background
     },
     // Gruvbox (Matches card background in gruvbox theme)
     gruvbox: {

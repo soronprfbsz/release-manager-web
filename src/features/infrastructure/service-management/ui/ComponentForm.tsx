@@ -138,7 +138,7 @@ export function ComponentForm({
               {/* 추가 버튼 카드 - 최하단 */}
               <button
                 onClick={handleAddClick}
-                className="w-full border-2 border-dashed rounded-lg p-4 hover:bg-muted/50 transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 min-h-[156px] mt-3"
+                className="w-full border-2 border-dashed rounded-lg p-4 hover:bg-accent transition-colors flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/50 min-h-[156px] mt-3"
               >
                 <Plus className="h-5 w-5" />
                 <span className="text-sm font-medium">컴포넌트 추가</span>

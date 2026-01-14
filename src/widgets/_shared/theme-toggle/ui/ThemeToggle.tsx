@@ -59,7 +59,7 @@ export function ThemeToggle() {
       >
         <DropdownMenuItem onClick={() => { setTheme('white'); setOpen(false) }}>
           <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full bg-white border-2 border-gray-300" />
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#f0f9f6', border: '2px solid #539c85' }} />
             <span className="flex-1">White</span>
             {theme === 'white' && <Check className="h-4 w-4" />}
           </div>

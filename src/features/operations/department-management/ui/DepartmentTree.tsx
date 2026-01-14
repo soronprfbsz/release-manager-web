@@ -256,7 +256,7 @@ function TreeNode({
           'group flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
           isSelected
             ? 'bg-primary/10 text-primary'
-            : 'hover:bg-muted/50',
+            : 'hover:bg-accent',
           isDropTarget && dropPosition === 'child' && 'ring-2 ring-primary ring-offset-1 bg-primary/5'
         )}
         style={{ paddingLeft: `${level * 20 + 8}px` }}
@@ -268,7 +268,7 @@ function TreeNode({
             draggable
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            className="cursor-grab active:cursor-grabbing p-0.5 -m-0.5 rounded hover:bg-muted/50"
+            className="cursor-grab active:cursor-grabbing p-0.5 -m-0.5 rounded hover:bg-accent"
           >
             <GripVertical className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
           </div>
@@ -279,7 +279,7 @@ function TreeNode({
         {/* Expand/Collapse Button */}
         <button
           className={cn(
-            'p-0.5 rounded hover:bg-muted',
+            'p-0.5 rounded hover:bg-accent',
             !hasChildren && 'invisible'
           )}
           onClick={(e) => {

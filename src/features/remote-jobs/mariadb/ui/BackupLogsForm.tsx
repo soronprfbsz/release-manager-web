@@ -64,7 +64,7 @@ export function BackupLogsForm({
               {logFiles.map((log) => (
                 <div
                   key={log.logFileName}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <div
                     className="flex items-center gap-3 flex-1 cursor-pointer"
@@ -72,7 +72,7 @@ export function BackupLogsForm({
                   >
                     <FileText className="h-4 w-4 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate hover:text-primary transition-colors">
+                      <div className="text-sm font-medium truncate">
                         {log.logFileName}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">

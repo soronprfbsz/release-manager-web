@@ -4,147 +4,107 @@
 
 @layer base {
   :root {
-    /* Default Dark Theme (matches .dark) */
-    --background: 222.2 47.4% 11.2%;
-    /* Deep Blue-Gray Base */
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    /* Slightly darker/richer for cards? No, usually lighter. Let's make cards distinct. */
-    /* Modern Dark: BG is Dark, Surface is Lighter */
-    /* Let's try: BG = Very Dark (Slate 950), Card = Dark (Slate 900) */
-    --background: 222.2 84% 4.9%;
-    /* Slate 950 #020617 */
-    --foreground: 210 40% 98%;
-    --card: 222.2 47.4% 11.2%;
-    /* Slate 900 #1e293b? Or slightly different. Let's use standard Shadcn Dark */
-    --card: 222.2 84% 4.9%;
-    /* Actually Shadcn uses same for bg and card by default and uses border. 
-       User wants DISTINCTION. 
-       Let's make BG darker, Card lighter. 
-    */
-    --background: 224 71% 4%;
-    /* #02040a Very dark */
-    --card: 222.2 84% 4.9%;
-    /* #020817 (Current default) */
-    /* Wait, current default is 222.2 84 4.9 for BOTH.
-       Let's Change default to:
-       BG: 224 71% 4%
-       Card: 222.2 84% 6.5% (Slightly lighter)
-       Header: 222.2 84% 6.5%
-    */
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 47% 11%;
-    /* #0f172a Slate 900 - distinct surface */
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --radius: 0.5rem;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --theme-color-1: 12 76% 61%;
-    --theme-color-2: 173 58% 39%;
-    --theme-color-3: 197 37% 24%;
-    --theme-color-4: 43 74% 66%;
-    --theme-color-5: 27 87% 67%;
-    --header-bg: 222.2 47% 11%;
-    /* Matches Card */
-    /* 밝은 블루 그레이 */
+    /* Fresh Mint Dark Mode - Default */
+    --background: 160 15% 8%;
+    --foreground: 160 8% 95%;
+    --card: 160 12% 11%;
+    --card-foreground: 160 8% 95%;
+    --popover: 160 12% 11%;
+    --popover-foreground: 160 8% 95%;
+    --primary: 155 32% 58%;
+    --primary-foreground: 180 12% 16%;
+    --secondary: 160 10% 18%;
+    --secondary-foreground: 160 8% 95%;
+    --muted: 160 10% 18%;
+    --muted-foreground: 160 8% 66%;
+    --accent: 155 28% 20%;
+    --accent-foreground: 160 8% 95%;
+    --destructive: 355 72% 56%;
+    --destructive-foreground: 160 8% 95%;
+    --border: 160 8% 20%;
+    --input: 160 8% 20%;
+    --ring: 155 32% 58%;
+    --radius: 0.375rem;
+    --chart-1: 155 32% 58%;
+    --chart-2: 45 65% 55%;
+    --chart-3: 200 45% 52%;
+    --chart-4: 30 60% 58%;
+    --chart-5: 280 35% 60%;
+    --theme-color-1: 155 32% 58%;
+    --theme-color-2: 45 65% 55%;
+    --theme-color-3: 200 45% 52%;
+    --theme-color-4: 30 60% 58%;
+    --theme-color-5: 280 35% 60%;
+    --header-bg: 160 12% 11%;
   }
 
   .white {
-    /* White Theme - Clean & Professional */
-    /* Modern Light: BG = Gray/Slate 50, Card = White */
-    --background: 210 40% 96.1%;
-    /* Slate 100 #f1f5f9 - Distinct Surface */
-    --foreground: 222.2 47.4% 11.2%;
-    /* Slate 900 */
+    /* Fresh Mint Light Mode */
+    --background: 160 25% 96%;
+    --foreground: 180 12% 16%;
     --card: 0 0% 100%;
-    /* White */
-    --card-foreground: 222.2 47.4% 11.2%;
+    --card-foreground: 180 12% 16%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    --primary: 222.2 47.4% 11.2%;
-    /* Slate 900 for Primary in light mode? Or keep Teal. User had Teal.
-       Let's stick to Teal primary but fix surfaces.
-    */
-    --primary: 177 45% 40%;
+    --popover-foreground: 180 12% 16%;
+    --primary: 155 32% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 177 45% 85%;
-    /* Light teal accent - visible hover background based on primary */
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 177 45% 40%;
-    --radius: 0.5rem;
-    --chart-1: 177 50% 42%;
-    --chart-2: 41 75% 50%;
-    --chart-3: 345 55% 55%;
-    --chart-4: 200 60% 50%;
-    --chart-5: 14 65% 55%;
-    --theme-color-1: 177 60% 38%;
-    --theme-color-2: 41 80% 45%;
-    --theme-color-3: 345 55% 50%;
-    --theme-color-4: 200 65% 45%;
-    --theme-color-5: 14 70% 50%;
+    --secondary: 160 20% 93%;
+    --secondary-foreground: 180 12% 16%;
+    --muted: 160 20% 93%;
+    --muted-foreground: 180 10% 44%;
+    --accent: 155 32% 91%;
+    --accent-foreground: 180 12% 16%;
+    --destructive: 355 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 160 15% 87%;
+    --input: 160 15% 87%;
+    --ring: 155 32% 48%;
+    --radius: 0.375rem;
+    --chart-1: 155 32% 48%;
+    --chart-2: 45 65% 55%;
+    --chart-3: 200 45% 52%;
+    --chart-4: 30 60% 58%;
+    --chart-5: 280 35% 60%;
+    --theme-color-1: 155 32% 48%;
+    --theme-color-2: 45 65% 55%;
+    --theme-color-3: 200 45% 52%;
+    --theme-color-4: 30 60% 58%;
+    --theme-color-5: 280 35% 60%;
     --header-bg: 0 0% 100%;
-    /* White Header on Gray BG */
   }
 
   .dark {
-    /* Matches Root/Default */
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --theme-color-1: 220 70% 50%;
-    --theme-color-2: 160 60% 45%;
-    --theme-color-3: 30 80% 55%;
-    --theme-color-4: 280 65% 60%;
-    --theme-color-5: 340 75% 55%;
-    --header-bg: 222.2 47% 11%;
+    /* Fresh Mint Dark Mode */
+    --background: 160 15% 8%;
+    --foreground: 160 8% 95%;
+    --card: 160 12% 11%;
+    --card-foreground: 160 8% 95%;
+    --popover: 160 12% 11%;
+    --popover-foreground: 160 8% 95%;
+    --primary: 155 32% 58%;
+    --primary-foreground: 180 12% 16%;
+    --secondary: 160 10% 18%;
+    --secondary-foreground: 160 8% 95%;
+    --muted: 160 10% 18%;
+    --muted-foreground: 160 8% 66%;
+    --accent: 155 28% 20%;
+    --accent-foreground: 160 8% 95%;
+    --destructive: 355 72% 56%;
+    --destructive-foreground: 160 8% 95%;
+    --border: 160 8% 20%;
+    --input: 160 8% 20%;
+    --ring: 155 32% 58%;
+    --chart-1: 155 32% 58%;
+    --chart-2: 45 65% 55%;
+    --chart-3: 200 45% 52%;
+    --chart-4: 30 60% 58%;
+    --chart-5: 280 35% 60%;
+    --theme-color-1: 155 32% 58%;
+    --theme-color-2: 45 65% 55%;
+    --theme-color-3: 200 45% 52%;
+    --theme-color-4: 30 60% 58%;
+    --theme-color-5: 280 35% 60%;
+    --header-bg: 160 12% 11%;
   }
 
   .black {

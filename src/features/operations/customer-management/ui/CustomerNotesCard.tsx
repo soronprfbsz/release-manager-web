@@ -184,7 +184,7 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                 {notes.map((note) => (
                   <div
                     key={note.noteId}
-                    className="p-4 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors"
+                    className="p-4 rounded-lg bg-accent/40 hover:bg-accent/60 transition-colors"
                   >
                     {/* Title */}
                     <div className="flex items-center justify-between mb-2">
