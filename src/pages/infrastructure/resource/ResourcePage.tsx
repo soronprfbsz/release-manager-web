@@ -122,19 +122,19 @@ export function ResourcePage() {
           })}
         </TabsList>
 
-        <TabsContent value="services" className="mt-8">
+        <TabsContent value="services" className="mt-10">
           <ServiceTab ref={serviceTabRef} />
         </TabsContent>
 
-        <TabsContent value="links" className="mt-8">
+        <TabsContent value="links" className="mt-10">
           <LinkResourceTab ref={linkTabRef} />
         </TabsContent>
 
-        <TabsContent value="files" className="mt-8">
+        <TabsContent value="files" className="mt-10">
           <FileResourceTab ref={fileTabRef} />
         </TabsContent>
 
-        <TabsContent value="publishing" className="mt-8">
+        <TabsContent value="publishing" className="mt-10">
           <PublishingTab ref={publishingTabRef} />
         </TabsContent>
       </Tabs>

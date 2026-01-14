@@ -31,6 +31,8 @@ interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   autoHeight?: boolean
   /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") - 설정 시 visibleRows 무시 */
   viewportHeight?: string
+  /** 테두리 표시 여부 (기본: false) - Card 외부에서 독립적으로 사용할 때 true */
+  bordered?: boolean
 }
 
 export function DataTable({
@@ -41,10 +43,13 @@ export function DataTable({
   headerHeight = 41,
   autoHeight = false,
   viewportHeight,
+  bordered = false,
 }: DataTableProps) {
+  const borderClass = bordered ? "rounded-md border" : ""
+
   if (autoHeight) {
     return (
-      <div className={cn("w-full rounded-md border", className)}>
+      <div className={cn("w-full", borderClass, className)}>
         {children}
       </div>
     )
@@ -54,7 +59,7 @@ export function DataTable({
   if (viewportHeight) {
     return (
       <ScrollArea
-        className={cn("rounded-md border", className)}
+        className={cn(borderClass, className)}
         style={{ height: viewportHeight }}
       >
         {children}
@@ -67,7 +72,7 @@ export function DataTable({
 
   return (
     <ScrollArea
-      className={cn("rounded-md border", className)}
+      className={cn(borderClass, className)}
       style={{ height: tableHeight }}
     >
       {children}

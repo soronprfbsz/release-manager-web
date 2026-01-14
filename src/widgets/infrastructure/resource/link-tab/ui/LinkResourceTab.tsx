@@ -125,7 +125,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
 
     return (
       <>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Filters */}
           <div className="flex justify-end">
             <LinkFilters filters={filters} onFiltersChange={setFilters} />

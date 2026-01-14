@@ -237,7 +237,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     return (
       <>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Filters */}
           <div className="flex justify-end">
             <FileFilters filters={filters} onFiltersChange={setFilters} />

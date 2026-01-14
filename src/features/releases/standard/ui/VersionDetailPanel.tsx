@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { FileText, File, Download, Info, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, Tag, Flame } from 'lucide-react'
+import { FileText, File, Download, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, Tag, Flame, Info } from 'lucide-react'
 
 import {
   releaseApi,
@@ -30,8 +30,10 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+import { Card, CardContent } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
@@ -286,92 +288,108 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
 
   if (!version) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-26rem)] text-muted-foreground">
-        <FileText className="h-12 w-12 mb-2 opacity-50" />
-        <TypographyMuted>버전을 선택하면 상세 정보가 표시됩니다.</TypographyMuted>
-      </div>
+      <Card className="h-full flex flex-col overflow-hidden">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="text-center text-muted-foreground">
+            <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm">버전을 선택하면 상세 정보가 표시됩니다.</p>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-26rem)]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
+      <Card className="h-full flex flex-col overflow-hidden">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </CardContent>
+      </Card>
     )
   }
 
   if (error) {
     return (
-      <ErrorDisplay
-        title="버전 정보를 불러오는 중 오류가 발생했습니다."
-        error={error}
-        className="h-full"
-      />
+      <Card className="h-full flex flex-col overflow-hidden">
+        <CardContent className="flex-1 flex items-center justify-center">
+          <ErrorDisplay
+            title="버전 정보를 불러오는 중 오류가 발생했습니다."
+            error={error}
+          />
+        </CardContent>
+      </Card>
     )
   }
 
   const hasFiles = fileStructure?.files?.children && fileStructure.files.children.length > 0
 
+  // 파일 카테고리 뱃지 표시용
+  const getCategoryShortName = (category: string) => {
+    switch (category) {
+      case 'DATABASE':
+        return 'DB'
+      case 'ENGINE':
+        return 'ENGINE'
+      case 'WEB':
+        return 'WEB'
+      default:
+        return category
+    }
+  }
+
   return (
     <>
-      <div className="space-y-6 px-6 py-4">
-        {/* Basic Info */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold flex items-center gap-2">
-                <Info className="h-4 w-4" />
-                기본 정보
-              </h3>
-              {isHotfix && (
-                <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
-              )}
-              {version.isApproved ? (
-                <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
-              ) : (
-                <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600 dark:text-yellow-500">미승인</Badge>
-              )}
-              {baseVersion && (
-                <span className="flex items-center gap-1.5 text-muted-foreground text-sm ml-2">
-                  <Tag className="h-3.5 w-3.5" />
-                  기준 표준본 {baseVersion}
-                </span>
+      <Card className="h-full flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-3 flex-shrink-0 border-b">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 flex-shrink-0">
+              <Tag className="h-4 w-4 text-primary" />
+            </div>
+            {isHotfix && (
+              <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
+            )}
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-base font-semibold truncate">
+                {version.version}
+              </h2>
+              {version.fileCategories && version.fileCategories.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {version.fileCategories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                      className="h-5 text-xs"
+                    >
+                      {getCategoryShortName(category)}
+                    </Badge>
+                  ))}
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              {/* 핫픽스 생성 버튼 - 핫픽스가 아닌 일반 버전에서만 표시 */}
+            {baseVersion && (
+              <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                <Tag className="h-3 w-3" />
+                기준 {baseVersion}
+              </span>
+            )}
+            <span className="flex-1" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Action Buttons */}
               {canAddVersion && !isHotfix && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
                       size="icon"
+                      className="h-8 w-8"
                       onClick={() => setHotfixDialogOpen(true)}
                     >
                       <Flame className="h-4 w-4 text-orange-500" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>핫픽스 생성</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              {canApproveVersion && !version.isApproved && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleApprove}
-                      disabled={approveMutation.isPending}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>승인하기</p>
-                  </TooltipContent>
+                  <TooltipContent>핫픽스 생성</TooltipContent>
                 </Tooltip>
               )}
               {canDeleteVersion && (
@@ -380,153 +398,194 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
                     <Button
                       variant="outline"
                       size="icon"
+                      className="h-8 w-8"
                       onClick={() => setDeleteDialogOpen(true)}
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    <p>삭제</p>
-                  </TooltipContent>
+                  <TooltipContent>삭제</TooltipContent>
                 </Tooltip>
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-2">
-              <TypographyMuted className="text-sm">생성자</TypographyMuted>
-              <UserAvatar
-                email={version.createdByEmail}
-                avatarStyle={version.createdByAvatarStyle}
-                avatarSeed={version.createdByAvatarSeed}
-                isDeleted={version.isDeletedCreator}
-                size={20}
-              />
-              <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
-                {version.createdByEmail || '-'}
-              </TypographySmall>
-            </div>
-            <div className="flex items-center gap-2">
-              <TypographyMuted className="text-sm">생성일시</TypographyMuted>
-              <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
-            </div>
-            {version.isApproved && version.approvedBy && (
-              <>
-                <div className="flex items-center gap-2">
-                  <TypographyMuted className="text-sm">승인자</TypographyMuted>
-                  <UserAvatar
-                    email={version.approvedBy}
-                    avatarStyle={version.approvedByAvatarStyle}
-                    avatarSeed={version.approvedByAvatarSeed}
-                    isDeleted={version.isDeletedApprover}
-                    size={20}
-                  />
-                  <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
-                    {version.approvedBy}
-                  </TypographySmall>
-                </div>
-                {version.approvedAt && (
-                  <div className="flex items-center gap-2">
-                    <TypographyMuted className="text-sm">승인일시</TypographyMuted>
-                    <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
         </div>
 
-        {/* Patch Notes / Comment */}
-        {version.comment && (
-          <>
-            <hr className="border-border" />
-            <div>
-              <h3 className="text-base font-semibold flex items-center gap-2 mb-4">
-                <FileText className="h-4 w-4" />
-                코멘트
-              </h3>
-              <div className="p-4 rounded-lg bg-muted/40">
-                <div className="whitespace-pre-wrap text-sm">
-                  {version.comment}
+        {/* Content */}
+        <CardContent className="flex-1 overflow-hidden p-0">
+          <ScrollArea className="h-full">
+            <div className="px-8 pb-8 pt-6 space-y-10">
+              {/* 기본 정보 */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold flex items-center gap-2">
+                      <Info className="h-4 w-4" />
+                      기본 정보
+                    </h3>
+                    {version.isApproved ? (
+                      <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
+                    ) : (
+                      <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600">미승인</Badge>
+                    )}
+                  </div>
+                  {canApproveVersion && !version.isApproved && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={handleApprove}
+                          disabled={approveMutation.isPending}
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>승인하기</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Release Files - Tree Structure */}
-        {fileStructure && (
-          <>
-            <hr className="border-border" />
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-semibold flex items-center gap-2">
-                  <File className="h-4 w-4" />
-                  파일
-                </h3>
-                {hasFiles && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleDownloadAll}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>전체 다운로드</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <TypographyMuted className="text-sm">생성자</TypographyMuted>
+                  <UserAvatar
+                    email={version.createdByEmail}
+                    avatarStyle={version.createdByAvatarStyle}
+                    avatarSeed={version.createdByAvatarSeed}
+                    isDeleted={version.isDeletedCreator}
+                    size={20}
+                  />
+                  <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                    {version.createdByEmail || '-'}
+                  </TypographySmall>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TypographyMuted className="text-sm">생성일시</TypographyMuted>
+                  <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
+                </div>
+                {version.isApproved && version.approvedBy && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <TypographyMuted className="text-sm">승인자</TypographyMuted>
+                      <UserAvatar
+                        email={version.approvedBy}
+                        avatarStyle={version.approvedByAvatarStyle}
+                        avatarSeed={version.approvedByAvatarSeed}
+                        isDeleted={version.isDeletedApprover}
+                        size={20}
+                      />
+                      <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
+                        {version.approvedBy}
+                      </TypographySmall>
+                    </div>
+                    {version.approvedAt && (
+                      <div className="flex items-center gap-2">
+                        <TypographyMuted className="text-sm">승인일시</TypographyMuted>
+                        <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
+                      </div>
+                    )}
+                  </>
                 )}
+                </div>
               </div>
-              {!hasFiles ? (
-                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                  <File className="h-8 w-8 mb-2 opacity-50" />
-                  <TypographyMuted>등록된 릴리즈 파일이 없습니다.</TypographyMuted>
-                </div>
-              ) : (
-                <div>
-                  {[...fileStructure.files.children!].sort((a, b) => {
-                    if (a.type === 'directory' && b.type === 'file') return -1
-                    if (a.type === 'file' && b.type === 'directory') return 1
-                    return a.name.localeCompare(b.name)
-                  }).map((node, index) => (
-                    <FileNode
-                      key={`${node.path}-${index}`}
-                      node={node}
-                      level={0}
-                      onFileClick={handleViewFile}
-                      onDownload={handleDownload}
-                    />
-                  ))}
-                </div>
+
+              {/* 구분선 */}
+              <hr className="border-border" />
+
+              {/* 코멘트 */}
+              {version.comment && (
+                <>
+                  <div>
+                    <h3 className="text-base font-semibold flex items-center gap-2 mb-4">
+                      <FileText className="h-4 w-4" />
+                      코멘트
+                    </h3>
+                    <div className="p-4 rounded-lg bg-accent/40">
+                      <p className="whitespace-pre-wrap text-sm">
+                        {version.comment}
+                      </p>
+                    </div>
+                  </div>
+                  <hr className="border-border" />
+                </>
+              )}
+
+              {/* 파일 */}
+              {fileStructure && (
+                <>
+                  {!version.comment && <hr className="border-border" />}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-base font-semibold flex items-center gap-2">
+                        <File className="h-4 w-4" />
+                        파일
+                      </h3>
+                      {hasFiles && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={handleDownloadAll}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>전체 다운로드</TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
+                    {!hasFiles ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                        <File className="h-10 w-10 mb-2 opacity-50" />
+                        <p className="text-sm">등록된 릴리즈 파일이 없습니다.</p>
+                      </div>
+                    ) : (
+                      <div>
+                        {[...fileStructure.files.children!].sort((a, b) => {
+                          if (a.type === 'directory' && b.type === 'file') return -1
+                          if (a.type === 'file' && b.type === 'directory') return 1
+                          return a.name.localeCompare(b.name)
+                        }).map((node, index) => (
+                          <FileNode
+                            key={`${node.path}-${index}`}
+                            node={node}
+                            level={0}
+                            onFileClick={handleViewFile}
+                            onDownload={handleDownload}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
-          </>
-        )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
-        {/* File Content Viewer Modal */}
-        <FileContentViewerModal
-          open={fileViewerOpen}
-          onOpenChange={setFileViewerOpen}
-          fileName={selectedFile?.name || ''}
-          content={textContent}
-          isLoading={isLoadingContent && !isPdfFile && !isImageFile}
-          error={!isPdfFile && !isImageFile ? (contentError as Error | null) : null}
-          description="파일 내용"
-          fileSize={selectedFile?.size}
-          onDownload={handleDownloadSelectedFile}
-          pdfBlob={isPdfFile ? blobData : null}
-          isPdfLoading={isPdfFile && isLoadingContent}
-          pdfError={isPdfFile ? (contentError as Error | null) : null}
-          imageBlob={isImageFile ? blobData : null}
-          isImageLoading={isImageFile && isLoadingContent}
-          imageError={isImageFile ? (contentError as Error | null) : null}
-        />
-      </div>
+      {/* File Content Viewer Modal */}
+      <FileContentViewerModal
+        open={fileViewerOpen}
+        onOpenChange={setFileViewerOpen}
+        fileName={selectedFile?.name || ''}
+        content={textContent}
+        isLoading={isLoadingContent && !isPdfFile && !isImageFile}
+        error={!isPdfFile && !isImageFile ? (contentError as Error | null) : null}
+        description="파일 내용"
+        fileSize={selectedFile?.size}
+        onDownload={handleDownloadSelectedFile}
+        pdfBlob={isPdfFile ? blobData : null}
+        isPdfLoading={isPdfFile && isLoadingContent}
+        pdfError={isPdfFile ? (contentError as Error | null) : null}
+        imageBlob={isImageFile ? blobData : null}
+        isImageLoading={isImageFile && isLoadingContent}
+        imageError={isImageFile ? (contentError as Error | null) : null}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

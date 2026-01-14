@@ -56,7 +56,7 @@ export function DataTableCard({
 }: DataTableCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="px-8 pb-3 pt-8">
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="flex items-center gap-2 shrink-0">
             <Icon className="h-5 w-5" />
@@ -65,7 +65,7 @@ export function DataTableCard({
           {filters && <div className="flex-1 flex justify-end">{filters}</div>}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-8">
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -80,7 +80,7 @@ export function DataTableCard({
           <>
             {children}
             {hasData && (
-              <div className="pt-4">
+              <div className="pt-6">
                 <DataTablePagination
                   pageIndex={pagination.pageIndex}
                   pageSize={pagination.pageSize}

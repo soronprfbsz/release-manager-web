@@ -13,8 +13,6 @@ import { getMenuIcon } from '@/shared/config/menu-icons'
 import { usePermission, usePageIcon } from '@/shared/lib/hooks'
 import { useProjectStore } from '@/shared/store'
 
-import { getCategoryShortName } from '@/shared/lib/utils/category'
-import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ErrorDisplay } from '@/shared/ui/error-display'
@@ -182,41 +180,12 @@ export function CustomReleasePage() {
 
         {/* Detail Panel */}
         <div className="col-span-9 h-full overflow-hidden">
-          <Card className="h-full flex flex-col overflow-hidden">
-            <CardHeader className="pb-3 flex-shrink-0 border-b">
-              <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
-                <span>버전 정보</span>
-                {selectedState && (
-                  <>
-                    <span>({selectedState.version})</span>
-                    {selectedVersion?.fileCategories && selectedVersion.fileCategories.length > 0 && (
-                      <>
-                        {selectedVersion.fileCategories.map((category) => (
-                          <Badge
-                            key={category}
-                            variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                            className="text-xs px-2 py-0.5"
-                          >
-                            {getCategoryShortName(category)}
-                          </Badge>
-                        ))}
-                      </>
-                    )}
-                  </>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <VersionDetailPanel
-                  version={selectedVersion}
-                  isHotfix={selectedState?.isHotfix}
-                  onDelete={handleDeleteSuccess}
-                  baseVersion={selectedState?.customBaseVersion}
-                />
-              </ScrollArea>
-            </CardContent>
-          </Card>
+          <VersionDetailPanel
+            version={selectedVersion}
+            isHotfix={selectedState?.isHotfix}
+            onDelete={handleDeleteSuccess}
+            baseVersion={selectedState?.customBaseVersion}
+          />
         </div>
       </div>
 

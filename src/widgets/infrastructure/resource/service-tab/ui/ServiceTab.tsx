@@ -268,7 +268,7 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Filters */}
         <div className="flex justify-end">
           <ServiceFilters filters={filters} onFiltersChange={setFilters} />

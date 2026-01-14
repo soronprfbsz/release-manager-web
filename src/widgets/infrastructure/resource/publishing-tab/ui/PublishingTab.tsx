@@ -207,7 +207,7 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
 
     return (
       <>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Filters */}
           <div className="flex justify-end">
             <PublishingFilters filters={filters} onFiltersChange={setFilters} />
