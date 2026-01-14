@@ -156,7 +156,7 @@ export function AccountListPage() {
                 const account = accountList.find((a) => a.accountId === id)
                 if (account) setDeleteConfirmAccount(account)
               }}
-              viewportHeight="calc(100vh - 27rem)"
+              viewportHeight="calc(100vh - 28rem)"
             />
             {accountList.length > 0 && (
               <div className="pt-6">

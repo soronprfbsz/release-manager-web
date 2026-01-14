@@ -630,7 +630,7 @@ export function FileSyncPage() {
                                 description="분석 결과에서 '분석 제외' 액션을 사용하면 해당 파일이 이 목록에 추가됩니다."
                             />
                         ) : (
-                            <DataTable viewportHeight="calc(100vh - 27rem)">
+                            <DataTable viewportHeight="calc(100vh - 28rem)">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>

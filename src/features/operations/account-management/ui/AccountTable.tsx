@@ -44,7 +44,7 @@ interface AccountTableProps {
   onSort: (key: string) => void
   onEdit: (account: Account) => void
   onDelete: (accountId: number) => void
-  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 27rem)") */
+  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 28rem)") */
   viewportHeight?: string
 }
 
