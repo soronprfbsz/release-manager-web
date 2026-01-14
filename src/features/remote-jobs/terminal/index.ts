@@ -5,7 +5,6 @@
 
 // UI Components
 export { SshConnectionSheet } from './ui/SshConnectionSheet'
-export { SshTerminal } from './ui/SshTerminal'
 export { XtermTerminal } from './ui/XtermTerminal'
 export type { XtermTerminalHandle } from './ui/XtermTerminal'
 

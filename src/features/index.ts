@@ -37,7 +37,6 @@ export {
   BackupFileDeleteModal,
   BackupLogsForm,
   SshConnectionSheet,
-  SshTerminal,
   XtermTerminal,
   useSshShell,
   useSshShellWebSocket,

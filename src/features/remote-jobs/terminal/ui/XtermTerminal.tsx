@@ -269,11 +269,15 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       return () => clearTimeout(timer)
     }, [isConnected])
 
+    // 터미널 높이 계산: 100vh - (NavigationBar 4rem + main py 3rem + Breadcrumb/PageHeader/spacing 약 9rem)
+    const terminalHeight = 'calc(100vh - 18.5rem)'
+
     // 연결되지 않은 경우
     if (!sessionId) {
       return (
         <div
-          className="h-[calc(100vh-20rem)] flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/40 transition-colors"
+          className="flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/40 transition-colors"
+          style={{ height: terminalHeight }}
           onClick={onConnect}
         >
           <div className="text-center text-muted-foreground">
@@ -287,9 +291,9 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     return (
       <div
         ref={containerRef}
-        className={`flex flex-col rounded-lg border overflow-hidden ${isFullscreen ? 'h-screen' : 'h-[calc(100vh-20rem)]'
-          }`}
+        className="flex flex-col rounded-lg border overflow-hidden"
         style={{
+          height: isFullscreen ? '100vh' : terminalHeight,
           backgroundColor: activeTheme.background,
           borderColor: activeTheme.selectionBackground || activeTheme.brightBlack,
         }}

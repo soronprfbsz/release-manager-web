@@ -16,7 +16,6 @@ export {
 // Terminal (SSH Shell)
 export {
   SshConnectionSheet,
-  SshTerminal,
   XtermTerminal,
   useSshShell,
   useSshShellWebSocket,
