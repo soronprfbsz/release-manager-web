@@ -23,7 +23,6 @@ import {
   ServiceGroupList,
   ServiceForm,
   ServiceDeleteDialog,
-  ServiceFilters,
   ComponentForm,
   type ServiceFormData,
   type ComponentFormData,
@@ -47,11 +46,12 @@ export interface ServiceTabHandle {
 }
 
 interface ServiceTabProps {
+  filters: ServiceFiltersState
   onRefresh?: () => void
 }
 
 export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function ServiceTab(
-  { onRefresh },
+  { filters, onRefresh },
   ref
 ) {
   const { toast } = useToast()
@@ -66,12 +66,6 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
-
-  // Filter state
-  const [filters, setFilters] = useState<ServiceFiltersState>({
-    serviceType: 'all',
-    keyword: '',
-  })
 
   // Queries
   const { data: services = [], isLoading, refetch } = useServices({
@@ -268,12 +262,7 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
 
   return (
     <>
-      <div className="space-y-8">
-        {/* Filters */}
-        <div className="flex justify-end">
-          <ServiceFilters filters={filters} onFiltersChange={setFilters} />
-        </div>
-
+      <div>
         {/* Service List */}
         {isLoading ? (
           <div className="flex items-center justify-center h-48">

@@ -22,7 +22,6 @@ import {
   FileUploadForm,
   FileEditForm,
   FileDeleteModal,
-  FileFilters,
   type FileUploadFormData,
   type FileFiltersState,
 } from '@/features/infrastructure/file-management'
@@ -47,11 +46,12 @@ export interface FileResourceTabHandle {
 }
 
 interface FileResourceTabProps {
+  filters: FileFiltersState
   onRefresh?: () => void
 }
 
 export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTabProps>(
-  function FileResourceTab({ onRefresh }, ref) {
+  function FileResourceTab({ filters, onRefresh }, ref) {
     const { toast } = useToast()
 
     // Modal states
@@ -63,9 +63,6 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     // Upload form state
     const [formData, setFormData] = useState<FileUploadFormData>(INITIAL_FORM_DATA)
     const [uploadProgress, setUploadProgress] = useState(0)
-
-    // Filter state
-    const [filters, setFilters] = useState<FileFiltersState>({ category: '', keyword: '' })
 
     // Queries
     const {
@@ -237,12 +234,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     return (
       <>
-        <div className="space-y-8">
-          {/* Filters */}
-          <div className="flex justify-end">
-            <FileFilters filters={filters} onFiltersChange={setFilters} />
-          </div>
-
+        <div>
           {/* File List */}
           {isLoading ? (
             <div className="flex items-center justify-center h-64">

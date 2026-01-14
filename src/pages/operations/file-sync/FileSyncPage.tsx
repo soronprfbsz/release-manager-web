@@ -468,25 +468,19 @@ export function FileSyncPage() {
             actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
         >
             <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-auto p-0">
-                    <TabsTrigger
-                        value="analysis"
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3"
-                    >
+                <TabsList variant="line">
+                    <TabsTrigger value="analysis" variant="line">
                         <ScanSearch className="w-4 h-4 mr-2" />
                         분석 결과
                     </TabsTrigger>
-                    <TabsTrigger
-                        value="ignored"
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3"
-                    >
+                    <TabsTrigger value="ignored" variant="line">
                         <ListX className="w-4 h-4 mr-2" />
                         제외된 파일
                     </TabsTrigger>
                 </TabsList>
 
                 {/* 분석 결과 탭 */}
-                <TabsContent value="analysis" className="mt-8">
+                <TabsContent value="analysis">
                     <Card>
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
@@ -639,7 +633,7 @@ export function FileSyncPage() {
                 </TabsContent>
 
                 {/* 제외된 파일 탭 */}
-                <TabsContent value="ignored" className="mt-8">
+                <TabsContent value="ignored">
                     <Card>
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">

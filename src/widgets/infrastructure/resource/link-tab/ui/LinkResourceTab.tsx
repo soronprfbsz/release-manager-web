@@ -17,7 +17,6 @@ import {
 import {
   LinkList,
   LinkForm,
-  LinkFilters,
   type LinkFiltersState,
 } from '@/features/infrastructure/link-management'
 
@@ -39,20 +38,18 @@ export interface LinkResourceTabHandle {
 }
 
 interface LinkResourceTabProps {
+  filters: LinkFiltersState
   onRefresh?: () => void
 }
 
 export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTabProps>(
-  function LinkResourceTab({ onRefresh }, ref) {
+  function LinkResourceTab({ filters, onRefresh }, ref) {
     const { toast } = useToast()
 
     // Modal states
     const [isLinkAddOpen, setIsLinkAddOpen] = useState(false)
     const [editingLink, setEditingLink] = useState<LinkResource | null>(null)
     const [deleteLinkTarget, setDeleteLinkTarget] = useState<LinkResource | null>(null)
-
-    // Filter state
-    const [filters, setFilters] = useState<LinkFiltersState>({ category: '', keyword: '' })
 
     // Queries
     const {
@@ -125,12 +122,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
 
     return (
       <>
-        <div className="space-y-8">
-          {/* Filters */}
-          <div className="flex justify-end">
-            <LinkFilters filters={filters} onFiltersChange={setFilters} />
-          </div>
-
+        <div>
           {/* Link List */}
           {isLoading ? (
             <div className="flex items-center justify-center h-64">

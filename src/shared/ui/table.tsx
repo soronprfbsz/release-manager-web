@@ -207,7 +207,7 @@ const SortableTableHead = React.forwardRef<HTMLTableCellElement, SortableTableHe
     return (
       <TableHead
         ref={ref}
-        className={cn('cursor-pointer select-none hover:bg-accent transition-colors', className)}
+        className={cn('cursor-pointer select-none hover:bg-accent/60 transition-colors', className)}
         onClick={() => onSort(id)}
         {...props}
       >

@@ -20,7 +20,6 @@ import {
   PublishingUploadForm,
   PublishingEditForm,
   PublishingDeleteModal,
-  PublishingFilters,
   type PublishingUploadFormData,
   type PublishingFiltersState,
 } from '@/features/infrastructure/publishing-management'
@@ -38,22 +37,18 @@ const INITIAL_FORM_DATA: PublishingUploadFormData = {
   customerId: null,
 }
 
-const INITIAL_FILTERS: PublishingFiltersState = {
-  keyword: '',
-  publishingCategory: '',
-}
-
 export interface PublishingTabHandle {
   openAddDialog: () => void
   refresh: () => void
 }
 
 interface PublishingTabProps {
+  filters: PublishingFiltersState
   onRefresh?: () => void
 }
 
 export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>(
-  function PublishingTab({ onRefresh }, ref) {
+  function PublishingTab({ filters, onRefresh }, ref) {
     const { toast } = useToast()
 
     // Modal states
@@ -69,21 +64,15 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
     const [formData, setFormData] = useState<PublishingUploadFormData>(INITIAL_FORM_DATA)
     const [uploadProgress, setUploadProgress] = useState(0)
 
-    // Filter state
-    const [filters, setFilters] = useState<PublishingFiltersState>(INITIAL_FILTERS)
-
-    // Query params 생성
-    const queryParams = {
-      keyword: filters.keyword || undefined,
-      publishingCategory: filters.publishingCategory || undefined,
-    }
-
     // Queries
     const {
       data: publishings,
       isLoading,
       refetch,
-    } = usePublishings(queryParams)
+    } = usePublishings({
+      keyword: filters.keyword || undefined,
+      publishingCategory: filters.publishingCategory || undefined,
+    })
 
     // Mutations
     const uploadMutation = useUploadPublishing({
@@ -207,12 +196,7 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
 
     return (
       <>
-        <div className="space-y-8">
-          {/* Filters */}
-          <div className="flex justify-end">
-            <PublishingFilters filters={filters} onFiltersChange={setFilters} />
-          </div>
-
+        <div>
           {/* Publishing List */}
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
