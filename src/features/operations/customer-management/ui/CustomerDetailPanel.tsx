@@ -17,7 +17,7 @@ export function CustomerDetailPanel({
   customer,
 }: CustomerDetailPanelProps) {
   return (
-    <div className="space-y-10 pt-2">
+    <div className="space-y-16 pt-2">
       {/* 특이사항 */}
       <CustomerNotesCard customerId={customer.customerId} />
 

@@ -502,7 +502,7 @@ function VersionDetailContent() {
   const hasFiles = fileStructure?.files?.children && fileStructure.files.children.length > 0
 
   return (
-    <div className="space-y-10 pt-2">
+    <div className="space-y-16 pt-2">
       {/* 기본 정보 */}
       <CollapsibleSection
         icon={Info}
