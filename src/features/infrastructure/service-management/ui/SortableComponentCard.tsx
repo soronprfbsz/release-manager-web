@@ -68,19 +68,18 @@ export function SortableComponentCard({
           <div className="flex gap-0 flex-shrink-0">
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-xs"
               onClick={() => onEdit(component)}
-              className="h-8 w-8"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil />
             </Button>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-xs"
               onClick={() => onDelete(component)}
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 />
             </Button>
           </div>
         </div>

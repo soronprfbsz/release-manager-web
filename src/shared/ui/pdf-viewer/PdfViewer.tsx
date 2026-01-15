@@ -221,24 +221,22 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-xs"
             onClick={goToPreviousPage}
             disabled={pageNumber <= 1}
-            className="h-8 w-8"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft />
           </Button>
           <span className="text-sm min-w-[80px] text-center">
             {pageNumber} / {numPages || '-'}
           </span>
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-xs"
             onClick={goToNextPage}
             disabled={pageNumber >= (numPages || 1)}
-            className="h-8 w-8"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight />
           </Button>
         </div>
 
@@ -260,24 +258,22 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-xs"
             onClick={zoomOut}
             disabled={scale <= 0.5}
-            className="h-8 w-8"
           >
-            <ZoomOut className="h-4 w-4" />
+            <ZoomOut />
           </Button>
           <span className="text-sm min-w-[50px] text-center">
             {Math.round(scale * 100)}%
           </span>
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-xs"
             onClick={zoomIn}
             disabled={scale >= 3.0}
-            className="h-8 w-8"
           >
-            <ZoomIn className="h-4 w-4" />
+            <ZoomIn />
           </Button>
         </div>
       </div>

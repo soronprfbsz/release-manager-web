@@ -156,8 +156,8 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
         actions={
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleCreate}>
-                <Plus className="h-4 w-4" />
+              <Button variant="outline" size="icon-xs" onClick={handleCreate}>
+                <Plus />
               </Button>
             </TooltipTrigger>
             <TooltipContent>

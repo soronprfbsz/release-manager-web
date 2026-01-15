@@ -522,14 +522,13 @@ function CommentSection() {
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                size="icon"
-                className="h-8 w-8"
+                size="icon-xs"
                 onClick={() => {
                   setEditedComment(version.comment || '')
                   setIsEditingComment(true)
                 }}
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil />
               </Button>
             </TooltipTrigger>
             <TooltipContent>코멘트 수정</TooltipContent>
@@ -631,12 +630,11 @@ function VersionDetailContent() {
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
+                  size="icon-xs"
                   onClick={handleApprove}
                   disabled={approveMutation.isPending}
                 >
-                  <CheckCircle2 className="h-4 w-4" />
+                  <CheckCircle2 />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>승인하기</TooltipContent>
@@ -702,11 +700,10 @@ function VersionDetailContent() {
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
+                    size="icon-xs"
                     onClick={handleDownloadAll}
                   >
-                    <Download className="h-4 w-4" />
+                    <Download />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>전체 다운로드</TooltipContent>

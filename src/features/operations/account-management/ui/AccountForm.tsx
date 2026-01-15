@@ -28,6 +28,7 @@ interface AccountFormProps {
 
 const ROLE_OPTIONS = [
   { value: 'ADMIN', label: 'ADMIN' },
+  { value: 'DEVELOPER', label: 'DEVELOPER' },
   { value: 'USER', label: 'USER' },
   { value: 'GUEST', label: 'GUEST' },
 ]

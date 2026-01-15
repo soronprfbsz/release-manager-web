@@ -9,7 +9,8 @@ import { useAuthStore } from '@/shared/store'
 // Types
 // ============================================================================
 
-export type Role = 'ADMIN' | 'USER' | 'GUEST'
+/** 권한 계층: ADMIN(1) > DEVELOPER(2) > USER(3) > GUEST(4) */
+export type Role = 'ADMIN' | 'DEVELOPER' | 'USER' | 'GUEST'
 
 // ============================================================================
 // Permission Definitions
@@ -23,14 +24,14 @@ export type Role = 'ADMIN' | 'USER' | 'GUEST'
 const HIDDEN_ROLES = {
   // 버전 관리
   version: {
-    add: ['GUEST'] as Role[],              // 추가: ADMIN, USER 가능
-    delete: ['GUEST', 'USER'] as Role[],   // 삭제: ADMIN만 가능
-    approve: ['GUEST'] as Role[],          // 승인: ADMIN, USER 가능
+    add: ['GUEST'] as Role[],                          // 추가: ADMIN, DEVELOPER, USER 가능
+    delete: ['GUEST', 'USER', 'DEVELOPER'] as Role[],  // 삭제: ADMIN만 가능
+    approve: ['GUEST'] as Role[],                      // 승인: ADMIN, DEVELOPER, USER 가능
   },
   // 패치 관리
   patch: {
-    add: ['GUEST'] as Role[],              // 추가: ADMIN, USER 가능
-    delete: ['GUEST'] as Role[],           // 삭제: ADMIN, USER 가능
+    add: ['GUEST'] as Role[],              // 추가: ADMIN, DEVELOPER, USER 가능
+    delete: ['GUEST'] as Role[],           // 삭제: ADMIN, DEVELOPER, USER 가능
   },
 } as const
 
@@ -57,6 +58,7 @@ export function usePermission() {
 
     // 역할 체크
     isAdmin: role === 'ADMIN',
+    isDeveloper: role === 'DEVELOPER',
     isUser: role === 'USER',
     isGuest: role === 'GUEST',
 

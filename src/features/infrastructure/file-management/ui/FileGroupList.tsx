@@ -107,14 +107,13 @@ export function FileGroupList({
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
+                      size="icon-xs"
                       onClick={(e) => {
                         e.stopPropagation()
                         onAdd(category)
                       }}
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>

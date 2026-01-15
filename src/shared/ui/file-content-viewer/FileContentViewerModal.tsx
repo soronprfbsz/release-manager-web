@@ -261,35 +261,32 @@ export function FileContentViewerModal({
             {onDownload && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="icon-xs"
                 onClick={onDownload}
-                className="h-8 w-8"
                 title="파일 다운로드"
               >
-                <Download className="h-4 w-4" />
+                <Download />
               </Button>
             )}
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-xs"
               onClick={toggleFullscreen}
-              className="h-8 w-8"
               title={isFullscreen ? '전체화면 종료' : '전체화면'}
             >
               {isFullscreen ? (
-                <Minimize2 className="h-4 w-4" />
+                <Minimize2 />
               ) : (
-                <Maximize2 className="h-4 w-4" />
+                <Maximize2 />
               )}
             </Button>
             <DialogClose asChild>
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8"
+                size="icon-xs"
                 title="닫기"
               >
-                <X className="h-4 w-4" />
+                <X />
               </Button>
             </DialogClose>
           </div>
