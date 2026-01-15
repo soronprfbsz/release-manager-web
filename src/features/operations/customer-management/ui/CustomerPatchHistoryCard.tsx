@@ -100,7 +100,9 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
   const handleDelete = () => {
     if (!deleteTarget) return
 
-    deleteMutation.mutate(deleteTarget.patchId, {
+    // 패치 이력 삭제 시 historyId 사용 (historyId가 없으면 patchId 사용)
+    const historyId = deleteTarget.historyId ?? deleteTarget.patchId
+    deleteMutation.mutate(historyId, {
       onSuccess: () => {
         toast({
           title: '삭제 완료',
@@ -152,7 +154,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
               </TableHeader>
               <TableBody>
                 {patches.map((patch) => (
-                  <TableRow key={patch.patchId}>
+                  <TableRow key={patch.historyId ?? patch.patchId}>
                     <TableCell className="text-right text-muted-foreground text-sm py-3">
                       {patch.rowNumber}
                     </TableCell>

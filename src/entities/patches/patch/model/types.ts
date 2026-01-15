@@ -6,6 +6,8 @@
 export interface CumulativePatch {
   rowNumber: number
   patchId: number
+  /** 패치 이력 API에서 반환되는 고유 ID (historyId) */
+  historyId?: number
   releaseType: string
   customerCode: string | null
   customerName: string | null
