@@ -220,7 +220,7 @@ export function CustomReleaseTree({
                               <div key={version.versionId}>
                                 <div
                                   className={cn(
-                                    'group flex items-center px-2 py-1.5 rounded-md cursor-pointer',
+                                    'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
                                     'hover:bg-accent',
                                     selectedVersionId === version.versionId && 'bg-accent'
                                   )}
@@ -306,7 +306,7 @@ export function CustomReleaseTree({
                                       <div
                                         key={hotfix.versionId}
                                         className={cn(
-                                          'group flex items-center px-2 py-1.5 rounded-md cursor-pointer',
+                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
                                           'hover:bg-accent',
                                           selectedVersionId === hotfix.versionId && 'bg-accent'
                                         )}
