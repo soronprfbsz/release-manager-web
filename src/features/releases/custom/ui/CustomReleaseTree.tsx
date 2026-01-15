@@ -218,12 +218,25 @@ export function CustomReleaseTree({
 
                             return (
                               <div key={version.versionId}>
-                                <div className="group flex items-center">
+                                <div
+                                  className={cn(
+                                    'group flex items-center px-2 py-1.5 rounded-md cursor-pointer',
+                                    'hover:bg-accent',
+                                    selectedVersionId === version.versionId && 'bg-accent'
+                                  )}
+                                  onClick={() => onSelectVersion({
+                                    versionId: version.versionId,
+                                    version: version.version,
+                                    isHotfix: false,
+                                    customerCode: customer.customerCode,
+                                    customBaseVersion: customer.customBaseVersion
+                                  })}
+                                >
                                   {/* 핫픽스가 있는 경우 확장 버튼 */}
                                   {hasHotfixes ? (
                                     <button
                                       onClick={(e) => toggleVersion(version.versionId, e)}
-                                      className="p-0.5 hover:bg-accent rounded shrink-0"
+                                      className="p-0.5 rounded shrink-0"
                                     >
                                       {isVersionExpanded ? (
                                         <ChevronDown className="h-3 w-3 text-muted-foreground" />
@@ -234,20 +247,7 @@ export function CustomReleaseTree({
                                   ) : (
                                     <div className="w-4" />
                                   )}
-                                  <button
-                                    onClick={() => onSelectVersion({
-                                      versionId: version.versionId,
-                                      version: version.version,
-                                      isHotfix: false,
-                                      customerCode: customer.customerCode,
-                                      customBaseVersion: customer.customBaseVersion
-                                    })}
-                                    className={cn(
-                                      'flex items-center gap-2 flex-1 px-2 py-1.5 rounded-md text-left text-sm',
-                                      'hover:bg-accent hover:text-accent-foreground',
-                                      selectedVersionId === version.versionId && 'bg-accent text-accent-foreground'
-                                    )}
-                                  >
+                                  <div className="flex items-center gap-2 flex-1 text-left text-sm">
                                     <FileCode className={cn(
                                       "h-4 w-4 shrink-0",
                                       version.isApproved ? "text-blue-500" : "text-muted-foreground"
@@ -274,7 +274,7 @@ export function CustomReleaseTree({
                                         </>
                                       )}
                                     </div>
-                                  </button>
+                                  </div>
 
                                   {/* 액션 메뉴 (일반 버전) */}
                                   {showActions && (
@@ -303,21 +303,22 @@ export function CustomReleaseTree({
                                 {hasHotfixes && isVersionExpanded && (
                                   <div className="ml-6 pl-2 border-l border-border/50">
                                     {version.hotfixes.map((hotfix) => (
-                                      <div key={hotfix.versionId} className="group flex items-center">
-                                        <button
-                                          onClick={() => onSelectVersion({
-                                            versionId: hotfix.versionId,
-                                            version: hotfix.fullVersion,
-                                            isHotfix: true,
-                                            customerCode: customer.customerCode,
-                                            customBaseVersion: customer.customBaseVersion
-                                          })}
-                                          className={cn(
-                                            'flex items-center gap-2 flex-1 px-2 py-1.5 rounded-md text-left text-sm',
-                                            'hover:bg-accent hover:text-accent-foreground',
-                                            selectedVersionId === hotfix.versionId && 'bg-accent text-accent-foreground'
-                                          )}
-                                        >
+                                      <div
+                                        key={hotfix.versionId}
+                                        className={cn(
+                                          'group flex items-center px-2 py-1.5 rounded-md cursor-pointer',
+                                          'hover:bg-accent',
+                                          selectedVersionId === hotfix.versionId && 'bg-accent'
+                                        )}
+                                        onClick={() => onSelectVersion({
+                                          versionId: hotfix.versionId,
+                                          version: hotfix.fullVersion,
+                                          isHotfix: true,
+                                          customerCode: customer.customerCode,
+                                          customBaseVersion: customer.customBaseVersion
+                                        })}
+                                      >
+                                        <div className="flex items-center gap-2 flex-1 text-left text-sm">
                                           <Flame className="h-4 w-4 shrink-0 text-orange-500" />
                                           <span className={cn(
                                             "flex-shrink-0",
@@ -342,7 +343,7 @@ export function CustomReleaseTree({
                                               <HotfixBadge />
                                             )}
                                           </div>
-                                        </button>
+                                        </div>
 
                                         {/* 액션 메뉴 (핫픽스) */}
                                         {showActions && canDeleteVersion && (
