@@ -62,7 +62,7 @@ function ContentSplitTree({
 }: ContentSplitTreeProps) {
   return (
     <Card className={cn(CONTENT_SPACING.TREE_SPAN, 'flex flex-col overflow-hidden', className)}>
-      <div className="px-6 py-5 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+      <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
         {header || (
           <>
             <h3 className="text-base font-semibold">{title}</h3>
@@ -72,7 +72,7 @@ function ContentSplitTree({
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="px-6 pb-5">
+          <div className="px-8 pb-6">
             {children}
           </div>
         </ScrollArea>
@@ -109,7 +109,7 @@ function ContentSplitDetail({
   return (
     <Card className={cn(CONTENT_SPACING.DETAIL_SPAN, 'flex flex-col overflow-hidden', className)}>
       {header && (
-        <div className="px-6 py-5 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+        <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
           {header}
         </div>
       )}
@@ -120,7 +120,7 @@ function ContentSplitDetail({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="px-8 pb-5">
+            <div className="px-8 pb-6">
               {children}
             </div>
           </ScrollArea>

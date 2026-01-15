@@ -152,3 +152,21 @@ export const useApproveVersion = () => {
     },
   })
 }
+
+interface UpdateCommentParams {
+  versionId: number
+  comment: string
+}
+
+export const useUpdateVersionComment = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (params: UpdateCommentParams) =>
+      releaseApi.updateComment(params.versionId, params.comment),
+    onSuccess: (_, params) => {
+      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
+      queryClient.invalidateQueries({ queryKey: releaseKeys.version(params.versionId) })
+    },
+  })
+}

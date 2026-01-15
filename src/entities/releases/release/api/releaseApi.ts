@@ -20,6 +20,8 @@ const ENDPOINTS = {
   // 핫픽스 관련 엔드포인트
   createHotfix: (id: number) => `/api/releases/versions/${id}/hotfix`,
   getHotfixes: (id: number) => `/api/releases/versions/${id}/hotfixes`,
+  // 코멘트 수정 엔드포인트
+  updateComment: (id: number) => `/api/releases/versions/${id}/comment`,
 } as const
 
 export const releaseApi = {
@@ -185,5 +187,10 @@ export const releaseApi = {
   getHotfixes: async (versionId: number): Promise<ReleaseVersionDetail[]> => {
     const response = await apiClient.get<ReleaseVersionDetail[]>(ENDPOINTS.getHotfixes(versionId))
     return response
+  },
+
+  /** 버전 코멘트 수정 */
+  updateComment: async (versionId: number, comment: string): Promise<void> => {
+    await apiClient.patch(ENDPOINTS.updateComment(versionId), { comment })
   },
 }

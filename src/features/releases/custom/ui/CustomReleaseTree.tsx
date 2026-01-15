@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Star } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Star, Trash2 } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -13,6 +13,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/shared/ui/tooltip'
+import {
+  TreeActionMenu,
+  TreeActionMenuItem,
+  TreeActionMenuSeparator,
+} from '@/shared/ui/tree-action-menu'
 
 /** 최신 버전 표시용 아이콘 */
 function LatestIndicator() {
@@ -53,9 +58,26 @@ interface CustomReleaseTreeProps {
   customers: CustomerReleaseNode[]
   selectedVersionId: number | null
   onSelectVersion: (info: SelectedCustomVersionInfo) => void
+  /** 핫픽스 생성 콜백 */
+  onHotfix?: (versionId: number, version: string, customerCode: string) => void
+  /** 삭제 콜백 */
+  onDelete?: (versionId: number, version: string, isHotfix: boolean) => void
+  /** 핫픽스 생성 권한 */
+  canAddVersion?: boolean
+  /** 삭제 권한 */
+  canDeleteVersion?: boolean
 }
 
-export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersion }: CustomReleaseTreeProps) {
+export function CustomReleaseTree({
+  customers,
+  selectedVersionId,
+  onSelectVersion,
+  onHotfix,
+  onDelete,
+  canAddVersion = false,
+  canDeleteVersion = false,
+}: CustomReleaseTreeProps) {
+  const showActions = canAddVersion || canDeleteVersion
   const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(() => {
     return new Set(customers.map(c => c.customerCode))
   })
@@ -196,7 +218,7 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
 
                             return (
                               <div key={version.versionId}>
-                                <div className="flex items-center">
+                                <div className="group flex items-center">
                                   {/* 핫픽스가 있는 경우 확장 버튼 */}
                                   {hasHotfixes ? (
                                     <button
@@ -253,52 +275,88 @@ export function CustomReleaseTree({ customers, selectedVersionId, onSelectVersio
                                       )}
                                     </div>
                                   </button>
+
+                                  {/* 액션 메뉴 (일반 버전) */}
+                                  {showActions && (
+                                    <TreeActionMenu>
+                                      {canAddVersion && (
+                                        <TreeActionMenuItem onClick={() => onHotfix?.(version.versionId, version.version, customer.customerCode)}>
+                                          <Flame className="h-4 w-4 mr-2 text-orange-500" />
+                                          핫픽스 생성
+                                        </TreeActionMenuItem>
+                                      )}
+                                      {canAddVersion && canDeleteVersion && <TreeActionMenuSeparator />}
+                                      {canDeleteVersion && (
+                                        <TreeActionMenuItem
+                                          destructive
+                                          onClick={() => onDelete?.(version.versionId, version.version, false)}
+                                        >
+                                          <Trash2 className="h-4 w-4 mr-2" />
+                                          삭제
+                                        </TreeActionMenuItem>
+                                      )}
+                                    </TreeActionMenu>
+                                  )}
                                 </div>
 
                                 {/* 핫픽스 목록 */}
                                 {hasHotfixes && isVersionExpanded && (
                                   <div className="ml-6 pl-2 border-l border-border/50">
                                     {version.hotfixes.map((hotfix) => (
-                                      <button
-                                        key={hotfix.versionId}
-                                        onClick={() => onSelectVersion({
-                                          versionId: hotfix.versionId,
-                                          version: hotfix.fullVersion,
-                                          isHotfix: true,
-                                          customerCode: customer.customerCode,
-                                          customBaseVersion: customer.customBaseVersion
-                                        })}
-                                        className={cn(
-                                          'flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left text-sm',
-                                          'hover:bg-accent hover:text-accent-foreground',
-                                          selectedVersionId === hotfix.versionId && 'bg-accent text-accent-foreground'
-                                        )}
-                                      >
-                                        <Flame className="h-4 w-4 shrink-0 text-orange-500" />
-                                        <span className={cn(
-                                          "flex-shrink-0",
-                                          hotfix.isApproved === false && "text-muted-foreground italic opacity-60"
-                                        )}>
-                                          {hotfix.fullVersion}
-                                        </span>
-                                        <div className="flex gap-1 ml-auto items-center">
-                                          {hotfix.fileCategories && hotfix.fileCategories.length > 0 ? (
-                                            <>
-                                              {hotfix.fileCategories.map((category) => (
-                                                <Badge
-                                                  key={category}
-                                                  variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                                  className="text-[10px] px-1 py-0 h-4 leading-none"
-                                                >
-                                                  {getCategoryShortName(category)}
-                                                </Badge>
-                                              ))}
-                                            </>
-                                          ) : (
-                                            <HotfixBadge />
+                                      <div key={hotfix.versionId} className="group flex items-center">
+                                        <button
+                                          onClick={() => onSelectVersion({
+                                            versionId: hotfix.versionId,
+                                            version: hotfix.fullVersion,
+                                            isHotfix: true,
+                                            customerCode: customer.customerCode,
+                                            customBaseVersion: customer.customBaseVersion
+                                          })}
+                                          className={cn(
+                                            'flex items-center gap-2 flex-1 px-2 py-1.5 rounded-md text-left text-sm',
+                                            'hover:bg-accent hover:text-accent-foreground',
+                                            selectedVersionId === hotfix.versionId && 'bg-accent text-accent-foreground'
                                           )}
-                                        </div>
-                                      </button>
+                                        >
+                                          <Flame className="h-4 w-4 shrink-0 text-orange-500" />
+                                          <span className={cn(
+                                            "flex-shrink-0",
+                                            hotfix.isApproved === false && "text-muted-foreground italic opacity-60"
+                                          )}>
+                                            {hotfix.fullVersion}
+                                          </span>
+                                          <div className="flex gap-1 ml-auto items-center">
+                                            {hotfix.fileCategories && hotfix.fileCategories.length > 0 ? (
+                                              <>
+                                                {hotfix.fileCategories.map((category) => (
+                                                  <Badge
+                                                    key={category}
+                                                    variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                                    className="text-[10px] px-1 py-0 h-4 leading-none"
+                                                  >
+                                                    {getCategoryShortName(category)}
+                                                  </Badge>
+                                                ))}
+                                              </>
+                                            ) : (
+                                              <HotfixBadge />
+                                            )}
+                                          </div>
+                                        </button>
+
+                                        {/* 액션 메뉴 (핫픽스) */}
+                                        {showActions && canDeleteVersion && (
+                                          <TreeActionMenu>
+                                            <TreeActionMenuItem
+                                              destructive
+                                              onClick={() => onDelete?.(hotfix.versionId, hotfix.fullVersion, true)}
+                                            >
+                                              <Trash2 className="h-4 w-4 mr-2" />
+                                              삭제
+                                            </TreeActionMenuItem>
+                                          </TreeActionMenu>
+                                        )}
+                                      </div>
                                     ))}
                                   </div>
                                 )}

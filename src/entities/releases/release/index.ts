@@ -35,4 +35,5 @@ export {
   useCreateVersion,
   useDeleteVersion,
   useApproveVersion,
+  useUpdateVersionComment,
 } from './queries/releaseQueries'

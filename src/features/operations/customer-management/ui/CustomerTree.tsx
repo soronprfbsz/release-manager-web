@@ -11,24 +11,20 @@ import {
   Building2,
   Tag,
   GitBranch,
-  MoreHorizontal,
   Pencil,
   Trash2,
   Search,
+  Loader2,
 } from 'lucide-react'
 
 import type { Customer } from '@/entities/operations/customer'
 
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
-import { Loader2 } from 'lucide-react'
+  TreeActionMenu,
+  TreeActionMenuItem,
+  TreeActionMenuSeparator,
+} from '@/shared/ui/tree-action-menu'
 
 interface CustomerTreeProps {
   customers: Customer[]
@@ -157,32 +153,17 @@ function CustomerNode({
       <span className="flex-1" />
 
       {/* Action Menu */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <MoreHorizontal className="h-3.5 w-3.5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => onEdit(customer)}>
-            <Pencil className="h-4 w-4 mr-2" />
-            수정
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-destructive focus:text-destructive"
-            onClick={() => onDelete(customer)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            삭제
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TreeActionMenu size="sm">
+        <TreeActionMenuItem onClick={() => onEdit(customer)}>
+          <Pencil className="h-4 w-4 mr-2" />
+          수정
+        </TreeActionMenuItem>
+        <TreeActionMenuSeparator />
+        <TreeActionMenuItem destructive onClick={() => onDelete(customer)}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          삭제
+        </TreeActionMenuItem>
+      </TreeActionMenu>
     </div>
   )
 }
@@ -261,7 +242,7 @@ export function CustomerTree({
   }
 
   return (
-    <div className="py-2 px-1">
+    <div className="space-y-1">
       {/* No Results */}
       {filteredCustomers.length === 0 && searchTerm && (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">

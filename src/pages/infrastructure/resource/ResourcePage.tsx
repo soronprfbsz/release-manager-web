@@ -176,110 +176,104 @@ export function ResourcePage() {
       }
     >
       {/* Tabs */}
-      <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-        {/* Tab Header with integrated filters */}
-        <div className="flex items-center justify-between">
-          <TabsList variant="line" className="border-0">
-            {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-              const config = TAB_CONFIG[tabKey]
-              const Icon = config.icon
-              return (
-                <TabsTrigger key={tabKey} value={tabKey} variant="line">
-                  <Icon className="w-4 h-4 mr-2" />
-                  {config.label}
-                </TabsTrigger>
-              )
-            })}
-          </TabsList>
+      <ContentCard noPadding>
+        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+          {/* Tab Header with integrated filters */}
+          <div className="flex items-center justify-between px-8 pt-6">
+            <TabsList variant="line" className="border-0">
+              {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+                const config = TAB_CONFIG[tabKey]
+                const Icon = config.icon
+                return (
+                  <TabsTrigger key={tabKey} value={tabKey} variant="line">
+                    <Icon className="w-4 h-4 mr-2" />
+                    {config.label}
+                  </TabsTrigger>
+                )
+              })}
+            </TabsList>
 
-          {/* Integrated Filters */}
-          <div className="flex items-center gap-2">
-            {/* Category Select - only for services and publishing */}
-            {currentTab === 'services' && (
-              <Select
-                value={serviceFilters.serviceType}
-                onValueChange={(value) =>
-                  setServiceFilters((prev) => ({
-                    ...prev,
-                    serviceType: value as ServiceFiltersState['serviceType'],
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
-                  <SelectValue placeholder="서비스 타입" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  {serviceTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            {/* Integrated Filters */}
+            <div className="flex items-center gap-2">
+              {/* Category Select - only for services and publishing */}
+              {currentTab === 'services' && (
+                <Select
+                  value={serviceFilters.serviceType}
+                  onValueChange={(value) =>
+                    setServiceFilters((prev) => ({
+                      ...prev,
+                      serviceType: value as ServiceFiltersState['serviceType'],
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
+                    <SelectValue placeholder="서비스 타입" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">전체</SelectItem>
+                    {serviceTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
-            {currentTab === 'publishing' && (
-              <Select
-                value={publishingFilters.publishingCategory || 'all'}
-                onValueChange={(value) =>
-                  setPublishingFilters((prev) => ({
-                    ...prev,
-                    publishingCategory: value === 'all' ? '' : value,
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
-                  <SelectValue placeholder="전체" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  {PUBLISHING_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+              {currentTab === 'publishing' && (
+                <Select
+                  value={publishingFilters.publishingCategory || 'all'}
+                  onValueChange={(value) =>
+                    setPublishingFilters((prev) => ({
+                      ...prev,
+                      publishingCategory: value === 'all' ? '' : value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
+                    <SelectValue placeholder="전체" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">전체</SelectItem>
+                    {PUBLISHING_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                value={getCurrentKeyword()}
-                onChange={(e) => setCurrentKeyword(e.target.value)}
-                placeholder="검색..."
-                className="pl-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
-              />
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={getCurrentKeyword()}
+                  onChange={(e) => setCurrentKeyword(e.target.value)}
+                  placeholder="검색..."
+                  className="pl-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <TabsContent value="services">
-          <ContentCard>
+          <TabsContent value="services" className="px-8 pb-8">
             <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
-          </ContentCard>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="links">
-          <ContentCard>
+          <TabsContent value="links" className="px-8 pb-8">
             <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
-          </ContentCard>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="files">
-          <ContentCard>
+          <TabsContent value="files" className="px-8 pb-8">
             <FileResourceTab ref={fileTabRef} filters={fileFilters} />
-          </ContentCard>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="publishing">
-          <ContentCard>
+          <TabsContent value="publishing" className="px-8 pb-8">
             <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
-          </ContentCard>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </ContentCard>
     </PageLayout>
   )
 }

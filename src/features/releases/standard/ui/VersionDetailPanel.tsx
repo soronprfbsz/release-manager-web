@@ -1,6 +1,6 @@
 import { useState, useMemo, createContext, useContext } from 'react'
 
-import { FileText, File, Download, Trash2, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Flame, Info, FolderTree } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, X, Check } from 'lucide-react'
 
 import {
   releaseApi,
@@ -8,6 +8,7 @@ import {
   useReleaseFileContent,
   useDeleteVersion,
   useApproveVersion,
+  useUpdateVersionComment,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
 
@@ -34,6 +35,7 @@ import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+import { Textarea } from '@/shared/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
 
@@ -86,6 +88,14 @@ interface VersionDetailContextValue {
   setDeleteDialogOpen: (open: boolean) => void
   hotfixDialogOpen: boolean
   setHotfixDialogOpen: (open: boolean) => void
+  // Comment editing
+  isEditingComment: boolean
+  setIsEditingComment: (editing: boolean) => void
+  editedComment: string
+  setEditedComment: (comment: string) => void
+  handleSaveComment: () => void
+  handleCancelEditComment: () => void
+  commentMutation: ReturnType<typeof useUpdateVersionComment>
   // Mutations
   deleteMutation: ReturnType<typeof useDeleteVersion>
   approveMutation: ReturnType<typeof useApproveVersion>
@@ -240,6 +250,40 @@ function VersionDetailProvider({
 
   const deleteMutation = useDeleteVersion()
   const approveMutation = useApproveVersion()
+  const commentMutation = useUpdateVersionComment()
+
+  // 코멘트 수정 상태
+  const [isEditingComment, setIsEditingComment] = useState(false)
+  const [editedComment, setEditedComment] = useState(version?.comment ?? '')
+
+  const handleSaveComment = () => {
+    if (!version) return
+
+    commentMutation.mutate(
+      { versionId: version.versionId, comment: editedComment },
+      {
+        onSuccess: () => {
+          toast({
+            title: '코멘트 수정 완료',
+            description: '코멘트가 수정되었습니다.',
+          })
+          setIsEditingComment(false)
+        },
+        onError: (err) => {
+          toast({
+            title: '코멘트 수정 실패',
+            description: err instanceof Error ? err.message : '코멘트 수정 중 오류가 발생했습니다.',
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }
+
+  const handleCancelEditComment = () => {
+    setEditedComment(version?.comment ?? '')
+    setIsEditingComment(false)
+  }
 
   const handleApprove = () => {
     if (!version) return
@@ -363,6 +407,13 @@ function VersionDetailProvider({
     setDeleteDialogOpen,
     hotfixDialogOpen,
     setHotfixDialogOpen,
+    isEditingComment,
+    setIsEditingComment,
+    editedComment,
+    setEditedComment,
+    handleSaveComment,
+    handleCancelEditComment,
+    commentMutation,
     deleteMutation,
     approveMutation,
     handleApprove,
@@ -394,7 +445,7 @@ function VersionDetailProvider({
 // Header component
 function VersionDetailHeader() {
   const ctx = useVersionDetailContext()
-  const { version, isHotfix, baseVersion, canAddVersion, canDeleteVersion, deleteMutation, setDeleteDialogOpen, setHotfixDialogOpen } = ctx
+  const { version, isHotfix, baseVersion } = ctx
 
   const getCategoryShortName = (category: string) => {
     switch (category) {
@@ -437,41 +488,101 @@ function VersionDetailHeader() {
           기준 {baseVersion}
         </span>
       )}
-      <span className="flex-1" />
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {canAddVersion && !isHotfix && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setHotfixDialogOpen(true)}
-              >
-                <Flame className="h-4 w-4 text-orange-500" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>핫픽스 생성</TooltipContent>
-          </Tooltip>
-        )}
-        {canDeleteVersion && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setDeleteDialogOpen(true)}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>삭제</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
     </div>
+  )
+}
+
+// Comment Section with inline editing
+function CommentSection() {
+  const ctx = useVersionDetailContext()
+  const {
+    version,
+    isEditingComment,
+    setIsEditingComment,
+    editedComment,
+    setEditedComment,
+    handleSaveComment,
+    handleCancelEditComment,
+    commentMutation,
+    canAddVersion,
+  } = ctx
+
+  // 코멘트가 없고 편집 모드도 아니면 섹션을 표시하지 않음
+  if (!version.comment && !isEditingComment) {
+    return null
+  }
+
+  return (
+    <CollapsibleSection
+      icon={FileText}
+      title="코멘트"
+      actions={
+        !isEditingComment && canAddVersion && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  setEditedComment(version.comment || '')
+                  setIsEditingComment(true)
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>코멘트 수정</TooltipContent>
+          </Tooltip>
+        )
+      }
+    >
+      {isEditingComment ? (
+        <div className="space-y-3">
+          <Textarea
+            value={editedComment}
+            onChange={(e) => setEditedComment(e.target.value)}
+            placeholder="코멘트를 입력하세요..."
+            className="min-h-[120px] resize-none"
+            autoFocus
+          />
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancelEditComment}
+              disabled={commentMutation.isPending}
+            >
+              <X className="h-4 w-4 mr-1" />
+              취소
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSaveComment}
+              disabled={commentMutation.isPending}
+            >
+              {commentMutation.isPending ? (
+                <>
+                  <div className="h-4 w-4 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  저장 중...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-1" />
+                  저장
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 rounded-lg bg-accent/40">
+          <p className="whitespace-pre-wrap text-sm">
+            {version.comment}
+          </p>
+        </div>
+      )}
+    </CollapsibleSection>
   )
 }
 
@@ -578,18 +689,7 @@ function VersionDetailContent() {
       </CollapsibleSection>
 
       {/* 코멘트 */}
-      {version.comment && (
-        <CollapsibleSection
-          icon={FileText}
-          title="코멘트"
-        >
-          <div className="p-4 rounded-lg bg-accent/40">
-            <p className="whitespace-pre-wrap text-sm">
-              {version.comment}
-            </p>
-          </div>
-        </CollapsibleSection>
-      )}
+      <CommentSection />
 
       {/* 파일 */}
       {fileStructure && (

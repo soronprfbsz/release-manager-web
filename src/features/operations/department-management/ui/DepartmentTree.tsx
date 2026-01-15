@@ -10,7 +10,6 @@ import {
   ChevronDown,
   FolderTree,
   UsersRound,
-  MoreHorizontal,
   Plus,
   Pencil,
   Trash2,
@@ -21,14 +20,11 @@ import {
 import type { DepartmentTree as DepartmentTreeType } from '@/entities/_shared/department'
 
 import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
+  TreeActionMenu,
+  TreeActionMenuItem,
+  TreeActionMenuSeparator,
+} from '@/shared/ui/tree-action-menu'
 
 /** 드롭 위치 타입 */
 export type DropPosition = 'before' | 'child' | 'after'
@@ -243,7 +239,7 @@ function TreeNode({
       {isDropTarget && dropPosition === 'before' && !isDraggingAccount && (
         <div
           className="h-0.5 bg-primary mx-2 rounded-full"
-          style={{ marginLeft: `${level * 20 + 8}px` }}
+          style={{ marginLeft: level > 0 ? `${level * 16}px` : undefined }}
         />
       )}
 
@@ -259,7 +255,7 @@ function TreeNode({
             : 'hover:bg-accent',
           isDropTarget && dropPosition === 'child' && 'ring-2 ring-primary ring-offset-1 bg-primary/5'
         )}
-        style={{ paddingLeft: `${level * 20 + 8}px` }}
+        style={{ paddingLeft: level > 0 ? `${level * 16}px` : undefined }}
         onClick={() => onSelect(node)}
       >
         {/* Drag Handle (only for non-root) */}
@@ -323,48 +319,36 @@ function TreeNode({
         <span className="flex-1" />
 
         {/* Action Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onCreateChild(node.departmentId)}>
-              <Plus className="h-4 w-4 mr-2" />
-              하위 부서 추가
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAssignAccount(node.departmentId)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              계정 배치
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(node)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              수정
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(node)}
-              disabled={isRootDepartment}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              삭제
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <TreeActionMenu>
+          <TreeActionMenuItem onClick={() => onCreateChild(node.departmentId)}>
+            <Plus className="h-4 w-4 mr-2" />
+            하위 부서 추가
+          </TreeActionMenuItem>
+          <TreeActionMenuItem onClick={() => onAssignAccount(node.departmentId)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            계정 배치
+          </TreeActionMenuItem>
+          <TreeActionMenuItem onClick={() => onEdit(node)}>
+            <Pencil className="h-4 w-4 mr-2" />
+            수정
+          </TreeActionMenuItem>
+          <TreeActionMenuSeparator />
+          <TreeActionMenuItem
+            destructive
+            onClick={() => onDelete(node)}
+            disabled={isRootDepartment}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            삭제
+          </TreeActionMenuItem>
+        </TreeActionMenu>
       </div>
 
       {/* After indicator - 계정 드래그 중일 때는 표시하지 않음 */}
       {isDropTarget && dropPosition === 'after' && !isDraggingAccount && (
         <div
           className="h-0.5 bg-primary mx-2 rounded-full"
-          style={{ marginLeft: `${level * 20 + 8}px` }}
+          style={{ marginLeft: level > 0 ? `${level * 16}px` : undefined }}
         />
       )}
 
@@ -455,7 +439,7 @@ export function DepartmentTree({
   }
 
   return (
-    <div className="py-2 px-1">
+    <div className="space-y-1">
       {data.map((node) => (
         <TreeNode
           key={node.departmentId}

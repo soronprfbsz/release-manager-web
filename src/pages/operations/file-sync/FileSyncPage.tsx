@@ -461,23 +461,25 @@ export function FileSyncPage() {
             title="파일 동기화"
             actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
         >
-            <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList variant="line">
-                    <TabsTrigger value="analysis" variant="line">
-                        <ScanSearch className="w-4 h-4 mr-2" />
-                        분석 결과
-                    </TabsTrigger>
-                    <TabsTrigger value="ignored" variant="line">
-                        <ListX className="w-4 h-4 mr-2" />
-                        제외된 파일
-                    </TabsTrigger>
-                </TabsList>
+            <ContentCard noPadding>
+                <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+                    <div className="flex items-center justify-between px-8 pt-6">
+                        <TabsList variant="line" className="border-0">
+                            <TabsTrigger value="analysis" variant="line">
+                                <ScanSearch className="w-4 h-4 mr-2" />
+                                분석 결과
+                                {results.length > 0 && ` (${results.length})`}
+                            </TabsTrigger>
+                            <TabsTrigger value="ignored" variant="line">
+                                <ListX className="w-4 h-4 mr-2" />
+                                제외된 파일
+                                {ignoredFiles.length > 0 && ` (${ignoredFiles.length})`}
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
 
-                {/* 분석 결과 탭 */}
-                <TabsContent value="analysis">
-                    <ContentCard
-                        title={results.length > 0 ? `분석 결과 (${results.length}개의 불일치)` : '분석 결과'}
-                    >
+                    {/* 분석 결과 탭 */}
+                    <TabsContent value="analysis" className="px-8 pb-8">
                         {results.length === 0 || analyzeMutation.isPending ? (
                             renderEmptyState()
                         ) : (
@@ -610,14 +612,10 @@ export function FileSyncPage() {
                                 </Table>
                             </DataTable>
                         )}
-                    </ContentCard>
-                </TabsContent>
+                    </TabsContent>
 
-                {/* 제외된 파일 탭 */}
-                <TabsContent value="ignored">
-                    <ContentCard
-                        title={ignoredFiles.length > 0 ? `제외된 파일 (${ignoredFiles.length}개)` : '제외된 파일'}
-                    >
+                    {/* 제외된 파일 탭 */}
+                    <TabsContent value="ignored" className="px-8 pb-8">
                         {isIgnoredLoading ? (
                             <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
                                 <RotateCw className="h-8 w-8 animate-spin mb-4" />
@@ -696,9 +694,9 @@ export function FileSyncPage() {
                                 </Table>
                             </DataTable>
                         )}
-                    </ContentCard>
-                </TabsContent>
-            </Tabs>
+                    </TabsContent>
+                </Tabs>
+            </ContentCard>
 
             {/* Register Forms */}
             <ResourceRegisterForm
