@@ -5,6 +5,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { fileContentKeys, useFileContentByPath } from '@/shared/api'
+
 import { publishingApi } from './publishingApi'
 import type {
   PublishingQueryParams,
@@ -20,8 +22,9 @@ export const publishingKeys = {
   list: (params?: PublishingQueryParams) => [...publishingKeys.lists(), params] as const,
   details: () => [...publishingKeys.all, 'detail'] as const,
   detail: (id: number) => [...publishingKeys.details(), id] as const,
-  fileTree: (id: number) => [...publishingKeys.all, 'file-tree', id] as const,
-  fileContent: (id: number, path: string) => [...publishingKeys.all, 'file-content', id, path] as const,
+  fileTree: (id: number) => [...publishingKeys.all, 'files', id] as const,
+  /** @deprecated Use fileContentKeys from shared/api instead */
+  fileContent: (filePath: string) => fileContentKeys.content(filePath),
 }
 
 /** 퍼블리싱 목록 조회 */
@@ -124,15 +127,14 @@ export function usePublishingFileTree(id: number, enabled: boolean = true) {
   })
 }
 
-/** 퍼블리싱 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
+/**
+ * 퍼블리싱 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원)
+ * @param filePath 파일 경로 (예: publishing/1/css/style.css)
+ * @param enabled 쿼리 활성화 여부
+ */
 export function usePublishingFileContent(
-  id: number,
-  path: string,
+  filePath: string,
   enabled: boolean = true
 ) {
-  return useQuery({
-    queryKey: publishingKeys.fileContent(id, path),
-    queryFn: () => publishingApi.getFileContent(id, path),
-    enabled: enabled && !!id && !!path,
-  })
+  return useFileContentByPath(filePath, enabled)
 }

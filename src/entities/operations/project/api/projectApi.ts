@@ -5,11 +5,12 @@
 
 import { apiClient } from '@/shared/api/client'
 
-import type { Project, ProjectCreateRequest, ProjectUpdateRequest } from '../model/types'
+import type { Project, ProjectCreateRequest, ProjectUpdateRequest, OnboardingFilesResponse } from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/projects',
   byId: (id: string) => `/api/projects/${id}`,
+  onboardingFiles: (id: string) => `/api/projects/${id}/files`,
 } as const
 
 export const projectApi = {
@@ -40,5 +41,11 @@ export const projectApi = {
   /** 프로젝트 삭제 */
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(ENDPOINTS.byId(id))
+  },
+
+  /** 온보딩 파일 조회 */
+  getOnboardingFiles: async (id: string): Promise<OnboardingFilesResponse> => {
+    const response = await apiClient.get<OnboardingFilesResponse>(ENDPOINTS.onboardingFiles(id))
+    return response
   },
 }

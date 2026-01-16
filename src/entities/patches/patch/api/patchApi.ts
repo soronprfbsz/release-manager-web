@@ -9,7 +9,6 @@ import type {
   CustomPatchCustomer,
   CustomPatchVersion,
   PatchFileStructure,
-  PatchFileContent,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -27,7 +26,6 @@ const ENDPOINTS = {
   byId: (id: number) => `/api/patches/${id}`,
   download: (id: number) => `/api/patches/${id}/download`,
   files: (id: number) => `/api/patches/${id}/files`,
-  fileContent: (id: number, path: string) => `/api/patches/${id}/content?path=${encodeURIComponent(path)}`,
   delete: (id: number) => `/api/patches/${id}`,
 } as const
 
@@ -111,12 +109,6 @@ export const patchApi = {
   /** 패치 파일 구조 조회 */
   getFileStructure: async (id: number): Promise<PatchFileStructure> => {
     const response = await apiClient.get<PatchFileStructure>(ENDPOINTS.files(id))
-    return response
-  },
-
-  /** 패치 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
-  getFileContent: async (id: number, path: string): Promise<PatchFileContent> => {
-    const response = await apiClient.get<PatchFileContent>(ENDPOINTS.fileContent(id, path))
     return response
   },
 

@@ -7,7 +7,6 @@ import { useState, forwardRef, useImperativeHandle, useMemo } from 'react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import {
-  resourceApi,
   useResources,
   useResourceFileContent,
   useUploadResource,
@@ -16,6 +15,7 @@ import {
   type ResourceFile,
   type ResourceFileUpdateRequest,
 } from '@/entities/infrastructure/file'
+import { fileDownloadApi } from '@/shared/api'
 
 import {
   FileGroupList,
@@ -97,7 +97,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     const isImage = viewingResource ? isImageFile(viewingResource.fileName) : false
     const isZip = viewingResource ? isZipFile(viewingResource.fileName) : false
     const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useResourceFileContent(
-      viewingResource?.resourceFileId ?? 0,
+      viewingResource?.filePath ?? '',
       viewingResource !== null
     )
 
@@ -213,7 +213,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
     }
 
     const handleDownload = (resource: ResourceFile) => {
-      resourceApi.download(resource.resourceFileId)
+      fileDownloadApi.download(resource.filePath, resource.fileName)
     }
 
     const handleViewResource = (resource: ResourceFile) => {

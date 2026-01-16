@@ -88,7 +88,10 @@ export interface PublishingReorderRequest {
 /** 퍼블리싱 파일 트리 노드 */
 export interface PublishingFileNode {
   name: string
+  /** UI 표시용 경로 (트리 구조) */
   path: string
+  /** API 호출용 전체 경로 (다운로드/내용 조회) */
+  filePath: string
   type: 'file' | 'directory'
   size?: number
   children?: PublishingFileNode[]

@@ -16,7 +16,6 @@ export type {
   CustomerReleaseNode,
   CustomReleaseTreeResponse,
   StandardVersionSimple,
-  ReleaseFileContent,
 } from './model/types'
 
 // API

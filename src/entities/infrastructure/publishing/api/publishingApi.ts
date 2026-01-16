@@ -12,7 +12,6 @@ import type {
   PublishingQueryParams,
   PublishingReorderRequest,
   PublishingFileTree,
-  PublishingFileContent,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -23,12 +22,8 @@ const ENDPOINTS = {
   delete: (id: number) => `/api/publishing/${id}`,
   reorder: '/api/publishing/reorder',
   download: (id: number) => `/api/publishing/${id}/download`,
-  fileDownload: (publishingId: number, fileId: number) =>
-    `/api/publishing/${publishingId}/files/${fileId}/download`,
   serve: (id: number) => `/api/publishing/${id}/serve/`,
-  fileTree: (id: number) => `/api/publishing/${id}/file-tree`,
-  fileContent: (id: number, path: string) =>
-    `/api/publishing/${id}/files/content?path=${encodeURIComponent(path)}`,
+  fileTree: (id: number) => `/api/publishing/${id}/files`,
 }
 
 export const publishingApi = {
@@ -91,12 +86,6 @@ export const publishingApi = {
     window.open(url, '_blank')
   },
 
-  /** 퍼블리싱 개별 파일 다운로드 */
-  downloadFile: (publishingId: number, fileId: number): void => {
-    const url = `${import.meta.env.VITE_API_BASE_URL || ''}${ENDPOINTS.fileDownload(publishingId, fileId)}`
-    window.open(url, '_blank')
-  },
-
   /** 퍼블리싱 미리보기 (새 탭에서 열기) */
   openPreview: (id: number): void => {
     const url = `${import.meta.env.VITE_API_BASE_URL || ''}${ENDPOINTS.serve(id)}`
@@ -111,12 +100,6 @@ export const publishingApi = {
   /** 퍼블리싱 파일 트리 조회 */
   getFileTree: async (id: number): Promise<PublishingFileTree> => {
     const response = await apiClient.get<PublishingFileTree>(ENDPOINTS.fileTree(id))
-    return response
-  },
-
-  /** 퍼블리싱 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
-  getFileContent: async (id: number, path: string): Promise<PublishingFileContent> => {
-    const response = await apiClient.get<PublishingFileContent>(ENDPOINTS.fileContent(id, path))
     return response
   },
 }

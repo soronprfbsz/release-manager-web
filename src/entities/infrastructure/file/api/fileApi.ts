@@ -6,13 +6,11 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { File, FileUpdateRequest, FileContent } from '../model/types'
+import type { File, FileUpdateRequest } from '../model/types'
 
 const ENDPOINTS = {
   list: '/api/resources',
   detail: (id: number) => `/api/resources/${id}`,
-  download: (id: number) => `/api/resources/${id}/download`,
-  fileContent: (id: number) => `/api/resources/${id}/file-content`,
   reorder: '/api/resources/order',
 } as const
 
@@ -76,24 +74,9 @@ export const fileApi = {
     await apiClient.delete(ENDPOINTS.detail(id))
   },
 
-  /** 파일 다운로드 */
-  download: (id: number): void => {
-    const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL || ''}${ENDPOINTS.download(id)}`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  },
-
   /** 파일 순서 변경 */
   reorder: async (fileCategory: string, resourceFileIds: number[]): Promise<void> => {
     await apiClient.patch(ENDPOINTS.reorder, { fileCategory, resourceFileIds })
-  },
-
-  /** 파일 내용 조회 */
-  getFileContent: async (id: number): Promise<FileContent> => {
-    const response = await apiClient.get<FileContent>(ENDPOINTS.fileContent(id))
-    return response
   },
 }
 

@@ -30,3 +30,32 @@ export interface ProjectUpdateRequest {
 
 /** 기본 프로젝트 ID */
 export const DEFAULT_PROJECT_ID = 'infraeye2'
+
+/** 온보딩 파일 노드 (트리 구조) */
+export interface OnboardingFileNode {
+  name: string
+  /** UI 표시용 경로 (트리 구조) */
+  path: string
+  /** API 호출용 전체 경로 (다운로드/내용 조회) */
+  filePath: string
+  type: 'file' | 'directory'
+  size?: number
+  children?: OnboardingFileNode[]
+}
+
+/** 온보딩 파일 응답 */
+export interface OnboardingFilesResponse {
+  projectId: string
+  projectName: string
+  hasFiles: boolean
+  totalFileCount: number
+  totalSize: number
+  files: OnboardingFileNode
+}
+
+/** 온보딩 파일 내용 응답 */
+export interface OnboardingFileContent {
+  content: string
+  mimeType: string
+  isBinary: boolean
+}

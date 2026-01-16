@@ -57,6 +57,7 @@ function zipToFileTree(zip: JSZip): FileTreeData {
         node = {
           name: part,
           path: currentPath,
+          filePath: currentPath, // ZIP 파일 내부 경로이므로 path와 동일
           type: isDirectory ? 'directory' : 'file',
           size: isLast && !isDirectory ? (entryData?.uncompressedSize || 0) : undefined,
           children: isDirectory ? [] : undefined,

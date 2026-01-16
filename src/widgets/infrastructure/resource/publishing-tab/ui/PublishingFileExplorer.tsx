@@ -26,8 +26,8 @@ export function PublishingFileExplorer({ open, onOpenChange, publishingId, publi
   )
 
   // useFileContent 훅을 래핑하여 공통 인터페이스로 변환
-  const useFileContent = (path: string, enabled: boolean) => {
-    const result = usePublishingFileContent(publishingId ?? 0, path, enabled && publishingId !== null)
+  const useFileContent = (filePath: string, enabled: boolean) => {
+    const result = usePublishingFileContent(filePath, enabled)
     return {
       data: result.data as FileContentData | undefined,
       isLoading: result.isLoading,

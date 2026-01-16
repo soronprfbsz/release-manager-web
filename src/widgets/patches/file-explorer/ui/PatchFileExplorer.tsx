@@ -28,8 +28,8 @@ export function PatchFileExplorer({ open, onOpenChange, patchId, patchName, icon
   )
 
   // useFileContent 훅을 래핑하여 공통 인터페이스로 변환
-  const useFileContent = (path: string, enabled: boolean) => {
-    const result = usePatchFileContent(patchId ?? 0, path, enabled && patchId !== null)
+  const useFileContent = (filePath: string, enabled: boolean) => {
+    const result = usePatchFileContent(filePath, enabled)
     return {
       data: result.data as FileContentData | undefined,
       isLoading: result.isLoading,

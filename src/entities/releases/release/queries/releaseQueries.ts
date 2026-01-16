@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 
+import { fileContentKeys, useFileContentByPath } from '@/shared/api'
+
 import { releaseApi } from '../api/releaseApi'
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple, ReleaseFileContent } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
 
 // Query Keys Factory
 export const releaseKeys = {
@@ -14,7 +16,8 @@ export const releaseKeys = {
   versions: () => [...releaseKeys.all, 'version'] as const,
   version: (id: number) => [...releaseKeys.versions(), id] as const,
   fileStructure: (id: number) => [...releaseKeys.versions(), id, 'files'] as const,
-  fileContent: (fileId: number) => [...releaseKeys.all, 'file-content', fileId] as const,
+  /** @deprecated Use fileContentKeys from shared/api instead */
+  fileContent: (filePath: string) => fileContentKeys.content(filePath),
 }
 
 // Query Hooks
@@ -84,19 +87,15 @@ export const useVersionFileStructure = (
     ...options,
   })
 
-/** 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
+/**
+ * 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원)
+ * @param filePath 파일 경로 (예: versions/infraeye2/standard/1.0.x/1.0.0/mariadb/1.patch.sql)
+ * @param enabled 쿼리 활성화 여부
+ */
 export const useReleaseFileContent = (
-  fileId: number,
-  enabled: boolean = true,
-  options?: Omit<UseQueryOptions<ReleaseFileContent>, 'queryKey' | 'queryFn' | 'enabled'>
-) =>
-  useQuery({
-    queryKey: releaseKeys.fileContent(fileId),
-    queryFn: () => releaseApi.getFileContent(fileId),
-    enabled: enabled && !!fileId,
-    staleTime: Infinity, // 파일 내용은 변경되지 않음
-    ...options,
-  })
+  filePath: string,
+  enabled: boolean = true
+) => useFileContentByPath(filePath, enabled)
 
 // Mutation Hooks
 interface CreateVersionParams {

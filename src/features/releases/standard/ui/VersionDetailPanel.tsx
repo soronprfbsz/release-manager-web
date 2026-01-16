@@ -11,6 +11,7 @@ import {
   useUpdateVersionComment,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
+import { fileDownloadApi } from '@/shared/api'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -81,8 +82,8 @@ interface VersionDetailContextValue {
   // File viewer
   fileViewerOpen: boolean
   setFileViewerOpen: (open: boolean) => void
-  selectedFile: { id: number; name: string; size?: number } | null
-  setSelectedFile: (file: { id: number; name: string; size?: number } | null) => void
+  selectedFile: { id: number; filePath: string; name: string; size?: number } | null
+  setSelectedFile: (file: { id: number; filePath: string; name: string; size?: number } | null) => void
   // Dialogs
   deleteDialogOpen: boolean
   setDeleteDialogOpen: (open: boolean) => void
@@ -241,7 +242,7 @@ function VersionDetailProvider({
   children,
 }: VersionDetailPanelProps & { children: React.ReactNode }) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<{ id: number; name: string; size?: number } | null>(null)
+  const [selectedFile, setSelectedFile] = useState<{ id: number; filePath: string; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
@@ -331,18 +332,19 @@ function VersionDetailProvider({
   }
 
   const handleDownload = (node: ReleaseFileNode) => {
-    if (!node.releaseFileId) return
-    releaseApi.downloadFile(node.releaseFileId, node.name)
+    if (!node.filePath) return
+    fileDownloadApi.download(node.filePath, node.name)
   }
 
   const handleViewFile = (node: ReleaseFileNode) => {
-    if (!node.releaseFileId) return
+    if (!node.releaseFileId || !node.filePath) return
     const fileName = node.name.toLowerCase()
     const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf']
+      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
+      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
-      setSelectedFile({ id: node.releaseFileId, name: node.name, size: node.size ?? undefined })
+      setSelectedFile({ id: node.releaseFileId, filePath: node.filePath, name: node.name, size: node.size ?? undefined })
       setFileViewerOpen(true)
     }
   }
@@ -353,7 +355,7 @@ function VersionDetailProvider({
 
   // 모든 파일 내용 조회 (통합 API 사용)
   const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
-    selectedFile?.id ?? 0,
+    selectedFile?.filePath ?? '',
     fileViewerOpen && selectedFile !== null
   )
 
@@ -380,8 +382,8 @@ function VersionDetailProvider({
   }, [fileContentData, isPdfFile, isImageFile, decodedTextContent])
 
   const handleDownloadSelectedFile = () => {
-    if (selectedFile) {
-      releaseApi.downloadFile(selectedFile.id, selectedFile.name)
+    if (selectedFile?.filePath) {
+      fileDownloadApi.download(selectedFile.filePath, selectedFile.name)
     }
   }
 

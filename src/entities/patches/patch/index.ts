@@ -12,7 +12,6 @@ export type {
   CustomPatchVersion,
   PatchFileNode,
   PatchFileStructure,
-  PatchFileContent,
 } from './model/types'
 
 // API

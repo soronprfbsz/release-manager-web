@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple, ReleaseFileContent } from '../model/types'
+import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
 
 const ENDPOINTS = {
   standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
@@ -10,8 +10,6 @@ const ENDPOINTS = {
   allCustomTree: (id: string) => `/api/releases/projects/${id}/custom/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
-  fileDownload: (id: number) => `/api/releases/files/${id}/download`,
-  fileContent: (id: number) => `/api/releases/files/${id}/file-content`,
   versionDownload: (id: number) => `/api/releases/versions/${id}/download`,
   createVersion: '/api/releases/versions/standard',
   createCustomVersion: '/api/releases/versions/custom',
@@ -52,22 +50,6 @@ export const releaseApi = {
   /** 버전 상세 조회 */
   getVersionById: async (id: number): Promise<ReleaseVersionDetail> => {
     const response = await apiClient.get<ReleaseVersionDetail>(ENDPOINTS.versionById(id))
-    return response
-  },
-
-  /** 릴리즈 파일 다운로드 */
-  downloadFile: async (id: number, fileName: string): Promise<void> => {
-    const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.fileDownload(id)}`
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  },
-
-  /** 릴리즈 파일 내용 조회 (통합 API) */
-  getFileContent: async (id: number): Promise<ReleaseFileContent> => {
-    const response = await apiClient.get<ReleaseFileContent>(ENDPOINTS.fileContent(id))
     return response
   },
 

@@ -11,8 +11,10 @@ import {
   type UseMutationOptions,
 } from '@tanstack/react-query'
 
+import { fileContentKeys, useFileContentByPath } from '@/shared/api'
+
 import { fileApi } from '../api/fileApi'
-import type { File, FileUploadRequest, FileUpdateRequest, FileContent } from '../model/types'
+import type { File, FileUploadRequest, FileUpdateRequest } from '../model/types'
 
 // ============================================================================
 // Query Keys Factory
@@ -24,7 +26,8 @@ export const fileKeys = {
   list: (params?: { keyword?: string }) => [...fileKeys.lists(), params] as const,
   details: () => [...fileKeys.all, 'detail'] as const,
   detail: (id: number) => [...fileKeys.details(), id] as const,
-  fileContent: (id: number) => [...fileKeys.all, 'file-content', id] as const,
+  /** @deprecated Use fileContentKeys from shared/api instead */
+  fileContent: (filePath: string) => fileContentKeys.content(filePath),
 }
 
 // ============================================================================
@@ -61,20 +64,15 @@ export function useFile(
 }
 
 /**
- * 파일 내용 조회 훅
+ * 파일 내용 조회 훅 (통합 API - 텍스트/바이너리 모두 지원)
+ * @param filePath 파일 경로 (예: resources/file/script/MARIADB/backup.sh)
+ * @param enabled 쿼리 활성화 여부
  */
 export function useFileContent(
-  id: number,
-  enabled: boolean = true,
-  options?: Omit<UseQueryOptions<FileContent, Error>, 'queryKey' | 'queryFn' | 'enabled'>
+  filePath: string,
+  enabled: boolean = true
 ) {
-  return useQuery({
-    queryKey: fileKeys.fileContent(id),
-    queryFn: () => fileApi.getFileContent(id),
-    enabled: enabled && !!id,
-    staleTime: Infinity,
-    ...options,
-  })
+  return useFileContentByPath(filePath, enabled)
 }
 
 // ============================================================================

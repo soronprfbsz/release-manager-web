@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 
 import type { PaginationParams, PageResponse } from '@/shared/api/types'
+import { fileContentKeys, useFileContentByPath } from '@/shared/api'
 
 import { patchApi } from '../api/patchApi'
 
@@ -12,7 +13,6 @@ import type {
   CustomPatchCustomer,
   CustomPatchVersion,
   PatchFileStructure,
-  PatchFileContent,
 } from '../model/types'
 
 // Query Keys Factory
@@ -27,7 +27,8 @@ export const patchKeys = {
   details: () => [...patchKeys.all, 'detail'] as const,
   detail: (id: number) => [...patchKeys.details(), id] as const,
   fileStructure: (id: number) => [...patchKeys.all, 'file-structure', id] as const,
-  fileContent: (id: number, path: string) => [...patchKeys.all, 'file-content', id, path] as const,
+  /** @deprecated Use fileContentKeys from shared/api instead */
+  fileContent: (filePath: string) => fileContentKeys.content(filePath),
   // Custom patch keys
   customCustomers: (projectId: string) => [...patchKeys.all, 'custom-customers', projectId] as const,
   customVersions: (customerId: number, projectId: string) =>
@@ -80,20 +81,15 @@ export const usePatchFileStructure = (
     ...options,
   })
 
-/** 패치 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원) */
+/**
+ * 패치 파일 내용 조회 (통합 API - 텍스트/바이너리 모두 지원)
+ * @param filePath 파일 경로 (예: patches/standard/1.0.0/files/script.sql)
+ * @param enabled 쿼리 활성화 여부
+ */
 export const usePatchFileContent = (
-  patchId: number,
-  path: string,
-  enabled: boolean = true,
-  options?: Omit<UseQueryOptions<PatchFileContent>, 'queryKey' | 'queryFn' | 'enabled'>
-) =>
-  useQuery({
-    queryKey: patchKeys.fileContent(patchId, path),
-    queryFn: () => patchApi.getFileContent(patchId, path),
-    enabled: enabled && !!patchId && !!path,
-    staleTime: Infinity, // 파일 내용은 변경되지 않음
-    ...options,
-  })
+  filePath: string,
+  enabled: boolean = true
+) => useFileContentByPath(filePath, enabled)
 
 // Custom Patch Query Hooks
 export const useCustomPatchCustomers = (

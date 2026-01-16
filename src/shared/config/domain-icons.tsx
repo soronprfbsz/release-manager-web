@@ -17,9 +17,11 @@ import {
   GitBranch,
   Globe,
   Link as LinkIcon,
+  PackageOpen,
   Pencil,
   RotateCcw,
   Server,
+  Settings,
   Tag,
   Terminal,
   Trash2,
@@ -40,6 +42,8 @@ export const DOMAIN_ICONS = {
   
   // 운영 관리
   project: FolderKanban,
+  projectManagement: Settings,
+  onboarding: PackageOpen,
   customer: Building2,
   engineer: Users,
   account: Users,

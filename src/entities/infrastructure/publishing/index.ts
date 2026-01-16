@@ -31,5 +31,4 @@ export type {
   PublishingReorderRequest,
   PublishingFileNode,
   PublishingFileTree,
-  PublishingFileContent,
 } from './model/types'

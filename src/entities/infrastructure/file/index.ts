@@ -13,14 +13,12 @@ export type {
   File,
   FileUploadRequest,
   FileUpdateRequest,
-  FileContent,
 } from './model/types'
 
 // Type aliases for backward compatibility
 export type { File as ResourceFile } from './model/types'
 export type { FileUploadRequest as ResourceFileUploadRequest } from './model/types'
 export type { FileUpdateRequest as ResourceFileUpdateRequest } from './model/types'
-export type { FileContent as ResourceFileContent } from './model/types'
 
 // Queries
 export {

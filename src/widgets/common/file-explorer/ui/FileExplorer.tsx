@@ -28,7 +28,10 @@ import { TypographyMuted } from '@/shared/ui/typography'
 /** 파일 노드 타입 (트리 구조) */
 export interface FileNode {
   name: string
+  /** UI 표시용 경로 (트리 구조) */
   path: string
+  /** API 호출용 전체 경로 (다운로드/내용 조회) */
+  filePath: string
   type: 'file' | 'directory'
   size?: number
   children?: FileNode[]
@@ -208,7 +211,7 @@ export function FileExplorer({
   viewableExtensions = DEFAULT_VIEWABLE_EXTENSIONS,
 }: FileExplorerProps) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<{ path: string; name: string; size?: number } | null>(null)
+  const [selectedFile, setSelectedFile] = useState<{ filePath: string; name: string; size?: number } | null>(null)
 
   // PDF/이미지 파일 여부 확인
   const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
@@ -216,7 +219,7 @@ export function FileExplorer({
 
   // 파일 내용 조회
   const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useFileContent(
-    selectedFile?.path ?? '',
+    selectedFile?.filePath ?? '',
     fileViewerOpen && selectedFile !== null
   )
 
@@ -242,7 +245,7 @@ export function FileExplorer({
   }, [fileContentData, isPdfFile, isImageFile, decodedTextContent])
 
   const handleFileClick = (node: FileNode) => {
-    setSelectedFile({ path: node.path, name: node.name, size: node.size })
+    setSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
     setFileViewerOpen(true)
   }
 
