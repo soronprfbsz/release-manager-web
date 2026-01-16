@@ -7,8 +7,6 @@ import { useState } from 'react'
 
 import { Network, Plus, TableOfContents, Users, UserX } from 'lucide-react'
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import {
   DepartmentTree,
   DepartmentForm,
@@ -55,7 +53,6 @@ import { Switch } from '@/shared/ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function DepartmentPage() {
-  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -388,9 +385,6 @@ export function DepartmentPage() {
 
   return (
     <PageLayout
-      icon={pageIcon}
-      title="부서 관리"
-      description="조직도 및 부서별 계정을 관리합니다."
       actions={
         <Tooltip>
           <TooltipTrigger asChild>
@@ -404,7 +398,7 @@ export function DepartmentPage() {
         </Tooltip>
       }
     >
-      <ContentSplit>
+      <ContentSplit treeWidth={27}>
         {/* 부서 트리 */}
         <ContentSplit.Tree
           header={

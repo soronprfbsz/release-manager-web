@@ -16,10 +16,17 @@ export interface HotfixNode {
   /** 전체 버전 문자열 (e.g. 1.1.0.1) */
   fullVersion: string
   createdAt: string
+  createdByName?: string
   createdByEmail?: string
+  createdByAvatarStyle?: string
+  createdByAvatarSeed?: string
+  isDeletedCreator?: boolean
   comment?: string
   isApproved?: boolean
   approvedBy?: string | null
+  approvedByAvatarStyle?: string
+  approvedByAvatarSeed?: string
+  isDeletedApprover?: boolean
   approvedAt?: string | null
   /** 파일 카테고리 목록 (DATABASE, WEB, ENGINE, ETC) */
   fileCategories?: string[]

@@ -105,7 +105,7 @@ function TreeRootNode({
 
       {/* Children */}
       {isExpanded && children && (
-        <div className="ml-4 mt-1 grid grid-cols-2 gap-x-2 gap-y-0.5">{children}</div>
+        <div className="ml-4 pl-2 border-l border-border">{children}</div>
       )}
     </div>
   )
@@ -121,16 +121,18 @@ function CustomerNode({
   return (
     <div
       className={cn(
-        'group flex items-center gap-1.5 py-2.5 px-3 rounded-md cursor-pointer transition-all select-none',
+        'group flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
         isSelected
-          ? 'bg-primary/10 text-primary'
+          ? 'bg-accent'
           : 'hover:bg-accent',
         !customer.isActive && 'opacity-60'
       )}
       onClick={() => onSelect(customer)}
     >
+      {/* Spacer for hierarchy indentation */}
+      <div className="w-4" />
       {/* Customer Icon */}
-      <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
 
       {/* Customer Name */}
       <span className="truncate text-sm">
@@ -138,8 +140,8 @@ function CustomerNode({
       </span>
 
       {/* Customer Code */}
-      <span className="text-[11px] text-muted-foreground/70 flex-shrink-0">
-        {customer.customerCode}
+      <span className="text-xs text-muted-foreground flex-shrink-0">
+        ({customer.customerCode})
       </span>
 
       {/* Inactive Badge */}
@@ -153,7 +155,7 @@ function CustomerNode({
       <span className="flex-1" />
 
       {/* Action Menu */}
-      <TreeActionMenu size="sm">
+      <TreeActionMenu>
         <TreeActionMenuItem onClick={() => onEdit(customer)}>
           <Pencil className="h-4 w-4 mr-2" />
           수정

@@ -10,7 +10,9 @@ import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
+import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
+import { TypographyMuted } from '@/shared/ui/typography'
 
 interface HotfixCreateFormProps {
   open: boolean
@@ -31,15 +33,16 @@ export function HotfixCreateForm({
 }: HotfixCreateFormProps) {
   const { toast } = useToast()
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
-  
+
   const [comment, setComment] = useState('')
   const [assigneeId, setAssigneeId] = useState<number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
+  const [isApproved, setIsApproved] = useState(false)
 
-  // 담당자 목록 조회
-  const { data: accountsResponse } = useAccounts()
+  // 담당자 목록 조회 (엔지니어만)
+  const { data: accountsResponse } = useAccounts({ size: 10000, departmentType: 'ENGINEER' })
   const accounts = accountsResponse?.content ?? []
 
   const resetForm = () => {
@@ -48,6 +51,7 @@ export function HotfixCreateForm({
     setSelectedFile(null)
     setIsUploading(false)
     setUploadCompleted(false)
+    setIsApproved(false)
     resetTransfer()
   }
 
@@ -92,13 +96,14 @@ export function HotfixCreateForm({
     try {
       // Dynamic import to avoid circular dependency
       const { releaseApi } = await import('@/entities/releases/release')
-      
+
       await releaseApi.createHotfix(
         projectId,
         hotfixBaseVersionId,
         comment,
         selectedFile,
         assigneeId ?? undefined,
+        isApproved || undefined,
         (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -141,9 +146,9 @@ export function HotfixCreateForm({
           <p className="font-semibold text-foreground">핫픽스 안내</p>
           <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
             <li>핫픽스는 <strong className="text-foreground">고객사의 버전 변경 없이 특정 내용만을 패치</strong>하고 싶을 때 사용하는 기능입니다.</li>
-            <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>                  
-            <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면, 
-            해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>                  
+            <li>가급적 <strong className="text-foreground">핫픽스 보다는 패치 관리 기능을 통한 패치를 권장</strong>합니다. 버전 업데이트를 원치 않는 고객사 등 부득이한 경우에만 제한적으로 사용해주세요.</li>
+            <li>핫픽스 내용은 <strong className="text-foreground">패치 생성 시 포함되지 않습니다.</strong> 핫픽스 내용이 <strong className="text-foreground">패치 관리에 반영 되어야 한다면,
+              해당 내용이 포함 된 릴리즈 버전을 생성</strong>해 주세요.</li>
           </ul>
         </div>
       </div>
@@ -165,12 +170,33 @@ export function HotfixCreateForm({
       width="w-[500px] sm:max-w-[500px]"
       headerContent={headerContent}
     >
-      {/* 대상 버전 표시 */}
-      <div className="space-y-2">
-        <Label>대상 버전</Label>
-        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
-          <Flame className="h-4 w-4 text-orange-500" />
-          <span className="font-medium">{hotfixBaseVersion}</span>
+      {/* 대상 버전 & 담당자 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>대상 버전</Label>
+          <div className="flex items-center p-3 bg-muted/50 rounded-md h-10">
+            <span className="font-medium">{hotfixBaseVersion}</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="assigneeId">담당자</Label>
+          <Combobox
+            options={[
+              { value: '__none__', label: '선택 안함' },
+              ...accounts.map((a: Account) => ({
+                value: String(a.accountId),
+                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
+              })),
+            ]}
+            value={assigneeId !== null ? String(assigneeId) : '__none__'}
+            onValueChange={(value) =>
+              setAssigneeId(value === '__none__' ? null : Number(value))
+            }
+            placeholder="선택 안함"
+            searchPlaceholder="담당자 검색..."
+            disabled={isUploading}
+          />
         </div>
       </div>
 
@@ -189,30 +215,6 @@ export function HotfixCreateForm({
         />
       </div>
 
-      {/* 담당자 */}
-      <div className="space-y-2">
-        <Label htmlFor="assigneeId">담당자</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...accounts.map((a: Account) => ({
-              value: String(a.accountId),
-              label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-            })),
-          ]}
-          value={assigneeId !== null ? String(assigneeId) : '__none__'}
-          onValueChange={(value) =>
-            setAssigneeId(value === '__none__' ? null : Number(value))
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="담당자 검색..."
-          disabled={isUploading}
-        />
-        <p className="text-xs text-muted-foreground">
-          DB 패치 스크립트의 기본 담당자로 설정됩니다.
-        </p>
-      </div>
-
       {/* 파일 업로드 */}
       <div className="space-y-2">
         <Label>
@@ -226,6 +228,24 @@ export function HotfixCreateForm({
           disabled={isUploading}
           heightClass="h-28"
           hint="ZIP 파일만 지원"
+        />
+      </div>
+
+      {/* 승인된 상태로 생성 */}
+      <div className="flex items-center justify-between rounded-lg border p-4">
+        <div className="space-y-1">
+          <Label htmlFor="isApproved" className="cursor-pointer font-medium">
+            승인된 상태로 생성
+          </Label>
+          <TypographyMuted className="text-xs">
+            활성화 시 승인된 상태로 핫픽스가 생성됩니다.
+          </TypographyMuted>
+        </div>
+        <Switch
+          id="isApproved"
+          checked={isApproved}
+          onCheckedChange={setIsApproved}
+          disabled={isUploading}
         />
       </div>
     </FormSheet>

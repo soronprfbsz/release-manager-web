@@ -29,7 +29,6 @@ import type { LinkFiltersState } from '@/features/infrastructure/link-management
 import type { FileFiltersState } from '@/features/infrastructure/file-management'
 import type { PublishingFiltersState } from '@/features/infrastructure/publishing-management'
 
-import { usePageIcon } from '@/shared/lib/hooks'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
@@ -70,7 +69,6 @@ const TAB_CONFIG = {
 } as const
 
 export function ResourcePage() {
-  const { icon: pageIcon } = usePageIcon()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'services'
 
@@ -160,8 +158,6 @@ export function ResourcePage() {
 
   return (
     <PageLayout
-      icon={pageIcon}
-      title="리소스 관리"
       actions={
         <Tooltip>
           <TooltipTrigger asChild>
@@ -179,7 +175,7 @@ export function ResourcePage() {
       <ContentCard noPadding>
         <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
           {/* Tab Header with integrated filters */}
-          <div className="flex items-center justify-between px-8 pt-6">
+          <div className="flex items-center justify-between px-8 pt-2">
             <TabsList variant="line" className="border-0">
               {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
                 const config = TAB_CONFIG[tabKey]

@@ -8,8 +8,6 @@ import { useState } from 'react'
 import { HardDrive } from 'lucide-react'
 import { BsDatabaseDown, BsDatabaseUp } from 'react-icons/bs'
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import { BackupForm, RestoreForm } from '@/widgets/remote-jobs'
 
 import {
@@ -41,7 +39,6 @@ import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function MariaDBPage() {
-  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Dialog states
@@ -198,8 +195,6 @@ export function MariaDBPage() {
 
   return (
     <PageLayout
-      icon={pageIcon}
-      title="MariaDB"
       actions={
         <>
           <Tooltip>

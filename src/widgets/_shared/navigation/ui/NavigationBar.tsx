@@ -89,7 +89,7 @@ export function NavigationBar() {
                   {item.children && item.children.length > 0 ? (
                     <>
                       <NavigationMenuTrigger className="gap-1.5">
-                        {item.isIconVisible && item.icon && getMenuIcon(item.icon)}
+                        {item.isIconVisible && getMenuIcon(item.icon)}
                         {item.label}
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
@@ -155,8 +155,6 @@ export function NavigationBar() {
                                             <div className={cn('grid gap-1', hasAnyDesc ? 'grid-cols-2' : 'grid-cols-1')}>
                                               {filteredChildren.map((subChild) => {
                                                 const showDesc = subChild.isDescriptionVisible && subChild.description
-                                                const showIcon = subChild.isIconVisible && subChild.icon
-                                                const icon = showIcon ? getMenuIcon(subChild.icon) : null
                                                 return (
                                                   <NavigationMenuLink key={subChild.label} asChild>
                                                     <Link
@@ -167,9 +165,9 @@ export function NavigationBar() {
                                                         subChild.isLineBreak && 'col-span-2'
                                                       )}
                                                     >
-                                                      {showIcon && icon && (
+                                                      {subChild.isIconVisible && (
                                                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
-                                                          {icon}
+                                                          {getMenuIcon(subChild.icon)}
                                                         </div>
                                                       )}
                                                       <div className="flex-1 min-w-0">
@@ -203,7 +201,8 @@ export function NavigationBar() {
                     </>
                   ) : (
                     <NavigationMenuLink asChild>
-                      <Link to={item.path!} className={navigationMenuTriggerStyle()}>
+                      <Link to={item.path!} className={cn(navigationMenuTriggerStyle(), 'gap-1.5')}>
+                        {item.isIconVisible && getMenuIcon(item.icon)}
                         {item.label}
                       </Link>
                     </NavigationMenuLink>
@@ -284,9 +283,6 @@ function ModernListItem({ item }: ModernListItemProps) {
   if (!item.path) return null
 
   const showDesc = item.isDescriptionVisible && item.description
-  const showIcon = item.isIconVisible && item.icon
-  // description이 있을 때는 큰 아이콘, 없을 때는 작은 아이콘
-  const icon = showIcon ? getMenuIcon(item.icon, showDesc ? 'h-4 w-4' : 'h-4 w-4') : null
 
   return (
     <div className={cn(item.isLineBreak && 'col-span-2')}>
@@ -299,15 +295,15 @@ function ModernListItem({ item }: ModernListItemProps) {
           )}
         >
           {/* description이 있을 때: 배경 박스 + 아이콘 */}
-          {showDesc && showIcon && icon && (
+          {showDesc && item.isIconVisible && (
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground group-hover/item:bg-primary group-hover/item:text-primary-foreground transition-colors duration-200">
-              {icon}
+              {getMenuIcon(item.icon)}
             </div>
           )}
           {/* description이 없을 때: 작은 아이콘만 (배경 없음) */}
-          {!showDesc && showIcon && icon && (
+          {!showDesc && item.isIconVisible && (
             <span className="text-muted-foreground group-hover/item:text-primary transition-colors">
-              {icon}
+              {getMenuIcon(item.icon)}
             </span>
           )}
           <div className="flex-1 min-w-0">

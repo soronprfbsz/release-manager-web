@@ -123,6 +123,28 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     return extractCustomVersionPart(latestVersionForCustomer)
   }, [latestVersionForCustomer])
 
+  // 선택된 고객사의 customBaseVersion 조회 (기존 버전이 있는 경우)
+  const existingCustomBaseVersion = useMemo(() => {
+    if (!selectedCustomer || !customTreeData?.customers) return null
+    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
+    return customerNode?.customBaseVersion || null
+  }, [selectedCustomer, customTreeData])
+
+  // 선택된 표준본 버전 문자열 (최초 버전 생성 시)
+  const selectedStandardVersion = useMemo(() => {
+    if (!customBaseVersionId) return null
+    return standardVersions.find(sv => sv.versionId === customBaseVersionId)?.version || null
+  }, [customBaseVersionId, standardVersions])
+
+  // 실제 사용할 baseVersion (기존 것 또는 새로 선택한 것)
+  const effectiveBaseVersion = existingCustomBaseVersion || selectedStandardVersion
+
+  // 풀네임 커스텀 버전 생성: {baseVersion}-{customerCode}.{customVersion}
+  const getFullVersionName = (version: string) => {
+    if (!effectiveBaseVersion || !selectedCustomer?.customerCode) return version
+    return `${effectiveBaseVersion}-${selectedCustomer.customerCode}.${version}`
+  }
+
   // 자동 계산된 버전
   const calculatedVersion = useMemo(() => {
     if (!customerId) return ''
@@ -177,7 +199,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     onSuccess: () => {
       toast({
         title: '커스텀 버전 생성 완료',
-        description: `버전 ${effectiveVersion}이(가) 성공적으로 생성되었습니다.`,
+        description: `버전 ${getFullVersionName(effectiveVersion)}이(가) 성공적으로 생성되었습니다.`,
       })
       handleClose()
       onSuccess()
@@ -441,15 +463,15 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
             <div className="flex items-center justify-center gap-3 py-2 bg-muted/50 rounded-md">
               {currentCustomVersion ? (
                 <>
-                  <span className="text-muted-foreground">{currentCustomVersion}</span>
+                  <span className="text-muted-foreground text-sm">{getFullVersionName(currentCustomVersion)}</span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-bold text-primary">{calculatedVersion}</span>
+                  <span className="font-bold text-primary text-sm">{getFullVersionName(calculatedVersion)}</span>
                 </>
               ) : (
                 <>
                   <span className="text-muted-foreground text-sm">최초 버전</span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-bold text-primary">{calculatedVersion}</span>
+                  <span className="font-bold text-primary text-sm">{getFullVersionName(calculatedVersion)}</span>
                 </>
               )}
             </div>
@@ -516,11 +538,11 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         />
       </div>
 
-      {/* 승인된 버전으로 생성 */}
+      {/* 승인된 상태로 생성 */}
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="space-y-1">
           <Label htmlFor="isApproved" className="cursor-pointer font-medium">
-            승인된 버전으로 생성
+            승인된 상태로 생성
           </Label>
           <TypographyMuted className="text-xs">
             활성화 시 승인된 상태로 버전이 생성됩니다.

@@ -24,9 +24,10 @@ export type Role = 'ADMIN' | 'DEVELOPER' | 'USER' | 'GUEST'
 const HIDDEN_ROLES = {
   // 버전 관리
   version: {
-    add: ['GUEST'] as Role[],                          // 추가: ADMIN, DEVELOPER, USER 가능
+    add: ['GUEST', 'USER'] as Role[],                  // 추가/수정: ADMIN, DEVELOPER 가능
     delete: ['GUEST', 'USER', 'DEVELOPER'] as Role[],  // 삭제: ADMIN만 가능
-    approve: ['GUEST'] as Role[],                      // 승인: ADMIN, DEVELOPER, USER 가능
+    approve: ['GUEST', 'USER'] as Role[],              // 승인: ADMIN, DEVELOPER 가능
+    download: ['GUEST', 'USER'] as Role[],             // 다운로드: ADMIN, DEVELOPER 가능
   },
   // 패치 관리
   patch: {
@@ -66,6 +67,7 @@ export function usePermission() {
     canAddVersion: canAccess(HIDDEN_ROLES.version.add),
     canDeleteVersion: canAccess(HIDDEN_ROLES.version.delete),
     canApproveVersion: canAccess(HIDDEN_ROLES.version.approve),
+    canDownloadVersion: canAccess(HIDDEN_ROLES.version.download),
 
     // 패치 관리 권한
     canAddPatch: canAccess(HIDDEN_ROLES.patch.add),

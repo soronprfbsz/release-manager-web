@@ -68,6 +68,22 @@ export function CustomPatchCreateForm({
 
   const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
 
+  // 베이스 버전에서 표준 버전 부분 추출 (e.g., "1.0.0-customerA.1.0.0" -> "1.0.0")
+  const fullBaseVersion = versions.find((v) => v.isBaseVersion)?.version || ''
+  const standardVersion = fullBaseVersion.includes('-')
+    ? fullBaseVersion.split('-')[0]
+    : fullBaseVersion
+
+  // 풀네임 커스텀 버전 생성: {standardVersion}-{customerCode}.{customVersion}
+  const getFullVersionName = (version: string) => {
+    if (!standardVersion || !selectedCustomer?.customerCode) return version
+    // 베이스 버전(표준 버전)은 변환하지 않음
+    if (version === standardVersion) return version
+    // 이미 풀네임 형식인 경우 그대로 반환
+    if (version.includes(`-${selectedCustomer.customerCode}.`)) return version
+    return `${standardVersion}-${selectedCustomer.customerCode}.${version}`
+  }
+
   return (
     <FormSheet
       open={isOpen}
@@ -82,33 +98,56 @@ export function CustomPatchCreateForm({
       onClose={onClose}
       width="w-[500px] sm:max-w-[500px]"
     >
-      {/* 고객사 선택 */}
-      <div className="space-y-2">
-        <Label required>고객사</Label>
-        <Combobox
-          options={customers.map((c) => ({
-            value: String(c.customerId),
-            label: `${c.customerName} (${c.customerCode})`,
-          }))}
-          value={formData.customerId ? String(formData.customerId) : ''}
-          onValueChange={(value) => {
-            onFormDataChange({
-              ...formData,
-              customerId: value ? Number(value) : null,
-              fromVersion: '',
-              toVersion: '',
-            })
-          }}
-          placeholder="고객사를 선택하세요"
-          searchPlaceholder="고객사 검색..."
-          disabled={isCustomersLoading}
-        />
-        {isCustomersLoading && (
-          <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
-        )}
-        {!isCustomersLoading && customers.length === 0 && (
-          <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
-        )}
+      {/* 고객사 & 담당자 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label required>고객사</Label>
+          <Combobox
+            options={customers.map((c) => ({
+              value: String(c.customerId),
+              label: `${c.customerName} (${c.customerCode})`,
+            }))}
+            value={formData.customerId ? String(formData.customerId) : ''}
+            onValueChange={(value) => {
+              onFormDataChange({
+                ...formData,
+                customerId: value ? Number(value) : null,
+                fromVersion: '',
+                toVersion: '',
+              })
+            }}
+            placeholder="고객사 선택"
+            searchPlaceholder="고객사 검색..."
+            disabled={isCustomersLoading}
+          />
+          {isCustomersLoading && (
+            <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
+          )}
+          {!isCustomersLoading && customers.length === 0 && (
+            <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label>담당자</Label>
+          <Combobox
+            options={[
+              { value: '__none__', label: '선택 안함' },
+              ...accounts.map((a) => ({
+                value: String(a.accountId),
+                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
+              })),
+            ]}
+            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
+            onValueChange={(value) =>
+              onFormDataChange({
+                ...formData,
+                assigneeId: value === '__none__' ? null : Number(value),
+              })
+            }
+            placeholder="선택 안함"
+            searchPlaceholder="담당자 검색..."
+          />
+        </div>
       </div>
 
       {/* 버전 선택 */}
@@ -151,29 +190,6 @@ export function CustomPatchCreateForm({
         )}
       </div>
 
-      {/* 담당자 */}
-      <div className="space-y-2">
-        <Label>담당자</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...accounts.map((a) => ({
-              value: String(a.accountId),
-              label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-            })),
-          ]}
-          value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
-          onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
-              assigneeId: value === '__none__' ? null : Number(value),
-            })
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="담당자 검색..."
-        />
-      </div>
-
       {/* 패치명 */}
       <div className="space-y-2">
         <Label>패치명</Label>
@@ -200,12 +216,14 @@ export function CustomPatchCreateForm({
 
       {/* 생성 정보 미리보기 */}
       {formData.customerId && formData.fromVersion && formData.toVersion && (
-        <div className="p-4 bg-primary/10 rounded-lg">
-          <p className="text-sm text-primary">
-            <strong>{selectedCustomer?.customerName}</strong>의{' '}
-            <strong>{formData.fromVersion}</strong> 초과 ~{' '}
-            <strong>{formData.toVersion}</strong> 이하 버전의 모든 DB 변경사항이 포함된
-            패치가 생성됩니다.
+        <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <span className="text-muted-foreground">{getFullVersionName(formData.fromVersion)}</span>
+            <ArrowRight className="h-4 w-4 text-primary" />
+            <strong className="text-primary">{getFullVersionName(formData.toVersion)}</strong>
+          </div>
+          <p className="text-xs text-center text-muted-foreground">
+            위 버전 범위 내 모든 DB 변경사항이 포함된 패치가 생성됩니다.
           </p>
         </div>
       )}

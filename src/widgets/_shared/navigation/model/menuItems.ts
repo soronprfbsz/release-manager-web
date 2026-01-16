@@ -13,29 +13,11 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   {
     label: '버전 관리',
-    children: [
-      {
-        label: 'Standard',
-        path: ROUTES.RELEASES.STANDARD,
-      },
-      {
-        label: 'Custom',
-        path: ROUTES.RELEASES.CUSTOM,
-      },
-    ],
+    path: ROUTES.RELEASES,
   },
   {
     label: '패치 관리',
-    children: [
-      {
-        label: 'Standard',
-        path: ROUTES.PATCHES.STANDARD,
-      },
-      {
-        label: 'Custom',
-        path: ROUTES.PATCHES.CUSTOM,
-      },
-    ],
+    path: ROUTES.PATCHES,
   },
   {
     label: '운영 관리',

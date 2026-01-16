@@ -6,8 +6,6 @@
 import { useState } from 'react'
 
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import {
   AccountTable,
   AccountForm,
@@ -38,7 +36,6 @@ interface PaginationState {
 }
 
 export function AccountListPage() {
-  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Pagination state
@@ -132,10 +129,7 @@ export function AccountListPage() {
   const accountList = accountData?.content || []
 
   return (
-    <PageLayout
-      icon={pageIcon}
-      title="계정 관리"
-    >
+    <PageLayout>
       {/* Account List Card */}
       <ContentCard
         title="계정 목록"

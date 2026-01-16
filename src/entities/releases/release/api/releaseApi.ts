@@ -161,6 +161,7 @@ export const releaseApi = {
     comment: string,
     patchFiles: File,
     engineerId?: number,
+    isApproved?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<ReleaseVersionDetail> => {
     const formData = new FormData()
@@ -170,6 +171,9 @@ export const releaseApi = {
     formData.append('patchFiles', patchFiles)
     if (engineerId !== undefined) {
       formData.append('engineerId', String(engineerId))
+    }
+    if (isApproved !== undefined) {
+      formData.append('isApproved', String(isApproved))
     }
 
     const response = await apiClient.upload<ReleaseVersionDetail>(

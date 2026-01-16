@@ -74,7 +74,7 @@ export function HomePage() {
                   <div className="animate-pulse h-full bg-muted rounded" />
                 ) : latestInstall ? (
                   <Link
-                    to={ROUTES.RELEASES.STANDARD}
+                    to={ROUTES.RELEASES}
                     state={{ selectedVersionId: latestInstall.releaseVersionId }}
                     className="block hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                   >
@@ -134,7 +134,7 @@ export function HomePage() {
                     {recentVersions.map((version) => (
                       <Link
                         key={version.releaseVersionId}
-                        to={ROUTES.RELEASES.STANDARD}
+                        to={ROUTES.RELEASES}
                         state={{ selectedVersionId: version.releaseVersionId }}
                         className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                       >
@@ -184,7 +184,7 @@ export function HomePage() {
                     {recentPatches.map((patch) => (
                       <Link
                         key={patch.patchId}
-                        to={ROUTES.PATCHES.STANDARD}
+                        to={`${ROUTES.PATCHES}?tab=${patch.releaseType === 'STANDARD' ? 'standard' : 'custom'}`}
                         className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">

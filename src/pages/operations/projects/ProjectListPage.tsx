@@ -6,8 +6,6 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import {
   useProjects,
   useCreateProject,
@@ -39,7 +37,6 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 }
 
 export function ProjectListPage() {
-  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
 
   // Form state
@@ -164,8 +161,6 @@ export function ProjectListPage() {
 
   return (
     <PageLayout
-      icon={pageIcon}
-      title="프로젝트 관리"
       actions={
         <Tooltip>
           <TooltipTrigger asChild>

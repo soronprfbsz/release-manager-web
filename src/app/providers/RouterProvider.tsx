@@ -10,10 +10,8 @@ import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { DepartmentPage } from '@/pages/operations/departments'
 import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
-import { CustomPatchPage } from '@/pages/patches/custom'
-import { StandardPatchPage } from '@/pages/patches/standard'
-import { CustomReleasePage } from '@/pages/releases/custom'
-import { StandardReleasePage } from '@/pages/releases/standard'
+import { PatchesPage } from '@/pages/patches'
+import { ReleasesPage } from '@/pages/releases'
 import { FileSyncPage } from '@/pages/operations/file-sync/FileSyncPage'
 
 import { ROUTES } from '@/shared/config/constants'
@@ -41,41 +39,21 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.RELEASES.STANDARD,
+    path: ROUTES.RELEASES,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <StandardReleasePage />
+          <ReleasesPage />
         </MainLayout>
       </ProtectedRoute>
     ),
   },
   {
-    path: ROUTES.RELEASES.CUSTOM,
+    path: ROUTES.PATCHES,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <CustomReleasePage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.PATCHES.STANDARD,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <StandardPatchPage />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: ROUTES.PATCHES.CUSTOM,
-    element: (
-      <ProtectedRoute>
-        <MainLayout>
-          <CustomPatchPage />
+          <PatchesPage />
         </MainLayout>
       </ProtectedRoute>
     ),

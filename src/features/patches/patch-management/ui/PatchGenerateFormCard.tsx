@@ -62,7 +62,7 @@ export function PatchGenerateFormCard({
   )
 
   const handleCustomClick = () => {
-    navigate(ROUTES.PATCHES.CUSTOM)
+    navigate(`${ROUTES.PATCHES}?tab=custom`)
   }
 
   return (

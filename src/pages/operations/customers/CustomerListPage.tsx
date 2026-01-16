@@ -7,8 +7,6 @@ import { useState, useEffect } from 'react'
 
 import { Plus, Network, Search, X, TableOfContents, Calendar } from 'lucide-react'
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import {
   CustomerForm,
   CustomerDeleteModal,
@@ -47,7 +45,6 @@ const INITIAL_FORM_DATA: CustomerFormData = {
 }
 
 export function CustomerListPage() {
-  const { icon: pageIcon } = usePageIcon()
   const { toast } = useToast()
   const { projectId } = useProjectStore()
 
@@ -177,8 +174,6 @@ export function CustomerListPage() {
 
   return (
     <PageLayout
-      icon={pageIcon}
-      title="고객사 관리"
       actions={
         <Tooltip>
           <TooltipTrigger asChild>
@@ -192,7 +187,7 @@ export function CustomerListPage() {
         </Tooltip>
       }
     >
-      <ContentSplit>
+      <ContentSplit treeWidth={27}>
         {/* Left Panel - Customer Tree */}
         <ContentSplit.Tree
           header={

@@ -17,8 +17,4 @@ export const CONTENT_SPACING = {
   // Split 레이아웃
   SPLIT_GAP: 'gap-6',
   SPLIT_HEIGHT: 'h-[calc(100vh-18rem)]',
-
-  // Tree 패널 비율 (5분할 기준)
-  TREE_SPAN: 'lg:col-span-2',
-  DETAIL_SPAN: 'lg:col-span-3',
 } as const

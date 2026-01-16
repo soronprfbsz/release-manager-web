@@ -1,1 +1,0 @@
-export { PatchGeneratePage } from './PatchGeneratePage'

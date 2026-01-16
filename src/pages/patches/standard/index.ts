@@ -1,2 +1,0 @@
-export { StandardPatchPage } from './StandardPatchPage'
-

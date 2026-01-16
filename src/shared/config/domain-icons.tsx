@@ -11,7 +11,6 @@
 import {
   Building2,
   Database,
-  FileArchive,
   Flame,
   FolderKanban,
   FolderOpen,
@@ -54,7 +53,8 @@ export const DOMAIN_ICONS = {
   customPatch: GitBranch, // Custom 패치
   
   // 파일 동기화
-  release: FileArchive,
+  release: Tag,             // Standard 릴리즈
+  customRelease: GitBranch, // Custom 릴리즈
   backup: Database,
   
   // 원격 작업

@@ -14,14 +14,8 @@ export const ROUTES = {
     LOGIN: '/login',
     SIGNUP: '/signup',
   },
-  RELEASES: {
-    STANDARD: '/releases/standard',
-    CUSTOM: '/releases/custom',
-  },
-  PATCHES: {
-    STANDARD: '/patches/standard',
-    CUSTOM: '/patches/custom',
-  },
+  RELEASES: '/releases',
+  PATCHES: '/patches',
   OPERATIONS: {
     CUSTOMERS: '/operations/customers',
     DEPARTMENTS: '/operations/departments',

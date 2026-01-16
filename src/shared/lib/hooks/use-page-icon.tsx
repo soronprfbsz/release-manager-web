@@ -35,6 +35,10 @@ interface UsePageIconResult {
   icon: React.ReactNode
   /** 아이콘명 (API에서 받은 원본 값) */
   iconName: string | undefined
+  /** 페이지 타이틀 (메뉴명) */
+  title: string | undefined
+  /** 페이지 설명 */
+  description: string | undefined
   /** 메뉴 아이템 정보 */
   menuItem: MenuItem | null
 }
@@ -62,6 +66,8 @@ export function usePageIcon(customPath?: string): UsePageIconResult {
   return {
     icon,
     iconName: menuItem?.icon,
+    title: menuItem?.label,
+    description: menuItem?.description,
     menuItem,
   }
 }

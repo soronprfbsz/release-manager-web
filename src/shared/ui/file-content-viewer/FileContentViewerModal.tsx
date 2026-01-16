@@ -30,6 +30,8 @@ interface FileContentViewerModalProps {
   description?: string
   fileSize?: number
   onDownload?: () => void
+  /** 다운로드 버튼 표시 여부 (권한 체크용) */
+  canDownload?: boolean
   /** PDF 파일용 Blob 데이터 */
   pdfBlob?: Blob | null
   /** PDF 로딩 상태 */
@@ -153,6 +155,7 @@ export function FileContentViewerModal({
   description = '파일 내용',
   fileSize,
   onDownload,
+  canDownload = true,
   pdfBlob = null,
   isPdfLoading = false,
   pdfError = null,
@@ -258,7 +261,7 @@ export function FileContentViewerModal({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {onDownload && (
+            {onDownload && canDownload && (
               <Button
                 variant="ghost"
                 size="icon-xs"

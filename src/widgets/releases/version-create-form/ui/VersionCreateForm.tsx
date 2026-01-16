@@ -59,7 +59,7 @@ function parseVersion(version: string): { major: number; minor: number; patch: n
 function bumpVersion(version: string, type: VersionBumpType): string {
   const parsed = parseVersion(version)
   if (!parsed) return ''
-  
+
   switch (type) {
     case 'major':
       return `${parsed.major + 1}.0.0`
@@ -291,7 +291,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
       {/* 버전 선택 영역 */}
       <div className="space-y-3">
         <Label required>버전</Label>
-        
+
         {latestVersion && !isManualInput ? (
           <div className="rounded-lg border bg-card p-4 space-y-4">
 
@@ -413,11 +413,11 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         />
       </div>
 
-      {/* 승인된 버전으로 생성 */}
+      {/* 승인된 상태로 생성 */}
       <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="space-y-1">
           <Label htmlFor="isApproved" className="cursor-pointer font-medium">
-            승인된 버전으로 생성
+            승인된 상태로 생성
           </Label>
           <TypographyMuted className="text-xs">
             활성화 시 승인된 상태로 버전이 생성됩니다.

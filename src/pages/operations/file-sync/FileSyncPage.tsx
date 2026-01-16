@@ -15,8 +15,6 @@ import {
     RotateCcw,
 } from 'lucide-react'
 
-import { usePageIcon } from '@/shared/lib/hooks'
-
 import { Button } from '@/shared/ui/button'
 import {
     Table,
@@ -134,7 +132,6 @@ const actionIconConfig: Record<FileSyncActionType, { icon: typeof Plus; destruct
 type TabType = 'analysis' | 'ignored'
 
 export function FileSyncPage() {
-    const { icon: pageIcon } = usePageIcon()
     const [searchParams, setSearchParams] = useSearchParams()
     const currentTab = (searchParams.get('tab') as TabType) || 'analysis'
 
@@ -457,13 +454,11 @@ export function FileSyncPage() {
 
     return (
         <PageLayout
-            icon={pageIcon}
-            title="파일 동기화"
             actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
         >
             <ContentCard noPadding>
                 <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-                    <div className="flex items-center justify-between px-8 pt-6">
+                    <div className="flex items-center justify-between px-8 pt-2">
                         <TabsList variant="line" className="border-0">
                             <TabsTrigger value="analysis" variant="line">
                                 <ScanSearch className="w-4 h-4 mr-2" />

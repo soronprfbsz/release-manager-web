@@ -2,6 +2,7 @@
  * Content Split Layout Component
  * 좌/우 분할 레이아웃 컴포넌트
  * - 버전관리, 고객사, 부서 관리 등 트리+상세 구조용
+ * - treeWidth prop으로 좌측 패널 너비 조정 (기본 40%)
  */
 
 import * as React from 'react'
@@ -19,17 +20,20 @@ import { CONTENT_SPACING } from './constants'
 interface ContentSplitProps {
   children: React.ReactNode
   className?: string
+  /** 좌측 패널(Tree) 너비 % (기본: 40) */
+  treeWidth?: number
 }
 
-function ContentSplitRoot({ children, className }: ContentSplitProps) {
+function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitProps) {
   return (
     <div
       className={cn(
-        'grid grid-cols-1 lg:grid-cols-5',
+        'grid grid-cols-1 lg:grid-cols-[var(--tree-width)_1fr]',
         CONTENT_SPACING.SPLIT_GAP,
         CONTENT_SPACING.SPLIT_HEIGHT,
         className
       )}
+      style={{ '--tree-width': `${treeWidth}%` } as React.CSSProperties}
     >
       {children}
     </div>
@@ -61,7 +65,7 @@ function ContentSplitTree({
   className,
 }: ContentSplitTreeProps) {
   return (
-    <Card className={cn(CONTENT_SPACING.TREE_SPAN, 'flex flex-col overflow-hidden', className)}>
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
       <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
         {header || (
           <>
@@ -72,7 +76,7 @@ function ContentSplitTree({
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="px-8 pb-6">
+          <div className="px-6 pb-6">
             {children}
           </div>
         </ScrollArea>
@@ -105,9 +109,8 @@ function ContentSplitDetail({
   isEmpty = false,
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
-  // Tree와 동일한 구조: Card → 헤더 → ScrollArea → children
   return (
-    <Card className={cn(CONTENT_SPACING.DETAIL_SPAN, 'flex flex-col overflow-hidden', className)}>
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
       {header && (
         <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
           {header}

@@ -110,6 +110,7 @@ interface VersionDetailContextValue {
   canDeleteVersion: boolean
   canApproveVersion: boolean
   canAddVersion: boolean
+  canDownloadVersion: boolean
   // File content
   textContent: string | null
   blobData: Blob | null
@@ -136,9 +137,10 @@ interface FileNodeProps {
   level: number
   onFileClick: (node: ReleaseFileNode) => void
   onDownload: (node: ReleaseFileNode) => void
+  canDownload: boolean
 }
 
-function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
+function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   if (node.type === 'directory') {
@@ -176,6 +178,7 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
                 level={level + 1}
                 onFileClick={onFileClick}
                 onDownload={onDownload}
+                canDownload={canDownload}
               />
             ))}
           </div>
@@ -214,7 +217,7 @@ function FileNode({ node, level, onFileClick, onDownload }: FileNodeProps) {
             {formatFileSize(node.size)}
           </TypographyMuted>
         )}
-        {node.releaseFileId && (
+        {node.releaseFileId && canDownload && (
           <Button
             variant="ghost"
             size="icon"
@@ -242,7 +245,7 @@ function VersionDetailProvider({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { canDeleteVersion, canApproveVersion, canAddVersion } = usePermission()
+  const { canDeleteVersion, canApproveVersion, canAddVersion, canDownloadVersion } = usePermission()
   const projectId = useProjectStore((state) => state.projectId)
 
   // 파일 트리 구조 조회
@@ -425,6 +428,7 @@ function VersionDetailProvider({
     canDeleteVersion,
     canApproveVersion,
     canAddVersion,
+    canDownloadVersion,
     textContent,
     blobData,
     isPdfFile,
@@ -588,7 +592,7 @@ function CommentSection() {
 // Content component
 function VersionDetailContent() {
   const ctx = useVersionDetailContext()
-  const { version, isLoading, error, fileStructure, handleApprove, handleDownloadAll, handleViewFile, handleDownload, canApproveVersion, approveMutation } = ctx
+  const { version, isLoading, error, fileStructure, handleApprove, handleDownloadAll, handleViewFile, handleDownload, canApproveVersion, canDownloadVersion, approveMutation } = ctx
 
   if (isLoading) {
     return (
@@ -695,7 +699,7 @@ function VersionDetailContent() {
           icon={FolderTree}
           title="파일"
           actions={
-            hasFiles && (
+            hasFiles && canDownloadVersion && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -729,6 +733,7 @@ function VersionDetailContent() {
                   level={0}
                   onFileClick={handleViewFile}
                   onDownload={handleDownload}
+                  canDownload={canDownloadVersion}
                 />
               ))}
             </div>
@@ -746,7 +751,7 @@ function VersionDetailDialogs() {
     version, isHotfix, projectId, onDelete,
     fileViewerOpen, setFileViewerOpen, selectedFile,
     deleteDialogOpen, setDeleteDialogOpen, hotfixDialogOpen, setHotfixDialogOpen,
-    deleteMutation, handleDeleteConfirm, handleDownloadSelectedFile,
+    deleteMutation, handleDeleteConfirm, handleDownloadSelectedFile, canDownloadVersion,
     textContent, blobData, isPdfFile, isImageFile, isLoadingContent, contentError,
   } = ctx
 
@@ -763,6 +768,7 @@ function VersionDetailDialogs() {
         description="파일 내용"
         fileSize={selectedFile?.size}
         onDownload={handleDownloadSelectedFile}
+        canDownload={canDownloadVersion}
         pdfBlob={isPdfFile ? blobData : null}
         isPdfLoading={isPdfFile && isLoadingContent}
         pdfError={isPdfFile ? contentError : null}

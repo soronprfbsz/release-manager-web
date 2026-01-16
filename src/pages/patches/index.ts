@@ -1,0 +1,1 @@
+export { PatchesPage } from './PatchesPage'
