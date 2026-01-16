@@ -259,7 +259,7 @@ function TreeNode({
         onClick={() => onSelect(node)}
       >
         {/* Drag Handle (only for non-root) */}
-        {isDraggable ? (
+        {isDraggable && (
           <div
             draggable
             onDragStart={handleDragStart}
@@ -268,8 +268,6 @@ function TreeNode({
           >
             <GripVertical className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
           </div>
-        ) : (
-          <div className="w-4" /> // Spacer for alignment
         )}
 
         {/* Expand/Collapse Button */}

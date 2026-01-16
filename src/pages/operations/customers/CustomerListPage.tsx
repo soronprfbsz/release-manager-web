@@ -196,7 +196,8 @@ export function CustomerListPage() {
                 <Network className="h-4 w-4" />
                 고객사 목록
               </div>
-              <div className="relative flex-1">
+              <span className="flex-1" />
+              <div className="relative w-58">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="고객사명 또는 코드 검색..."
