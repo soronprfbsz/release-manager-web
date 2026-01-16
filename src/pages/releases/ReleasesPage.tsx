@@ -373,7 +373,6 @@ export function ReleasesPage() {
         <ContentSplit.Tree
           header={
             <div className="flex flex-col w-full gap-4">
-              {/* Tabs - 50/50 split */}
               <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
                   {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
