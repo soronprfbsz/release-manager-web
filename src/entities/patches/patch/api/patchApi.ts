@@ -1,4 +1,6 @@
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
+import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
 
 import type {
@@ -96,14 +98,18 @@ export const patchApi = {
     return response
   },
 
-  /** 패치 파일 다운로드 */
-  download: async (id: number, fileName: string): Promise<void> => {
-    const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.download(id)}`
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  /** 패치 파일 다운로드 - 진행률 지원 */
+  download: async (
+    id: number,
+    fileName: string,
+    onProgress?: (event: DownloadProgressEvent) => void
+  ): Promise<void> => {
+    await downloadWithProgress({
+      url: ENDPOINTS.download(id),
+      filename: fileName,
+      onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
+    })
   },
 
   /** 패치 파일 구조 조회 */

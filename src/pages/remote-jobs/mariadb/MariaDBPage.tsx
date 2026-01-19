@@ -30,6 +30,7 @@ import {
 } from '@/entities/remote-jobs/mariadb'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
@@ -40,6 +41,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 export function MariaDBPage() {
   const { toast } = useToast()
+  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
 
   // Dialog states
   const [backupDialogOpen, setBackupDialogOpen] = useState(false)
@@ -132,8 +134,21 @@ export function MariaDBPage() {
     })
   }
 
-  const handleDownload = (file: BackupFile) => {
-    mariadbApi.downloadBackupFile(file.backupFileId, file.fileName)
+  const handleDownload = async (file: BackupFile) => {
+    if (transferState.isTransferring) return
+
+    startTransfer(file.fileName, 'download')
+    try {
+      await mariadbApi.downloadBackupFile(file.backupFileId, file.fileName, handleProgress)
+      completeTransfer()
+    } catch (error) {
+      resetTransfer()
+      toast({
+        title: '다운로드 실패',
+        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleDeleteClick = (file: BackupFile) => {
@@ -167,9 +182,21 @@ export function MariaDBPage() {
     setLogViewerOpen(true)
   }
 
-  const handleLogDownload = (log: LogFile) => {
-    if (!logsFile) return
-    mariadbApi.downloadLogFile(logsFile.backupFileId, log.logFileName)
+  const handleLogDownload = async (log: LogFile) => {
+    if (!logsFile || transferState.isTransferring) return
+
+    startTransfer(log.logFileName, 'download')
+    try {
+      await mariadbApi.downloadLogFile(logsFile.backupFileId, log.logFileName, handleProgress)
+      completeTransfer()
+    } catch (error) {
+      resetTransfer()
+      toast({
+        title: '다운로드 실패',
+        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      })
+    }
   }
 
   // Client-side sorting
@@ -332,7 +359,21 @@ export function MariaDBPage() {
         fileSize={selectedLog?.fileSize}
         onDownload={
           selectedLog
-            ? () => mariadbApi.downloadLogFile(selectedLog.backupFileId, selectedLog.logFileName)
+            ? async () => {
+                if (transferState.isTransferring) return
+                startTransfer(selectedLog.logFileName, 'download')
+                try {
+                  await mariadbApi.downloadLogFile(selectedLog.backupFileId, selectedLog.logFileName, handleProgress)
+                  completeTransfer()
+                } catch (error) {
+                  resetTransfer()
+                  toast({
+                    title: '다운로드 실패',
+                    description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
+                    variant: 'destructive',
+                  })
+                }
+              }
             : undefined
         }
       />

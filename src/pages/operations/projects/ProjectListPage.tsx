@@ -23,6 +23,7 @@ import {
   useDeleteProject,
   useOnboardingFiles,
   useOnboardingFileContent,
+  projectApi,
   type Project,
   type ProjectCreateRequest,
   type ProjectUpdateRequest,
@@ -56,6 +57,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 
 type TabType = 'management' | 'onboarding'
 
@@ -80,6 +82,7 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 
 export function ProjectListPage() {
   const { toast } = useToast()
+  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
 
@@ -277,6 +280,26 @@ export function ProjectListPage() {
     }
   }
 
+  // 온보딩 전체 파일 다운로드 핸들러
+  const handleDownloadAllOnboardingFiles = async () => {
+    if (!selectedProjectId || transferState.isTransferring) return
+
+    const filename = `${selectedProjectId}_onboarding_files.zip`
+    startTransfer(filename, 'download')
+
+    try {
+      await projectApi.downloadOnboardingFiles(selectedProjectId, filename, handleProgress)
+      completeTransfer()
+    } catch (error) {
+      resetTransfer()
+      toast({
+        variant: 'destructive',
+        title: '다운로드 실패',
+        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
+      })
+    }
+  }
+
   return (
     <PageLayout
       actions={
@@ -375,10 +398,25 @@ export function ProjectListPage() {
                       <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <span>{onboardingData.totalFileCount}개 파일</span>
-                      <span>•</span>
-                      <span>{formatFileSize(onboardingData.totalSize)}</span>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span>{onboardingData.totalFileCount}개 파일</span>
+                        <span>•</span>
+                        <span>{formatFileSize(onboardingData.totalSize)}</span>
+                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleDownloadAllOnboardingFiles}
+                            disabled={transferState.isTransferring}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>전체 다운로드</TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
 

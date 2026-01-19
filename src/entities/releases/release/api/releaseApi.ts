@@ -1,5 +1,6 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
+import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 
 import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
 
@@ -120,14 +121,18 @@ export const releaseApi = {
     return response
   },
 
-  /** 버전 전체 다운로드 (ZIP) */
-  downloadVersion: async (id: number, fileName: string): Promise<void> => {
-    const link = document.createElement('a')
-    link.href = `${apiClient.getAxiosInstance().defaults.baseURL}${ENDPOINTS.versionDownload(id)}`
-    link.download = fileName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  /** 버전 전체 다운로드 (ZIP) - 진행률 지원 */
+  downloadVersion: async (
+    id: number,
+    fileName: string,
+    onProgress?: (event: DownloadProgressEvent) => void
+  ): Promise<void> => {
+    await downloadWithProgress({
+      url: ENDPOINTS.versionDownload(id),
+      filename: fileName,
+      onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
+    })
   },
 
   /** 버전 승인 */

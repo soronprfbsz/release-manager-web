@@ -4,6 +4,8 @@
  */
 
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
+import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 
 import type { Project, ProjectCreateRequest, ProjectUpdateRequest, OnboardingFilesResponse } from '../model/types'
 
@@ -11,6 +13,7 @@ const ENDPOINTS = {
   base: '/api/projects',
   byId: (id: string) => `/api/projects/${id}`,
   onboardingFiles: (id: string) => `/api/projects/${id}/files`,
+  onboardingDownload: (id: string) => `/api/projects/${id}/onboarding/download`,
 } as const
 
 export const projectApi = {
@@ -47,5 +50,19 @@ export const projectApi = {
   getOnboardingFiles: async (id: string): Promise<OnboardingFilesResponse> => {
     const response = await apiClient.get<OnboardingFilesResponse>(ENDPOINTS.onboardingFiles(id))
     return response
+  },
+
+  /** 온보딩 전체 파일 다운로드 (ZIP) - 진행률 지원 */
+  downloadOnboardingFiles: async (
+    id: string,
+    fileName: string,
+    onProgress?: (event: DownloadProgressEvent) => void
+  ): Promise<void> => {
+    await downloadWithProgress({
+      url: ENDPOINTS.onboardingDownload(id),
+      filename: fileName,
+      onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
+    })
   },
 }

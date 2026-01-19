@@ -4,6 +4,8 @@
  */
 
 import { apiClient } from '@/shared/api/client'
+import { API_TIMEOUT } from '@/shared/config/constants'
+import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 import type {
   PublishingListItem,
   PublishingDetail,
@@ -80,10 +82,18 @@ export const publishingApi = {
     await apiClient.patch(ENDPOINTS.reorder, data)
   },
 
-  /** 퍼블리싱 전체 다운로드 (ZIP) */
-  download: (id: number): void => {
-    const url = `${import.meta.env.VITE_API_BASE_URL || ''}${ENDPOINTS.download(id)}`
-    window.open(url, '_blank')
+  /** 퍼블리싱 전체 다운로드 (ZIP) - 진행률 지원 */
+  download: async (
+    id: number,
+    fileName: string,
+    onProgress?: (event: DownloadProgressEvent) => void
+  ): Promise<void> => {
+    await downloadWithProgress({
+      url: ENDPOINTS.download(id),
+      filename: fileName,
+      onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
+    })
   },
 
   /** 퍼블리싱 미리보기 (새 탭에서 열기) */
