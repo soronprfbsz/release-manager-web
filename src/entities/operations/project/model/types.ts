@@ -59,3 +59,24 @@ export interface OnboardingFileContent {
   mimeType: string
   isBinary: boolean
 }
+
+/** 온보딩 파일 삭제 응답 */
+export interface OnboardingFileDeleteResponse {
+  projectId: string
+  deletedPath: string
+  message: string
+}
+
+/** 온보딩 파일 업로드 응답 */
+export interface OnboardingFileUploadResponse {
+  projectId: string
+  uploadedPath: string
+  message: string
+}
+
+/** 온보딩 디렉토리 생성 응답 */
+export interface OnboardingDirectoryCreateResponse {
+  projectId: string
+  createdPath: string
+  message: string
+}

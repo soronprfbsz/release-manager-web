@@ -7,12 +7,21 @@ import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 
-import type { Project, ProjectCreateRequest, ProjectUpdateRequest, OnboardingFilesResponse } from '../model/types'
+import type {
+  Project,
+  ProjectCreateRequest,
+  ProjectUpdateRequest,
+  OnboardingFilesResponse,
+  OnboardingFileDeleteResponse,
+  OnboardingFileUploadResponse,
+  OnboardingDirectoryCreateResponse,
+} from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/projects',
   byId: (id: string) => `/api/projects/${id}`,
   onboardingFiles: (id: string) => `/api/projects/${id}/files`,
+  onboardingDirectory: (id: string) => `/api/projects/${id}/files/directory`,
   onboardingDownload: (id: string) => `/api/projects/${id}/onboarding/download`,
 } as const
 
@@ -64,5 +73,56 @@ export const projectApi = {
       onProgress,
       timeout: API_TIMEOUT.FILE_OPERATION,
     })
+  },
+
+  /** 온보딩 파일 업로드 */
+  uploadOnboardingFile: async (
+    id: string,
+    file: File,
+    targetPath?: string,
+    extractZip?: boolean
+  ): Promise<OnboardingFileUploadResponse> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (targetPath) {
+      formData.append('targetPath', targetPath)
+    }
+    if (extractZip !== undefined) {
+      formData.append('extractZip', String(extractZip))
+    }
+
+    const response = await apiClient.post<OnboardingFileUploadResponse>(
+      ENDPOINTS.onboardingFiles(id),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: API_TIMEOUT.FILE_OPERATION,
+      }
+    )
+    return response
+  },
+
+  /** 온보딩 파일 삭제 */
+  deleteOnboardingFile: async (
+    id: string,
+    filePath: string
+  ): Promise<OnboardingFileDeleteResponse> => {
+    const response = await apiClient.delete<OnboardingFileDeleteResponse>(
+      `${ENDPOINTS.onboardingFiles(id)}?filePath=${encodeURIComponent(filePath)}`
+    )
+    return response
+  },
+
+  /** 온보딩 디렉토리 생성 */
+  createOnboardingDirectory: async (
+    id: string,
+    path: string
+  ): Promise<OnboardingDirectoryCreateResponse> => {
+    const response = await apiClient.post<OnboardingDirectoryCreateResponse>(
+      `${ENDPOINTS.onboardingDirectory(id)}?path=${encodeURIComponent(path)}`
+    )
+    return response
   },
 }

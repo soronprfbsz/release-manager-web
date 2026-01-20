@@ -14,6 +14,9 @@ import {
   Download,
   ChevronRight,
   ChevronDown,
+  MoreHorizontal,
+  Trash2,
+  FolderPlus,
 } from 'lucide-react'
 
 import {
@@ -23,6 +26,9 @@ import {
   useDeleteProject,
   useOnboardingFiles,
   useOnboardingFileContent,
+  useUploadOnboardingFile,
+  useDeleteOnboardingFile,
+  useCreateOnboardingDirectory,
   projectApi,
   type Project,
   type ProjectCreateRequest,
@@ -38,13 +44,28 @@ import {
   type ProjectFormData,
   type ProjectFormMode,
 } from '@/features/operations/project-management'
+import {
+  OnboardingFileUploadSheet,
+  OnboardingFileDeleteDialog,
+  OnboardingDirectoryCreateDialog,
+  INITIAL_UPLOAD_FORM_DATA,
+  type OnboardingFileUploadFormData,
+  type OnboardingFileDeleteTarget,
+} from '@/features/operations/onboarding-management'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
-import { base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile, base64ToBlob } from '@/shared/lib/utils/file-content'
+import { base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile, isZipFile as checkIsZipFile, base64ToBlob } from '@/shared/lib/utils/file-content'
 import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
@@ -103,6 +124,16 @@ export function ProjectListPage() {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ filePath: string; name: string; size?: number } | null>(null)
 
+  // Onboarding file upload state
+  const [uploadSheetOpen, setUploadSheetOpen] = useState(false)
+  const [uploadFormData, setUploadFormData] = useState<OnboardingFileUploadFormData>(INITIAL_UPLOAD_FORM_DATA)
+
+  // Onboarding file delete state
+  const [onboardingDeleteTarget, setOnboardingDeleteTarget] = useState<OnboardingFileDeleteTarget | null>(null)
+
+  // Onboarding directory create state
+  const [directoryCreateParentPath, setDirectoryCreateParentPath] = useState<string | null>(null)
+
   // Queries & Mutations
   const { data: projects = [], isLoading } = useProjects()
   const createMutation = useCreateProject()
@@ -115,32 +146,38 @@ export function ProjectListPage() {
     { enabled: !!selectedProjectId && currentTab === 'onboarding' }
   )
 
+  // Onboarding file upload/delete/directory mutations
+  const uploadMutation = useUploadOnboardingFile(selectedProjectId)
+  const deleteOnboardingMutation = useDeleteOnboardingFile(selectedProjectId)
+  const createDirectoryMutation = useCreateOnboardingDirectory(selectedProjectId)
+
   // File content query - API 응답의 filePath 직접 사용
   const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useOnboardingFileContent(
     selectedFile?.filePath ?? '',
     fileViewerOpen && selectedFile !== null
   )
 
-  // PDF/이미지 파일 여부 확인
+  // PDF/이미지/ZIP 파일 여부 확인
   const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
   const isImageFile = selectedFile ? checkIsImageFile(selectedFile.name) : false
+  const isZipFile = selectedFile ? checkIsZipFile(selectedFile.name) : false
 
-  // 바이너리 데이터 처리
+  // 바이너리 데이터 처리 (PDF, 이미지, ZIP)
   const blobData = useMemo(() => {
     if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (!isPdfFile && !isImageFile) return null
+    if (!isPdfFile && !isImageFile && !isZipFile) return null
     return base64ToBlob(fileContentData.content, fileContentData.mimeType)
-  }, [fileContentData, isPdfFile, isImageFile])
+  }, [fileContentData, isPdfFile, isImageFile, isZipFile])
 
-  // 텍스트 콘텐츠 처리
+  // 텍스트 콘텐츠 처리 (PDF, 이미지, ZIP 제외)
   const textContent = useMemo(() => {
     if (!fileContentData) return null
-    if (isPdfFile || isImageFile) return null
+    if (isPdfFile || isImageFile || isZipFile) return null
     if (fileContentData.isBinary) {
       return base64ToText(fileContentData.content)
     }
     return fileContentData.content
-  }, [fileContentData, isPdfFile, isImageFile])
+  }, [fileContentData, isPdfFile, isImageFile, isZipFile])
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value })
@@ -260,7 +297,7 @@ export function ProjectListPage() {
     const fileName = node.name.toLowerCase()
     const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
       '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico']
+      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
       setSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
@@ -300,6 +337,103 @@ export function ProjectListPage() {
     }
   }
 
+  // onboardings/{projectId}/ prefix 제거 유틸
+  const stripOnboardingPrefix = (fullPath: string): string => {
+    const prefix = `onboardings/${selectedProjectId}/`
+    if (fullPath.startsWith(prefix)) {
+      return '/' + fullPath.slice(prefix.length)
+    }
+    return fullPath
+  }
+
+  // 온보딩 파일 업로드 핸들러
+  const handleUploadClick = (targetPath: string = '/') => {
+    const cleanPath = stripOnboardingPrefix(targetPath)
+    setUploadFormData({ ...INITIAL_UPLOAD_FORM_DATA, targetPath: cleanPath })
+    setUploadSheetOpen(true)
+  }
+
+  const handleUploadSubmit = () => {
+    if (!uploadFormData.file) return
+
+    uploadMutation.mutate(
+      {
+        file: uploadFormData.file,
+        targetPath: uploadFormData.targetPath,
+        extractZip: uploadFormData.extractZip,
+      },
+      {
+        onSuccess: () => {
+          toast({ title: '파일이 업로드되었습니다.' })
+          setUploadSheetOpen(false)
+          setUploadFormData(INITIAL_UPLOAD_FORM_DATA)
+        },
+        onError: (error) => {
+          toast({
+            variant: 'destructive',
+            title: '업로드 실패',
+            description: error.message,
+          })
+        },
+      }
+    )
+  }
+
+  // 온보딩 파일 삭제 핸들러
+  const handleOnboardingDeleteClick = (node: OnboardingFileNode) => {
+    setOnboardingDeleteTarget({
+      name: node.name,
+      path: stripOnboardingPrefix(node.filePath),
+      type: node.type,
+    })
+  }
+
+  const handleOnboardingDeleteConfirm = () => {
+    if (!onboardingDeleteTarget) return
+
+    deleteOnboardingMutation.mutate(onboardingDeleteTarget.path, {
+      onSuccess: () => {
+        toast({ title: `${onboardingDeleteTarget.type === 'directory' ? '폴더' : '파일'}가 삭제되었습니다.` })
+        setOnboardingDeleteTarget(null)
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: '삭제 실패',
+          description: error.message,
+        })
+      },
+    })
+  }
+
+  // 온보딩 디렉토리 생성 핸들러
+  const handleCreateDirectoryClick = (parentPath: string = '/') => {
+    const cleanPath = stripOnboardingPrefix(parentPath)
+    setDirectoryCreateParentPath(cleanPath)
+  }
+
+  const handleCreateDirectoryConfirm = (directoryName: string) => {
+    if (!directoryCreateParentPath) return
+
+    const fullPath = directoryCreateParentPath === '/'
+      ? `/${directoryName}`
+      : `${directoryCreateParentPath}/${directoryName}`
+
+    createDirectoryMutation.mutate(fullPath, {
+      onSuccess: () => {
+        toast({ title: '폴더가 생성되었습니다.' })
+        setDirectoryCreateParentPath(null)
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: '폴더 생성 실패',
+          description: error.message,
+        })
+      },
+    })
+  }
+
   return (
     <PageLayout
       actions={
@@ -314,6 +448,24 @@ export function ProjectListPage() {
               <p>{currentTabConfig.addTooltip}</p>
             </TooltipContent>
           </Tooltip>
+        ) : currentTab === 'onboarding' && selectedProjectId ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleUploadClick('/')}>
+                <File className="h-4 w-4 mr-2" />
+                파일 추가
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleCreateDirectoryClick('/')}>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                폴더 추가
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : null
       }
     >
@@ -426,6 +578,9 @@ export function ProjectListPage() {
                       files={onboardingData.files}
                       onFileClick={handleFileClick}
                       onDownload={handleFileDownload}
+                      onUpload={handleUploadClick}
+                      onDelete={handleOnboardingDeleteClick}
+                      onCreateDirectory={handleCreateDirectoryClick}
                     />
                   </ScrollArea>
                 </div>
@@ -457,9 +612,9 @@ export function ProjectListPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* 파일 내용 조회 모달 */}
+      {/* 파일 내용 조회 모달 (ZIP 파일 제외) */}
       <FileContentViewerModal
-        open={fileViewerOpen}
+        open={fileViewerOpen && !isZipFile}
         onOpenChange={setFileViewerOpen}
         fileName={selectedFile?.name || ''}
         content={textContent}
@@ -476,6 +631,46 @@ export function ProjectListPage() {
         isImageLoading={isImageFile && isLoadingContent}
         imageError={isImageFile ? contentError : null}
       />
+
+      {/* ZIP 파일 탐색기 */}
+      <ZipFileExplorer
+        open={fileViewerOpen && isZipFile}
+        onOpenChange={setFileViewerOpen}
+        zipBlob={isZipFile ? blobData : null}
+        fileName={selectedFile?.name || ''}
+        isLoading={isZipFile && isLoadingContent}
+        error={isZipFile ? contentError : null}
+      />
+
+      {/* 온보딩 파일 업로드 시트 */}
+      <OnboardingFileUploadSheet
+        isOpen={uploadSheetOpen}
+        formData={uploadFormData}
+        isUploading={uploadMutation.isPending}
+        onFormDataChange={setUploadFormData}
+        onSubmit={handleUploadSubmit}
+        onClose={() => {
+          setUploadSheetOpen(false)
+          setUploadFormData(INITIAL_UPLOAD_FORM_DATA)
+        }}
+      />
+
+      {/* 온보딩 파일 삭제 확인 다이얼로그 */}
+      <OnboardingFileDeleteDialog
+        target={onboardingDeleteTarget}
+        isDeleting={deleteOnboardingMutation.isPending}
+        onConfirm={handleOnboardingDeleteConfirm}
+        onCancel={() => setOnboardingDeleteTarget(null)}
+      />
+
+      {/* 온보딩 디렉토리 생성 다이얼로그 */}
+      <OnboardingDirectoryCreateDialog
+        isOpen={directoryCreateParentPath !== null}
+        parentPath={directoryCreateParentPath || '/'}
+        isCreating={createDirectoryMutation.isPending}
+        onConfirm={handleCreateDirectoryConfirm}
+        onCancel={() => setDirectoryCreateParentPath(null)}
+      />
     </PageLayout>
   )
 }
@@ -485,9 +680,12 @@ interface OnboardingFileTreeProps {
   files: OnboardingFileNode
   onFileClick: (node: OnboardingFileNode) => void
   onDownload: (node: OnboardingFileNode) => void
+  onUpload: (targetPath: string) => void
+  onDelete: (node: OnboardingFileNode) => void
+  onCreateDirectory: (parentPath: string) => void
 }
 
-function OnboardingFileTree({ files, onFileClick, onDownload }: OnboardingFileTreeProps) {
+function OnboardingFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: OnboardingFileTreeProps) {
   return (
     <div className="space-y-1">
       {files.children?.map((node) => (
@@ -497,6 +695,9 @@ function OnboardingFileTree({ files, onFileClick, onDownload }: OnboardingFileTr
           level={0}
           onFileClick={onFileClick}
           onDownload={onDownload}
+          onUpload={onUpload}
+          onDelete={onDelete}
+          onCreateDirectory={onCreateDirectory}
         />
       ))}
     </div>
@@ -508,9 +709,12 @@ interface OnboardingFileTreeNodeProps {
   level: number
   onFileClick: (node: OnboardingFileNode) => void
   onDownload: (node: OnboardingFileNode) => void
+  onUpload: (targetPath: string) => void
+  onDelete: (node: OnboardingFileNode) => void
+  onCreateDirectory: (parentPath: string) => void
 }
 
-function OnboardingFileTreeNode({ node, level, onFileClick, onDownload }: OnboardingFileTreeNodeProps) {
+function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: OnboardingFileTreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   // 디렉토리 렌더링
@@ -524,21 +728,54 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload }: Onboar
     return (
       <div>
         <div
-          className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer"
+          className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
           style={{ paddingLeft: `${level * 16 + 8}px` }}
-          onClick={() => setIsExpanded(!isExpanded)}
         >
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
-          {isExpanded ? (
-            <FolderOpen className="h-4 w-4 text-blue-500" />
-          ) : (
-            <Folder className="h-4 w-4 text-blue-500" />
-          )}
-          <span className="text-sm font-medium">{node.name}</span>
+          <div
+            className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            )}
+            {isExpanded ? (
+              <FolderOpen className="h-4 w-4 text-blue-500 flex-shrink-0" />
+            ) : (
+              <Folder className="h-4 w-4 text-blue-500 flex-shrink-0" />
+            )}
+            <span className="text-sm font-medium truncate">{node.name}</span>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
+                <File className="h-4 w-4 mr-2" />
+                파일 추가
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                폴더 추가
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete(node)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                삭제
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {isExpanded && sortedChildren.length > 0 && (
           <div>
@@ -549,6 +786,9 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload }: Onboar
                 level={level + 1}
                 onFileClick={onFileClick}
                 onDownload={onDownload}
+                onUpload={onUpload}
+                onDelete={onDelete}
+                onCreateDirectory={onCreateDirectory}
               />
             ))}
           </div>
@@ -561,12 +801,12 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload }: Onboar
   const fileName = node.name.toLowerCase()
   const isViewable = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
     '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico'].some(ext => fileName.endsWith(ext))
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip'].some(ext => fileName.endsWith(ext))
 
   // 파일 렌더링
   return (
     <div
-      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
+      className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
       style={{ paddingLeft: `${level * 16 + 24}px` }}
     >
       <div
@@ -582,14 +822,30 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload }: Onboar
             {formatFileSize(node.size)}
           </span>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6"
-          onClick={() => onDownload(node)}
-        >
-          <Download className="h-3 w-3" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <MoreHorizontal className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onDownload(node)}>
+              <Download className="h-4 w-4 mr-2" />
+              다운로드
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDelete(node)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              삭제
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   )

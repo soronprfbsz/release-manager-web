@@ -8,7 +8,15 @@ import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@ta
 import { fileContentKeys, useFileContentByPath } from '@/shared/api'
 
 import { projectApi } from '../api/projectApi'
-import type { Project, ProjectCreateRequest, ProjectUpdateRequest, OnboardingFilesResponse } from '../model/types'
+import type {
+  Project,
+  ProjectCreateRequest,
+  ProjectUpdateRequest,
+  OnboardingFilesResponse,
+  OnboardingFileDeleteResponse,
+  OnboardingFileUploadResponse,
+  OnboardingDirectoryCreateResponse,
+} from '../model/types'
 
 // ============================================================================
 // Query Keys Factory
@@ -125,6 +133,52 @@ export function useDeleteProject() {
     mutationFn: (id: string) => projectApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() })
+    },
+  })
+}
+
+/**
+ * 온보딩 파일 업로드 훅
+ */
+export function useUploadOnboardingFile(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<
+    OnboardingFileUploadResponse,
+    Error,
+    { file: File; targetPath?: string; extractZip?: boolean }
+  >({
+    mutationFn: ({ file, targetPath, extractZip }) =>
+      projectApi.uploadOnboardingFile(projectId, file, targetPath, extractZip),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.onboardingFiles(projectId) })
+    },
+  })
+}
+
+/**
+ * 온보딩 파일 삭제 훅
+ */
+export function useDeleteOnboardingFile(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<OnboardingFileDeleteResponse, Error, string>({
+    mutationFn: (filePath: string) =>
+      projectApi.deleteOnboardingFile(projectId, filePath),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.onboardingFiles(projectId) })
+    },
+  })
+}
+
+/**
+ * 온보딩 디렉토리 생성 훅
+ */
+export function useCreateOnboardingDirectory(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<OnboardingDirectoryCreateResponse, Error, string>({
+    mutationFn: (path: string) =>
+      projectApi.createOnboardingDirectory(projectId, path),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.onboardingFiles(projectId) })
     },
   })
 }
