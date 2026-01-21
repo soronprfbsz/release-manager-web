@@ -68,6 +68,7 @@ import {
 } from '@/features/operations/install-management'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
+import { useProjectStore } from '@/shared/store'
 import { base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile, isZipFile as checkIsZipFile, base64ToBlob } from '@/shared/lib/utils/file-content'
 import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
@@ -82,13 +83,6 @@ import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -126,6 +120,9 @@ export function ProjectListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
 
+  // 전역 프로젝트 ID (상단 헤더의 프로젝트 셀렉터에서 선택된 프로젝트)
+  const projectId = useProjectStore((state) => state.projectId)
+
   // Form state
   const [formMode, setFormMode] = useState<ProjectFormMode>(null)
   const [formData, setFormData] = useState<ProjectFormData>(INITIAL_FORM_DATA)
@@ -135,9 +132,6 @@ export function ProjectListPage() {
 
   // Delete state
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null)
-
-  // Onboarding tab state
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('')
 
   // File viewer state
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
@@ -152,9 +146,6 @@ export function ProjectListPage() {
 
   // Onboarding directory create state
   const [directoryCreateParentPath, setDirectoryCreateParentPath] = useState<string | null>(null)
-
-  // Install tab state
-  const [installSelectedProjectId, setInstallSelectedProjectId] = useState<string>('')
 
   // Install file viewer state
   const [installFileViewerOpen, setInstallFileViewerOpen] = useState(false)
@@ -178,25 +169,25 @@ export function ProjectListPage() {
 
   // Onboarding files query
   const { data: onboardingData, isLoading: isLoadingOnboarding } = useOnboardingFiles(
-    selectedProjectId,
-    { enabled: !!selectedProjectId && currentTab === 'onboarding' }
+    projectId,
+    { enabled: !!projectId && currentTab === 'onboarding' }
   )
 
   // Onboarding file upload/delete/directory mutations
-  const uploadMutation = useUploadOnboardingFile(selectedProjectId)
-  const deleteOnboardingMutation = useDeleteOnboardingFile(selectedProjectId)
-  const createDirectoryMutation = useCreateOnboardingDirectory(selectedProjectId)
+  const uploadMutation = useUploadOnboardingFile(projectId)
+  const deleteOnboardingMutation = useDeleteOnboardingFile(projectId)
+  const createDirectoryMutation = useCreateOnboardingDirectory(projectId)
 
   // Install files query
   const { data: installData, isLoading: isLoadingInstall } = useInstallFiles(
-    installSelectedProjectId,
-    { enabled: !!installSelectedProjectId && currentTab === 'install' }
+    projectId,
+    { enabled: !!projectId && currentTab === 'install' }
   )
 
   // Install file upload/delete/directory mutations
-  const installUploadMutation = useUploadInstallFile(installSelectedProjectId)
-  const deleteInstallMutation = useDeleteInstallFile(installSelectedProjectId)
-  const createInstallDirectoryMutation = useCreateInstallDirectory(installSelectedProjectId)
+  const installUploadMutation = useUploadInstallFile(projectId)
+  const deleteInstallMutation = useDeleteInstallFile(projectId)
+  const createInstallDirectoryMutation = useCreateInstallDirectory(projectId)
 
   // File content query - API 응답의 filePath 직접 사용 (온보딩)
   const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useOnboardingFileContent(
@@ -364,11 +355,8 @@ export function ProjectListPage() {
 
   const currentTabConfig = TAB_CONFIG[currentTab]
 
-  // 선택된 프로젝트 정보 (온보딩)
-  const selectedProject = projects.find((p) => p.projectId === selectedProjectId)
-
-  // 선택된 프로젝트 정보 (인스톨)
-  const installSelectedProject = projects.find((p) => p.projectId === installSelectedProjectId)
+  // 선택된 프로젝트 정보 (전역 프로젝트 셀렉터 기준)
+  const selectedProject = projects.find((p) => p.projectId === projectId)
 
   // 파일 클릭 핸들러 (내용 조회)
   const handleFileClick = (node: OnboardingFileNode) => {
@@ -397,14 +385,14 @@ export function ProjectListPage() {
 
   // 온보딩 전체 파일 다운로드 핸들러
   const handleDownloadAllOnboardingFiles = async () => {
-    if (!selectedProjectId || transferState.isTransferring) return
+    if (!projectId || transferState.isTransferring) return
 
-    const filename = `${selectedProjectId}_onboarding_files.zip`
+    const filename = `${projectId}_onboarding_files.zip`
     const controller = startTransfer(filename, 'download')
 
     try {
       await projectApi.downloadOnboardingFiles(
-        selectedProjectId,
+        projectId,
         filename,
         (e) => updateProgress(e.loaded, e.total, e.isApproximate),
         controller.signal
@@ -426,7 +414,7 @@ export function ProjectListPage() {
 
   // onboardings/{projectId}/ prefix 제거 유틸
   const stripOnboardingPrefix = (fullPath: string): string => {
-    const prefix = `onboardings/${selectedProjectId}/`
+    const prefix = `onboardings/${projectId}/`
     if (fullPath.startsWith(prefix)) {
       return '/' + fullPath.slice(prefix.length)
     }
@@ -527,7 +515,7 @@ export function ProjectListPage() {
 
   // installs/{projectId}/ prefix 제거 유틸
   const stripInstallPrefix = (fullPath: string): string => {
-    const prefix = `installs/${installSelectedProjectId}/`
+    const prefix = `installs/${projectId}/`
     if (fullPath.startsWith(prefix)) {
       return '/' + fullPath.slice(prefix.length)
     }
@@ -561,14 +549,14 @@ export function ProjectListPage() {
 
   // 인스톨 전체 파일 다운로드 핸들러
   const handleDownloadAllInstallFiles = async () => {
-    if (!installSelectedProjectId || transferState.isTransferring) return
+    if (!projectId || transferState.isTransferring) return
 
-    const filename = `${installSelectedProjectId}_install_files.zip`
+    const filename = `${projectId}_install_files.zip`
     const controller = startTransfer(filename, 'download')
 
     try {
       await projectApi.downloadInstallFiles(
-        installSelectedProjectId,
+        projectId,
         filename,
         (e) => updateProgress(e.loaded, e.total, e.isApproximate),
         controller.signal
@@ -690,7 +678,7 @@ export function ProjectListPage() {
               <p>{currentTabConfig.addTooltip}</p>
             </TooltipContent>
           </Tooltip>
-        ) : currentTab === 'onboarding' && selectedProjectId ? (
+        ) : currentTab === 'onboarding' && projectId ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -708,7 +696,7 @@ export function ProjectListPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : currentTab === 'install' && installSelectedProjectId ? (
+        ) : currentTab === 'install' && projectId ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -745,48 +733,6 @@ export function ProjectListPage() {
                 )
               })}
             </TabsList>
-
-            {/* 온보딩 탭 필터 */}
-            {currentTab === 'onboarding' && (
-              <div className="flex items-center gap-2">
-                <Select
-                  value={selectedProjectId}
-                  onValueChange={setSelectedProjectId}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="프로젝트 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.projectId} value={project.projectId}>
-                        {project.projectName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* 인스톨 탭 필터 */}
-            {currentTab === 'install' && (
-              <div className="flex items-center gap-2">
-                <Select
-                  value={installSelectedProjectId}
-                  onValueChange={setInstallSelectedProjectId}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="프로젝트 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.projectId} value={project.projectId}>
-                        {project.projectName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
           </div>
 
           {/* 관리 탭 */}
@@ -809,10 +755,10 @@ export function ProjectListPage() {
           {/* 온보딩 탭 */}
           <TabsContent value="onboarding" className="mt-0 pt-0">
             <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
-              {!selectedProjectId ? (
+              {!projectId ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">프로젝트를 선택해주세요.</p>
+                  <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
                 </div>
               ) : isLoadingOnboarding ? (
                 <div className="flex items-center justify-center h-full">
@@ -872,10 +818,10 @@ export function ProjectListPage() {
           {/* 인스톨 탭 */}
           <TabsContent value="install" className="mt-0 pt-0">
             <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
-              {!installSelectedProjectId ? (
+              {!projectId ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">프로젝트를 선택해주세요.</p>
+                  <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
                 </div>
               ) : isLoadingInstall ? (
                 <div className="flex items-center justify-center h-full">
@@ -892,7 +838,7 @@ export function ProjectListPage() {
                   <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{installSelectedProject?.projectName}</span>
+                      <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2 text-muted-foreground">
