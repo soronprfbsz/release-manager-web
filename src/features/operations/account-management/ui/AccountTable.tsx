@@ -86,7 +86,7 @@ export function AccountTable({
               id="accountName"
               currentSort={sort}
               onSort={onSort}
-              className="w-40"
+              className="w-50"
             >
               이름
             </SortableTableHead>

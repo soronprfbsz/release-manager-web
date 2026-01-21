@@ -147,7 +147,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12 text-right">No</TableHead>
-                  <TableHead className="w-56">패치명</TableHead>
+                  <TableHead className="w-72">패치명</TableHead>
                   <TableHead className="w-24">버전</TableHead>
                   <TableHead className="">설명</TableHead>
                   <TableHead className="w-52">담당자</TableHead>
