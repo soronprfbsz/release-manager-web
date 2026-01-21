@@ -15,14 +15,23 @@ import type {
   OnboardingFileDeleteResponse,
   OnboardingFileUploadResponse,
   OnboardingDirectoryCreateResponse,
+  InstallFilesResponse,
+  InstallFileDeleteResponse,
+  InstallFileUploadResponse,
+  InstallDirectoryCreateResponse,
 } from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/projects',
   byId: (id: string) => `/api/projects/${id}`,
-  onboardingFiles: (id: string) => `/api/projects/${id}/files`,
-  onboardingDirectory: (id: string) => `/api/projects/${id}/files/directory`,
-  onboardingDownload: (id: string) => `/api/projects/${id}/onboarding/download`,
+  // 온보딩
+  onboardingFiles: (id: string) => `/api/projects/${id}/onboardings/files`,
+  onboardingDirectory: (id: string) => `/api/projects/${id}/onboardings/files/directory`,
+  onboardingDownload: (id: string) => `/api/projects/${id}/onboardings/files/zip-download`,
+  // 인스톨
+  installFiles: (id: string) => `/api/projects/${id}/installs/files`,
+  installDirectory: (id: string) => `/api/projects/${id}/installs/files/directory`,
+  installDownload: (id: string) => `/api/projects/${id}/installs/files/zip-download`,
 } as const
 
 export const projectApi = {
@@ -124,6 +133,83 @@ export const projectApi = {
   ): Promise<OnboardingDirectoryCreateResponse> => {
     const response = await apiClient.post<OnboardingDirectoryCreateResponse>(
       `${ENDPOINTS.onboardingDirectory(id)}?path=${encodeURIComponent(path)}`
+    )
+    return response
+  },
+
+  // ============================================================================
+  // Install (인스톨) 관련 API
+  // ============================================================================
+
+  /** 인스톨 파일 조회 */
+  getInstallFiles: async (id: string): Promise<InstallFilesResponse> => {
+    const response = await apiClient.get<InstallFilesResponse>(ENDPOINTS.installFiles(id))
+    return response
+  },
+
+  /** 인스톨 전체 파일 다운로드 (ZIP) - 진행률 지원 */
+  downloadInstallFiles: async (
+    id: string,
+    fileName: string,
+    onProgress?: (event: DownloadProgressEvent) => void,
+    signal?: AbortSignal
+  ): Promise<void> => {
+    await downloadWithProgress({
+      url: ENDPOINTS.installDownload(id),
+      filename: fileName,
+      onProgress,
+      timeout: API_TIMEOUT.FILE_OPERATION,
+      signal,
+    })
+  },
+
+  /** 인스톨 파일 업로드 */
+  uploadInstallFile: async (
+    id: string,
+    file: File,
+    targetPath?: string,
+    extractZip?: boolean
+  ): Promise<InstallFileUploadResponse> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (targetPath) {
+      formData.append('targetPath', targetPath)
+    }
+    if (extractZip !== undefined) {
+      formData.append('extractZip', String(extractZip))
+    }
+
+    const response = await apiClient.post<InstallFileUploadResponse>(
+      ENDPOINTS.installFiles(id),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: API_TIMEOUT.FILE_OPERATION,
+      }
+    )
+    return response
+  },
+
+  /** 인스톨 파일 삭제 */
+  deleteInstallFile: async (
+    id: string,
+    filePath: string
+  ): Promise<InstallFileDeleteResponse> => {
+    const response = await apiClient.delete<InstallFileDeleteResponse>(
+      `${ENDPOINTS.installFiles(id)}?filePath=${encodeURIComponent(filePath)}`
+    )
+    return response
+  },
+
+  /** 인스톨 디렉토리 생성 */
+  createInstallDirectory: async (
+    id: string,
+    path: string
+  ): Promise<InstallDirectoryCreateResponse> => {
+    const response = await apiClient.post<InstallDirectoryCreateResponse>(
+      `${ENDPOINTS.installDirectory(id)}?path=${encodeURIComponent(path)}`
     )
     return response
   },

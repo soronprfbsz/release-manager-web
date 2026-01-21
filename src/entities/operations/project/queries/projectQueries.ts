@@ -16,6 +16,10 @@ import type {
   OnboardingFileDeleteResponse,
   OnboardingFileUploadResponse,
   OnboardingDirectoryCreateResponse,
+  InstallFilesResponse,
+  InstallFileDeleteResponse,
+  InstallFileUploadResponse,
+  InstallDirectoryCreateResponse,
 } from '../model/types'
 
 // ============================================================================
@@ -28,9 +32,12 @@ export const projectKeys = {
   list: () => [...projectKeys.lists()] as const,
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (id: string) => [...projectKeys.details(), id] as const,
+  // 온보딩
   onboardingFiles: (id: string) => [...projectKeys.all, 'files', id] as const,
   /** @deprecated Use fileContentKeys from shared/api instead */
   onboardingFileContent: (filePath: string) => fileContentKeys.content(filePath),
+  // 인스톨
+  installFiles: (id: string) => [...projectKeys.all, 'installs', id] as const,
 }
 
 // ============================================================================
@@ -179,6 +186,87 @@ export function useCreateOnboardingDirectory(projectId: string) {
       projectApi.createOnboardingDirectory(projectId, path),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.onboardingFiles(projectId) })
+    },
+  })
+}
+
+// ============================================================================
+// Install (인스톨) Query Hooks
+// ============================================================================
+
+/**
+ * 인스톨 파일 조회 훅
+ */
+export function useInstallFiles(
+  projectId: string,
+  options?: Omit<UseQueryOptions<InstallFilesResponse, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: projectKeys.installFiles(projectId),
+    queryFn: () => projectApi.getInstallFiles(projectId),
+    enabled: !!projectId,
+    ...options,
+  })
+}
+
+/**
+ * 인스톨 파일 내용 조회 훅 (통합 API - 텍스트/바이너리 모두 지원)
+ * @param filePath 파일 경로 (예: installs/infraeye1/mariadb/init.sql)
+ * @param enabled 쿼리 활성화 여부
+ */
+export function useInstallFileContent(
+  filePath: string,
+  enabled: boolean = true
+) {
+  return useFileContentByPath(filePath, enabled)
+}
+
+// ============================================================================
+// Install (인스톨) Mutation Hooks
+// ============================================================================
+
+/**
+ * 인스톨 파일 업로드 훅
+ */
+export function useUploadInstallFile(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<
+    InstallFileUploadResponse,
+    Error,
+    { file: File; targetPath?: string; extractZip?: boolean }
+  >({
+    mutationFn: ({ file, targetPath, extractZip }) =>
+      projectApi.uploadInstallFile(projectId, file, targetPath, extractZip),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.installFiles(projectId) })
+    },
+  })
+}
+
+/**
+ * 인스톨 파일 삭제 훅
+ */
+export function useDeleteInstallFile(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<InstallFileDeleteResponse, Error, string>({
+    mutationFn: (filePath: string) =>
+      projectApi.deleteInstallFile(projectId, filePath),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.installFiles(projectId) })
+    },
+  })
+}
+
+/**
+ * 인스톨 디렉토리 생성 훅
+ */
+export function useCreateInstallDirectory(projectId: string) {
+  const queryClient = useQueryClient()
+  return useMutation<InstallDirectoryCreateResponse, Error, string>({
+    mutationFn: (path: string) =>
+      projectApi.createInstallDirectory(projectId, path),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.installFiles(projectId) })
     },
   })
 }
