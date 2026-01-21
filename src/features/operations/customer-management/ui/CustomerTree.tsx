@@ -253,11 +253,11 @@ export function CustomerTree({
         </div>
       )}
 
-      {/* Standard Root */}
+      {/* 표준 Root */}
       {filteredCustomers.length > 0 && (
         <>
           <TreeRootNode
-            label="Standard"
+            label="표준"
             icon={<Tag className="h-4 w-4 shrink-0" />}
             count={standardCustomers.length}
             isExpanded={expandedRoots.has('standard')}
@@ -277,10 +277,10 @@ export function CustomerTree({
             ))}
           </TreeRootNode>
 
-          {/* Custom Root */}
+          {/* 커스텀 Root */}
           <div className="mt-2" />
           <TreeRootNode
-            label="Custom"
+            label="커스텀"
             icon={<GitBranch className="h-4 w-4 shrink-0" />}
             count={customCustomers.length}
             isExpanded={expandedRoots.has('custom')}

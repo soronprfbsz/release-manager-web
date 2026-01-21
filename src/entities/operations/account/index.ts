@@ -24,4 +24,5 @@ export {
   useDeleteAccount,
   useMyAccount,
   useUpdateMyAccount,
+  useBatchTransferDepartment,
 } from './queries/accountQueries'

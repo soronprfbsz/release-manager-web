@@ -160,3 +160,15 @@ export const useDeletePatchHistory = () => {
     },
   })
 }
+
+export const useBulkDeletePatches = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (patchIds: number[]) => patchApi.bulkDelete(patchIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: patchKeys.details() })
+    },
+  })
+}

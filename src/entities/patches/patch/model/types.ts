@@ -15,12 +15,17 @@ export interface CumulativePatch {
   toVersion: string
   patchName: string
   createdByEmail: string
+  createdByName?: string | null
   createdByAvatarStyle?: string | null
   createdByAvatarSeed?: string | null
   isDeletedCreator?: boolean
   description: string | null
   assigneeId: number | null
   assigneeName: string | null
+  assigneeEmail: string | null
+  assigneeAvatarStyle?: string | null
+  assigneeAvatarSeed?: string | null
+  isDeletedAssignee?: boolean
   createdAt: string
 }
 
@@ -34,11 +39,17 @@ export interface CumulativePatchDetail {
   patchName: string
   outputPath: string
   createdByEmail: string
+  createdByName?: string | null
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
+  isDeletedCreator?: boolean
   description: string | null
   assigneeId: number | null
   assigneeName: string | null
+  assigneeEmail: string | null
+  assigneeAvatarStyle?: string | null
+  assigneeAvatarSeed?: string | null
+  isDeletedAssignee?: boolean
   createdAt: string
   updatedAt: string
 }

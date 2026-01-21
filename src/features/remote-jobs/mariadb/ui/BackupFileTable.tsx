@@ -34,6 +34,7 @@ import {
   TableActionMenuItem,
   TableActionMenuSeparator,
 } from '@/shared/ui/table-action-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 
@@ -153,21 +154,25 @@ export function BackupFileTable({
                 <TypographyMuted>{file.fileSizeFormatted}</TypographyMuted>
               </TableCell>
               <TableCell>
-                <TruncatedCell
-                  tooltipText={file.isDeletedCreator ? '삭제된 사용자' : file.createdByEmail}
-                  className="flex items-center gap-2 text-muted-foreground"
-                >
-                  <UserAvatar
-                    email={file.createdByEmail}
-                    avatarStyle={file.createdByAvatarStyle}
-                    avatarSeed={file.createdByAvatarSeed}
-                    isDeleted={file.isDeletedCreator}
-                    size={28}
-                  />
-                  <span className={cn('text-sm truncate', file.isDeletedCreator && 'text-muted-foreground')}>
-                    {file.createdByEmail}
-                  </span>
-                </TruncatedCell>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-default">
+                      <UserAvatar
+                        email={file.createdByEmail}
+                        avatarStyle={file.createdByAvatarStyle}
+                        avatarSeed={file.createdByAvatarSeed}
+                        isDeleted={file.isDeletedCreator}
+                        size={28}
+                      />
+                      <span className={cn('text-sm', file.isDeletedCreator && 'text-muted-foreground')}>
+                        {file.createdByName || file.createdByEmail}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {file.isDeletedCreator ? '삭제된 사용자' : file.createdByEmail}
+                  </TooltipContent>
+                </Tooltip>
               </TableCell>
               <TableCell>
                 <TruncatedCell

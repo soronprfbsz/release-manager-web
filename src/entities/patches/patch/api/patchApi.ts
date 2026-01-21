@@ -29,6 +29,7 @@ const ENDPOINTS = {
   download: (id: number) => `/api/patches/${id}/download`,
   files: (id: number) => `/api/patches/${id}/files`,
   delete: (id: number) => `/api/patches/${id}`,
+  bulkDelete: (ids: number[]) => `/api/patches?ids=${ids.join(',')}`,
 } as const
 
 export const patchApi = {
@@ -123,5 +124,10 @@ export const patchApi = {
   /** 패치 삭제 */
   deleteById: async (id: number): Promise<void> => {
     await apiClient.delete(ENDPOINTS.delete(id))
+  },
+
+  /** 패치 일괄 삭제 */
+  bulkDelete: async (ids: number[]): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.bulkDelete(ids))
   },
 }

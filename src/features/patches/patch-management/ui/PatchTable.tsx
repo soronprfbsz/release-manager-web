@@ -10,13 +10,13 @@ import {
   FolderArchive,
   Tag,
   Trash2,
-  User,
   type LucideIcon,
 } from 'lucide-react'
 
 import type { CumulativePatch } from '@/entities/patches/patch'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { Checkbox } from '@/shared/ui/checkbox'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -34,6 +34,7 @@ import {
   TableActionMenuItem,
   TableActionMenuSeparator,
 } from '@/shared/ui/table-action-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 
@@ -52,6 +53,12 @@ interface PatchTableProps {
   viewportHeight?: string
   /** EmptyState에 사용할 아이콘 */
   emptyIcon?: LucideIcon
+  /** 선택 모드 활성화 여부 */
+  selectable?: boolean
+  /** 선택된 패치 ID 목록 */
+  selectedIds?: number[]
+  /** 선택 변경 핸들러 */
+  onSelectionChange?: (ids: number[]) => void
 }
 
 export function PatchTable({
@@ -65,7 +72,31 @@ export function PatchTable({
   onDelete,
   viewportHeight,
   emptyIcon: EmptyIcon = Tag,
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
 }: PatchTableProps) {
+  const allSelected = selectable && patches.length > 0 && selectedIds.length === patches.length
+  const someSelected = selectable && selectedIds.length > 0 && selectedIds.length < patches.length
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!onSelectionChange) return
+    if (checked) {
+      onSelectionChange(patches.map((p) => p.patchId))
+    } else {
+      onSelectionChange([])
+    }
+  }
+
+  const handleSelectOne = (patchId: number, checked: boolean) => {
+    if (!onSelectionChange) return
+    if (checked) {
+      onSelectionChange([...selectedIds, patchId])
+    } else {
+      onSelectionChange(selectedIds.filter((id) => id !== patchId))
+    }
+  }
+
   if (patches.length === 0) {
     return (
       <EmptyState
@@ -81,6 +112,17 @@ export function PatchTable({
       <Table>
         <TableHeader>
           <TableRow>
+            {selectable && (
+              <TableHead className="w-8">
+                <div className="flex justify-center">
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="모두 선택"
+                  />
+                </div>
+              </TableHead>
+            )}
             <TableHead className="w-16 text-right">No</TableHead>
             <SortableTableHead
               className="w-48"
@@ -90,9 +132,10 @@ export function PatchTable({
             >
               패치명
             </SortableTableHead>
+            <TableHead className="">설명</TableHead>
             <TableHead className="w-28">버전 범위</TableHead>
             <SortableTableHead
-              className="w-28"
+              className="w-40"
               id="customerName"
               currentSort={sort}
               onSort={onSort}
@@ -100,14 +143,13 @@ export function PatchTable({
               고객사
             </SortableTableHead>
             <SortableTableHead
-              className="w-40"
+              className="w-44"
               id="assigneeName"
               currentSort={sort}
               onSort={onSort}
             >
               담당자
             </SortableTableHead>
-            <TableHead className="w-40">설명</TableHead>
             <SortableTableHead
               className="w-44"
               id="createdBy"
@@ -130,6 +172,17 @@ export function PatchTable({
         <TableBody>
           {patches.map((patch) => (
             <TableRow key={patch.patchId}>
+              {selectable && (
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Checkbox
+                      checked={selectedIds.includes(patch.patchId)}
+                      onCheckedChange={(checked) => handleSelectOne(patch.patchId, checked === true)}
+                      aria-label={`${patch.patchName} 선택`}
+                    />
+                  </div>
+                </TableCell>
+              )}
               <TableCell className="text-right text-muted-foreground">
                 {patch.rowNumber}
               </TableCell>
@@ -140,6 +193,19 @@ export function PatchTable({
                     {patch.patchName}
                   </TypographyInlineCode>
                 </div>
+              </TableCell>
+              <TableCell>
+                {patch.description ? (
+                  <TruncatedCell
+                    tooltipText={patch.description}
+                    maxLines={2}
+                    className="text-muted-foreground"
+                  >
+                    {patch.description}
+                  </TruncatedCell>
+                ) : (
+                  <TypographyMuted>-</TypographyMuted>
+                )}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
@@ -165,47 +231,50 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                {patch.assigneeName ? (
-                  <TruncatedCell
-                    tooltipText={patch.assigneeName}
-                    className="flex items-center gap-2"
-                  >
-                    <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span>{patch.assigneeName}</span>
-                  </TruncatedCell>
+                {patch.assigneeEmail ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 cursor-default">
+                        <UserAvatar
+                          email={patch.assigneeEmail}
+                          avatarStyle={patch.assigneeAvatarStyle}
+                          avatarSeed={patch.assigneeAvatarSeed}
+                          isDeleted={patch.isDeletedAssignee}
+                          size={28}
+                        />
+                        <span className={patch.isDeletedAssignee ? 'text-muted-foreground' : ''}>
+                          {patch.assigneeName || patch.assigneeEmail}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {patch.isDeletedAssignee ? '삭제된 사용자' : patch.assigneeEmail}
+                    </TooltipContent>
+                  </Tooltip>
                 ) : (
                   <TypographyMuted>-</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
-                {patch.description ? (
-                  <TruncatedCell
-                    tooltipText={patch.description}
-                    maxLines={2}
-                    className="text-muted-foreground"
-                  >
-                    {patch.description}
-                  </TruncatedCell>
-                ) : (
-                  <TypographyMuted>-</TypographyMuted>
-                )}
-              </TableCell>
-              <TableCell>
-                <TruncatedCell
-                  tooltipText={patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
-                  className="flex items-center gap-2"
-                >
-                  <UserAvatar
-                    email={patch.createdByEmail}
-                    avatarStyle={patch.createdByAvatarStyle}
-                    avatarSeed={patch.createdByAvatarSeed}
-                    isDeleted={patch.isDeletedCreator}
-                    size={28}
-                  />
-                  <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
-                    {patch.createdByEmail}
-                  </span>
-                </TruncatedCell>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-default">
+                      <UserAvatar
+                        email={patch.createdByEmail}
+                        avatarStyle={patch.createdByAvatarStyle}
+                        avatarSeed={patch.createdByAvatarSeed}
+                        isDeleted={patch.isDeletedCreator}
+                        size={28}
+                      />
+                      <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                        {patch.createdByName || patch.createdByEmail}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}
+                  </TooltipContent>
+                </Tooltip>
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <TypographyMuted>{formatDateTime(patch.createdAt)}</TypographyMuted>

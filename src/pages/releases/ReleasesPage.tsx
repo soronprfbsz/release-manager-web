@@ -56,7 +56,7 @@ type TabType = 'standard' | 'custom'
 const TAB_CONFIG = {
   standard: {
     icon: DOMAIN_ICONS.release,
-    label: '스탠다드',
+    label: '표준',
     addTooltip: '릴리즈 생성',
     treeTitle: '버전 트리',
   },
@@ -368,7 +368,7 @@ export function ReleasesPage() {
         )
       }
     >
-      <ContentSplit treeWidth={27}>
+      <ContentSplit treeWidth={25}>
         {/* Tree Panel */}
         <ContentSplit.Tree
           header={

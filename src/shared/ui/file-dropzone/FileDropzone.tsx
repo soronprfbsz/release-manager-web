@@ -7,6 +7,7 @@ import { useRef, useState, useCallback, isValidElement, type ReactNode } from 'r
 import { Upload, FileArchive, File as FileIcon, X } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
+import { isZipFile } from '@/shared/lib/utils/file-content'
 import { Button } from '@/shared/ui/button'
 
 /** 파일 크기 포맷팅 */
@@ -151,8 +152,9 @@ export function FileDropzone({
   // accept 속성 문자열 생성
   const acceptString = accept?.join(',')
 
-  // 기본 아이콘 결정
-  const DefaultIcon = accept?.includes('.zip') ? FileArchive : Upload
+  // 기본 아이콘 결정 (압축 파일 확장자 허용 시 아카이브 아이콘)
+  const hasArchiveAccept = accept?.some(ext => ['.zip', '.jar', '.war', '.ear'].includes(ext.toLowerCase()))
+  const DefaultIcon = hasArchiveAccept ? FileArchive : Upload
 
   return (
     <>
@@ -171,7 +173,7 @@ export function FileDropzone({
           <div className="flex-shrink-0">
             {isValidElement(fileIcon) ? (
               fileIcon
-            ) : file.name.toLowerCase().endsWith('.zip') ? (
+            ) : isZipFile(file.name) ? (
               <FileArchive className="h-6 w-6 text-muted-foreground" />
             ) : (
               <FileIcon className="h-6 w-6 text-muted-foreground" />

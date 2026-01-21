@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { GitBranch, Plus } from 'lucide-react'
+import { GitBranch, Plus, Trash2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patches'
@@ -19,6 +19,7 @@ import {
   PatchCreateForm,
   CustomPatchCreateForm,
   PatchDeleteModal,
+  PatchBulkDeleteModal,
   type PatchCreateFormData,
   type CustomPatchCreateFormData,
   type SortConfig,
@@ -34,6 +35,7 @@ import {
   useGenerateStandardPatch,
   useGenerateCustomPatch,
   useDeletePatch,
+  useBulkDeletePatches,
   type CumulativePatch,
   type CumulativePatchGenerateRequest,
   type CustomPatchGenerateRequest,
@@ -57,7 +59,7 @@ type TabType = 'standard' | 'custom'
 const TAB_CONFIG = {
   standard: {
     icon: DOMAIN_ICONS.patch,
-    label: '스탠다드',
+    label: '표준',
     addTooltip: '패치 생성',
     description: '표준 릴리즈 기반 패치를 생성하고 관리합니다.',
   },
@@ -154,6 +156,11 @@ export function PatchesPage() {
   const [patchToDelete, setPatchToDelete] = useState<CumulativePatch | null>(null)
   const [selectedPatchType, setSelectedPatchType] = useState<TabType>('standard')
 
+  // 일괄 삭제 상태
+  const [standardSelectedIds, setStandardSelectedIds] = useState<number[]>([])
+  const [customSelectedIds, setCustomSelectedIds] = useState<number[]>([])
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
+
   // Standard Queries
   const {
     data: standardPatchesData,
@@ -215,6 +222,7 @@ export function PatchesPage() {
   const standardGenerateMutation = useGenerateStandardPatch()
   const customGenerateMutation = useGenerateCustomPatch()
   const deleteMutation = useDeletePatch()
+  const bulkDeleteMutation = useBulkDeletePatches()
 
   // 탭 변경
   const handleTabChange = (value: string) => {
@@ -364,6 +372,31 @@ export function PatchesPage() {
     }
   }
 
+  // 일괄 삭제 핸들러
+  const handleBulkDeleteClick = () => {
+    setBulkDeleteDialogOpen(true)
+  }
+
+  const handleBulkDeleteConfirm = () => {
+    const selectedIds = currentTab === 'standard' ? standardSelectedIds : customSelectedIds
+
+    bulkDeleteMutation.mutate(selectedIds, {
+      onSuccess: () => {
+        toast({
+          title: '패치 일괄 삭제 완료',
+          description: `${selectedIds.length}개의 패치가 삭제되었습니다.`,
+        })
+        setBulkDeleteDialogOpen(false)
+        if (currentTab === 'standard') {
+          setStandardSelectedIds([])
+        } else {
+          setCustomSelectedIds([])
+        }
+      },
+      onError: createErrorHandler(toast, '패치 일괄 삭제 실패'),
+    })
+  }
+
   // 추가 버튼 핸들러
   const handleAdd = () => {
     if (currentTab === 'standard') {
@@ -377,21 +410,43 @@ export function PatchesPage() {
   const standardPatchList = standardPatchesData?.content || []
   const customPatchList = customPatchesData?.content || []
 
+  // 현재 탭의 선택된 ID 수
+  const currentSelectedCount = currentTab === 'standard' ? standardSelectedIds.length : customSelectedIds.length
+
   return (
     <PageLayout
       actions={
-        canAddPatch && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={handleAdd} variant="outline" size="icon">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{currentTabConfig.addTooltip}</p>
-            </TooltipContent>
-          </Tooltip>
-        )
+        <div className="flex items-center gap-2">
+          {canDeletePatch && currentSelectedCount > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleBulkDeleteClick}
+                  variant="outline"
+                  size="icon"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{currentSelectedCount}개 패치 삭제</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {canAddPatch && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleAdd} variant="outline" size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{currentTabConfig.addTooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       }
     >
       <ContentCard noPadding>
@@ -436,6 +491,9 @@ export function PatchesPage() {
                   onDownload={handleDownload}
                   onDelete={handleDeleteClick}
                   viewportHeight="calc(100vh - 30rem)"
+                  selectable={canDeletePatch}
+                  selectedIds={standardSelectedIds}
+                  onSelectionChange={setStandardSelectedIds}
                 />
                 {standardPatchList.length > 0 && (
                   <div className="pt-6">
@@ -475,6 +533,9 @@ export function PatchesPage() {
                   onDownload={handleDownload}
                   onDelete={handleDeleteClick}
                   viewportHeight="calc(100vh - 30rem)"
+                  selectable={canDeletePatch}
+                  selectedIds={customSelectedIds}
+                  onSelectionChange={setCustomSelectedIds}
                 />
                 {customPatchList.length > 0 && (
                   <div className="pt-6">
@@ -546,6 +607,15 @@ export function PatchesPage() {
           setDeleteDialogOpen(false)
           setPatchToDelete(null)
         }}
+      />
+
+      {/* Bulk Delete Modal */}
+      <PatchBulkDeleteModal
+        isOpen={bulkDeleteDialogOpen}
+        isDeleting={bulkDeleteMutation.isPending}
+        count={currentSelectedCount}
+        onConfirm={handleBulkDeleteConfirm}
+        onClose={() => setBulkDeleteDialogOpen(false)}
       />
     </PageLayout>
   )

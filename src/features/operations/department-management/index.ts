@@ -13,6 +13,7 @@ export { DepartmentMoveDialog } from './ui/DepartmentMoveDialog'
 // UI Components - Account
 export { AccountListPanel } from './ui/AccountListPanel'
 export { AccountMoveDialog } from './ui/AccountMoveDialog'
+export { BulkAccountMoveDialog } from './ui/BulkAccountMoveDialog'
 export { AccountAssignDialog } from './ui/AccountAssignDialog'
 
 // Types

@@ -15,9 +15,10 @@ interface ProjectCardProps {
   project: Project
   onEdit: (project: Project) => void
   onDelete: (project: Project) => void
+  showDelete?: boolean
 }
 
-export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
+export function ProjectCard({ project, onEdit, onDelete, showDelete = true }: ProjectCardProps) {
   return (
     <Card className="group relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50 h-full flex flex-col bg-accent/40 border border-border">
       <CardHeader className="pb-3 flex-1">
@@ -51,14 +52,16 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             >
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(project)}
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {showDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(project)}
+                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

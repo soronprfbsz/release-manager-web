@@ -49,6 +49,7 @@ export interface SelectedVersionData {
   version: string
   createdAt: string
   createdByEmail: string
+  createdByName?: string | null
   createdByAvatarStyle?: string | null
   createdByAvatarSeed?: string | null
   isDeletedCreator?: boolean
@@ -56,6 +57,7 @@ export interface SelectedVersionData {
   fileCategories: string[]
   isApproved: boolean
   approvedBy: string | null
+  approvedByName?: string | null
   approvedByAvatarStyle?: string | null
   approvedByAvatarSeed?: string | null
   isDeletedApprover?: boolean
@@ -667,16 +669,23 @@ function VersionDetailContent() {
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <TypographyMuted className="text-sm">생성자</TypographyMuted>
-            <UserAvatar
-              email={version.createdByEmail}
-              avatarStyle={version.createdByAvatarStyle}
-              avatarSeed={version.createdByAvatarSeed}
-              isDeleted={version.isDeletedCreator}
-              size={20}
-            />
-            <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
-              {version.createdByEmail || '-'}
-            </TypographySmall>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 cursor-default">
+                  <UserAvatar
+                    email={version.createdByEmail}
+                    avatarStyle={version.createdByAvatarStyle}
+                    avatarSeed={version.createdByAvatarSeed}
+                    isDeleted={version.isDeletedCreator}
+                    size={20}
+                  />
+                  <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                    {version.createdByName || version.createdByEmail || '-'}
+                  </TypographySmall>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>{version.isDeletedCreator ? '삭제된 사용자' : version.createdByEmail}</TooltipContent>
+            </Tooltip>
           </div>
           <div className="flex items-center gap-2">
             <TypographyMuted className="text-sm">생성일시</TypographyMuted>
@@ -686,16 +695,23 @@ function VersionDetailContent() {
             <>
               <div className="flex items-center gap-2">
                 <TypographyMuted className="text-sm">승인자</TypographyMuted>
-                <UserAvatar
-                  email={version.approvedBy}
-                  avatarStyle={version.approvedByAvatarStyle}
-                  avatarSeed={version.approvedByAvatarSeed}
-                  isDeleted={version.isDeletedApprover}
-                  size={20}
-                />
-                <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
-                  {version.approvedBy}
-                </TypographySmall>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 cursor-default">
+                      <UserAvatar
+                        email={version.approvedBy}
+                        avatarStyle={version.approvedByAvatarStyle}
+                        avatarSeed={version.approvedByAvatarSeed}
+                        isDeleted={version.isDeletedApprover}
+                        size={20}
+                      />
+                      <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
+                        {version.approvedByName || version.approvedBy}
+                      </TypographySmall>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>{version.isDeletedApprover ? '삭제된 사용자' : version.approvedBy}</TooltipContent>
+                </Tooltip>
               </div>
               {version.approvedAt && (
                 <div className="flex items-center gap-2">

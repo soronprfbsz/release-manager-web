@@ -25,7 +25,7 @@ const HIDDEN_ROLES = {
   // 버전 관리
   version: {
     add: ['GUEST', 'USER'] as Role[],                  // 추가/수정: ADMIN, DEVELOPER 가능
-    delete: ['GUEST', 'USER', 'DEVELOPER'] as Role[],  // 삭제: ADMIN만 가능
+    delete: ['GUEST', 'USER'] as Role[],               // 삭제: ADMIN, DEVELOPER 가능
     approve: ['GUEST', 'USER'] as Role[],              // 승인: ADMIN, DEVELOPER 가능
     download: ['GUEST', 'USER'] as Role[],             // 다운로드: ADMIN, DEVELOPER 가능
   },
@@ -33,6 +33,11 @@ const HIDDEN_ROLES = {
   patch: {
     add: ['GUEST'] as Role[],              // 추가: ADMIN, DEVELOPER, USER 가능
     delete: ['GUEST'] as Role[],           // 삭제: ADMIN, DEVELOPER, USER 가능
+  },
+  // 프로젝트 관리
+  project: {
+    delete: ['GUEST', 'USER'] as Role[],              // 삭제: ADMIN, DEVELOPER 가능
+    manageFiles: ['GUEST', 'USER'] as Role[],         // 파일 추가/폴더 추가/삭제: ADMIN, DEVELOPER 가능
   },
 } as const
 
@@ -72,6 +77,10 @@ export function usePermission() {
     // 패치 관리 권한
     canAddPatch: canAccess(HIDDEN_ROLES.patch.add),
     canDeletePatch: canAccess(HIDDEN_ROLES.patch.delete),
+
+    // 프로젝트 관리 권한
+    canDeleteProject: canAccess(HIDDEN_ROLES.project.delete),
+    canManageProjectFiles: canAccess(HIDDEN_ROLES.project.manageFiles),
 
     // 유틸리티
     canAccess,

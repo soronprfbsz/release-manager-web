@@ -87,6 +87,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 
 type TabType = 'management' | 'onboarding' | 'install'
 
@@ -117,6 +118,7 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 export function ProjectListPage() {
   const { toast } = useToast()
   const { startTransfer, updateProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
+  const { canDeleteProject, canManageProjectFiles } = usePermission()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
 
@@ -363,7 +365,7 @@ export function ProjectListPage() {
     const fileName = node.name.toLowerCase()
     const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
       '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip']
+      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
       setSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
@@ -527,7 +529,7 @@ export function ProjectListPage() {
     const fileName = node.name.toLowerCase()
     const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
       '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip']
+      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear']
 
     if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
       setInstallSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
@@ -678,7 +680,7 @@ export function ProjectListPage() {
               <p>{currentTabConfig.addTooltip}</p>
             </TooltipContent>
           </Tooltip>
-        ) : currentTab === 'onboarding' && projectId ? (
+        ) : currentTab === 'onboarding' && projectId && canManageProjectFiles ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -696,7 +698,7 @@ export function ProjectListPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : currentTab === 'install' && projectId ? (
+        ) : currentTab === 'install' && projectId && canManageProjectFiles ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon">
@@ -747,6 +749,7 @@ export function ProjectListPage() {
                   projects={projects}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  showDelete={canDeleteProject}
                 />
               )}
             </div>
@@ -787,11 +790,11 @@ export function ProjectListPage() {
                         <TooltipTrigger asChild>
                           <Button
                             variant="outline"
-                            size="icon"
+                            size="icon-xs"
                             onClick={handleDownloadAllOnboardingFiles}
                             disabled={transferState.isTransferring}
                           >
-                            <Download className="h-4 w-4" />
+                            <Download />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>전체 다운로드</TooltipContent>
@@ -808,6 +811,7 @@ export function ProjectListPage() {
                       onUpload={handleUploadClick}
                       onDelete={handleOnboardingDeleteClick}
                       onCreateDirectory={handleCreateDirectoryClick}
+                      canManageFiles={canManageProjectFiles}
                     />
                   </ScrollArea>
                 </div>
@@ -850,11 +854,11 @@ export function ProjectListPage() {
                         <TooltipTrigger asChild>
                           <Button
                             variant="outline"
-                            size="icon"
+                            size="icon-xs"
                             onClick={handleDownloadAllInstallFiles}
                             disabled={transferState.isTransferring}
                           >
-                            <Download className="h-4 w-4" />
+                            <Download />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>전체 다운로드</TooltipContent>
@@ -871,6 +875,7 @@ export function ProjectListPage() {
                       onUpload={handleInstallUploadClick}
                       onDelete={handleInstallDeleteClick}
                       onCreateDirectory={handleInstallCreateDirectoryClick}
+                      canManageFiles={canManageProjectFiles}
                     />
                   </ScrollArea>
                 </div>
@@ -1033,9 +1038,10 @@ interface OnboardingFileTreeProps {
   onUpload: (targetPath: string) => void
   onDelete: (node: OnboardingFileNode) => void
   onCreateDirectory: (parentPath: string) => void
+  canManageFiles?: boolean
 }
 
-function OnboardingFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: OnboardingFileTreeProps) {
+function OnboardingFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: OnboardingFileTreeProps) {
   return (
     <div className="space-y-1">
       {files.children?.map((node) => (
@@ -1048,6 +1054,7 @@ function OnboardingFileTree({ files, onFileClick, onDownload, onUpload, onDelete
           onUpload={onUpload}
           onDelete={onDelete}
           onCreateDirectory={onCreateDirectory}
+          canManageFiles={canManageFiles}
         />
       ))}
     </div>
@@ -1062,9 +1069,10 @@ interface OnboardingFileTreeNodeProps {
   onUpload: (targetPath: string) => void
   onDelete: (node: OnboardingFileNode) => void
   onCreateDirectory: (parentPath: string) => void
+  canManageFiles?: boolean
 }
 
-function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: OnboardingFileTreeNodeProps) {
+function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: OnboardingFileTreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   // 디렉토리 렌더링
@@ -1097,35 +1105,37 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
             )}
             <span className="text-sm font-medium truncate">{node.name}</span>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
-                <File className="h-4 w-4 mr-2" />
-                파일 추가
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
-                <FolderPlus className="h-4 w-4 mr-2" />
-                폴더 추가
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(node)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {canManageFiles && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
+                  <File className="h-4 w-4 mr-2" />
+                  파일 추가
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
+                  <FolderPlus className="h-4 w-4 mr-2" />
+                  폴더 추가
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete(node)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  삭제
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         {isExpanded && sortedChildren.length > 0 && (
           <div>
@@ -1139,6 +1149,7 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
                 onUpload={onUpload}
                 onDelete={onDelete}
                 onCreateDirectory={onCreateDirectory}
+                canManageFiles={canManageFiles}
               />
             ))}
           </div>
@@ -1151,7 +1162,7 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
   const fileName = node.name.toLowerCase()
   const isViewable = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
     '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip'].some(ext => fileName.endsWith(ext))
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
 
   // 파일 렌더링
   return (
@@ -1187,13 +1198,15 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
               <Download className="h-4 w-4 mr-2" />
               다운로드
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(node)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              삭제
-            </DropdownMenuItem>
+            {canManageFiles && (
+              <DropdownMenuItem
+                onClick={() => onDelete(node)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                삭제
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -1209,9 +1222,10 @@ interface InstallFileTreeProps {
   onUpload: (targetPath: string) => void
   onDelete: (node: InstallFileNode) => void
   onCreateDirectory: (parentPath: string) => void
+  canManageFiles?: boolean
 }
 
-function InstallFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: InstallFileTreeProps) {
+function InstallFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: InstallFileTreeProps) {
   return (
     <div className="space-y-1">
       {files.children?.map((node) => (
@@ -1224,6 +1238,7 @@ function InstallFileTree({ files, onFileClick, onDownload, onUpload, onDelete, o
           onUpload={onUpload}
           onDelete={onDelete}
           onCreateDirectory={onCreateDirectory}
+          canManageFiles={canManageFiles}
         />
       ))}
     </div>
@@ -1238,9 +1253,10 @@ interface InstallFileTreeNodeProps {
   onUpload: (targetPath: string) => void
   onDelete: (node: InstallFileNode) => void
   onCreateDirectory: (parentPath: string) => void
+  canManageFiles?: boolean
 }
 
-function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory }: InstallFileTreeNodeProps) {
+function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: InstallFileTreeNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   // 디렉토리 렌더링
@@ -1273,35 +1289,37 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
             )}
             <span className="text-sm font-medium truncate">{node.name}</span>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
-                <File className="h-4 w-4 mr-2" />
-                파일 추가
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
-                <FolderPlus className="h-4 w-4 mr-2" />
-                폴더 추가
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(node)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {canManageFiles && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
+                  <File className="h-4 w-4 mr-2" />
+                  파일 추가
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
+                  <FolderPlus className="h-4 w-4 mr-2" />
+                  폴더 추가
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onDelete(node)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  삭제
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         {isExpanded && sortedChildren.length > 0 && (
           <div>
@@ -1315,6 +1333,7 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
                 onUpload={onUpload}
                 onDelete={onDelete}
                 onCreateDirectory={onCreateDirectory}
+                canManageFiles={canManageFiles}
               />
             ))}
           </div>
@@ -1327,7 +1346,7 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
   const fileName = node.name.toLowerCase()
   const isViewable = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
     '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip'].some(ext => fileName.endsWith(ext))
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
 
   // 파일 렌더링
   return (
@@ -1363,13 +1382,15 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
               <Download className="h-4 w-4 mr-2" />
               다운로드
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(node)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              삭제
-            </DropdownMenuItem>
+            {canManageFiles && (
+              <DropdownMenuItem
+                onClick={() => onDelete(node)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                삭제
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

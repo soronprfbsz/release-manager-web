@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { accountApi, type AccountListParams } from '../api/accountApi'
+import {
+  accountApi,
+  type AccountListParams,
+  type BatchTransferDepartmentRequest,
+} from '../api/accountApi'
 import type { AccountUpdateRequest, MyAccountUpdateRequest } from '../model/types'
 
 export const accountKeys = {
@@ -73,6 +77,19 @@ export function useUpdateMyAccount() {
     mutationFn: (data: MyAccountUpdateRequest) => accountApi.updateMe(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountKeys.me() })
+    },
+  })
+}
+
+/** 일괄 부서 이동 */
+export function useBatchTransferDepartment() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (request: BatchTransferDepartmentRequest) =>
+      accountApi.batchTransferDepartment(request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountKeys.all })
     },
   })
 }

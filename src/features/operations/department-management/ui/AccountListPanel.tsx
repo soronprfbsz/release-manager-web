@@ -1,18 +1,17 @@
 /**
  * Account List Panel Component
- * 부서별 계정 목록 패널 (드래그 앤 드롭 지원)
+ * 부서별 계정 목록 패널 (드래그 앤 드롭 지원, 다중 선택 지원)
  * ContentSplit.Detail 내부에서 사용 (header와 ScrollArea는 ContentSplit.Detail이 제공)
  */
 
-import { ArrowRightLeft, GripVertical, Mail, Phone, User } from 'lucide-react'
+import { GripVertical, Mail, Phone, User } from 'lucide-react'
 
 import type { Account } from '@/entities/operations/account'
 
 import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
+import { Checkbox } from '@/shared/ui/checkbox'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
-import { Button } from '@/shared/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 interface AccountListPanelProps {
   accounts: Account[]
@@ -21,7 +20,10 @@ interface AccountListPanelProps {
   showAllAccounts?: boolean
   /** 미배치 계정 보기 모드 */
   showUnassigned?: boolean
-  onMoveAccount: (account: Account) => void
+  /** 선택된 계정 ID 목록 */
+  selectedAccountIds?: number[]
+  /** 계정 선택 변경 핸들러 */
+  onSelectionChange?: (accountIds: number[]) => void
   onDragStart?: (account: Account) => void
   onDragEnd?: () => void
 }
@@ -31,7 +33,8 @@ export function AccountListPanel({
   isLoading,
   showAllAccounts = false,
   showUnassigned = false,
-  onMoveAccount,
+  selectedAccountIds = [],
+  onSelectionChange,
   onDragStart,
   onDragEnd,
 }: AccountListPanelProps) {
@@ -44,6 +47,29 @@ export function AccountListPanel({
   const handleDragEnd = () => {
     onDragEnd?.()
   }
+
+  const handleCheckboxChange = (accountId: number, checked: boolean) => {
+    if (!onSelectionChange) return
+
+    if (checked) {
+      onSelectionChange([...selectedAccountIds, accountId])
+    } else {
+      onSelectionChange(selectedAccountIds.filter(id => id !== accountId))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!onSelectionChange) return
+
+    if (checked) {
+      onSelectionChange(accounts.map(a => a.accountId))
+    } else {
+      onSelectionChange([])
+    }
+  }
+
+  const isAllSelected = accounts.length > 0 && selectedAccountIds.length === accounts.length
+  const isIndeterminate = selectedAccountIds.length > 0 && selectedAccountIds.length < accounts.length
 
   if (isLoading) {
     return (
@@ -66,12 +92,32 @@ export function AccountListPanel({
 
   return (
     <div className="divide-y -mx-4">
+      {/* 전체 선택 헤더 */}
+      {onSelectionChange && accounts.length > 0 && (
+        <div className="flex items-center gap-3 px-4 py-2 bg-muted/30">
+          <div className="w-4" /> {/* Spacer for drag handle alignment */}
+          <Checkbox
+            checked={isAllSelected}
+            // @ts-expect-error - indeterminate prop is valid
+            indeterminate={isIndeterminate}
+            onCheckedChange={handleSelectAll}
+            aria-label="전체 선택"
+          />
+          <span className="text-sm text-muted-foreground">
+            {selectedAccountIds.length > 0
+              ? `${selectedAccountIds.length}명 선택됨`
+              : `전체 선택 (${accounts.length}명)`}
+          </span>
+        </div>
+      )}
+
       {accounts.map((account) => (
         <div
           key={account.accountId}
           className={cn(
             'flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors',
-            'select-none'
+            'select-none',
+            selectedAccountIds.includes(account.accountId) && 'bg-primary/5'
           )}
         >
           {/* Drag handle */}
@@ -83,6 +129,15 @@ export function AccountListPanel({
           >
             <GripVertical className="h-4 w-4 text-muted-foreground/50" />
           </div>
+
+          {/* Checkbox */}
+          {onSelectionChange && (
+            <Checkbox
+              checked={selectedAccountIds.includes(account.accountId)}
+              onCheckedChange={(checked) => handleCheckboxChange(account.accountId, checked as boolean)}
+              aria-label={`${account.accountName} 선택`}
+            />
+          )}
 
           <DiceBearAvatar
             style={(account.avatarStyle as AvatarStyleKey) || 'initials'}
@@ -118,21 +173,6 @@ export function AccountListPanel({
               )}
             </div>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="flex-shrink-0 h-8 w-8"
-                onClick={() => onMoveAccount(account)}
-              >
-                <ArrowRightLeft className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>다른 부서로 이동</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
       ))}
     </div>

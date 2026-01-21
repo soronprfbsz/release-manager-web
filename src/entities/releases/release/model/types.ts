@@ -16,7 +16,7 @@ export interface HotfixNode {
   /** 전체 버전 문자열 (e.g. 1.1.0.1) */
   fullVersion: string
   createdAt: string
-  createdByName?: string
+  createdByName?: string | null
   createdByEmail?: string
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
@@ -24,6 +24,7 @@ export interface HotfixNode {
   comment?: string
   isApproved?: boolean
   approvedBy?: string | null
+  approvedByName?: string | null
   approvedByAvatarStyle?: string
   approvedByAvatarSeed?: string
   isDeletedApprover?: boolean
@@ -37,12 +38,18 @@ export interface VersionNode {
   version: string
   createdAt: string
   createdByEmail: string
+  createdByName?: string | null
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
+  isDeletedCreator?: boolean
   comment: string
   fileCategories: string[]
   isApproved: boolean
   approvedBy: string | null
+  approvedByName?: string | null
+  approvedByAvatarStyle?: string
+  approvedByAvatarSeed?: string
+  isDeletedApprover?: boolean
   approvedAt: string | null
   /** 이 버전의 핫픽스 목록 */
   hotfixes: HotfixNode[]
@@ -85,12 +92,18 @@ export interface ReleaseVersionDetail {
   fullVersion: string
   majorMinor: string
   createdByEmail: string
+  createdByName?: string | null
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
+  isDeletedCreator?: boolean
   comment: string
   customVersion: string | null
   isApproved: boolean
   approvedBy: string | null
+  approvedByName?: string | null
+  approvedByAvatarStyle?: string
+  approvedByAvatarSeed?: string
+  isDeletedApprover?: boolean
   approvedAt: string | null
   createdAt: string
   updatedAt: string

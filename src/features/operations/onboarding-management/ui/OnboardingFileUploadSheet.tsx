@@ -6,6 +6,7 @@
 import { Upload } from 'lucide-react'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
+import { isZipFile } from '@/shared/lib/utils/file-content'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -31,8 +32,8 @@ export function OnboardingFileUploadSheet({
   onSubmit,
   onClose,
 }: OnboardingFileUploadSheetProps) {
-  // ZIP 파일 여부 확인
-  const isZipFile = formData.file?.name.toLowerCase().endsWith('.zip') ?? false
+  // 압축 파일 여부 확인 (ZIP, JAR, WAR, EAR)
+  const isArchiveFile = formData.file ? isZipFile(formData.file.name) : false
 
   return (
     <FormSheet
@@ -74,8 +75,8 @@ export function OnboardingFileUploadSheet({
         />
       </div>
 
-      {/* ZIP 압축 해제 옵션 */}
-      {isZipFile && (
+      {/* 압축 해제 옵션 (ZIP, JAR, WAR, EAR) */}
+      {isArchiveFile && (
         <div className="flex items-center space-x-2">
           <Checkbox
             id="extractZip"

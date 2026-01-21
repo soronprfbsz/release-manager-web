@@ -13,9 +13,10 @@ interface ProjectListProps {
   projects: Project[]
   onEdit: (project: Project) => void
   onDelete: (project: Project) => void
+  showDelete?: boolean
 }
 
-export function ProjectList({ projects, onEdit, onDelete }: ProjectListProps) {
+export function ProjectList({ projects, onEdit, onDelete, showDelete = true }: ProjectListProps) {
   if (projects.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
@@ -34,6 +35,7 @@ export function ProjectList({ projects, onEdit, onDelete }: ProjectListProps) {
           project={project}
           onEdit={onEdit}
           onDelete={onDelete}
+          showDelete={showDelete}
         />
       ))}
     </div>

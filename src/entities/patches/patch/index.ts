@@ -31,4 +31,5 @@ export {
   useGenerateCustomPatch,
   useDeletePatch,
   useDeletePatchHistory,
+  useBulkDeletePatches,
 } from './queries/patchQueries'

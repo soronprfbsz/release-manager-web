@@ -187,7 +187,7 @@ export function CustomerListPage() {
         </Tooltip>
       }
     >
-      <ContentSplit treeWidth={27}>
+      <ContentSplit treeWidth={25}>
         {/* Left Panel - Customer Tree */}
         <ContentSplit.Tree
           header={

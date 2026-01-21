@@ -7,6 +7,7 @@ const ENDPOINTS = {
   base: '/api/accounts',
   byId: (id: number) => `/api/accounts/${id}`,
   me: '/api/accounts/me',
+  batchTransfer: '/api/accounts/batch-transfer-department',
 } as const
 
 export interface AccountListParams extends PaginationParams {
@@ -14,6 +15,20 @@ export interface AccountListParams extends PaginationParams {
   departmentId?: number | null  // null = 미배치 계정
   includeSubDepartments?: boolean  // true = 하위 부서 포함
   departmentType?: string  // 부서 타입 필터 (e.g. 'ENGINEER')
+}
+
+/** 일괄 부서 이동 요청 */
+export interface BatchTransferDepartmentRequest {
+  accountIds: number[]
+  targetDepartmentId: number | null // null = 미배치
+}
+
+/** 일괄 부서 이동 응답 */
+export interface BatchTransferDepartmentResponse {
+  transferredCount: number
+  targetDepartmentId: number | null
+  targetDepartmentName: string
+  message: string
 }
 
 export const accountApi = {
@@ -61,6 +76,17 @@ export const accountApi = {
   /** 내 정보 수정 */
   updateMe: async (request: MyAccountUpdateRequest): Promise<MyAccount> => {
     const response = await apiClient.patch<MyAccount>(ENDPOINTS.me, request)
+    return response
+  },
+
+  /** 일괄 부서 이동 */
+  batchTransferDepartment: async (
+    request: BatchTransferDepartmentRequest
+  ): Promise<BatchTransferDepartmentResponse> => {
+    const response = await apiClient.patch<BatchTransferDepartmentResponse>(
+      ENDPOINTS.batchTransfer,
+      request
+    )
     return response
   },
 }

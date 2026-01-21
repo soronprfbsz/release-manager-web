@@ -5,14 +5,14 @@
 
 import { useState } from 'react'
 
-import { Network, Plus, TableOfContents, Users, UserX } from 'lucide-react'
+import { ArrowRightLeft, Network, Plus, TableOfContents, Users, UserX } from 'lucide-react'
 
 import {
   DepartmentTree,
   DepartmentForm,
   DepartmentDeleteDialog,
   AccountListPanel,
-  AccountMoveDialog,
+  BulkAccountMoveDialog,
   AccountAssignDialog,
   validateDepartmentForm,
   INITIAL_DEPARTMENT_FORM_DATA,
@@ -38,6 +38,7 @@ import {
   useAccountsByDepartment,
   useAccounts,
   useUpdateAccount,
+  useBatchTransferDepartment,
   accountKeys,
   type Account,
 } from '@/entities/operations/account'
@@ -74,8 +75,11 @@ export function DepartmentPage() {
   const [deleteTarget, setDeleteTarget] = useState<DepartmentTreeType | null>(null)
 
   // Account dialogs
-  const [accountToMove, setAccountToMove] = useState<Account | null>(null)
   const [assignDialogOpen, setAssignDialogOpen] = useState(false)
+
+  // Bulk move state
+  const [selectedAccountIds, setSelectedAccountIds] = useState<number[]>([])
+  const [bulkMoveDialogOpen, setBulkMoveDialogOpen] = useState(false)
 
   // Drag state (Account)
   const [draggedAccount, setDraggedAccount] = useState<Account | null>(null)
@@ -112,6 +116,7 @@ export function DepartmentPage() {
   const moveMutation = useMoveDepartment()
   const deleteMutation = useDeleteDepartment()
   const updateAccountMutation = useUpdateAccount()
+  const batchTransferMutation = useBatchTransferDepartment()
 
   const departmentAccounts = accountsData?.content || []
   const allAccounts = allAccountsData?.content || []
@@ -121,18 +126,21 @@ export function DepartmentPage() {
     setSelectedDepartmentId(department.departmentId)
     setShowAllAccounts(false)
     setShowUnassigned(false)
+    setSelectedAccountIds([]) // 부서 변경 시 선택 초기화
   }
 
   const handleSelectAllAccounts = () => {
     setSelectedDepartmentId(null)
     setShowAllAccounts(true)
     setShowUnassigned(false)
+    setSelectedAccountIds([]) // 모드 변경 시 선택 초기화
   }
 
   const handleSelectUnassigned = () => {
     setSelectedDepartmentId(null)
     setShowAllAccounts(false)
     setShowUnassigned(true)
+    setSelectedAccountIds([]) // 모드 변경 시 선택 초기화
   }
 
   const openCreateForm = (parentId?: number) => {
@@ -232,24 +240,24 @@ export function DepartmentPage() {
     setAssignDialogOpen(true)
   }
 
-  const handleMoveAccount = (account: Account) => {
-    setAccountToMove(account)
-  }
+  // Bulk account move handler
+  const handleBulkMoveConfirm = (newDepartmentId: number | null) => {
+    if (selectedAccountIds.length === 0) return
 
-  const handleAccountMoveConfirm = (newDepartmentId: number | null) => {
-    if (!accountToMove) return
-
-    updateAccountMutation.mutate(
-      { id: accountToMove.accountId, data: { departmentId: newDepartmentId } },
+    batchTransferMutation.mutate(
       {
-        onSuccess: () => {
+        accountIds: selectedAccountIds,
+        targetDepartmentId: newDepartmentId,
+      },
+      {
+        onSuccess: (data) => {
           toast({
             title: '이동 완료',
-            description: `${accountToMove.accountName}님이 이동되었습니다.`,
+            description: data.message,
           })
-          setAccountToMove(null)
-          // Invalidate all account queries (including unassigned) and department tree
-          queryClient.invalidateQueries({ queryKey: accountKeys.all })
+          setBulkMoveDialogOpen(false)
+          setSelectedAccountIds([])
+          // Invalidate department tree for account count updates
           queryClient.invalidateQueries({ queryKey: departmentKeys.tree() })
         },
         onError: createErrorHandler(toast, '이동 실패'),
@@ -398,7 +406,7 @@ export function DepartmentPage() {
         </Tooltip>
       }
     >
-      <ContentSplit treeWidth={27}>
+      <ContentSplit treeWidth={25}>
         {/* 부서 트리 */}
         <ContentSplit.Tree
           header={
@@ -492,15 +500,35 @@ export function DepartmentPage() {
           emptyMessage="부서를 선택해주세요."
           header={
             (showAllAccounts || showUnassigned || selectedDepartmentId) && (
-              <div className="flex items-center gap-2 min-w-0">
-                <TableOfContents className="h-4 w-4 flex-shrink-0" />
-                <h3 className="text-base font-semibold truncate">
-                  {showAllAccounts ? '전체 계정' : showUnassigned ? '미배치 계정' : selectedDetail?.departmentName}
-                </h3>
-                {(showAllAccounts || showUnassigned || selectedDetail?.description) && (
-                  <span className="text-xs text-muted-foreground truncate">
-                    {showAllAccounts ? '등록된 모든 계정' : showUnassigned ? '부서 미배치' : selectedDetail?.description}
-                  </span>
+              <div className="flex items-center justify-between w-full min-h-[34px]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <TableOfContents className="h-4 w-4 flex-shrink-0" />
+                  <h3 className="text-base font-semibold truncate">
+                    {showAllAccounts ? '전체 계정' : showUnassigned ? '미배치 계정' : selectedDetail?.departmentName}
+                  </h3>
+                  {(showAllAccounts || showUnassigned || selectedDetail?.description) && (
+                    <span className="text-xs text-muted-foreground truncate">
+                      {showAllAccounts ? '등록된 모든 계정' : showUnassigned ? '부서 미배치' : selectedDetail?.description}
+                    </span>
+                  )}
+                </div>
+                {/* 일괄 부서 이동 버튼 */}
+                {selectedAccountIds.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon-xs"
+                        onClick={() => setBulkMoveDialogOpen(true)}
+                        className="flex-shrink-0"
+                      >
+                        <ArrowRightLeft />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{selectedAccountIds.length}명 부서 이동</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             )
@@ -511,7 +539,8 @@ export function DepartmentPage() {
             isLoading={showAllAccounts ? isAllAccountsLoading : (showUnassigned ? isAccountsLoading : (isDetailLoading || isAccountsLoading))}
             showAllAccounts={showAllAccounts}
             showUnassigned={showUnassigned}
-            onMoveAccount={handleMoveAccount}
+            selectedAccountIds={selectedAccountIds}
+            onSelectionChange={setSelectedAccountIds}
             onDragStart={handleAccountDragStart}
             onDragEnd={handleAccountDragEnd}
           />
@@ -540,16 +569,6 @@ export function DepartmentPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* Account Move Dialog */}
-      <AccountMoveDialog
-        open={accountToMove !== null}
-        account={accountToMove}
-        departments={departments}
-        isMoving={updateAccountMutation.isPending}
-        onConfirm={handleAccountMoveConfirm}
-        onCancel={() => setAccountToMove(null)}
-      />
-
       {/* Account Assign Dialog */}
       <AccountAssignDialog
         open={assignDialogOpen}
@@ -559,6 +578,18 @@ export function DepartmentPage() {
         isAssigning={updateAccountMutation.isPending}
         onConfirm={handleAssignConfirm}
         onCancel={() => setAssignDialogOpen(false)}
+      />
+
+      {/* Bulk Account Move Dialog */}
+      <BulkAccountMoveDialog
+        open={bulkMoveDialogOpen}
+        accounts={(showAllAccounts ? allAccounts : departmentAccounts).filter(
+          (a) => selectedAccountIds.includes(a.accountId)
+        )}
+        departments={departments}
+        isMoving={batchTransferMutation.isPending}
+        onConfirm={handleBulkMoveConfirm}
+        onCancel={() => setBulkMoveDialogOpen(false)}
       />
     </PageLayout>
   )

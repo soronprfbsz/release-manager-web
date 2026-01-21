@@ -15,6 +15,7 @@ import {
   ChevronsRight,
   Trash2,
   Loader2,
+  UserX,
 } from 'lucide-react'
 
 import {
@@ -39,6 +40,7 @@ import {
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
 import { Button } from '@/shared/ui/button'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import {
   Select,
@@ -144,12 +146,13 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-16 text-right">No</TableHead>
-                  <TableHead className="w-[300px]">패치명</TableHead>
-                  <TableHead className="w-[120px]">버전</TableHead>
+                  <TableHead className="w-12 text-right">No</TableHead>
+                  <TableHead className="w-56">패치명</TableHead>
+                  <TableHead className="w-24">버전</TableHead>
                   <TableHead className="">설명</TableHead>
-                  <TableHead className="w-[100px]">담당자</TableHead>
-                  <TableHead className="w-[160px] whitespace-nowrap">생성일시</TableHead>
+                  <TableHead className="w-52">담당자</TableHead>
+                  <TableHead className="w-52">생성자</TableHead>
+                  <TableHead className="w-36 whitespace-nowrap">생성일시</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -160,7 +163,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                     </TableCell>
                     <TableCell className="font-medium py-3">
                       <div className="flex items-center gap-1">
-                        <span className="truncate max-w-[250px]">{patch.patchName}</span>
+                        <span className="truncate max-w-48">{patch.patchName}</span>
                         {canDeletePatch && (
                           <button
                             type="button"
@@ -179,7 +182,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                       {patch.description ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="block truncate max-w-[150px] cursor-default">
+                            <span className="block truncate max-w-40 cursor-default">
                               {patch.description}
                             </span>
                           </TooltipTrigger>
@@ -191,8 +194,61 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                         '-'
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm py-3">
-                      {patch.assigneeName || '-'}
+                    <TableCell className="py-3">
+                      {patch.assigneeEmail ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 cursor-default">
+                              {patch.isDeletedAssignee ? (
+                                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                  <UserX className="h-3.5 w-3.5 text-muted-foreground" />
+                                </div>
+                              ) : (
+                                <DiceBearAvatar
+                                  style={(patch.assigneeAvatarStyle as AvatarStyleKey) || 'initials'}
+                                  seed={patch.assigneeAvatarSeed || patch.assigneeEmail}
+                                  size={24}
+                                  name={patch.assigneeName || patch.assigneeEmail}
+                                />
+                              )}
+                              <span className="text-sm truncate max-w-40">
+                                {patch.assigneeName || patch.assigneeEmail}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{patch.isDeletedAssignee ? '삭제된 사용자' : patch.assigneeEmail}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2 cursor-default">
+                            {patch.isDeletedCreator ? (
+                              <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                <UserX className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            ) : (
+                              <DiceBearAvatar
+                                style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                                seed={patch.createdByAvatarSeed || patch.createdByEmail}
+                                size={24}
+                                name={patch.createdByName || patch.createdByEmail}
+                              />
+                            )}
+                            <span className="text-sm truncate max-w-40">
+                              {patch.createdByName || patch.createdByEmail}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{patch.isDeletedCreator ? '삭제된 사용자' : patch.createdByEmail}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap py-3">
                       {formatDateTime(patch.createdAt)}
