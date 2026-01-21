@@ -7,7 +7,6 @@ export interface RecentVersion {
   releaseVersionId: number
   version: string
   releaseType: string
-  releaseCategory: string
   fileCategories: string[]
   createdAt: string
   createdBy: string

@@ -53,7 +53,6 @@ export interface SelectedVersionData {
   createdByAvatarSeed?: string | null
   isDeletedCreator?: boolean
   comment: string
-  releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
   isApproved: boolean
   approvedBy: string | null

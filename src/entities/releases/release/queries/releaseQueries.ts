@@ -102,7 +102,6 @@ interface CreateVersionParams {
   projectId: string
   version: string
   comment: string
-  releaseCategory: string
   patchFiles: File
   isApproved?: boolean
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
@@ -117,7 +116,6 @@ export const useCreateVersion = () => {
         params.projectId,
         params.version,
         params.comment,
-        params.releaseCategory,
         params.patchFiles,
         params.isApproved,
         params.onUploadProgress

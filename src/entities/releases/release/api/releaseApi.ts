@@ -59,7 +59,6 @@ export const releaseApi = {
     projectId: string,
     version: string,
     comment: string,
-    releaseCategory: string,
     patchFiles: File,
     isApproved?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
@@ -68,7 +67,6 @@ export const releaseApi = {
     formData.append('projectId', projectId)
     formData.append('version', version)
     formData.append('comment', comment)
-    formData.append('releaseCategory', releaseCategory)
     formData.append('patchFiles', patchFiles)
     if (isApproved !== undefined) {
       formData.append('isApproved', String(isApproved))
@@ -80,7 +78,7 @@ export const releaseApi = {
     })
   },
 
-  /** 커스텀 버전 생성 (multipart/form-data) - releaseCategory는 PATCH로 고정 */
+  /** 커스텀 버전 생성 (multipart/form-data) */
   createCustomVersion: async (
     projectId: string,
     customerId: number,

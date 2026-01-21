@@ -202,14 +202,6 @@ export function ReleaseTree({
                           </span>
                           {version.versionId === latestVersionId && <LatestIndicator />}
                           <div className="flex gap-1 ml-auto items-center">
-                            {version.releaseCategory === 'INSTALL' && (
-                              <Badge
-                                variant="install"
-                                className="text-[10px] px-1 py-0 h-4 leading-none"
-                              >
-                                INSTALL
-                              </Badge>
-                            )}
                             {version.fileCategories && version.fileCategories.length > 0 && (
                               <>
                                 {version.fileCategories.map((category) => (

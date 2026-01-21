@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
 import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
-import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import { useProjectStore } from '@/shared/store'
 import { releaseApi } from '@/entities/releases/release'
 
@@ -19,13 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -76,22 +68,11 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
   const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
-  const [releaseCategory, setReleaseCategory] = useState<string>('PATCH')
   const [file, setFile] = useState<File | null>(null)
   const [isApproved, setIsApproved] = useState(false)
   const { toast } = useToast()
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   const [uploadCompleted, setUploadCompleted] = useState(false)
-
-  // 릴리즈 카테고리 목록 조회
-  const { data: releaseCategoryOptions = [] } = useCodesByType(CODE_TYPE.RELEASE_CATEGORY)
-
-  // 첫 번째 옵션을 기본값으로 설정
-  useEffect(() => {
-    if (releaseCategoryOptions.length > 0 && !releaseCategory) {
-      setReleaseCategory(releaseCategoryOptions[0].value)
-    }
-  }, [releaseCategoryOptions, releaseCategory])
 
   // 자동 계산된 버전
   const calculatedVersion = useMemo(() => {
@@ -130,7 +111,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         }
       }
 
-      await releaseApi.createVersion(projectId, effectiveVersion, comment, releaseCategory, file!, isApproved, progressHandler)
+      await releaseApi.createVersion(projectId, effectiveVersion, comment, file!, isApproved, progressHandler)
       completeTransfer()
     },
     onSuccess: () => {
@@ -362,27 +343,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
             {isManualInput ? '자동 입력' : '직접 입력'}
           </button>
         )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="releaseCategory" required>
-          릴리즈 타입
-        </Label>
-        <Select
-          value={releaseCategory}
-          onValueChange={setReleaseCategory}
-        >
-          <SelectTrigger id="releaseCategory">
-            <SelectValue placeholder="릴리즈 타입을 선택하세요" />
-          </SelectTrigger>
-          <SelectContent>
-            {releaseCategoryOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="space-y-2">

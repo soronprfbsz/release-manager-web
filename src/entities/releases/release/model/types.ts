@@ -40,7 +40,6 @@ export interface VersionNode {
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
   comment: string
-  releaseCategory?: 'INSTALL' | 'PATCH'
   fileCategories: string[]
   isApproved: boolean
   approvedBy: string | null
@@ -75,7 +74,6 @@ export interface ReleaseFileSimple {
 export interface ReleaseVersionDetail {
   releaseVersionId: number
   releaseType: string
-  releaseCategory: 'INSTALL' | 'PATCH'
   customerCode: string | null
   version: string
   majorVersion: number
