@@ -49,11 +49,14 @@ export function PublishingCard({
     if (transferState.isTransferring) return
     const fileName = `${publishing.publishingName}.zip`
 
-    startTransfer(fileName, 'download')
+    const controller = startTransfer(fileName, 'download')
     try {
-      await publishingApi.download(publishing.publishingId, fileName, handleProgress)
+      await publishingApi.download(publishing.publishingId, fileName, handleProgress, controller.signal)
       completeTransfer()
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         title: '다운로드 실패',

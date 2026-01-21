@@ -74,12 +74,14 @@ export const mariadbApi = {
   downloadBackupFile: async (
     id: number,
     fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void
+    onProgress?: (event: DownloadProgressEvent) => void,
+    signal?: AbortSignal
   ): Promise<void> => {
     await downloadWithProgress({
       url: ENDPOINTS.backupFileDownload(id),
       filename: fileName,
       onProgress,
+      signal,
     })
   },
 
@@ -106,12 +108,14 @@ export const mariadbApi = {
   downloadLogFile: async (
     backupFileId: number,
     logFileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void
+    onProgress?: (event: DownloadProgressEvent) => void,
+    signal?: AbortSignal
   ): Promise<void> => {
     await downloadWithProgress({
       url: ENDPOINTS.backupFileLogDownload(backupFileId, logFileName),
       filename: logFileName,
       onProgress,
+      signal,
     })
   },
 

@@ -319,11 +319,15 @@ export function PatchesPage() {
     if (transferState.isTransferring) return
     const fileName = `${patch.patchName}.zip`
 
-    startTransfer(fileName, 'download')
+    const controller = startTransfer(fileName, 'download')
     try {
-      await patchApi.download(patch.patchId, fileName, handleProgress)
+      await patchApi.download(patch.patchId, fileName, handleProgress, controller.signal)
       completeTransfer()
     } catch (error) {
+      // 취소된 경우 에러 토스트 표시하지 않음
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         title: '다운로드 실패',

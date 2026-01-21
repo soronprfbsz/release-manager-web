@@ -393,11 +393,14 @@ function VersionDetailProvider({
     if (!version || transferState.isTransferring) return
     const fileName = `release-${version.version}.zip`
 
-    startTransfer(fileName, 'download')
+    const controller = startTransfer(fileName, 'download')
     try {
-      await releaseApi.downloadVersion(version.versionId, fileName, handleProgress)
+      await releaseApi.downloadVersion(version.versionId, fileName, handleProgress, controller.signal)
       completeTransfer()
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         title: '다운로드 실패',

@@ -125,13 +125,15 @@ export const releaseApi = {
   downloadVersion: async (
     id: number,
     fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void
+    onProgress?: (event: DownloadProgressEvent) => void,
+    signal?: AbortSignal
   ): Promise<void> => {
     await downloadWithProgress({
       url: ENDPOINTS.versionDownload(id),
       filename: fileName,
       onProgress,
       timeout: API_TIMEOUT.FILE_OPERATION,
+      signal,
     })
   },
 

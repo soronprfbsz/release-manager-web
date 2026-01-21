@@ -1,6 +1,13 @@
+/**
+ * File Transfer Progress Hook
+ * 파일 전송 진행률 관리
+ */
+
+import * as React from 'react'
 import { useSyncExternalStore } from 'react'
 
 import { toast } from '@/shared/lib/hooks/use-toast'
+import { ToastAction, type ToastActionElement } from '@/shared/ui/toast'
 
 // ============================================
 // Types
@@ -12,17 +19,33 @@ export interface FileTransferProgress {
   isTransferring: boolean
   isComplete: boolean
   isApproximate: boolean
-  isServerProcessing: boolean
+  isCancelled: boolean
 }
 
 export interface UseFileTransferProgressReturn {
   transferState: FileTransferProgress
-  handleProgress: (progressEvent: { loaded: number; total?: number; isApproximate?: boolean }) => void
-  startTransfer: (fileName?: string, type?: 'upload' | 'download') => void
+  startTransfer: (fileName?: string, type?: 'upload' | 'download') => AbortController
+  updateProgress: (loaded: number, total?: number, isApproximate?: boolean) => void
+  handleProgress: (event: { loaded: number; total?: number; isApproximate?: boolean }) => void
   startServerProcessing: () => void
   completeTransfer: () => void
   resetTransfer: () => void
 }
+
+// ============================================
+// Constants
+// ============================================
+const INITIAL_STATE: FileTransferProgress = {
+  progress: 0,
+  loaded: 0,
+  total: 0,
+  isTransferring: false,
+  isComplete: false,
+  isApproximate: false,
+  isCancelled: false,
+}
+
+const PROGRESS_THROTTLE_MS = 150
 
 // ============================================
 // Utils
@@ -36,26 +59,19 @@ function formatFileSize(bytes: number): string {
 }
 
 // ============================================
-// FileTransferStore (전역 상태 관리)
+// Store
 // ============================================
 class FileTransferStore {
-  private state: FileTransferProgress = {
-    progress: 0,
-    loaded: 0,
-    total: 0,
-    isTransferring: false,
-    isComplete: false,
-    isApproximate: false,
-    isServerProcessing: false,
-  }
-
-  private toastRef: { dismiss: () => void; update: (props: any) => void } | null = null
+  private state: FileTransferProgress = { ...INITIAL_STATE }
+  private listeners = new Set<() => void>()
+  private toastRef: ReturnType<typeof toast> | null = null
+  private currentController: AbortController | null = null
   private fileName = ''
   private transferType: 'upload' | 'download' = 'download'
-  private listeners = new Set<() => void>()
+  private lastUpdateTime = 0
 
-  private notify() {
-    this.listeners.forEach((l) => l())
+  private emit() {
+    this.listeners.forEach((fn) => fn())
   }
 
   getState = () => this.state
@@ -65,25 +81,93 @@ class FileTransferStore {
     return () => this.listeners.delete(listener)
   }
 
-  startTransfer = (fileName?: string, type: 'upload' | 'download' = 'download') => {
+  startTransfer = (fileName?: string, type: 'upload' | 'download' = 'download'): AbortController => {
+    // 기존 전송 정리
+    this.dismissToast()
+    this.currentController?.abort()
+
+    // 새 컨트롤러 생성
+    const controller = new AbortController()
+    this.currentController = controller
     this.fileName = fileName || ''
     this.transferType = type
-    this.state = { ...this.state, isTransferring: true, isComplete: false, isServerProcessing: false }
-    this.notify()
+    this.lastUpdateTime = 0
 
-    const fileNameText = fileName ? ` - ${fileName}` : ''
-    const transferText = type === 'upload' ? '업로드' : '다운로드'
-    const preparingText = type === 'upload' ? '파일 업로드를 준비하고 있습니다...' : '파일 다운로드를 준비하고 있습니다...'
+    // 상태 업데이트
+    this.state = {
+      progress: 0,
+      loaded: 0,
+      total: 0,
+      isTransferring: true,
+      isComplete: false,
+      isApproximate: false,
+      isCancelled: false,
+    }
+    this.emit()
+
+    // 토스트 생성 - controller를 직접 캡처
+    const typeText = type === 'upload' ? '업로드' : '다운로드'
+    const fileText = fileName ? ` - ${fileName}` : ''
 
     this.toastRef = toast({
-      title: `${transferText} 시작${fileNameText}`,
-      description: preparingText,
+      title: `${typeText} 시작${fileText}`,
+      description: `파일 ${typeText}를 준비하고 있습니다...`,
       duration: Infinity,
+      action: this.createCancelAction(controller),
     })
+
+    return controller
   }
 
-  handleProgress = (progressEvent: { loaded: number; total?: number; isApproximate?: boolean }) => {
-    const { loaded, total, isApproximate = false } = progressEvent
+  private createCancelAction(controller: AbortController): ToastActionElement {
+    return React.createElement(
+      ToastAction,
+      {
+        altText: '취소',
+        onClick: () => this.doCancel(controller),
+      },
+      '취소'
+    ) as unknown as ToastActionElement
+  }
+
+  private doCancel = (controller: AbortController) => {
+    // 이미 취소됐거나 전송 중이 아니면 무시
+    if (this.state.isCancelled || !this.state.isTransferring) {
+      return
+    }
+
+    const typeText = this.transferType === 'upload' ? '업로드' : '다운로드'
+    const fileText = this.fileName ? ` - ${this.fileName}` : ''
+
+    // abort 호출
+    controller.abort()
+
+    // 토스트 닫기
+    this.dismissToast()
+
+    // 취소 토스트
+    toast({
+      title: `${typeText} 취소${fileText}`,
+      description: `${typeText}가 취소되었습니다.`,
+    })
+
+    // 상태 업데이트
+    this.currentController = null
+    this.fileName = ''
+    this.state = { ...INITIAL_STATE, isCancelled: true }
+    this.emit()
+  }
+
+  private dismissToast() {
+    if (this.toastRef) {
+      this.toastRef.dismiss()
+      this.toastRef = null
+    }
+  }
+
+  updateProgress = (loaded: number, total?: number, isApproximate?: boolean) => {
+    if (!this.state.isTransferring || this.state.isCancelled) return
+
     const hasTotal = total !== undefined && total > 0
     const progress = hasTotal ? Math.round((loaded / total) * 100) : 0
 
@@ -92,102 +176,103 @@ class FileTransferStore {
       progress,
       loaded,
       total: total || 0,
-      isTransferring: true,
-      isApproximate,
-      isServerProcessing: false,
+      isApproximate: isApproximate || false,
     }
-    this.notify()
 
-    if (this.toastRef) {
-      const fileName = this.fileName ? ` - ${this.fileName}` : ''
-      const transferText = this.transferType === 'upload' ? '업로드' : '다운로드'
-      const progressPrefix = isApproximate ? '약 ' : ''
-      const description = hasTotal
-        ? `${progressPrefix}${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total!)})`
+    // UI throttle
+    const now = Date.now()
+    if (now - this.lastUpdateTime < PROGRESS_THROTTLE_MS) return
+    this.lastUpdateTime = now
+
+    this.emit()
+
+    if (this.toastRef && this.currentController) {
+      const typeText = this.transferType === 'upload' ? '업로드' : '다운로드'
+      const fileText = this.fileName ? ` - ${this.fileName}` : ''
+      const prefix = isApproximate ? '약 ' : ''
+      const desc = hasTotal
+        ? `${prefix}${progress}% (${formatFileSize(loaded)} / ${formatFileSize(total!)})`
         : `${formatFileSize(loaded)} 전송 중...`
 
       this.toastRef.update({
-        title: `${transferText} 중${fileName}`,
-        description,
+        title: `${typeText} 중${fileText}`,
+        description: desc,
         duration: Infinity,
+        action: this.createCancelAction(this.currentController),
       })
     }
   }
 
+  handleProgress = (event: { loaded: number; total?: number; isApproximate?: boolean }) => {
+    this.updateProgress(event.loaded, event.total, event.isApproximate)
+  }
+
   startServerProcessing = () => {
-    this.state = { ...this.state, progress: 100, isTransferring: true, isServerProcessing: true, isComplete: false }
-    this.notify()
+    if (!this.state.isTransferring || this.state.isCancelled) return
+
+    this.state = { ...this.state, progress: 100 }
+    this.emit()
 
     if (this.toastRef) {
-      const fileName = this.fileName ? ` - ${this.fileName}` : ''
-      const transferText = this.transferType === 'upload' ? '업로드' : '다운로드'
-      const processingText = this.transferType === 'upload'
+      const typeText = this.transferType === 'upload' ? '업로드' : '다운로드'
+      const fileText = this.fileName ? ` - ${this.fileName}` : ''
+      const desc = this.transferType === 'upload'
         ? '서버에서 파일을 처리하고 있습니다...'
         : '서버에서 파일을 준비하고 있습니다...'
 
       this.toastRef.update({
-        title: `${transferText} 처리 중${fileName}`,
-        description: processingText,
+        title: `${typeText} 처리 중${fileText}`,
+        description: desc,
         duration: Infinity,
       })
     }
   }
 
   completeTransfer = () => {
-    this.state = { ...this.state, progress: 100, isTransferring: false, isComplete: true, isServerProcessing: false }
-    this.notify()
+    if (this.state.isCancelled) return
 
-    this.toastRef?.dismiss()
+    const typeText = this.transferType === 'upload' ? '업로드' : '다운로드'
+    const fileText = this.fileName ? ` - ${this.fileName}` : ''
 
-    const fileName = this.fileName ? ` - ${this.fileName}` : ''
-    const transferText = this.transferType === 'upload' ? '업로드' : '다운로드'
-    const completeText = this.transferType === 'upload'
-      ? '파일이 성공적으로 업로드되었습니다.'
-      : '파일이 성공적으로 다운로드되었습니다.'
+    this.dismissToast()
 
-    toast({ title: `${transferText} 완료${fileName}`, description: completeText })
+    toast({
+      title: `${typeText} 완료${fileText}`,
+      description: `파일이 성공적으로 ${typeText}되었습니다.`,
+    })
 
-    this.toastRef = null
+    this.currentController = null
     this.fileName = ''
-    this.transferType = 'download'
+    this.state = { ...INITIAL_STATE, isComplete: true }
+    this.emit()
   }
 
   resetTransfer = () => {
-    this.toastRef?.dismiss()
-    this.toastRef = null
+    this.dismissToast()
+    this.currentController?.abort()
+    this.currentController = null
     this.fileName = ''
-    this.state = {
-      progress: 0,
-      loaded: 0,
-      total: 0,
-      isTransferring: false,
-      isComplete: false,
-      isApproximate: false,
-      isServerProcessing: false,
-    }
-    this.notify()
+    this.state = { ...INITIAL_STATE }
+    this.emit()
   }
 }
 
-// 싱글톤 인스턴스
-export const fileTransferStore = new FileTransferStore()
+// 싱글톤
+const store = new FileTransferStore()
 
 // ============================================
-// Hook (상태 구독만 담당)
+// Hook
 // ============================================
 export function useFileTransferProgress(): UseFileTransferProgressReturn {
-  const transferState = useSyncExternalStore(
-    fileTransferStore.subscribe,
-    fileTransferStore.getState,
-    fileTransferStore.getState
-  )
+  const transferState = useSyncExternalStore(store.subscribe, store.getState, store.getState)
 
   return {
     transferState,
-    handleProgress: fileTransferStore.handleProgress,
-    startTransfer: fileTransferStore.startTransfer,
-    startServerProcessing: fileTransferStore.startServerProcessing,
-    completeTransfer: fileTransferStore.completeTransfer,
-    resetTransfer: fileTransferStore.resetTransfer,
+    startTransfer: store.startTransfer,
+    updateProgress: store.updateProgress,
+    handleProgress: store.handleProgress,
+    startServerProcessing: store.startServerProcessing,
+    completeTransfer: store.completeTransfer,
+    resetTransfer: store.resetTransfer,
   }
 }

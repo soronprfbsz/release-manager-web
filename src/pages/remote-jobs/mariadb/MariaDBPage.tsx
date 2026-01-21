@@ -137,11 +137,14 @@ export function MariaDBPage() {
   const handleDownload = async (file: BackupFile) => {
     if (transferState.isTransferring) return
 
-    startTransfer(file.fileName, 'download')
+    const controller = startTransfer(file.fileName, 'download')
     try {
-      await mariadbApi.downloadBackupFile(file.backupFileId, file.fileName, handleProgress)
+      await mariadbApi.downloadBackupFile(file.backupFileId, file.fileName, handleProgress, controller.signal)
       completeTransfer()
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         title: '다운로드 실패',
@@ -185,11 +188,14 @@ export function MariaDBPage() {
   const handleLogDownload = async (log: LogFile) => {
     if (!logsFile || transferState.isTransferring) return
 
-    startTransfer(log.logFileName, 'download')
+    const controller = startTransfer(log.logFileName, 'download')
     try {
-      await mariadbApi.downloadLogFile(logsFile.backupFileId, log.logFileName, handleProgress)
+      await mariadbApi.downloadLogFile(logsFile.backupFileId, log.logFileName, handleProgress, controller.signal)
       completeTransfer()
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         title: '다운로드 실패',
@@ -361,11 +367,14 @@ export function MariaDBPage() {
           selectedLog
             ? async () => {
                 if (transferState.isTransferring) return
-                startTransfer(selectedLog.logFileName, 'download')
+                const controller = startTransfer(selectedLog.logFileName, 'download')
                 try {
-                  await mariadbApi.downloadLogFile(selectedLog.backupFileId, selectedLog.logFileName, handleProgress)
+                  await mariadbApi.downloadLogFile(selectedLog.backupFileId, selectedLog.logFileName, handleProgress, controller.signal)
                   completeTransfer()
                 } catch (error) {
+                  if (error instanceof Error && error.name === 'AbortError') {
+                    return
+                  }
                   resetTransfer()
                   toast({
                     title: '다운로드 실패',

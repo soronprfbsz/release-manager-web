@@ -102,13 +102,15 @@ export const patchApi = {
   download: async (
     id: number,
     fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void
+    onProgress?: (event: DownloadProgressEvent) => void,
+    signal?: AbortSignal
   ): Promise<void> => {
     await downloadWithProgress({
       url: ENDPOINTS.download(id),
       filename: fileName,
       onProgress,
       timeout: API_TIMEOUT.FILE_OPERATION,
+      signal,
     })
   },
 

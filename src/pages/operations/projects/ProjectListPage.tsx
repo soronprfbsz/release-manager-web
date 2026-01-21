@@ -103,7 +103,7 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 
 export function ProjectListPage() {
   const { toast } = useToast()
-  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
+  const { startTransfer, updateProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
 
@@ -322,12 +322,21 @@ export function ProjectListPage() {
     if (!selectedProjectId || transferState.isTransferring) return
 
     const filename = `${selectedProjectId}_onboarding_files.zip`
-    startTransfer(filename, 'download')
+    const controller = startTransfer(filename, 'download')
 
     try {
-      await projectApi.downloadOnboardingFiles(selectedProjectId, filename, handleProgress)
+      await projectApi.downloadOnboardingFiles(
+        selectedProjectId,
+        filename,
+        (e) => updateProgress(e.loaded, e.total, e.isApproximate),
+        controller.signal
+      )
       completeTransfer()
     } catch (error) {
+      // 취소된 경우 에러 토스트 표시하지 않음
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       resetTransfer()
       toast({
         variant: 'destructive',

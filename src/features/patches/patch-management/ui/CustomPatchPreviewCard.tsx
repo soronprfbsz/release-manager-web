@@ -90,7 +90,7 @@ export function CustomPatchPreviewCard({
           <div className="p-4 bg-primary/10 rounded-lg">
             <p className="text-sm text-primary">
               <strong>{selectedCustomer?.customerName}</strong>의{' '}
-              <strong>{formData.fromVersion}</strong> 초과 ~ <strong>{formData.toVersion}</strong>{' '}
+              <strong>{formData.fromVersion}</strong> 이상 ~ <strong>{formData.toVersion}</strong>{' '}
               이하 버전의 모든 DB 변경사항이 포함된 패치가 생성됩니다.
             </p>
           </div>
