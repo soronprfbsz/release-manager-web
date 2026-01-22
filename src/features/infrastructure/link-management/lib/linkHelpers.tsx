@@ -3,13 +3,17 @@
  * 링크 리소스 관련 헬퍼 함수
  */
 
-import { Link as LinkIcon } from 'lucide-react'
+import { Link as LinkIcon, Settings, Box } from 'lucide-react'
 import {
   FaFileExcel,
   FaFileWord,
   FaFilePowerpoint,
   FaMicrosoft,
 } from 'react-icons/fa'
+import {
+  RiNumber1,
+  RiNumber2,
+} from 'react-icons/ri'
 import {
   SiNotion,
   SiGoogledrive,
@@ -83,10 +87,21 @@ export const getLinkIcon = (subCategory: string | null) => {
 }
 
 /**
- * 링크 그룹 아이콘 반환
- * 모든 링크 카테고리는 탭 아이콘과 동일한 Link 아이콘 사용
+ * 링크 그룹(카테고리) 아이콘 반환
+ * 카테고리별 구분된 아이콘 사용
  */
-export const getLinkGroupIcon = (_category: string) => {
-  return <LinkIcon className="w-5 h-5" />
+export const getLinkGroupIcon = (category: string) => {
+  const upperCategory = category.toUpperCase()
+  switch (upperCategory) {
+    case 'INFRAEYE1':
+      return <RiNumber1 className="w-5 h-5" />
+    case 'INFRAEYE2':
+      return <RiNumber2 className="w-5 h-5" />
+    case 'INFRA':
+      return <Settings className="w-5 h-5" />
+    case 'ETC':
+    default:
+      return <Box className="w-5 h-5" />
+  }
 }
 

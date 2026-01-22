@@ -14,7 +14,7 @@ import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { getServiceTypeIcon } from '../lib/serviceHelpers'
+import { getServiceGroupIcon } from '../lib/serviceHelpers'
 import { SortableServiceCard } from './SortableServiceCard'
 
 interface ServiceGroupListProps {
@@ -85,12 +85,12 @@ export function ServiceGroupList({
     <div>
       {sortedServiceTypes.map((serviceType) => {
         const serviceList = groupedServices[serviceType.value]
-        const Icon = getServiceTypeIcon(serviceType.value as Service['serviceType'])
+        const iconElement = getServiceGroupIcon(serviceType.value)
 
         return (
           <CollapsibleSection
             key={serviceType.value}
-            icon={Icon}
+            iconElement={iconElement}
             title={serviceType.name}
             subtitle={`${serviceList.length}개의 서비스`}
             variant="boxed-icon"

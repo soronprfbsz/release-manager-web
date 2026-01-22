@@ -215,15 +215,24 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
 
                 {/* Footer - Author & Date */}
                 <div className="flex items-center gap-2 pt-3 border-t border-border/30">
-                  <DiceBearAvatar
-                    seed={note.createdByAvatarSeed || note.createdByEmail}
-                    style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                    name={note.createdByName}
-                    size={20}
-                  />
-                  <span className="text-xs font-medium">
-                    {note.createdByName}
-                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 cursor-default">
+                        <DiceBearAvatar
+                          seed={note.createdByAvatarSeed || note.createdByEmail}
+                          style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                          name={note.createdByName}
+                          size={20}
+                        />
+                        <span className="text-xs font-medium">
+                          {note.createdByName}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{note.createdByEmail}</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <span className="text-xs text-muted-foreground">
                     {formatDateTime(note.createdAt)}
                   </span>

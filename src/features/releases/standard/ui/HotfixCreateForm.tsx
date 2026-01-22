@@ -91,7 +91,7 @@ export function HotfixCreateForm({
 
     setIsUploading(true)
     setUploadCompleted(false)
-    startTransfer()
+    startTransfer(selectedFile?.name, 'upload')
 
     try {
       // Dynamic import to avoid circular dependency

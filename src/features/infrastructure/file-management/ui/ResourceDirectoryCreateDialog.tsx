@@ -1,6 +1,6 @@
 /**
- * Onboarding Directory Create Dialog
- * 온보딩 디렉토리 생성 다이얼로그 컴포넌트
+ * Resource Directory Create Dialog
+ * 리소스 디렉토리 생성 다이얼로그 컴포넌트
  */
 
 import { useState, useEffect } from 'react'
@@ -20,31 +20,31 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 
-interface OnboardingDirectoryCreateDialogProps {
-  isOpen: boolean
-  parentPath: string
+import type { ResourceTreeDirectoryCreateTarget } from '../model/types'
+
+interface ResourceDirectoryCreateDialogProps {
+  target: ResourceTreeDirectoryCreateTarget | null
   isCreating: boolean
   onConfirm: (directoryName: string) => void
   onCancel: () => void
 }
 
-export function OnboardingDirectoryCreateDialog({
-  isOpen,
-  parentPath,
+export function ResourceDirectoryCreateDialog({
+  target,
   isCreating,
   onConfirm,
   onCancel,
-}: OnboardingDirectoryCreateDialogProps) {
+}: ResourceDirectoryCreateDialogProps) {
   const [directoryName, setDirectoryName] = useState('')
   const [error, setError] = useState('')
 
   // 다이얼로그가 열릴 때 초기화
   useEffect(() => {
-    if (isOpen) {
+    if (target) {
       setDirectoryName('')
       setError('')
     }
-  }, [isOpen])
+  }, [target])
 
   const handleConfirm = () => {
     const trimmedName = directoryName.trim()
@@ -71,21 +71,23 @@ export function OnboardingDirectoryCreateDialog({
     }
   }
 
+  if (!target) return null
+
   // 전체 경로 미리보기
-  const fullPath = parentPath === '/'
+  const fullPath = target.parentPath === '/'
     ? `/${directoryName || '새폴더'}`
-    : `${parentPath}/${directoryName || '새폴더'}`
+    : `${target.parentPath}/${directoryName || '새폴더'}`
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+    <AlertDialog open={!!target} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <DOMAIN_ICONS.onboarding className="h-5 w-5" />
+            <DOMAIN_ICONS.file className="h-5 w-5" />
             폴더 생성
           </AlertDialogTitle>
           <AlertDialogDescription>
-            새로운 폴더를 생성합니다.
+            {target.categoryName}에 새로운 폴더를 생성합니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -94,7 +96,7 @@ export function OnboardingDirectoryCreateDialog({
           <div className="space-y-2">
             <Label className="text-muted-foreground">위치</Label>
             <p className="text-sm font-mono bg-muted px-3 py-2 rounded">
-              {parentPath}
+              {target.parentPath}
             </p>
           </div>
 

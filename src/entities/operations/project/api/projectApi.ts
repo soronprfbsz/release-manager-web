@@ -91,7 +91,9 @@ export const projectApi = {
     id: string,
     file: File,
     targetPath?: string,
-    extractZip?: boolean
+    extractZip?: boolean,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    signal?: AbortSignal
   ): Promise<OnboardingFileUploadResponse> => {
     const formData = new FormData()
     formData.append('file', file)
@@ -110,6 +112,8 @@ export const projectApi = {
           'Content-Type': 'multipart/form-data',
         },
         timeout: API_TIMEOUT.FILE_OPERATION,
+        onUploadProgress,
+        signal,
       }
     )
     return response
@@ -168,7 +172,9 @@ export const projectApi = {
     id: string,
     file: File,
     targetPath?: string,
-    extractZip?: boolean
+    extractZip?: boolean,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    signal?: AbortSignal
   ): Promise<InstallFileUploadResponse> => {
     const formData = new FormData()
     formData.append('file', file)
@@ -187,6 +193,8 @@ export const projectApi = {
           'Content-Type': 'multipart/form-data',
         },
         timeout: API_TIMEOUT.FILE_OPERATION,
+        onUploadProgress,
+        signal,
       }
     )
     return response

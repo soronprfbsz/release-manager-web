@@ -12,6 +12,14 @@ export { FileEditForm } from './ui/FileEditForm'
 export { FileDeleteModal } from './ui/FileDeleteModal'
 export { FileFilters } from './ui/FileFilters'
 
+// Resource Tree UI Components
+export { ResourceFileTree } from './ui/ResourceFileTree'
+export { ResourceFileUploadSheet } from './ui/ResourceFileUploadSheet'
+export { ResourceFileDeleteDialog } from './ui/ResourceFileDeleteDialog'
+export { ResourceDirectoryCreateDialog } from './ui/ResourceDirectoryCreateDialog'
+export { ResourceCategoryCreateDialog } from './ui/ResourceCategoryCreateDialog'
+export { ResourceCategoryDeleteDialog, type ResourceCategoryDeleteTarget } from './ui/ResourceCategoryDeleteDialog'
+
 // Helpers
 export {
   getFileTypeIcon,
@@ -21,5 +29,13 @@ export {
 } from './lib/fileHelpers'
 
 // Types
-export type { FileUploadFormData, FileUploadMode, FileFiltersState } from './model/types'
+export type {
+  FileUploadFormData,
+  FileUploadMode,
+  FileFiltersState,
+  ResourceTreeUploadFormData,
+  ResourceTreeDeleteTarget,
+  ResourceTreeDirectoryCreateTarget,
+} from './model/types'
+export { INITIAL_RESOURCE_TREE_UPLOAD_FORM_DATA } from './model/types'
 

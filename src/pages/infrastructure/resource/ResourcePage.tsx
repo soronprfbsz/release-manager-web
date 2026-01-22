@@ -5,7 +5,7 @@
 
 import { useRef, useState } from 'react'
 
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, FolderPlus } from 'lucide-react'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
@@ -42,6 +42,12 @@ import {
 } from '@/shared/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 
 type TabType = 'services' | 'links' | 'files' | 'publishing'
 
@@ -112,7 +118,7 @@ export function ResourcePage() {
         linkTabRef.current?.openAddDialog()
         break
       case 'files':
-        fileTabRef.current?.openAddDialog()
+        // 파일 탭은 카테고리별 추가 버튼이 있으므로 여기서는 처리하지 않음
         break
       case 'publishing':
         publishingTabRef.current?.openAddDialog()
@@ -159,16 +165,33 @@ export function ResourcePage() {
   return (
     <PageLayout
       actions={
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={handleAdd} variant="outline" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{currentTabConfig.addTooltip}</p>
-          </TooltipContent>
-        </Tooltip>
+        currentTab === 'files' ? (
+          // 파일 탭: 카테고리 생성 드롭다운
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => fileTabRef.current?.openCategoryCreate()}>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                카테고리 생성
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleAdd} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{currentTabConfig.addTooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        )
       }
     >
       {/* Tabs */}
@@ -262,7 +285,7 @@ export function ResourcePage() {
           </TabsContent>
 
           <TabsContent value="files" className="px-8 pb-8">
-            <FileResourceTab ref={fileTabRef} filters={fileFilters} />
+            <FileResourceTab ref={fileTabRef} />
           </TabsContent>
 
           <TabsContent value="publishing" className="px-8 pb-8">

@@ -1,6 +1,6 @@
 /**
- * Onboarding Directory Create Dialog
- * 온보딩 디렉토리 생성 다이얼로그 컴포넌트
+ * Resource Category Create Dialog
+ * 리소스 카테고리 생성 다이얼로그 컴포넌트
  */
 
 import { useState, useEffect } from 'react'
@@ -20,48 +20,50 @@ import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 
-interface OnboardingDirectoryCreateDialogProps {
+interface ResourceCategoryCreateDialogProps {
   isOpen: boolean
-  parentPath: string
   isCreating: boolean
-  onConfirm: (directoryName: string) => void
+  onConfirm: (category: string) => void
   onCancel: () => void
 }
 
-export function OnboardingDirectoryCreateDialog({
+// 카테고리명 유효성 검사 정규식: 영문 소문자, 숫자, 하이픈, 언더스코어만 허용
+const CATEGORY_PATTERN = /^[a-z0-9_-]+$/
+
+export function ResourceCategoryCreateDialog({
   isOpen,
-  parentPath,
   isCreating,
   onConfirm,
   onCancel,
-}: OnboardingDirectoryCreateDialogProps) {
-  const [directoryName, setDirectoryName] = useState('')
+}: ResourceCategoryCreateDialogProps) {
+  const [categoryName, setCategoryName] = useState('')
   const [error, setError] = useState('')
 
   // 다이얼로그가 열릴 때 초기화
   useEffect(() => {
     if (isOpen) {
-      setDirectoryName('')
+      setCategoryName('')
       setError('')
     }
   }, [isOpen])
 
   const handleConfirm = () => {
-    const trimmedName = directoryName.trim()
+    // 소문자 변환
+    const normalizedName = categoryName.trim().toLowerCase()
 
-    if (!trimmedName) {
-      setError('폴더명을 입력해주세요.')
+    if (!normalizedName) {
+      setError('카테고리명을 입력해주세요.')
       return
     }
 
-    // 유효하지 않은 문자 체크 (슬래시는 중첩 경로 생성을 위해 허용)
-    if (/[<>:"\\|?*]/.test(trimmedName)) {
-      setError('폴더명에 사용할 수 없는 문자가 포함되어 있습니다.')
+    // 유효성 검사
+    if (!CATEGORY_PATTERN.test(normalizedName)) {
+      setError('영문 소문자, 숫자, 하이픈(-), 언더스코어(_)만 사용할 수 있습니다.')
       return
     }
 
     setError('')
-    onConfirm(trimmedName)
+    onConfirm(normalizedName)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -71,45 +73,35 @@ export function OnboardingDirectoryCreateDialog({
     }
   }
 
-  // 전체 경로 미리보기
-  const fullPath = parentPath === '/'
-    ? `/${directoryName || '새폴더'}`
-    : `${parentPath}/${directoryName || '새폴더'}`
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 입력 시 소문자 변환
+    setCategoryName(e.target.value.toLowerCase())
+    setError('')
+  }
 
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <DOMAIN_ICONS.onboarding className="h-5 w-5" />
-            폴더 생성
+            <DOMAIN_ICONS.file className="h-5 w-5" />
+            카테고리 생성
           </AlertDialogTitle>
           <AlertDialogDescription>
-            새로운 폴더를 생성합니다.
+            새로운 파일 카테고리를 생성합니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* 부모 경로 표시 */}
+          {/* 카테고리명 입력 */}
           <div className="space-y-2">
-            <Label className="text-muted-foreground">위치</Label>
-            <p className="text-sm font-mono bg-muted px-3 py-2 rounded">
-              {parentPath}
-            </p>
-          </div>
-
-          {/* 폴더명 입력 */}
-          <div className="space-y-2">
-            <Label htmlFor="directoryName">폴더명</Label>
+            <Label htmlFor="categoryName">카테고리명</Label>
             <Input
-              id="directoryName"
-              value={directoryName}
-              onChange={(e) => {
-                setDirectoryName(e.target.value)
-                setError('')
-              }}
+              id="categoryName"
+              value={categoryName}
+              onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="새폴더 또는 경로/하위폴더"
+              placeholder="예: backup, install-guide"
               disabled={isCreating}
               autoFocus
             />
@@ -117,19 +109,9 @@ export function OnboardingDirectoryCreateDialog({
               <p className="text-sm text-destructive">{error}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              중첩 폴더 생성 가능 (예: test/2024/01)
+              영문 소문자, 숫자, 하이픈(-), 언더스코어(_)만 사용 가능
             </p>
           </div>
-
-          {/* 전체 경로 미리보기 */}
-          {directoryName.trim() && (
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">생성될 경로</Label>
-              <p className="text-sm font-mono bg-muted px-3 py-2 rounded text-primary">
-                {fullPath}
-              </p>
-            </div>
-          )}
         </div>
 
         <AlertDialogFooter>
@@ -142,7 +124,7 @@ export function OnboardingDirectoryCreateDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isCreating || !directoryName.trim()}
+            disabled={isCreating || !categoryName.trim()}
           >
             <FolderPlus className="h-4 w-4 mr-2" />
             {isCreating ? '생성 중...' : '생성'}

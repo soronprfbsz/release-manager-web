@@ -29,6 +29,7 @@ export { validateServiceForm, validateComponentForm } from './model/validation'
 // Helpers
 export {
   getServiceTypeIcon,
+  getServiceGroupIcon,
   getServiceTypeColor,
   getComponentTypeIcon,
   getComponentDisplayInfo,

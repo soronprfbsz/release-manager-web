@@ -54,8 +54,8 @@ export function InstallDirectoryCreateDialog({
       return
     }
 
-    // 유효하지 않은 문자 체크
-    if (/[<>:"/\\|?*]/.test(trimmedName)) {
+    // 유효하지 않은 문자 체크 (슬래시는 중첩 경로 생성을 위해 허용)
+    if (/[<>:"\\|?*]/.test(trimmedName)) {
       setError('폴더명에 사용할 수 없는 문자가 포함되어 있습니다.')
       return
     }
@@ -109,13 +109,16 @@ export function InstallDirectoryCreateDialog({
                 setError('')
               }}
               onKeyDown={handleKeyDown}
-              placeholder="새폴더"
+              placeholder="새폴더 또는 경로/하위폴더"
               disabled={isCreating}
               autoFocus
             />
             {error && (
               <p className="text-sm text-destructive">{error}</p>
             )}
+            <p className="text-xs text-muted-foreground">
+              중첩 폴더 생성 가능 (예: test/2024/01)
+            </p>
           </div>
 
           {/* 전체 경로 미리보기 */}

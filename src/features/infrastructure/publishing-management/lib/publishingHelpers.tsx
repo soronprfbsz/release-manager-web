@@ -3,23 +3,34 @@
  * 퍼블리싱 관련 유틸리티 함수들
  */
 
-import { createElement } from 'react'
-import { Globe } from 'lucide-react'
+import { Globe, Box, Package } from 'lucide-react'
+import { RiNumber1, RiNumber2 } from 'react-icons/ri'
 
 /**
  * 서브카테고리에 따른 아이콘 반환
  * 모든 퍼블리싱은 탭 아이콘과 동일한 Globe 아이콘 사용
  */
 export function getSubCategoryIcon(_subCategory: string | null) {
-  return createElement(Globe, { className: 'h-5 w-5 text-primary' })
+  return <Globe className="h-5 w-5 text-primary" />
 }
 
 /**
  * 카테고리(제품) 그룹 아이콘 반환
- * 모든 카테고리는 탭 아이콘과 동일한 Globe 아이콘 사용
+ * 카테고리별 구분된 아이콘 사용
  */
-export function getCategoryIcon(_category: string) {
-  return createElement(Globe, { className: 'h-5 w-5' })
+export function getCategoryIcon(category: string) {
+  const upperCategory = category?.toUpperCase()
+  switch (upperCategory) {
+    case 'INFRAEYE1':
+      return <RiNumber1 className="w-5 h-5" />
+    case 'INFRAEYE2':
+      return <RiNumber2 className="w-5 h-5" />
+    case 'COMMON':
+      return <Package className="w-5 h-5" />
+    case 'ETC':
+    default:
+      return <Box className="w-5 h-5" />
+  }
 }
 
 /**

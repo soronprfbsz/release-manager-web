@@ -13,6 +13,18 @@ export type {
   File,
   FileUploadRequest,
   FileUpdateRequest,
+  ResourceCategoryInfo,
+  ResourceCategoriesResponse,
+  ResourceFileNode,
+  ResourceCategoryFilesResponse,
+  ResourceCategoryFiles,
+  ResourceFilesResponse,
+  ResourceFileDeleteResponse,
+  ResourceFileUploadResponse,
+  ResourceDirectoryCreateResponse,
+  ResourceCategoryCreateRequest,
+  ResourceCategoryCreateResponse,
+  ResourceCategoryDeleteResponse,
 } from './model/types'
 
 // Type aliases for backward compatibility
@@ -30,6 +42,14 @@ export {
   useUpdateFile,
   useDeleteFile,
   useReorderFiles,
+  // 트리 기반 API 훅
+  useResourceCategories,
+  useResourceCategoryFiles,
+  useUploadResourceToCategory,
+  useDeleteResourceFromCategory,
+  useCreateResourceDirectory,
+  useCreateResourceCategory,
+  useDeleteResourceCategory,
 } from './queries/fileQueries'
 
 // Query aliases for backward compatibility

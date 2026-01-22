@@ -11,10 +11,14 @@ import {
   Terminal,
   Database,
   Server,
+  Code,
+  Users,
+  Shield,
+  Box,
 } from 'lucide-react'
 
 import { FaDocker } from "react-icons/fa"
-import { RiFileExcel2Line } from "react-icons/ri"
+import { RiFileExcel2Line, RiNumber1, RiNumber2 } from "react-icons/ri"
 import { VscFileMedia, VscFile } from "react-icons/vsc"
 import { LuFileTerminal } from "react-icons/lu"
 import { FaRegFilePdf, FaRegFileArchive } from "react-icons/fa"
@@ -124,6 +128,21 @@ export const getFileGroupIcon = (category: string) => {
   const upperCategory = category?.toUpperCase()
 
   switch (upperCategory) {
+    // Product categories
+    case 'INFRAEYE1':
+      return <RiNumber1 className="w-5 h-5" />
+    case 'INFRAEYE2':
+      return <RiNumber2 className="w-5 h-5" />
+    // Team categories
+    case 'TEAM_DEV2':
+      return <Code className="w-5 h-5" />
+    case 'TEAM_INFRA':
+      return <Server className="w-5 h-5" />
+    case 'TEAM_SERVICE':
+      return <Users className="w-5 h-5" />
+    case 'TEAM_SECURITY':
+      return <Shield className="w-5 h-5" />
+    // Legacy categories
     case 'SCRIPT':
       return <Terminal className="w-5 h-5" />
     case 'DOCUMENT':
@@ -135,9 +154,10 @@ export const getFileGroupIcon = (category: string) => {
     case 'DOCKER':
       return <FaDocker className="w-5 h-5" />
     default:
-      return <FolderOpen className="w-5 h-5" />
+      return <Box className="w-5 h-5" />
   }
 }
+
 
 /**
  * 파일 크기 포맷팅

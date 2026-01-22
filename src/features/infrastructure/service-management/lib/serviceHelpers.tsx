@@ -3,7 +3,8 @@
  * 서비스 관리 헬퍼 함수
  */
 
-import { Server, Globe, Database, Cog, Package, Box, type LucideIcon } from 'lucide-react'
+import { Server, Globe, Database, Cog, Package, Box, Settings, type LucideIcon } from 'lucide-react'
+import { RiNumber1, RiNumber2 } from 'react-icons/ri'
 import type { ServiceType, ComponentType, ServiceComponent } from '@/entities/infrastructure/service'
 import {
   getCategoryCardColorClass,
@@ -12,7 +13,8 @@ import {
 } from '@/shared/lib/category-colors'
 
 /**
- * 서비스 타입 아이콘 반환
+ * 서비스 타입 아이콘 반환 (LucideIcon)
+ * @deprecated 대신 getServiceGroupIcon 사용 권장
  */
 export function getServiceTypeIcon(type: ServiceType): LucideIcon {
   switch (type) {
@@ -23,6 +25,25 @@ export function getServiceTypeIcon(type: ServiceType): LucideIcon {
       return Database
     default:
       return Box
+  }
+}
+
+/**
+ * 서비스 그룹(카테고리) 아이콘 반환 (ReactNode)
+ * 카테고리별 구분된 아이콘 사용
+ */
+export function getServiceGroupIcon(type: string): React.ReactNode {
+  const upperType = type.toUpperCase()
+  switch (upperType) {
+    case 'INFRAEYE1':
+      return <RiNumber1 className="w-5 h-5" />
+    case 'INFRAEYE2':
+      return <RiNumber2 className="w-5 h-5" />
+    case 'INFRA':
+      return <Settings className="w-5 h-5" />
+    case 'ETC':
+    default:
+      return <Box className="w-5 h-5" />
   }
 }
 

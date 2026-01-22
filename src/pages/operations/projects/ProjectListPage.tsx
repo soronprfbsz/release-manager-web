@@ -117,7 +117,9 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 
 export function ProjectListPage() {
   const { toast } = useToast()
-  const { startTransfer, updateProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
+  const { startTransfer, updateProgress, handleProgress, startServerProcessing, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
+  const [onboardingUploadCompleted, setOnboardingUploadCompleted] = useState(false)
+  const [installUploadCompleted, setInstallUploadCompleted] = useState(false)
   const { canDeleteProject, canManageProjectFiles } = usePermission()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
@@ -433,19 +435,38 @@ export function ProjectListPage() {
   const handleUploadSubmit = () => {
     if (!uploadFormData.file) return
 
+    setOnboardingUploadCompleted(false)
+    const controller = startTransfer(uploadFormData.file.name, 'upload')
+
+    const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
+      handleProgress(progressEvent)
+      if (progressEvent.total && progressEvent.loaded >= progressEvent.total && !onboardingUploadCompleted) {
+        setOnboardingUploadCompleted(true)
+        setTimeout(() => startServerProcessing(), 100)
+      }
+    }
+
     uploadMutation.mutate(
       {
         file: uploadFormData.file,
         targetPath: uploadFormData.targetPath,
         extractZip: uploadFormData.extractZip,
+        onUploadProgress: progressHandler,
+        signal: controller.signal,
       },
       {
         onSuccess: () => {
+          completeTransfer()
           toast({ title: '파일이 업로드되었습니다.' })
           setUploadSheetOpen(false)
           setUploadFormData(INITIAL_UPLOAD_FORM_DATA)
         },
         onError: (error) => {
+          // 취소된 경우 에러 토스트 표시하지 않음
+          if (error.name === 'CanceledError' || error.message === 'canceled') {
+            return
+          }
+          resetTransfer()
           toast({
             variant: 'destructive',
             title: '업로드 실패',
@@ -588,19 +609,38 @@ export function ProjectListPage() {
   const handleInstallUploadSubmit = () => {
     if (!installUploadFormData.file) return
 
+    setInstallUploadCompleted(false)
+    const controller = startTransfer(installUploadFormData.file.name, 'upload')
+
+    const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
+      handleProgress(progressEvent)
+      if (progressEvent.total && progressEvent.loaded >= progressEvent.total && !installUploadCompleted) {
+        setInstallUploadCompleted(true)
+        setTimeout(() => startServerProcessing(), 100)
+      }
+    }
+
     installUploadMutation.mutate(
       {
         file: installUploadFormData.file,
         targetPath: installUploadFormData.targetPath,
         extractZip: installUploadFormData.extractZip,
+        onUploadProgress: progressHandler,
+        signal: controller.signal,
       },
       {
         onSuccess: () => {
+          completeTransfer()
           toast({ title: '파일이 업로드되었습니다.' })
           setInstallUploadSheetOpen(false)
           setInstallUploadFormData(INITIAL_INSTALL_UPLOAD_FORM_DATA)
         },
         onError: (error) => {
+          // 취소된 경우 에러 토스트 표시하지 않음
+          if (error.name === 'CanceledError' || error.message === 'canceled') {
+            return
+          }
+          resetTransfer()
           toast({
             variant: 'destructive',
             title: '업로드 실패',

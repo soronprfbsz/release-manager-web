@@ -152,10 +152,10 @@ export function useUploadOnboardingFile(projectId: string) {
   return useMutation<
     OnboardingFileUploadResponse,
     Error,
-    { file: File; targetPath?: string; extractZip?: boolean }
+    { file: File; targetPath?: string; extractZip?: boolean; onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void; signal?: AbortSignal }
   >({
-    mutationFn: ({ file, targetPath, extractZip }) =>
-      projectApi.uploadOnboardingFile(projectId, file, targetPath, extractZip),
+    mutationFn: ({ file, targetPath, extractZip, onUploadProgress, signal }) =>
+      projectApi.uploadOnboardingFile(projectId, file, targetPath, extractZip, onUploadProgress, signal),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.onboardingFiles(projectId) })
     },
@@ -233,10 +233,10 @@ export function useUploadInstallFile(projectId: string) {
   return useMutation<
     InstallFileUploadResponse,
     Error,
-    { file: File; targetPath?: string; extractZip?: boolean }
+    { file: File; targetPath?: string; extractZip?: boolean; onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void; signal?: AbortSignal }
   >({
-    mutationFn: ({ file, targetPath, extractZip }) =>
-      projectApi.uploadInstallFile(projectId, file, targetPath, extractZip),
+    mutationFn: ({ file, targetPath, extractZip, onUploadProgress, signal }) =>
+      projectApi.uploadInstallFile(projectId, file, targetPath, extractZip, onUploadProgress, signal),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.installFiles(projectId) })
     },
