@@ -506,7 +506,7 @@ function CategorySection({
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
         </div>
-      ) : !filesData?.hasFiles ? (
+      ) : (!filesData?.files?.children || filesData.files.children.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
           <DOMAIN_ICONS.file className="h-8 w-8 mb-2 opacity-50" />
           <p className="text-sm">파일이 없습니다.</p>
