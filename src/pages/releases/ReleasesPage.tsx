@@ -142,7 +142,7 @@ export function ReleasesPage() {
   // 홈페이지에서 전달된 버전 선택 (Standard)
   useEffect(() => {
     const state = location.state as { selectedVersionId?: number } | null
-    if (state?.selectedVersionId && standardTreeData?.majorMinorGroups && !standardSelected) {
+    if (state?.selectedVersionId && standardTreeData?.majorMinorGroups && !standardSelected && currentTab === 'standard') {
       for (const group of standardTreeData.majorMinorGroups) {
         const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
         if (foundVersion) {
@@ -155,7 +155,29 @@ export function ReleasesPage() {
         }
       }
     }
-  }, [location.state, standardTreeData, standardSelected])
+  }, [location.state, standardTreeData, standardSelected, currentTab])
+
+  // 홈페이지에서 전달된 버전 선택 (Custom)
+  useEffect(() => {
+    const state = location.state as { selectedVersionId?: number } | null
+    if (state?.selectedVersionId && customTreeData?.customers && !customSelected && currentTab === 'custom') {
+      for (const customer of customTreeData.customers) {
+        for (const group of customer.majorMinorGroups) {
+          const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
+          if (foundVersion) {
+            setCustomSelected({
+              versionId: foundVersion.versionId,
+              version: foundVersion.version,
+              isHotfix: false,
+              customerCode: customer.customerCode,
+              customBaseVersion: customer.customBaseVersion
+            })
+            return
+          }
+        }
+      }
+    }
+  }, [location.state, customTreeData, customSelected, currentTab])
 
   // Standard 선택된 버전 데이터
   const standardVersion = standardSelected && standardTreeData?.majorMinorGroups

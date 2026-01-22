@@ -40,6 +40,10 @@ export interface OnboardingFileNode {
   filePath: string
   type: 'file' | 'directory'
   size?: number
+  /** 파일 수정 날짜 (ISO-8601 형식) */
+  modifiedAt?: string
+  /** 파일 유형 (예: text/x-sql, text/x-shellscript, application/zip) */
+  mimeType?: string
   children?: OnboardingFileNode[]
 }
 
@@ -94,6 +98,10 @@ export interface InstallFileNode {
   filePath: string
   type: 'file' | 'directory'
   size?: number
+  /** 파일 수정 날짜 (ISO-8601 형식) */
+  modifiedAt?: string
+  /** 파일 유형 (예: text/x-sql, text/x-shellscript, application/zip) */
+  mimeType?: string
   children?: InstallFileNode[]
 }
 

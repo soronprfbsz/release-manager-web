@@ -6,9 +6,10 @@
 
 import { useState, useMemo } from 'react'
 
-import { Folder, FolderOpen, File, ChevronRight, ChevronDown, type LucideIcon } from 'lucide-react'
+import { Folder, FolderOpen, ChevronRight, ChevronDown, type LucideIcon } from 'lucide-react'
 
 import { base64ToBlob, base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile } from '@/shared/lib/utils/file-content'
+import { getFileIcon } from '@/shared/lib/utils/file-icon'
 
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -170,6 +171,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
   }
 
   const viewable = isViewableFile(node.name, viewableExtensions)
+  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
 
   return (
     <div
@@ -180,7 +182,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
       onClick={() => viewable && onFileClick(node)}
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">
           {node.name}
         </span>

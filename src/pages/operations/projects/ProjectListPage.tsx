@@ -17,6 +17,9 @@ import {
   MoreHorizontal,
   Trash2,
   FolderPlus,
+  Search,
+  X,
+  ArrowUpDown,
 } from 'lucide-react'
 
 import {
@@ -71,6 +74,9 @@ import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useProjectStore } from '@/shared/store'
 import { base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile, isZipFile as checkIsZipFile, base64ToBlob } from '@/shared/lib/utils/file-content'
 import { formatFileSize } from '@/shared/lib/utils/format'
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { getFileIcon } from '@/shared/lib/utils/file-icon'
+import { sortFileTree, FILE_SORT_OPTIONS, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -79,6 +85,14 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { ContentCard } from '@/shared/ui/content-layout'
+import { Input } from '@/shared/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
 import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -165,6 +179,16 @@ export function ProjectListPage() {
   // Install directory create state
   const [installDirectoryCreateParentPath, setInstallDirectoryCreateParentPath] = useState<string | null>(null)
 
+  // Search state for file trees
+  const [onboardingSearchKeyword, setOnboardingSearchKeyword] = useState('')
+  const [installSearchKeyword, setInstallSearchKeyword] = useState('')
+
+  // Sort state for file trees
+  const [onboardingSortBy, setOnboardingSortBy] = useState<FileSortBy>('name')
+  const [onboardingSortDirection, setOnboardingSortDirection] = useState<FileSortDirection>('asc')
+  const [installSortBy, setInstallSortBy] = useState<FileSortBy>('name')
+  const [installSortDirection, setInstallSortDirection] = useState<FileSortDirection>('asc')
+
   // Queries & Mutations
   const { data: projects = [], isLoading } = useProjects()
   const createMutation = useCreateProject()
@@ -248,6 +272,78 @@ export function ProjectListPage() {
     }
     return installFileContentData.content
   }, [installFileContentData, isInstallPdfFile, isInstallImageFile, isInstallZipFile])
+
+  // 파일 트리 키워드 필터링 함수 (온보딩)
+  const filterOnboardingTree = (node: OnboardingFileNode, keyword: string): OnboardingFileNode | null => {
+    const lowerKeyword = keyword.toLowerCase()
+    const nameMatches = node.name.toLowerCase().includes(lowerKeyword)
+
+    if (node.type === 'file') {
+      return nameMatches ? node : null
+    }
+
+    const filteredChildren = node.children
+      ?.map(child => filterOnboardingTree(child, keyword))
+      .filter((child): child is OnboardingFileNode => child !== null)
+
+    if (nameMatches || (filteredChildren && filteredChildren.length > 0)) {
+      return { ...node, children: filteredChildren || [] }
+    }
+    return null
+  }
+
+  // 파일 트리 키워드 필터링 함수 (인스톨)
+  const filterInstallTree = (node: InstallFileNode, keyword: string): InstallFileNode | null => {
+    const lowerKeyword = keyword.toLowerCase()
+    const nameMatches = node.name.toLowerCase().includes(lowerKeyword)
+
+    if (node.type === 'file') {
+      return nameMatches ? node : null
+    }
+
+    const filteredChildren = node.children
+      ?.map(child => filterInstallTree(child, keyword))
+      .filter((child): child is InstallFileNode => child !== null)
+
+    if (nameMatches || (filteredChildren && filteredChildren.length > 0)) {
+      return { ...node, children: filteredChildren || [] }
+    }
+    return null
+  }
+
+  // 필터링 및 소팅된 온보딩 파일 트리
+  const filteredOnboardingFiles = useMemo(() => {
+    if (!onboardingData?.files) return null
+
+    // 1. 필터링 적용
+    let result = onboardingSearchKeyword.trim()
+      ? filterOnboardingTree(onboardingData.files, onboardingSearchKeyword.trim())
+      : onboardingData.files
+
+    // 2. 소팅 적용
+    if (result) {
+      result = sortFileTree(result, onboardingSortBy, onboardingSortDirection)
+    }
+
+    return result
+  }, [onboardingData?.files, onboardingSearchKeyword, onboardingSortBy, onboardingSortDirection])
+
+  // 필터링 및 소팅된 인스톨 파일 트리
+  const filteredInstallFiles = useMemo(() => {
+    if (!installData?.files) return null
+
+    // 1. 필터링 적용
+    let result = installSearchKeyword.trim()
+      ? filterInstallTree(installData.files, installSearchKeyword.trim())
+      : installData.files
+
+    // 2. 소팅 적용
+    if (result) {
+      result = sortFileTree(result, installSortBy, installSortDirection)
+    }
+
+    return result
+  }, [installData?.files, installSearchKeyword, installSortBy, installSortDirection])
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value })
@@ -775,6 +871,66 @@ export function ProjectListPage() {
                 )
               })}
             </TabsList>
+
+            {/* 정렬 및 검색 - 온보딩/인스톨 탭에서만 표시 */}
+            {(currentTab === 'onboarding' || currentTab === 'install') && (
+              <div className="flex items-center gap-2">
+                {/* Sort Select */}
+                <Select
+                  value={`${currentTab === 'onboarding' ? onboardingSortBy : installSortBy}-${currentTab === 'onboarding' ? onboardingSortDirection : installSortDirection}`}
+                  onValueChange={(value) => {
+                    const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
+                    if (option) {
+                      if (currentTab === 'onboarding') {
+                        setOnboardingSortBy(option.sortBy)
+                        setOnboardingSortDirection(option.direction)
+                      } else {
+                        setInstallSortBy(option.sortBy)
+                        setInstallSortDirection(option.direction)
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
+                    <ArrowUpDown className="h-3 w-3 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILE_SORT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    value={currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword}
+                    onChange={(e) => currentTab === 'onboarding'
+                      ? setOnboardingSearchKeyword(e.target.value)
+                      : setInstallSearchKeyword(e.target.value)
+                    }
+                    placeholder="검색..."
+                    className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+                  />
+                  {(currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword) && (
+                    <button
+                      type="button"
+                      onClick={() => currentTab === 'onboarding'
+                        ? setOnboardingSearchKeyword('')
+                        : setInstallSearchKeyword('')
+                      }
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
+                    >
+                      <X className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 관리 탭 */}
@@ -844,15 +1000,32 @@ export function ProjectListPage() {
 
                   {/* 파일 트리 - 내부 스크롤 */}
                   <ScrollArea className="flex-1">
-                    <OnboardingFileTree
-                      files={onboardingData.files}
-                      onFileClick={handleFileClick}
-                      onDownload={handleFileDownload}
-                      onUpload={handleUploadClick}
-                      onDelete={handleOnboardingDeleteClick}
-                      onCreateDirectory={handleCreateDirectoryClick}
-                      canManageFiles={canManageProjectFiles}
-                    />
+                    {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
+                      <OnboardingFileTree
+                        files={filteredOnboardingFiles}
+                        onFileClick={handleFileClick}
+                        onDownload={handleFileDownload}
+                        onUpload={handleUploadClick}
+                        onDelete={handleOnboardingDeleteClick}
+                        onCreateDirectory={handleCreateDirectoryClick}
+                        canManageFiles={canManageProjectFiles}
+                      />
+                    ) : onboardingSearchKeyword.trim() ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <Search className="h-8 w-8 mb-2 opacity-50" />
+                        <p className="text-sm">검색 결과가 없습니다.</p>
+                      </div>
+                    ) : (
+                      <OnboardingFileTree
+                        files={onboardingData.files}
+                        onFileClick={handleFileClick}
+                        onDownload={handleFileDownload}
+                        onUpload={handleUploadClick}
+                        onDelete={handleOnboardingDeleteClick}
+                        onCreateDirectory={handleCreateDirectoryClick}
+                        canManageFiles={canManageProjectFiles}
+                      />
+                    )}
                   </ScrollArea>
                 </div>
               )}
@@ -908,15 +1081,32 @@ export function ProjectListPage() {
 
                   {/* 파일 트리 - 내부 스크롤 */}
                   <ScrollArea className="flex-1">
-                    <InstallFileTree
-                      files={installData.files}
-                      onFileClick={handleInstallFileClick}
-                      onDownload={handleInstallFileDownload}
-                      onUpload={handleInstallUploadClick}
-                      onDelete={handleInstallDeleteClick}
-                      onCreateDirectory={handleInstallCreateDirectoryClick}
-                      canManageFiles={canManageProjectFiles}
-                    />
+                    {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
+                      <InstallFileTree
+                        files={filteredInstallFiles}
+                        onFileClick={handleInstallFileClick}
+                        onDownload={handleInstallFileDownload}
+                        onUpload={handleInstallUploadClick}
+                        onDelete={handleInstallDeleteClick}
+                        onCreateDirectory={handleInstallCreateDirectoryClick}
+                        canManageFiles={canManageProjectFiles}
+                      />
+                    ) : installSearchKeyword.trim() ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <Search className="h-8 w-8 mb-2 opacity-50" />
+                        <p className="text-sm">검색 결과가 없습니다.</p>
+                      </div>
+                    ) : (
+                      <InstallFileTree
+                        files={installData.files}
+                        onFileClick={handleInstallFileClick}
+                        onDownload={handleInstallFileDownload}
+                        onUpload={handleInstallUploadClick}
+                        onDelete={handleInstallDeleteClick}
+                        onCreateDirectory={handleInstallCreateDirectoryClick}
+                        canManageFiles={canManageProjectFiles}
+                      />
+                    )}
                   </ScrollArea>
                 </div>
               )}
@@ -1117,11 +1307,8 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
 
   // 디렉토리 렌더링
   if (node.type === 'directory') {
-    const sortedChildren = node.children ? [...node.children].sort((a, b) => {
-      if (a.type === 'directory' && b.type === 'file') return -1
-      if (a.type === 'file' && b.type === 'directory') return 1
-      return a.name.localeCompare(b.name)
-    }) : []
+    // children은 이미 상위에서 sortFileTree로 정렬됨
+    const children = node.children || []
 
     return (
       <div>
@@ -1177,9 +1364,9 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
             </DropdownMenu>
           )}
         </div>
-        {isExpanded && sortedChildren.length > 0 && (
+        {isExpanded && children.length > 0 && (
           <div>
-            {sortedChildren.map((child, index) => (
+            {children.map((child, index) => (
               <OnboardingFileTreeNode
                 key={`${child.path}-${index}`}
                 node={child}
@@ -1204,6 +1391,9 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
     '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
     '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
 
+  // 확장자별 아이콘
+  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+
   // 파일 렌더링
   return (
     <div
@@ -1214,12 +1404,17 @@ function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload
         className={`flex items-center gap-2 flex-1 min-w-0 ${isViewable ? 'cursor-pointer' : ''}`}
         onClick={() => isViewable && onFileClick(node)}
       >
-        <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">{node.name}</span>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {node.size !== undefined && (
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {node.modifiedAt && (
           <span className="text-xs text-muted-foreground">
+            {formatDateTime(node.modifiedAt)}
+          </span>
+        )}
+        {node.size !== undefined && (
+          <span className="text-xs text-muted-foreground w-16 text-right">
             {formatFileSize(node.size)}
           </span>
         )}
@@ -1301,11 +1496,8 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
 
   // 디렉토리 렌더링
   if (node.type === 'directory') {
-    const sortedChildren = node.children ? [...node.children].sort((a, b) => {
-      if (a.type === 'directory' && b.type === 'file') return -1
-      if (a.type === 'file' && b.type === 'directory') return 1
-      return a.name.localeCompare(b.name)
-    }) : []
+    // children은 이미 상위에서 sortFileTree로 정렬됨
+    const children = node.children || []
 
     return (
       <div>
@@ -1361,9 +1553,9 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
             </DropdownMenu>
           )}
         </div>
-        {isExpanded && sortedChildren.length > 0 && (
+        {isExpanded && children.length > 0 && (
           <div>
-            {sortedChildren.map((child, index) => (
+            {children.map((child, index) => (
               <InstallFileTreeNode
                 key={`${child.path}-${index}`}
                 node={child}
@@ -1388,6 +1580,9 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
     '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
     '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
 
+  // 확장자별 아이콘
+  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+
   // 파일 렌더링
   return (
     <div
@@ -1398,12 +1593,17 @@ function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, o
         className={`flex items-center gap-2 flex-1 min-w-0 ${isViewable ? 'cursor-pointer' : ''}`}
         onClick={() => isViewable && onFileClick(node)}
       >
-        <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">{node.name}</span>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {node.size !== undefined && (
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {node.modifiedAt && (
           <span className="text-xs text-muted-foreground">
+            {formatDateTime(node.modifiedAt)}
+          </span>
+        )}
+        {node.size !== undefined && (
+          <span className="text-xs text-muted-foreground w-16 text-right">
             {formatFileSize(node.size)}
           </span>
         )}

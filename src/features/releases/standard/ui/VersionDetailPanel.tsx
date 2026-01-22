@@ -2,6 +2,8 @@ import { useState, useMemo, createContext, useContext } from 'react'
 
 import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, X, Check } from 'lucide-react'
 
+import { getFileIcon } from '@/shared/lib/utils/file-icon'
+
 import {
   releaseApi,
   useVersionFileStructure,
@@ -200,6 +202,9 @@ function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNod
     fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') ||
     fileName.endsWith('.gif') || fileName.endsWith('.webp') || fileName.endsWith('.bmp') || fileName.endsWith('.ico')
 
+  // 확장자별 아이콘
+  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+
   return (
     <div
       className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
@@ -209,7 +214,7 @@ function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNod
         className={`flex items-center gap-2 flex-1 min-w-0 ${isViewableFile ? 'cursor-pointer' : ''}`}
         onClick={() => isViewableFile && onFileClick(node)}
       >
-        <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">
           {node.name}
         </span>

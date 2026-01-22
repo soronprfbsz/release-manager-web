@@ -37,6 +37,7 @@ import {
   type FileFiltersState,
   INITIAL_RESOURCE_TREE_UPLOAD_FORM_DATA,
 } from '@/features/infrastructure/file-management'
+import { sortFileTree, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -336,6 +337,8 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
                   onDeleteCategory={() => setCategoryDeleteTarget({ category: category.category, fileCount: category.fileCount })}
                   isDownloading={transferState.isTransferring}
                   filterKeyword={filters?.keyword || ''}
+                  sortBy={filters?.sortBy || 'name'}
+                  sortDirection={filters?.sortDirection || 'asc'}
                 />
               ))}
             </div>
@@ -452,6 +455,8 @@ interface CategorySectionProps {
   onDeleteCategory: () => void
   isDownloading: boolean
   filterKeyword: string
+  sortBy: FileSortBy
+  sortDirection: FileSortDirection
 }
 
 function CategorySection({
@@ -467,6 +472,8 @@ function CategorySection({
   onDeleteCategory,
   isDownloading,
   filterKeyword,
+  sortBy,
+  sortDirection,
 }: CategorySectionProps) {
   // 카테고리 파일 트리 조회 (펼쳐졌을 때만)
   const { data: filesData, isLoading: isLoadingFiles } = useResourceCategoryFiles(
@@ -474,13 +481,22 @@ function CategorySection({
     { enabled: isExpanded }
   )
 
-  // 필터링된 파일 트리
+  // 필터링 및 소팅된 파일 트리
   const filteredFiles = useMemo(() => {
-    if (!filesData?.files || !filterKeyword.trim()) {
-      return filesData?.files
+    if (!filesData?.files) return undefined
+
+    // 1. 필터링 적용
+    let result = filterKeyword.trim()
+      ? filterTreeByKeyword(filesData.files, filterKeyword)
+      : filesData.files
+
+    // 2. 소팅 적용
+    if (result) {
+      result = sortFileTree(result, sortBy, sortDirection)
     }
-    return filterTreeByKeyword(filesData.files, filterKeyword)
-  }, [filesData?.files, filterKeyword])
+
+    return result
+  }, [filesData?.files, filterKeyword, sortBy, sortDirection])
 
   return (
     <CollapsibleSection

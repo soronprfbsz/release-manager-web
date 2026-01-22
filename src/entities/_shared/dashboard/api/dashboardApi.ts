@@ -1,24 +1,52 @@
 import { apiClient } from '@/shared/api/client'
 
 import type {
-  DashboardRecentData,
+  RecentStandardResponse,
+  RecentCustomResponse,
+  RecentPatchResponse,
   TopCustomersResponse,
   MonthlyPatchesResponse,
   StatisticsParams,
-  RecentDataParams
 } from '../model/types'
 
+/** 요청 파라미터 */
+export interface RecentVersionParams {
+  limit?: number
+}
+
+export interface RecentPatchParams {
+  limit?: number
+}
+
 const ENDPOINTS = {
-  recent: (id: string) => `/api/projects/${id}/dashboard/recent`,
+  recentStandard: (id: string) => `/api/projects/${id}/dashboard/recent/standard`,
+  recentCustom: (id: string) => `/api/projects/${id}/dashboard/recent/custom`,
+  recentPatch: (id: string) => `/api/projects/${id}/dashboard/recent/patch`,
   topCustomers: (id: string) => `/api/projects/${id}/analytics/patches/top-customers`,
   monthlyPatches: (id: string) => `/api/projects/${id}/analytics/patches/monthly`,
 } as const
 
 export const dashboardApi = {
-  /** 최근 데이터 조회 (최신 설치본, 최근 버전, 최근 패치) */
-  getRecent: async (projectId: string, params?: RecentDataParams): Promise<DashboardRecentData> => {
-    const response = await apiClient.get<DashboardRecentData>(ENDPOINTS.recent(projectId), {
-      params: { versionLimit: params?.versionLimit, patchLimit: params?.patchLimit },
+  /** 표준본 최신 릴리즈 버전 조회 */
+  getRecentStandard: async (projectId: string, params?: RecentVersionParams): Promise<RecentStandardResponse> => {
+    const response = await apiClient.get<RecentStandardResponse>(ENDPOINTS.recentStandard(projectId), {
+      params: { limit: params?.limit },
+    })
+    return response
+  },
+
+  /** 커스텀본 최신 릴리즈 버전 조회 */
+  getRecentCustom: async (projectId: string, params?: RecentVersionParams): Promise<RecentCustomResponse> => {
+    const response = await apiClient.get<RecentCustomResponse>(ENDPOINTS.recentCustom(projectId), {
+      params: { limit: params?.limit },
+    })
+    return response
+  },
+
+  /** 최근 생성 패치 조회 (표준 + 커스텀) */
+  getRecentPatch: async (projectId: string, params?: RecentPatchParams): Promise<RecentPatchResponse> => {
+    const response = await apiClient.get<RecentPatchResponse>(ENDPOINTS.recentPatch(projectId), {
+      params: { limit: params?.limit },
     })
     return response
   },

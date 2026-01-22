@@ -7,7 +7,9 @@ export * from './model/types'
 // Queries
 export {
   dashboardKeys,
-  useDashboardRecent,
+  useDashboardRecentStandard,
+  useDashboardRecentCustom,
+  useDashboardRecentPatch,
   useDashboardTopCustomers,
   useDashboardMonthlyPatches,
 } from './queries/dashboardQueries'

@@ -5,7 +5,7 @@
 
 import { useRef, useState } from 'react'
 
-import { Plus, Search, FolderPlus, X } from 'lucide-react'
+import { Plus, Search, FolderPlus, X, ArrowUpDown } from 'lucide-react'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
@@ -28,6 +28,7 @@ import type { ServiceFiltersState } from '@/features/infrastructure/service-mana
 import type { LinkFiltersState } from '@/features/infrastructure/link-management'
 import type { FileFiltersState } from '@/features/infrastructure/file-management'
 import type { PublishingFiltersState } from '@/features/infrastructure/publishing-management'
+import { FILE_SORT_OPTIONS } from '@/shared/lib/utils/file-sort'
 
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
@@ -90,6 +91,8 @@ export function ResourcePage() {
   const [fileFilters, setFileFilters] = useState<FileFiltersState>({
     category: '',
     keyword: '',
+    sortBy: 'name',
+    sortDirection: 'asc',
   })
   const [publishingFilters, setPublishingFilters] = useState<PublishingFiltersState>({
     keyword: '',
@@ -257,6 +260,35 @@ export function ResourcePage() {
                     {PUBLISHING_CATEGORIES.map((cat) => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Sort Select - only for files tab */}
+              {currentTab === 'files' && (
+                <Select
+                  value={`${fileFilters.sortBy}-${fileFilters.sortDirection}`}
+                  onValueChange={(value) => {
+                    const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
+                    if (option) {
+                      setFileFilters((prev) => ({
+                        ...prev,
+                        sortBy: option.sortBy,
+                        sortDirection: option.direction,
+                      }))
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
+                    <ArrowUpDown className="h-3 w-3 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILE_SORT_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

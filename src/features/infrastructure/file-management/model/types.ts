@@ -13,9 +13,13 @@ export interface FileUploadFormData {
 
 export type FileUploadMode = 'upload' | null
 
+import type { FileSortBy, FileSortDirection } from '@/shared/lib/utils/file-sort'
+
 export interface FileFiltersState {
   category: string
   keyword: string
+  sortBy: FileSortBy
+  sortDirection: FileSortDirection
 }
 
 // ============================================================================

@@ -5,13 +5,14 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 
-import { dashboardApi } from '../api/dashboardApi'
+import { dashboardApi, type RecentVersionParams, type RecentPatchParams } from '../api/dashboardApi'
 import type {
-  DashboardRecentData,
+  RecentStandardResponse,
+  RecentCustomResponse,
+  RecentPatchResponse,
   TopCustomersResponse,
   MonthlyPatchesResponse,
   StatisticsParams,
-  RecentDataParams,
 } from '../model/types'
 
 // ============================================================================
@@ -20,8 +21,12 @@ import type {
 
 export const dashboardKeys = {
   all: ['dashboard'] as const,
-  recent: (projectId: string, params?: RecentDataParams) =>
-    [...dashboardKeys.all, 'recent', projectId, params] as const,
+  recentStandard: (projectId: string, params?: RecentVersionParams) =>
+    [...dashboardKeys.all, 'recent-standard', projectId, params] as const,
+  recentCustom: (projectId: string, params?: RecentVersionParams) =>
+    [...dashboardKeys.all, 'recent-custom', projectId, params] as const,
+  recentPatch: (projectId: string, params?: RecentPatchParams) =>
+    [...dashboardKeys.all, 'recent-patch', projectId, params] as const,
   topCustomers: (projectId: string, params?: StatisticsParams) =>
     [...dashboardKeys.all, 'top-customers', projectId, params] as const,
   monthlyPatches: (projectId: string, months?: number) =>
@@ -33,16 +38,48 @@ export const dashboardKeys = {
 // ============================================================================
 
 /**
- * 최근 데이터 조회 훅 (최신 설치본, 최근 버전, 최근 패치)
+ * 표준본 최신 릴리즈 버전 조회 훅
  */
-export function useDashboardRecent(
+export function useDashboardRecentStandard(
   projectId: string,
-  params?: RecentDataParams,
-  options?: Omit<UseQueryOptions<DashboardRecentData, Error>, 'queryKey' | 'queryFn'>
+  params?: RecentVersionParams,
+  options?: Omit<UseQueryOptions<RecentStandardResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: dashboardKeys.recent(projectId, params),
-    queryFn: () => dashboardApi.getRecent(projectId, params),
+    queryKey: dashboardKeys.recentStandard(projectId, params),
+    queryFn: () => dashboardApi.getRecentStandard(projectId, params),
+    enabled: !!projectId,
+    ...options,
+  })
+}
+
+/**
+ * 커스텀본 최신 릴리즈 버전 조회 훅
+ */
+export function useDashboardRecentCustom(
+  projectId: string,
+  params?: RecentVersionParams,
+  options?: Omit<UseQueryOptions<RecentCustomResponse, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: dashboardKeys.recentCustom(projectId, params),
+    queryFn: () => dashboardApi.getRecentCustom(projectId, params),
+    enabled: !!projectId,
+    ...options,
+  })
+}
+
+/**
+ * 최근 생성 패치 조회 훅 (표준 + 커스텀)
+ */
+export function useDashboardRecentPatch(
+  projectId: string,
+  params?: RecentPatchParams,
+  options?: Omit<UseQueryOptions<RecentPatchResponse, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: dashboardKeys.recentPatch(projectId, params),
+    queryFn: () => dashboardApi.getRecentPatch(projectId, params),
     enabled: !!projectId,
     ...options,
   })
