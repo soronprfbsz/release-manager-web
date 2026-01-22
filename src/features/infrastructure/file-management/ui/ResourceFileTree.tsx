@@ -9,6 +9,14 @@ import {
   Folder,
   FolderOpen,
   File,
+  FileText,
+  FileSpreadsheet,
+  FileImage,
+  FileArchive,
+  FileCode,
+  Database,
+  Terminal,
+  FileJson,
   ChevronRight,
   ChevronDown,
   MoreHorizontal,
@@ -35,6 +43,54 @@ const VIEWABLE_EXTENSIONS = [
   '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
   '.zip', '.jar', '.war', '.ear',
 ]
+
+// 확장자별 파일 아이콘 및 색상 반환
+function getFileIcon(fileName: string): { icon: typeof File; color: string } {
+  const ext = fileName.toLowerCase().split('.').pop() || ''
+
+  // 스프레드시트
+  if (['xlsx', 'xls', 'csv'].includes(ext)) {
+    return { icon: FileSpreadsheet, color: 'text-green-600' }
+  }
+  // 문서
+  if (['doc', 'docx', 'rtf', 'odt'].includes(ext)) {
+    return { icon: FileText, color: 'text-blue-600' }
+  }
+  // PDF
+  if (ext === 'pdf') {
+    return { icon: FileText, color: 'text-red-500' }
+  }
+  // 이미지
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(ext)) {
+    return { icon: FileImage, color: 'text-purple-500' }
+  }
+  // 압축 파일
+  if (['zip', 'rar', '7z', 'tar', 'gz', 'jar', 'war', 'ear'].includes(ext)) {
+    return { icon: FileArchive, color: 'text-yellow-600' }
+  }
+  // 코드 파일
+  if (['js', 'ts', 'tsx', 'jsx', 'py', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'rs', 'rb', 'php', 'html', 'css', 'scss'].includes(ext)) {
+    return { icon: FileCode, color: 'text-orange-500' }
+  }
+  // SQL
+  if (ext === 'sql') {
+    return { icon: Database, color: 'text-cyan-600' }
+  }
+  // 쉘/스크립트
+  if (['sh', 'bash', 'bat', 'ps1', 'cmd'].includes(ext)) {
+    return { icon: Terminal, color: 'text-gray-600' }
+  }
+  // JSON/설정 파일
+  if (['json', 'yml', 'yaml', 'xml', 'ini', 'conf', 'properties', 'env', 'toml'].includes(ext)) {
+    return { icon: FileJson, color: 'text-amber-500' }
+  }
+  // 텍스트/마크다운
+  if (['txt', 'md', 'log', 'readme'].includes(ext)) {
+    return { icon: FileText, color: 'text-gray-500' }
+  }
+  // 기본
+  return { icon: File, color: 'text-muted-foreground' }
+}
 
 interface ResourceFileTreeProps {
   files: ResourceFileNode
@@ -184,6 +240,9 @@ function ResourceFileTreeNode({
   const fileName = node.name.toLowerCase()
   const isViewable = VIEWABLE_EXTENSIONS.some(ext => fileName.endsWith(ext))
 
+  // 확장자별 아이콘
+  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+
   // 파일 렌더링
   return (
     <div
@@ -194,7 +253,7 @@ function ResourceFileTreeNode({
         className={`flex items-center gap-2 flex-1 min-w-0 ${isViewable ? 'cursor-pointer' : ''}`}
         onClick={() => isViewable && onFileClick(node)}
       >
-        <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">{node.name}</span>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">

@@ -34,6 +34,7 @@ import {
   type ResourceTreeDeleteTarget,
   type ResourceTreeDirectoryCreateTarget,
   type ResourceCategoryDeleteTarget,
+  type FileFiltersState,
   INITIAL_RESOURCE_TREE_UPLOAD_FORM_DATA,
 } from '@/features/infrastructure/file-management'
 
@@ -51,7 +52,6 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 
@@ -62,10 +62,39 @@ export interface FileResourceTabHandle {
 
 interface FileResourceTabProps {
   onRefresh?: () => void
+  filters?: FileFiltersState
+}
+
+// 트리 노드를 키워드로 필터링하는 함수
+function filterTreeByKeyword(node: ResourceFileNode, keyword: string): ResourceFileNode | null {
+  const lowerKeyword = keyword.toLowerCase()
+
+  // 현재 노드 이름이 키워드를 포함하는지 확인
+  const nameMatches = node.name.toLowerCase().includes(lowerKeyword)
+
+  if (node.type === 'file') {
+    // 파일인 경우: 이름이 매치되면 반환, 아니면 null
+    return nameMatches ? node : null
+  }
+
+  // 디렉토리인 경우: 자식들을 재귀적으로 필터링
+  const filteredChildren = node.children
+    ?.map(child => filterTreeByKeyword(child, keyword))
+    .filter((child): child is ResourceFileNode => child !== null)
+
+  // 디렉토리 이름이 매치되거나 필터링된 자식이 있으면 반환
+  if (nameMatches || (filteredChildren && filteredChildren.length > 0)) {
+    return {
+      ...node,
+      children: filteredChildren || [],
+    }
+  }
+
+  return null
 }
 
 export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTabProps>(
-  function FileResourceTab({ onRefresh }, ref) {
+  function FileResourceTab({ onRefresh, filters }, ref) {
     const { toast } = useToast()
     const { startTransfer, updateProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
 
@@ -306,6 +335,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
                   onCreateDirectory={(parentPath) => handleCreateDirectoryClick(category.category, category.category, parentPath)}
                   onDeleteCategory={() => setCategoryDeleteTarget({ category: category.category, fileCount: category.fileCount })}
                   isDownloading={transferState.isTransferring}
+                  filterKeyword={filters?.keyword || ''}
                 />
               ))}
             </div>
@@ -421,6 +451,7 @@ interface CategorySectionProps {
   onCreateDirectory: (parentPath: string) => void
   onDeleteCategory: () => void
   isDownloading: boolean
+  filterKeyword: string
 }
 
 function CategorySection({
@@ -435,12 +466,21 @@ function CategorySection({
   onCreateDirectory,
   onDeleteCategory,
   isDownloading,
+  filterKeyword,
 }: CategorySectionProps) {
   // 카테고리 파일 트리 조회 (펼쳐졌을 때만)
   const { data: filesData, isLoading: isLoadingFiles } = useResourceCategoryFiles(
     category.category,
     { enabled: isExpanded }
   )
+
+  // 필터링된 파일 트리
+  const filteredFiles = useMemo(() => {
+    if (!filesData?.files || !filterKeyword.trim()) {
+      return filesData?.files
+    }
+    return filterTreeByKeyword(filesData.files, filterKeyword)
+  }, [filesData?.files, filterKeyword])
 
   return (
     <CollapsibleSection
@@ -506,23 +546,21 @@ function CategorySection({
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
         </div>
-      ) : (!filesData?.files?.children || filesData.files.children.length === 0) ? (
+      ) : (!filteredFiles?.children || filteredFiles.children.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
           <DOMAIN_ICONS.file className="h-8 w-8 mb-2 opacity-50" />
-          <p className="text-sm">파일이 없습니다.</p>
+          <p className="text-sm">{filterKeyword ? '검색 결과가 없습니다.' : '파일이 없습니다.'}</p>
         </div>
       ) : (
-        <ScrollArea className="max-h-96">
-          <ResourceFileTree
-            files={filesData.files}
-            onFileClick={onFileClick}
-            onDownload={onDownload}
-            onUpload={onUpload}
-            onDelete={onDelete}
-            onCreateDirectory={onCreateDirectory}
-            canManageFiles={true}
-          />
-        </ScrollArea>
+        <ResourceFileTree
+          files={filteredFiles}
+          onFileClick={onFileClick}
+          onDownload={onDownload}
+          onUpload={onUpload}
+          onDelete={onDelete}
+          onCreateDirectory={onCreateDirectory}
+          canManageFiles={true}
+        />
       )}
     </CollapsibleSection>
   )

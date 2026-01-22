@@ -5,7 +5,7 @@
 
 import { useRef, useState } from 'react'
 
-import { Plus, Search, FolderPlus } from 'lucide-react'
+import { Plus, Search, FolderPlus, X } from 'lucide-react'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
@@ -270,8 +270,17 @@ export function ResourcePage() {
                   value={getCurrentKeyword()}
                   onChange={(e) => setCurrentKeyword(e.target.value)}
                   placeholder="검색..."
-                  className="pl-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+                  className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
                 />
+                {getCurrentKeyword() && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentKeyword('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
+                  >
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -285,7 +294,7 @@ export function ResourcePage() {
           </TabsContent>
 
           <TabsContent value="files" className="px-8 pb-8">
-            <FileResourceTab ref={fileTabRef} />
+            <FileResourceTab ref={fileTabRef} filters={fileFilters} />
           </TabsContent>
 
           <TabsContent value="publishing" className="px-8 pb-8">
