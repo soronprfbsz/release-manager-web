@@ -42,8 +42,9 @@ import { sortFileTree, type FileSortBy, type FileSortDirection } from '@/shared/
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import { formatFileSize } from '@/shared/lib/utils/format'
-import { base64ToBlob, base64ToText, isPdfFile, isImageFile, isZipFile } from '@/shared/lib/utils/file-content'
+import { isViewableFile } from '@/shared/lib/utils/file-icon'
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import {
@@ -52,9 +53,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
-import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { FileViewer } from '@/shared/ui/file-viewer'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
 
 export interface FileResourceTabHandle {
   refresh: () => void
@@ -158,34 +158,14 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
       },
     })
 
-    // File content query
-    const isPdf = viewingFile ? isPdfFile(viewingFile.name) : false
-    const isImage = viewingFile ? isImageFile(viewingFile.name) : false
-    const isZip = viewingFile ? isZipFile(viewingFile.name) : false
-    const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useFileContent(
-      viewingFile?.filePath ?? '',
-      viewingFile !== null
-    )
-
-    // 콘텐츠 디코딩
-    const decodedContent = useMemo(() => {
-      if (!fileContentData?.content) return null
-      if (fileContentData.isBinary) {
-        if (!isPdf && !isImage && !isZip) {
-          return base64ToText(fileContentData.content)
-        }
-        return null
-      }
-      return fileContentData.content
-    }, [fileContentData, isPdf, isImage, isZip])
-
-    const binaryBlob = useMemo(() => {
-      if (!fileContentData?.isBinary || !fileContentData?.content) return null
-      if (isPdf || isImage || isZip) {
-        return base64ToBlob(fileContentData.content, fileContentData.mimeType)
-      }
-      return null
-    }, [fileContentData, isPdf, isImage, isZip])
+    // File content viewer hook
+    const viewer = useFileContentViewer({
+      filePath: viewingFile?.filePath,
+      fileName: viewingFile?.name,
+      fileSize: viewingFile?.size,
+      enabled: viewingFile !== null,
+      useContentQuery: useFileContent,
+    })
 
     // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
@@ -218,14 +198,7 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
 
     // 파일 조회
     const handleFileClick = (node: ResourceFileNode) => {
-      const viewableExtensions = [
-        '.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-        '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env',
-        '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
-        '.zip', '.jar', '.war', '.ear',
-      ]
-      const fileName = node.name.toLowerCase()
-      if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
+      if (isViewableFile(node.name)) {
         setViewingFile({ filePath: node.filePath, name: node.name, size: node.size })
       }
     }
@@ -346,34 +319,14 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
         </div>
 
         {/* File Content Viewer */}
-        {isZip ? (
-          <ZipFileExplorer
-            open={viewingFile !== null}
-            onOpenChange={(open) => !open && setViewingFile(null)}
-            zipBlob={binaryBlob}
-            fileName={viewingFile?.name || ''}
-            icon={DOMAIN_ICONS.file}
-            isLoading={isLoadingContent}
-            error={contentError as Error | null}
-          />
-        ) : (
-          <FileContentViewerModal
-            open={viewingFile !== null}
-            onOpenChange={(open) => !open && setViewingFile(null)}
-            fileName={viewingFile?.name || ''}
-            content={decodedContent}
-            isLoading={isLoadingContent && !isPdf && !isImage}
-            error={!isPdf && !isImage ? (contentError as Error | null) : null}
-            onDownload={handleDownloadSelectedFile}
-            canDownload={true}
-            pdfBlob={isPdf ? binaryBlob : null}
-            isPdfLoading={isPdf && isLoadingContent}
-            pdfError={isPdf ? (contentError as Error | null) : null}
-            imageBlob={isImage ? binaryBlob : null}
-            isImageLoading={isImage && isLoadingContent}
-            imageError={isImage ? (contentError as Error | null) : null}
-          />
-        )}
+        <FileViewer
+          {...viewer.viewerProps}
+          open={viewingFile !== null}
+          onOpenChange={(open) => !open && setViewingFile(null)}
+          onDownload={handleDownloadSelectedFile}
+          canDownload={true}
+          zipIcon={DOMAIN_ICONS.file}
+        />
 
         {/* Upload Sheet */}
         {uploadTarget && (

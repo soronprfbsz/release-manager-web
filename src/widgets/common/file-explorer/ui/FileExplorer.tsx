@@ -4,14 +4,14 @@
  * - 패치, 퍼블리싱 등 여러 도메인에서 사용
  */
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 
-import { Folder, FolderOpen, ChevronRight, ChevronDown, type LucideIcon } from 'lucide-react'
+import { Folder, FolderOpen, ChevronRight, ChevronDown, Info, type LucideIcon } from 'lucide-react'
 
-import { base64ToBlob, base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile } from '@/shared/lib/utils/file-content'
-import { getFileIcon } from '@/shared/lib/utils/file-icon'
+import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
+import { getFileIcon, isViewableFile as checkIsViewableFile } from '@/shared/lib/utils/file-icon'
 
-import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { FileViewer } from '@/shared/ui/file-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Sheet,
@@ -92,25 +92,38 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-/** 기본 조회 가능 확장자 */
-const DEFAULT_VIEWABLE_EXTENSIONS = [
-  // 텍스트/코드
-  '.html', '.htm', '.css', '.scss', '.less',
-  '.js', '.ts', '.jsx', '.tsx',
-  '.json', '.xml', '.svg',
-  '.md', '.txt', '.log',
-  '.yml', '.yaml',
-  '.sql', '.sh', '.bat', '.ps1',
-  '.ini', '.conf', '.properties', '.env',
-  // PDF
-  '.pdf',
-  // 이미지
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
-]
+/** 파일 크기 제한 에러인지 확인 */
+function isFileSizeLimitError(error: Error | null): boolean {
+  if (!error) return false
+  const message = error.message || ''
+  return message.includes('파일 크기가 너무 큽니다') || message.includes('최대 10MB')
+}
 
-function isViewableFile(fileName: string, viewableExtensions: string[]): boolean {
-  const lowerName = fileName.toLowerCase()
-  return viewableExtensions.some(ext => lowerName.endsWith(ext))
+/** 에러 메시지에서 파일 크기 정보 추출 */
+function parseFileSizeFromError(error: Error | null): { currentSize: string; maxSize: string } | null {
+  if (!error) return null
+  const message = error.message || ''
+
+  // "(최대 10MB): 485622000 bytes" 형식에서 추출
+  const maxMatch = message.match(/최대\s*(\d+(?:\.\d+)?)\s*(MB|KB|GB)/i)
+  const bytesMatch = message.match(/:\s*(\d+)\s*bytes/i)
+
+  if (!maxMatch || !bytesMatch) return null
+
+  const maxSize = `${maxMatch[1]}${maxMatch[2]}`
+  const currentBytes = parseInt(bytesMatch[1], 10)
+  const currentSize = formatFileSize(currentBytes)
+
+  return { currentSize, maxSize }
+}
+
+/** 파일 조회 가능 여부 확인 (커스텀 확장자 또는 공통 확장자 사용) */
+function isViewable(fileName: string, customExtensions?: string[]): boolean {
+  if (customExtensions) {
+    const lowerName = fileName.toLowerCase()
+    return customExtensions.some(ext => lowerName.endsWith(ext))
+  }
+  return checkIsViewableFile(fileName)
 }
 
 // ============================================================================
@@ -121,10 +134,10 @@ interface FileNodeComponentProps {
   node: FileNode
   level: number
   onFileClick: (node: FileNode) => void
-  viewableExtensions: string[]
+  customViewableExtensions?: string[]
 }
 
-function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: FileNodeComponentProps) {
+function FileNodeComponent({ node, level, onFileClick, customViewableExtensions }: FileNodeComponentProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   if (node.type === 'directory') {
@@ -161,7 +174,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
                 node={child}
                 level={level + 1}
                 onFileClick={onFileClick}
-                viewableExtensions={viewableExtensions}
+                customViewableExtensions={customViewableExtensions}
               />
             ))}
           </div>
@@ -170,7 +183,7 @@ function FileNodeComponent({ node, level, onFileClick, viewableExtensions }: Fil
     )
   }
 
-  const viewable = isViewableFile(node.name, viewableExtensions)
+  const viewable = isViewable(node.name, customViewableExtensions)
   const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
 
   return (
@@ -210,41 +223,19 @@ export function FileExplorer({
   isLoading,
   error,
   useFileContent,
-  viewableExtensions = DEFAULT_VIEWABLE_EXTENSIONS,
+  viewableExtensions,
 }: FileExplorerProps) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ filePath: string; name: string; size?: number } | null>(null)
 
-  // PDF/이미지 파일 여부 확인
-  const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
-  const isImageFile = selectedFile ? checkIsImageFile(selectedFile.name) : false
-
-  // 파일 내용 조회
-  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useFileContent(
-    selectedFile?.filePath ?? '',
-    fileViewerOpen && selectedFile !== null
-  )
-
-  // isBinary가 true이면서 PDF/이미지인 경우 Blob으로 변환
-  const binaryBlob = useMemo(() => {
-    if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (!isPdfFile && !isImageFile) return null
-    return base64ToBlob(fileContentData.content, fileContentData.mimeType)
-  }, [fileContentData, isPdfFile, isImageFile])
-
-  // isBinary가 true이면서 텍스트 파일인 경우 텍스트로 디코딩
-  const decodedTextContent = useMemo(() => {
-    if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (isPdfFile || isImageFile) return null
-    return base64ToText(fileContentData.content)
-  }, [fileContentData, isPdfFile, isImageFile])
-
-  // 텍스트 콘텐츠 결정
-  const textContent = useMemo(() => {
-    if (isPdfFile || isImageFile) return null
-    if (fileContentData?.isBinary) return decodedTextContent
-    return fileContentData?.content || null
-  }, [fileContentData, isPdfFile, isImageFile, decodedTextContent])
+  // File content viewer hook
+  const viewer = useFileContentViewer({
+    filePath: selectedFile?.filePath,
+    fileName: selectedFile?.name,
+    fileSize: selectedFile?.size,
+    enabled: fileViewerOpen && selectedFile !== null,
+    useContentQuery: useFileContent,
+  })
 
   const handleFileClick = (node: FileNode) => {
     setSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
@@ -274,10 +265,36 @@ export function FileExplorer({
 
             {error && (
               <div className="flex items-center justify-center p-8">
-                <div className="text-destructive">
-                  파일 구조를 불러오는데 실패했습니다.
-                  {error instanceof Error && <div className="text-sm mt-2">{error.message}</div>}
-                </div>
+                {isFileSizeLimitError(error) ? (
+                  (() => {
+                    const sizeInfo = parseFileSizeFromError(error)
+                    return (
+                      <div className="flex flex-col items-center gap-4 text-center">
+                        <div className="p-3 rounded-full bg-muted">
+                          <Info className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            파일 크기가 커서 미리보기가 제한됩니다
+                          </p>
+                          {sizeInfo && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              현재 파일: {sizeInfo.currentSize} / 최대: {sizeInfo.maxSize}
+                            </p>
+                          )}
+                          <p className="text-sm text-muted-foreground mt-1">
+                            파일을 다운로드하여 내용을 확인해주세요.
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })()
+                ) : (
+                  <div className="text-destructive text-center">
+                    파일 구조를 불러오는데 실패했습니다.
+                    {error instanceof Error && <div className="text-sm mt-2">{error.message}</div>}
+                  </div>
+                )}
               </div>
             )}
 
@@ -299,7 +316,7 @@ export function FileExplorer({
                         node={node}
                         level={0}
                         onFileClick={handleFileClick}
-                        viewableExtensions={viewableExtensions}
+                        customViewableExtensions={viewableExtensions}
                       />
                     ))}
                   </div>
@@ -310,21 +327,11 @@ export function FileExplorer({
         </SheetContent>
       </Sheet>
 
-      <FileContentViewerModal
+      <FileViewer
+        {...viewer.viewerProps}
         open={fileViewerOpen}
         onOpenChange={setFileViewerOpen}
-        fileName={selectedFile?.name || ''}
-        content={textContent}
-        isLoading={isLoadingContent && !isPdfFile && !isImageFile}
-        error={!isPdfFile && !isImageFile ? contentError : null}
         description="파일 내용"
-        fileSize={selectedFile?.size}
-        pdfBlob={isPdfFile ? binaryBlob : null}
-        isPdfLoading={isPdfFile && isLoadingContent}
-        pdfError={isPdfFile ? contentError : null}
-        imageBlob={isImageFile ? binaryBlob : null}
-        isImageLoading={isImageFile && isLoadingContent}
-        imageError={isImageFile ? contentError : null}
       />
     </>
   )

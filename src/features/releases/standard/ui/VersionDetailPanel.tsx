@@ -1,8 +1,8 @@
-import { useState, useMemo, createContext, useContext } from 'react'
+import { useState, createContext, useContext } from 'react'
 
 import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, X, Check } from 'lucide-react'
 
-import { getFileIcon } from '@/shared/lib/utils/file-icon'
+import { getFileIcon, isViewableFile } from '@/shared/lib/utils/file-icon'
 
 import {
   releaseApi,
@@ -22,7 +22,7 @@ import { useProjectStore } from '@/shared/store'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { formatFileSize } from '@/shared/lib/utils/format'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { base64ToBlob, base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile } from '@/shared/lib/utils/file-content'
+import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +37,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { ErrorDisplay } from '@/shared/ui/error-display'
-import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
+import { FileViewer } from '@/shared/ui/file-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Textarea } from '@/shared/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -116,13 +116,12 @@ interface VersionDetailContextValue {
   canApproveVersion: boolean
   canAddVersion: boolean
   canDownloadVersion: boolean
-  // File content
-  textContent: string | null
-  blobData: Blob | null
-  isPdfFile: boolean
-  isImageFile: boolean
-  isLoadingContent: boolean
-  contentError: Error | null
+  // File content query (for VersionDetailDialogs)
+  useFileContentQuery: (path: string, enabled: boolean) => {
+    data: { content: string; mimeType?: string; isBinary?: boolean } | undefined
+    isLoading: boolean
+    error: Error | null
+  }
   projectId: string
   onDelete?: () => void
 }
@@ -192,15 +191,7 @@ function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNod
     )
   }
 
-  const fileName = node.name.toLowerCase()
-  const isViewableFile = fileName.endsWith('.sql') || fileName.endsWith('.sh') || fileName.endsWith('.md') ||
-    fileName.endsWith('.txt') || fileName.endsWith('.log') || fileName.endsWith('.json') ||
-    fileName.endsWith('.xml') || fileName.endsWith('.yml') || fileName.endsWith('.yaml') ||
-    fileName.endsWith('.ini') || fileName.endsWith('.conf') || fileName.endsWith('.properties') ||
-    fileName.endsWith('.bat') || fileName.endsWith('.ps1') || fileName.endsWith('.env') ||
-    fileName.endsWith('.pdf') ||
-    fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') ||
-    fileName.endsWith('.gif') || fileName.endsWith('.webp') || fileName.endsWith('.bmp') || fileName.endsWith('.ico')
+  const viewable = isViewableFile(node.name)
 
   // 확장자별 아이콘
   const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
@@ -211,8 +202,8 @@ function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNod
       style={{ paddingLeft: `${level * 16 + 24}px` }}
     >
       <div
-        className={`flex items-center gap-2 flex-1 min-w-0 ${isViewableFile ? 'cursor-pointer' : ''}`}
-        onClick={() => isViewableFile && onFileClick(node)}
+        className={`flex items-center gap-2 flex-1 min-w-0 ${viewable ? 'cursor-pointer' : ''}`}
+        onClick={() => viewable && onFileClick(node)}
       >
         <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
         <span className="text-sm truncate">
@@ -346,48 +337,22 @@ function VersionDetailProvider({
 
   const handleViewFile = (node: ReleaseFileNode) => {
     if (!node.releaseFileId || !node.filePath) return
-    const fileName = node.name.toLowerCase()
-    const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico']
-
-    if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
+    if (isViewableFile(node.name)) {
       setSelectedFile({ id: node.releaseFileId, filePath: node.filePath, name: node.name, size: node.size ?? undefined })
       setFileViewerOpen(true)
     }
   }
 
-  // PDF/이미지 파일 여부 확인
-  const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
-  const isImageFile = selectedFile ? checkIsImageFile(selectedFile.name) : false
-
-  // 모든 파일 내용 조회 (통합 API 사용)
-  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useReleaseFileContent(
-    selectedFile?.filePath ?? '',
-    fileViewerOpen && selectedFile !== null
-  )
-
-  // isBinary가 true이면서 PDF/이미지인 경우 Blob으로 변환
-  const binaryBlob = useMemo(() => {
-    if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (!isPdfFile && !isImageFile) return null
-    return base64ToBlob(fileContentData.content, fileContentData.mimeType)
-  }, [fileContentData, isPdfFile, isImageFile])
-
-  // isBinary가 true이면서 텍스트 파일인 경우 텍스트로 디코딩
-  const decodedTextContent = useMemo(() => {
-    if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (isPdfFile || isImageFile) return null
-    return base64ToText(fileContentData.content)
-  }, [fileContentData, isPdfFile, isImageFile])
-
-  const blobData = binaryBlob
-
-  const textContent = useMemo(() => {
-    if (isPdfFile || isImageFile) return null
-    if (fileContentData?.isBinary) return decodedTextContent
-    return fileContentData?.content || null
-  }, [fileContentData, isPdfFile, isImageFile, decodedTextContent])
+  // 파일 내용 조회 쿼리 함수 (VersionDetailDialogs에서 useFileContentViewer와 함께 사용)
+  const useFileContentQuery = (path: string, enabled: boolean) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const result = useReleaseFileContent(path, enabled)
+    return {
+      data: result.data,
+      isLoading: result.isLoading,
+      error: result.error as Error | null,
+    }
+  }
 
   const handleDownloadSelectedFile = () => {
     if (selectedFile?.filePath) {
@@ -454,12 +419,7 @@ function VersionDetailProvider({
     canApproveVersion,
     canAddVersion,
     canDownloadVersion,
-    textContent,
-    blobData,
-    isPdfFile,
-    isImageFile,
-    isLoadingContent,
-    contentError: contentError as Error | null,
+    useFileContentQuery,
     projectId,
     onDelete,
   }
@@ -791,29 +751,28 @@ function VersionDetailDialogs() {
     fileViewerOpen, setFileViewerOpen, selectedFile,
     deleteDialogOpen, setDeleteDialogOpen, hotfixDialogOpen, setHotfixDialogOpen,
     deleteMutation, handleDeleteConfirm, handleDownloadSelectedFile, canDownloadVersion,
-    textContent, blobData, isPdfFile, isImageFile, isLoadingContent, contentError,
+    useFileContentQuery,
   } = ctx
+
+  // 파일 내용 조회 훅 사용
+  const viewer = useFileContentViewer({
+    filePath: selectedFile?.filePath,
+    fileName: selectedFile?.name,
+    fileSize: selectedFile?.size,
+    enabled: fileViewerOpen && selectedFile !== null,
+    useContentQuery: useFileContentQuery,
+  })
 
   return (
     <>
-      {/* File Content Viewer Modal */}
-      <FileContentViewerModal
+      {/* File Content Viewer */}
+      <FileViewer
+        {...viewer.viewerProps}
         open={fileViewerOpen}
         onOpenChange={setFileViewerOpen}
-        fileName={selectedFile?.name || ''}
-        content={textContent}
-        isLoading={isLoadingContent && !isPdfFile && !isImageFile}
-        error={!isPdfFile && !isImageFile ? contentError : null}
-        description="파일 내용"
-        fileSize={selectedFile?.size}
         onDownload={handleDownloadSelectedFile}
         canDownload={canDownloadVersion}
-        pdfBlob={isPdfFile ? blobData : null}
-        isPdfLoading={isPdfFile && isLoadingContent}
-        pdfError={isPdfFile ? contentError : null}
-        imageBlob={isImageFile ? blobData : null}
-        isImageLoading={isImageFile && isLoadingContent}
-        imageError={isImageFile ? contentError : null}
+        description="파일 내용"
       />
 
       {/* Delete Confirmation Dialog */}

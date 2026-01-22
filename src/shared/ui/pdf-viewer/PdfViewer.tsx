@@ -9,13 +9,45 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader2, Info } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 // PDF.js 워커 설정
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+
+/** 파일 크기 제한 에러인지 확인 */
+function isFileSizeLimitError(error: Error | null | undefined): boolean {
+  if (!error) return false
+  const message = error.message || ''
+  return message.includes('파일 크기가 너무 큽니다') || message.includes('최대 10MB')
+}
+
+/** 파일 크기 포맷팅 */
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
+/** 에러 메시지에서 파일 크기 정보 추출 */
+function parseFileSizeFromError(error: Error | null | undefined): { currentSize: string; maxSize: string } | null {
+  if (!error) return null
+  const message = error.message || ''
+
+  // "(최대 10MB): 485622000 bytes" 형식에서 추출
+  const maxMatch = message.match(/최대\s*(\d+(?:\.\d+)?)\s*(MB|KB|GB)/i)
+  const bytesMatch = message.match(/:\s*(\d+)\s*bytes/i)
+
+  if (!maxMatch || !bytesMatch) return null
+
+  const maxSize = `${maxMatch[1]}${maxMatch[2]}`
+  const currentBytes = parseInt(bytesMatch[1], 10)
+  const currentSize = formatFileSize(currentBytes)
+
+  return { currentSize, maxSize }
+}
 
 interface PdfViewerProps {
   /** PDF 파일 URL 또는 Blob/ArrayBuffer */
@@ -193,14 +225,36 @@ export function PdfViewer({ file, isLoading = false, error = null }: PdfViewerPr
 
   if (error || pdfError) {
     const displayError = error || pdfError
+    const sizeInfo = parseFileSizeFromError(displayError)
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-destructive text-center">
-          <div>PDF를 불러오는데 실패했습니다.</div>
-          {displayError?.message && (
-            <div className="text-sm mt-2 text-muted-foreground">{displayError.message}</div>
-          )}
-        </div>
+        {isFileSizeLimitError(displayError) ? (
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="p-3 rounded-full bg-muted">
+              <Info className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                파일 크기가 커서 미리보기가 제한됩니다
+              </p>
+              {sizeInfo && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  현재 파일: {sizeInfo.currentSize} / 최대: {sizeInfo.maxSize}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                파일을 다운로드하여 내용을 확인해주세요.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-destructive text-center">
+            <div>PDF를 불러오는데 실패했습니다.</div>
+            {displayError?.message && (
+              <div className="text-sm mt-2 text-muted-foreground">{displayError.message}</div>
+            )}
+          </div>
+        )}
       </div>
     )
   }

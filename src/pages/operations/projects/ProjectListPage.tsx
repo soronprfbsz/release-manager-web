@@ -8,14 +8,8 @@ import { useSearchParams } from 'react-router-dom'
 
 import {
   Plus,
-  Folder,
-  FolderOpen,
   File,
   Download,
-  ChevronRight,
-  ChevronDown,
-  MoreHorizontal,
-  Trash2,
   FolderPlus,
   Search,
   X,
@@ -72,10 +66,9 @@ import {
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useProjectStore } from '@/shared/store'
-import { base64ToText, isPdfFile as checkIsPdfFile, isImageFile as checkIsImageFile, isZipFile as checkIsZipFile, base64ToBlob } from '@/shared/lib/utils/file-content'
+import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import { formatFileSize } from '@/shared/lib/utils/format'
-import { formatDateTime } from '@/shared/lib/utils/date'
-import { getFileIcon } from '@/shared/lib/utils/file-icon'
+import { isViewableFile } from '@/shared/lib/utils/file-icon'
 import { sortFileTree, FILE_SORT_OPTIONS, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
 import { Button } from '@/shared/ui/button'
 import {
@@ -93,8 +86,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
-import { ZipFileExplorer } from '@/shared/ui/zip-file-explorer'
+import { FileTree, type FileTreeNode } from '@/shared/ui/file-tree'
+import { FileViewer } from '@/shared/ui/file-viewer'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
@@ -217,61 +210,23 @@ export function ProjectListPage() {
   const deleteInstallMutation = useDeleteInstallFile(projectId)
   const createInstallDirectoryMutation = useCreateInstallDirectory(projectId)
 
-  // File content query - API 응답의 filePath 직접 사용 (온보딩)
-  const { data: fileContentData, isLoading: isLoadingContent, error: contentError } = useOnboardingFileContent(
-    selectedFile?.filePath ?? '',
-    fileViewerOpen && selectedFile !== null
-  )
+  // File content viewer hook (온보딩)
+  const onboardingViewer = useFileContentViewer({
+    filePath: selectedFile?.filePath,
+    fileName: selectedFile?.name,
+    fileSize: selectedFile?.size,
+    enabled: fileViewerOpen && selectedFile !== null,
+    useContentQuery: useOnboardingFileContent,
+  })
 
-  // Install file content query
-  const { data: installFileContentData, isLoading: isLoadingInstallContent, error: installContentError } = useInstallFileContent(
-    installSelectedFile?.filePath ?? '',
-    installFileViewerOpen && installSelectedFile !== null
-  )
-
-  // PDF/이미지/ZIP 파일 여부 확인 (온보딩)
-  const isPdfFile = selectedFile ? checkIsPdfFile(selectedFile.name) : false
-  const isImageFile = selectedFile ? checkIsImageFile(selectedFile.name) : false
-  const isZipFile = selectedFile ? checkIsZipFile(selectedFile.name) : false
-
-  // PDF/이미지/ZIP 파일 여부 확인 (인스톨)
-  const isInstallPdfFile = installSelectedFile ? checkIsPdfFile(installSelectedFile.name) : false
-  const isInstallImageFile = installSelectedFile ? checkIsImageFile(installSelectedFile.name) : false
-  const isInstallZipFile = installSelectedFile ? checkIsZipFile(installSelectedFile.name) : false
-
-  // 바이너리 데이터 처리 (PDF, 이미지, ZIP) - 온보딩
-  const blobData = useMemo(() => {
-    if (!fileContentData?.isBinary || !fileContentData?.content) return null
-    if (!isPdfFile && !isImageFile && !isZipFile) return null
-    return base64ToBlob(fileContentData.content, fileContentData.mimeType)
-  }, [fileContentData, isPdfFile, isImageFile, isZipFile])
-
-  // 텍스트 콘텐츠 처리 (PDF, 이미지, ZIP 제외) - 온보딩
-  const textContent = useMemo(() => {
-    if (!fileContentData) return null
-    if (isPdfFile || isImageFile || isZipFile) return null
-    if (fileContentData.isBinary) {
-      return base64ToText(fileContentData.content)
-    }
-    return fileContentData.content
-  }, [fileContentData, isPdfFile, isImageFile, isZipFile])
-
-  // 바이너리 데이터 처리 (PDF, 이미지, ZIP) - 인스톨
-  const installBlobData = useMemo(() => {
-    if (!installFileContentData?.isBinary || !installFileContentData?.content) return null
-    if (!isInstallPdfFile && !isInstallImageFile && !isInstallZipFile) return null
-    return base64ToBlob(installFileContentData.content, installFileContentData.mimeType)
-  }, [installFileContentData, isInstallPdfFile, isInstallImageFile, isInstallZipFile])
-
-  // 텍스트 콘텐츠 처리 (PDF, 이미지, ZIP 제외) - 인스톨
-  const installTextContent = useMemo(() => {
-    if (!installFileContentData) return null
-    if (isInstallPdfFile || isInstallImageFile || isInstallZipFile) return null
-    if (installFileContentData.isBinary) {
-      return base64ToText(installFileContentData.content)
-    }
-    return installFileContentData.content
-  }, [installFileContentData, isInstallPdfFile, isInstallImageFile, isInstallZipFile])
+  // File content viewer hook (인스톨)
+  const installViewer = useFileContentViewer({
+    filePath: installSelectedFile?.filePath,
+    fileName: installSelectedFile?.name,
+    fileSize: installSelectedFile?.size,
+    enabled: installFileViewerOpen && installSelectedFile !== null,
+    useContentQuery: useInstallFileContent,
+  })
 
   // 파일 트리 키워드 필터링 함수 (온보딩)
   const filterOnboardingTree = (node: OnboardingFileNode, keyword: string): OnboardingFileNode | null => {
@@ -460,12 +415,7 @@ export function ProjectListPage() {
 
   // 파일 클릭 핸들러 (내용 조회)
   const handleFileClick = (node: OnboardingFileNode) => {
-    const fileName = node.name.toLowerCase()
-    const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear']
-
-    if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
+    if (isViewableFile(node.name)) {
       setSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
       setFileViewerOpen(true)
     }
@@ -643,12 +593,7 @@ export function ProjectListPage() {
 
   // 인스톨 파일 클릭 핸들러 (내용 조회)
   const handleInstallFileClick = (node: InstallFileNode) => {
-    const fileName = node.name.toLowerCase()
-    const viewableExtensions = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-      '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear']
-
-    if (viewableExtensions.some(ext => fileName.endsWith(ext))) {
+    if (isViewableFile(node.name)) {
       setInstallSelectedFile({ filePath: node.filePath, name: node.name, size: node.size })
       setInstallFileViewerOpen(true)
     }
@@ -1001,14 +946,16 @@ export function ProjectListPage() {
                   {/* 파일 트리 - 내부 스크롤 */}
                   <ScrollArea className="flex-1">
                     {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
-                      <OnboardingFileTree
-                        files={filteredOnboardingFiles}
-                        onFileClick={handleFileClick}
-                        onDownload={handleFileDownload}
+                      <FileTree
+                        data={filteredOnboardingFiles as FileTreeNode}
+                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
                         onUpload={handleUploadClick}
-                        onDelete={handleOnboardingDeleteClick}
+                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
                         onCreateDirectory={handleCreateDirectoryClick}
-                        canManageFiles={canManageProjectFiles}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
                       />
                     ) : onboardingSearchKeyword.trim() ? (
                       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -1016,14 +963,16 @@ export function ProjectListPage() {
                         <p className="text-sm">검색 결과가 없습니다.</p>
                       </div>
                     ) : (
-                      <OnboardingFileTree
-                        files={onboardingData.files}
-                        onFileClick={handleFileClick}
-                        onDownload={handleFileDownload}
+                      <FileTree
+                        data={onboardingData.files as FileTreeNode}
+                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
                         onUpload={handleUploadClick}
-                        onDelete={handleOnboardingDeleteClick}
+                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
                         onCreateDirectory={handleCreateDirectoryClick}
-                        canManageFiles={canManageProjectFiles}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
                       />
                     )}
                   </ScrollArea>
@@ -1082,14 +1031,16 @@ export function ProjectListPage() {
                   {/* 파일 트리 - 내부 스크롤 */}
                   <ScrollArea className="flex-1">
                     {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
-                      <InstallFileTree
-                        files={filteredInstallFiles}
-                        onFileClick={handleInstallFileClick}
-                        onDownload={handleInstallFileDownload}
+                      <FileTree
+                        data={filteredInstallFiles as FileTreeNode}
+                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
                         onUpload={handleInstallUploadClick}
-                        onDelete={handleInstallDeleteClick}
+                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
                         onCreateDirectory={handleInstallCreateDirectoryClick}
-                        canManageFiles={canManageProjectFiles}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
                       />
                     ) : installSearchKeyword.trim() ? (
                       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -1097,14 +1048,16 @@ export function ProjectListPage() {
                         <p className="text-sm">검색 결과가 없습니다.</p>
                       </div>
                     ) : (
-                      <InstallFileTree
-                        files={installData.files}
-                        onFileClick={handleInstallFileClick}
-                        onDownload={handleInstallFileDownload}
+                      <FileTree
+                        data={installData.files as FileTreeNode}
+                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
                         onUpload={handleInstallUploadClick}
-                        onDelete={handleInstallDeleteClick}
+                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
                         onCreateDirectory={handleInstallCreateDirectoryClick}
-                        canManageFiles={canManageProjectFiles}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
                       />
                     )}
                   </ScrollArea>
@@ -1137,34 +1090,14 @@ export function ProjectListPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {/* 파일 내용 조회 모달 (ZIP 파일 제외) */}
-      <FileContentViewerModal
-        open={fileViewerOpen && !isZipFile}
+      {/* 온보딩 파일 내용 조회 */}
+      <FileViewer
+        {...onboardingViewer.viewerProps}
+        open={fileViewerOpen}
         onOpenChange={setFileViewerOpen}
-        fileName={selectedFile?.name || ''}
-        content={textContent}
-        isLoading={isLoadingContent && !isPdfFile && !isImageFile}
-        error={!isPdfFile && !isImageFile ? contentError : null}
-        description="온보딩 파일"
-        fileSize={selectedFile?.size}
         onDownload={handleDownloadSelectedFile}
         canDownload={true}
-        pdfBlob={isPdfFile ? blobData : null}
-        isPdfLoading={isPdfFile && isLoadingContent}
-        pdfError={isPdfFile ? contentError : null}
-        imageBlob={isImageFile ? blobData : null}
-        isImageLoading={isImageFile && isLoadingContent}
-        imageError={isImageFile ? contentError : null}
-      />
-
-      {/* ZIP 파일 탐색기 */}
-      <ZipFileExplorer
-        open={fileViewerOpen && isZipFile}
-        onOpenChange={setFileViewerOpen}
-        zipBlob={isZipFile ? blobData : null}
-        fileName={selectedFile?.name || ''}
-        isLoading={isZipFile && isLoadingContent}
-        error={isZipFile ? contentError : null}
+        description="온보딩 파일"
       />
 
       {/* 온보딩 파일 업로드 시트 */}
@@ -1197,34 +1130,14 @@ export function ProjectListPage() {
         onCancel={() => setDirectoryCreateParentPath(null)}
       />
 
-      {/* 인스톨 파일 내용 조회 모달 (ZIP 파일 제외) */}
-      <FileContentViewerModal
-        open={installFileViewerOpen && !isInstallZipFile}
+      {/* 인스톨 파일 내용 조회 */}
+      <FileViewer
+        {...installViewer.viewerProps}
+        open={installFileViewerOpen}
         onOpenChange={setInstallFileViewerOpen}
-        fileName={installSelectedFile?.name || ''}
-        content={installTextContent}
-        isLoading={isLoadingInstallContent && !isInstallPdfFile && !isInstallImageFile}
-        error={!isInstallPdfFile && !isInstallImageFile ? installContentError : null}
-        description="인스톨 파일"
-        fileSize={installSelectedFile?.size}
         onDownload={handleDownloadInstallSelectedFile}
         canDownload={true}
-        pdfBlob={isInstallPdfFile ? installBlobData : null}
-        isPdfLoading={isInstallPdfFile && isLoadingInstallContent}
-        pdfError={isInstallPdfFile ? installContentError : null}
-        imageBlob={isInstallImageFile ? installBlobData : null}
-        isImageLoading={isInstallImageFile && isLoadingInstallContent}
-        imageError={isInstallImageFile ? installContentError : null}
-      />
-
-      {/* 인스톨 ZIP 파일 탐색기 */}
-      <ZipFileExplorer
-        open={installFileViewerOpen && isInstallZipFile}
-        onOpenChange={setInstallFileViewerOpen}
-        zipBlob={isInstallZipFile ? installBlobData : null}
-        fileName={installSelectedFile?.name || ''}
-        isLoading={isInstallZipFile && isLoadingInstallContent}
-        error={isInstallZipFile ? installContentError : null}
+        description="인스톨 파일"
       />
 
       {/* 인스톨 파일 업로드 시트 */}
@@ -1260,380 +1173,3 @@ export function ProjectListPage() {
   )
 }
 
-/** 온보딩 파일 트리 컴포넌트 */
-interface OnboardingFileTreeProps {
-  files: OnboardingFileNode
-  onFileClick: (node: OnboardingFileNode) => void
-  onDownload: (node: OnboardingFileNode) => void
-  onUpload: (targetPath: string) => void
-  onDelete: (node: OnboardingFileNode) => void
-  onCreateDirectory: (parentPath: string) => void
-  canManageFiles?: boolean
-}
-
-function OnboardingFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: OnboardingFileTreeProps) {
-  return (
-    <div className="space-y-1">
-      {files.children?.map((node) => (
-        <OnboardingFileTreeNode
-          key={node.path}
-          node={node}
-          level={0}
-          onFileClick={onFileClick}
-          onDownload={onDownload}
-          onUpload={onUpload}
-          onDelete={onDelete}
-          onCreateDirectory={onCreateDirectory}
-          canManageFiles={canManageFiles}
-        />
-      ))}
-    </div>
-  )
-}
-
-interface OnboardingFileTreeNodeProps {
-  node: OnboardingFileNode
-  level: number
-  onFileClick: (node: OnboardingFileNode) => void
-  onDownload: (node: OnboardingFileNode) => void
-  onUpload: (targetPath: string) => void
-  onDelete: (node: OnboardingFileNode) => void
-  onCreateDirectory: (parentPath: string) => void
-  canManageFiles?: boolean
-}
-
-function OnboardingFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: OnboardingFileTreeNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  // 디렉토리 렌더링
-  if (node.type === 'directory') {
-    // children은 이미 상위에서 sortFileTree로 정렬됨
-    const children = node.children || []
-
-    return (
-      <div>
-        <div
-          className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
-          style={{ paddingLeft: `${level * 16 + 8}px` }}
-        >
-          <div
-            className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            )}
-            {isExpanded ? (
-              <FolderOpen className="h-4 w-4 text-blue-500 flex-shrink-0" />
-            ) : (
-              <Folder className="h-4 w-4 text-blue-500 flex-shrink-0" />
-            )}
-            <span className="text-sm font-medium truncate">{node.name}</span>
-          </div>
-          {canManageFiles && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
-                  <File className="h-4 w-4 mr-2" />
-                  파일 추가
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  폴더 추가
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(node)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  삭제
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-        {isExpanded && children.length > 0 && (
-          <div>
-            {children.map((child, index) => (
-              <OnboardingFileTreeNode
-                key={`${child.path}-${index}`}
-                node={child}
-                level={level + 1}
-                onFileClick={onFileClick}
-                onDownload={onDownload}
-                onUpload={onUpload}
-                onDelete={onDelete}
-                onCreateDirectory={onCreateDirectory}
-                canManageFiles={canManageFiles}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // 파일 클릭 가능 여부 확인
-  const fileName = node.name.toLowerCase()
-  const isViewable = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-    '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
-
-  // 확장자별 아이콘
-  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
-
-  // 파일 렌더링
-  return (
-    <div
-      className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
-      style={{ paddingLeft: `${level * 16 + 24}px` }}
-    >
-      <div
-        className={`flex items-center gap-2 flex-1 min-w-0 ${isViewable ? 'cursor-pointer' : ''}`}
-        onClick={() => isViewable && onFileClick(node)}
-      >
-        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
-        <span className="text-sm truncate">{node.name}</span>
-      </div>
-      <div className="flex items-center gap-3 flex-shrink-0">
-        {node.modifiedAt && (
-          <span className="text-xs text-muted-foreground">
-            {formatDateTime(node.modifiedAt)}
-          </span>
-        )}
-        {node.size !== undefined && (
-          <span className="text-xs text-muted-foreground w-16 text-right">
-            {formatFileSize(node.size)}
-          </span>
-        )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <MoreHorizontal className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onDownload(node)}>
-              <Download className="h-4 w-4 mr-2" />
-              다운로드
-            </DropdownMenuItem>
-            {canManageFiles && (
-              <DropdownMenuItem
-                onClick={() => onDelete(node)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
-  )
-}
-
-/** 인스톨 파일 트리 컴포넌트 */
-interface InstallFileTreeProps {
-  files: InstallFileNode
-  onFileClick: (node: InstallFileNode) => void
-  onDownload: (node: InstallFileNode) => void
-  onUpload: (targetPath: string) => void
-  onDelete: (node: InstallFileNode) => void
-  onCreateDirectory: (parentPath: string) => void
-  canManageFiles?: boolean
-}
-
-function InstallFileTree({ files, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: InstallFileTreeProps) {
-  return (
-    <div className="space-y-1">
-      {files.children?.map((node) => (
-        <InstallFileTreeNode
-          key={node.path}
-          node={node}
-          level={0}
-          onFileClick={onFileClick}
-          onDownload={onDownload}
-          onUpload={onUpload}
-          onDelete={onDelete}
-          onCreateDirectory={onCreateDirectory}
-          canManageFiles={canManageFiles}
-        />
-      ))}
-    </div>
-  )
-}
-
-interface InstallFileTreeNodeProps {
-  node: InstallFileNode
-  level: number
-  onFileClick: (node: InstallFileNode) => void
-  onDownload: (node: InstallFileNode) => void
-  onUpload: (targetPath: string) => void
-  onDelete: (node: InstallFileNode) => void
-  onCreateDirectory: (parentPath: string) => void
-  canManageFiles?: boolean
-}
-
-function InstallFileTreeNode({ node, level, onFileClick, onDownload, onUpload, onDelete, onCreateDirectory, canManageFiles = true }: InstallFileTreeNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  // 디렉토리 렌더링
-  if (node.type === 'directory') {
-    // children은 이미 상위에서 sortFileTree로 정렬됨
-    const children = node.children || []
-
-    return (
-      <div>
-        <div
-          className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
-          style={{ paddingLeft: `${level * 16 + 8}px` }}
-        >
-          <div
-            className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            )}
-            {isExpanded ? (
-              <FolderOpen className="h-4 w-4 text-blue-500 flex-shrink-0" />
-            ) : (
-              <Folder className="h-4 w-4 text-blue-500 flex-shrink-0" />
-            )}
-            <span className="text-sm font-medium truncate">{node.name}</span>
-          </div>
-          {canManageFiles && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onUpload(node.filePath)}>
-                  <File className="h-4 w-4 mr-2" />
-                  파일 추가
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onCreateDirectory(node.filePath)}>
-                  <FolderPlus className="h-4 w-4 mr-2" />
-                  폴더 추가
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(node)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  삭제
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-        {isExpanded && children.length > 0 && (
-          <div>
-            {children.map((child, index) => (
-              <InstallFileTreeNode
-                key={`${child.path}-${index}`}
-                node={child}
-                level={level + 1}
-                onFileClick={onFileClick}
-                onDownload={onDownload}
-                onUpload={onUpload}
-                onDelete={onDelete}
-                onCreateDirectory={onCreateDirectory}
-                canManageFiles={canManageFiles}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // 파일 클릭 가능 여부 확인
-  const fileName = node.name.toLowerCase()
-  const isViewable = ['.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
-    '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env', '.pdf',
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.zip', '.jar', '.war', '.ear'].some(ext => fileName.endsWith(ext))
-
-  // 확장자별 아이콘
-  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
-
-  // 파일 렌더링
-  return (
-    <div
-      className="group flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
-      style={{ paddingLeft: `${level * 16 + 24}px` }}
-    >
-      <div
-        className={`flex items-center gap-2 flex-1 min-w-0 ${isViewable ? 'cursor-pointer' : ''}`}
-        onClick={() => isViewable && onFileClick(node)}
-      >
-        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
-        <span className="text-sm truncate">{node.name}</span>
-      </div>
-      <div className="flex items-center gap-3 flex-shrink-0">
-        {node.modifiedAt && (
-          <span className="text-xs text-muted-foreground">
-            {formatDateTime(node.modifiedAt)}
-          </span>
-        )}
-        {node.size !== undefined && (
-          <span className="text-xs text-muted-foreground w-16 text-right">
-            {formatFileSize(node.size)}
-          </span>
-        )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <MoreHorizontal className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onDownload(node)}>
-              <Download className="h-4 w-4 mr-2" />
-              다운로드
-            </DropdownMenuItem>
-            {canManageFiles && (
-              <DropdownMenuItem
-                onClick={() => onDelete(node)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
-  )
-}

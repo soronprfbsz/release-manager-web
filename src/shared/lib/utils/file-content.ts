@@ -81,9 +81,24 @@ export function isZipFile(fileName: string): boolean {
 }
 
 /**
- * 파일 확장자로 바이너리 파일 여부 확인 (PDF, 이미지, 압축파일)
+ * 파일 확장자로 엑셀 파일 여부 확인
+ */
+export function isExcelFile(fileName: string): boolean {
+  const ext = fileName.toLowerCase().split('.').pop()
+  return ['xlsx', 'xls', 'csv'].includes(ext || '')
+}
+
+/**
+ * 파일 확장자로 Word 문서(.docx) 파일 여부 확인
+ */
+export function isDocxFile(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith('.docx')
+}
+
+/**
+ * 파일 확장자로 바이너리 파일 여부 확인 (PDF, 이미지, 압축파일, 엑셀, Word)
  */
 export function isBinaryFileByExtension(fileName: string): boolean {
-  return isPdfFile(fileName) || isImageFile(fileName) || isZipFile(fileName)
+  return isPdfFile(fileName) || isImageFile(fileName) || isZipFile(fileName) || isExcelFile(fileName) || isDocxFile(fileName)
 }
 

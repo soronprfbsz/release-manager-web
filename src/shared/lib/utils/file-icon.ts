@@ -75,10 +75,17 @@ export function getFileIcon(fileName: string): FileIconResult {
 
 /** 조회 가능한 파일 확장자 목록 */
 export const VIEWABLE_EXTENSIONS = [
+  // 텍스트/코드
   '.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
   '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env',
+  // 이미지
   '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
+  // 압축
   '.zip', '.jar', '.war', '.ear',
+  // 스프레드시트
+  '.xlsx', '.xls', '.csv',
+  // Word 문서
+  '.docx',
 ]
 
 /**

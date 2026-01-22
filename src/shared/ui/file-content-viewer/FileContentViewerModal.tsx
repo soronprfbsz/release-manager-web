@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 
-import { Loader2, AlertTriangle, Download, Maximize2, Minimize2, X } from 'lucide-react'
+import { Loader2, AlertTriangle, Download, Maximize2, Minimize2, X, Info } from 'lucide-react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
@@ -12,6 +12,8 @@ import {
   DialogContent,
   DialogClose,
 } from '@/shared/ui/dialog'
+import { DocxViewer } from '@/shared/ui/docx-viewer'
+import { ExcelViewer } from '@/shared/ui/excel-viewer'
 import { PdfViewer } from '@/shared/ui/pdf-viewer'
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 
@@ -44,6 +46,18 @@ interface FileContentViewerModalProps {
   isImageLoading?: boolean
   /** 이미지 에러 */
   imageError?: Error | null
+  /** 엑셀 파일용 Blob 데이터 */
+  excelBlob?: Blob | null
+  /** 엑셀 로딩 상태 */
+  isExcelLoading?: boolean
+  /** 엑셀 에러 */
+  excelError?: Error | null
+  /** Word 문서용 Blob 데이터 */
+  docxBlob?: Blob | null
+  /** Word 문서 로딩 상태 */
+  isDocxLoading?: boolean
+  /** Word 문서 에러 */
+  docxError?: Error | null
 }
 
 /**
@@ -55,14 +69,26 @@ function isPdfFile(fileName: string): boolean {
 
 /**
  * 파일이 이미지인지 확인
- */
-/**
- * 파일이 이미지인지 확인
  * SVG는 XML 기반 텍스트 파일이므로 제외 (코드 뷰어로 표시)
  */
 function isImageFile(fileName: string): boolean {
   const extension = fileName.toLowerCase().split('.').pop()
   return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico'].includes(extension || '')
+}
+
+/**
+ * 파일이 엑셀인지 확인
+ */
+function isExcelFile(fileName: string): boolean {
+  const extension = fileName.toLowerCase().split('.').pop()
+  return ['xlsx', 'xls', 'csv'].includes(extension || '')
+}
+
+/**
+ * 파일이 Word 문서(.docx)인지 확인
+ */
+function isDocxFile(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith('.docx')
 }
 
 function getLanguageFromFileName(fileName: string): string {
@@ -145,6 +171,31 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
+/** 파일 크기 제한 에러인지 확인 */
+function isFileSizeLimitError(error: Error | null | undefined): boolean {
+  if (!error) return false
+  const message = error.message || ''
+  return message.includes('파일 크기가 너무 큽니다') || message.includes('최대 10MB')
+}
+
+/** 에러 메시지에서 파일 크기 정보 추출 */
+function parseFileSizeFromError(error: Error | null | undefined): { currentSize: string; maxSize: string } | null {
+  if (!error) return null
+  const message = error.message || ''
+
+  // "(최대 10MB): 485622000 bytes" 형식에서 추출
+  const maxMatch = message.match(/최대\s*(\d+(?:\.\d+)?)\s*(MB|KB|GB)/i)
+  const bytesMatch = message.match(/:\s*(\d+)\s*bytes/i)
+
+  if (!maxMatch || !bytesMatch) return null
+
+  const maxSize = `${maxMatch[1]}${maxMatch[2]}`
+  const currentBytes = parseInt(bytesMatch[1], 10)
+  const currentSize = formatFileSize(currentBytes)
+
+  return { currentSize, maxSize }
+}
+
 export function FileContentViewerModal({
   open,
   onOpenChange,
@@ -162,6 +213,12 @@ export function FileContentViewerModal({
   imageBlob = null,
   isImageLoading = false,
   imageError = null,
+  excelBlob = null,
+  isExcelLoading = false,
+  excelError = null,
+  docxBlob = null,
+  isDocxLoading = false,
+  docxError = null,
 }: FileContentViewerModalProps) {
   const language = getLanguageFromFileName(fileName)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -169,6 +226,8 @@ export function FileContentViewerModal({
   const theme = useThemeStore((state) => state.theme)
   const isPdf = isPdfFile(fileName)
   const isImage = isImageFile(fileName)
+  const isExcel = isExcelFile(fileName)
+  const isDocx = isDocxFile(fileName)
 
   // 이미지 URL 생성
   const imageUrl = useMemo(() => {
@@ -296,7 +355,7 @@ export function FileContentViewerModal({
         </div>
 
         {/* 큰 파일 경고 (텍스트 파일만) */}
-        {!isPdf && !isImage && isTruncated && (
+        {!isPdf && !isImage && !isExcel && !isDocx && isTruncated && (
           <div className="flex items-center gap-2 p-3 bg-accent/40 border border-accent rounded-lg text-sm">
             <AlertTriangle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-foreground">
@@ -332,13 +391,39 @@ export function FileContentViewerModal({
               )}
 
               {imageError && (
-                <div className="text-destructive text-center">
-                  <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
-                  <div>이미지를 불러오는데 실패했습니다.</div>
-                  {imageError.message && (
-                    <div className="text-sm mt-2 text-muted-foreground">{imageError.message}</div>
-                  )}
-                </div>
+                isFileSizeLimitError(imageError) ? (
+                  (() => {
+                    const sizeInfo = parseFileSizeFromError(imageError)
+                    return (
+                      <div className="flex flex-col items-center gap-4 text-center">
+                        <div className="p-3 rounded-full bg-muted">
+                          <Info className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            파일 크기가 커서 미리보기가 제한됩니다
+                          </p>
+                          {sizeInfo && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              현재 파일: {sizeInfo.currentSize} / 최대: {sizeInfo.maxSize}
+                            </p>
+                          )}
+                          <p className="text-sm text-muted-foreground mt-1">
+                            파일을 다운로드하여 내용을 확인해주세요.
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })()
+                ) : (
+                  <div className="text-destructive text-center">
+                    <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+                    <div>이미지를 불러오는데 실패했습니다.</div>
+                    {imageError.message && (
+                      <div className="text-sm mt-2 text-muted-foreground">{imageError.message}</div>
+                    )}
+                  </div>
+                )
               )}
 
               {imageUrl && !isImageLoading && !imageError && (
@@ -352,8 +437,30 @@ export function FileContentViewerModal({
             </div>
           )}
 
+          {/* 엑셀 뷰어 */}
+          {isExcel && (
+            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+              <ExcelViewer
+                file={excelBlob}
+                isLoading={isExcelLoading}
+                error={excelError}
+              />
+            </div>
+          )}
+
+          {/* Word 문서 뷰어 */}
+          {isDocx && (
+            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+              <DocxViewer
+                file={docxBlob}
+                isLoading={isDocxLoading}
+                error={docxError}
+              />
+            </div>
+          )}
+
           {/* 텍스트 파일 뷰어 */}
-          {!isPdf && !isImage && (
+          {!isPdf && !isImage && !isExcel && !isDocx && (
             <>
               <ScrollArea className={`w-full rounded-md ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
                 <div className="min-w-max">
@@ -366,12 +473,38 @@ export function FileContentViewerModal({
 
                   {error && (
                     <div className="flex items-center justify-center p-8">
-                      <div className="text-destructive text-center">
-                        <div>파일을 불러오는데 실패했습니다.</div>
-                        {error.message && (
-                          <div className="text-sm mt-2 text-muted-foreground">{error.message}</div>
-                        )}
-                      </div>
+                      {isFileSizeLimitError(error) ? (
+                        (() => {
+                          const sizeInfo = parseFileSizeFromError(error)
+                          return (
+                            <div className="flex flex-col items-center gap-4 text-center">
+                              <div className="p-3 rounded-full bg-muted">
+                                <Info className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-foreground">
+                                  파일 크기가 커서 미리보기가 제한됩니다
+                                </p>
+                                {sizeInfo && (
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    현재 파일: {sizeInfo.currentSize} / 최대: {sizeInfo.maxSize}
+                                  </p>
+                                )}
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  파일을 다운로드하여 내용을 확인해주세요.
+                                </p>
+                              </div>
+                            </div>
+                          )
+                        })()
+                      ) : (
+                        <div className="text-destructive text-center">
+                          <div>파일을 불러오는데 실패했습니다.</div>
+                          {error.message && (
+                            <div className="text-sm mt-2 text-muted-foreground">{error.message}</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 

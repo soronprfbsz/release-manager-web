@@ -10,6 +10,20 @@ import { FolderOpen, type LucideIcon } from 'lucide-react'
 
 import { FileExplorer, type FileTreeData, type FileNode, type FileContentData } from '@/widgets/common/file-explorer'
 
+/** ZIP 파일 내부에서 조회 가능한 확장자 (압축 파일 제외) */
+const ZIP_INNER_VIEWABLE_EXTENSIONS = [
+  // 텍스트/코드
+  '.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
+  '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env',
+  // 이미지
+  '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
+  // 스프레드시트
+  '.xlsx', '.xls', '.csv',
+  // Word 문서
+  '.docx',
+  // 압축 파일은 제외 (.zip, .jar, .war, .ear)
+]
+
 interface ZipFileExplorerProps {
   /** Sheet 열림 상태 */
   open: boolean
@@ -156,7 +170,7 @@ export function ZipFileExplorer({
 
           // 파일 확장자로 바이너리 여부 판단
           const ext = path.toLowerCase().split('.').pop() || ''
-          const binaryExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'zip', 'jar', 'war', 'ear', 'exe', 'dll', 'so', 'class']
+          const binaryExtensions = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'zip', 'jar', 'war', 'ear', 'exe', 'dll', 'so', 'class', 'xlsx', 'xls', 'docx']
           const isBinary = binaryExtensions.includes(ext)
 
           let content: string
@@ -177,6 +191,9 @@ export function ZipFileExplorer({
               webp: 'image/webp',
               bmp: 'image/bmp',
               ico: 'image/x-icon',
+              xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              xls: 'application/vnd.ms-excel',
+              docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             }
             mimeType = mimeTypes[ext] || 'application/octet-stream'
           } else {
@@ -218,6 +235,7 @@ export function ZipFileExplorer({
       isLoading={isLoading || isParsing}
       error={error || parseError}
       useFileContent={useFileContent}
+      viewableExtensions={ZIP_INNER_VIEWABLE_EXTENSIONS}
     />
   )
 }
