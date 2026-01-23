@@ -139,6 +139,7 @@ export function EditorToolbar({ editor, onImageUpload, className }: EditorToolba
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         isActive={editor.isActive('bulletList')}
+        disabled={!editor.can().chain().focus().toggleBulletList().run()}
         tooltip="글머리 기호 목록"
       >
         <List className="h-4 w-4" />
@@ -147,6 +148,7 @@ export function EditorToolbar({ editor, onImageUpload, className }: EditorToolba
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         isActive={editor.isActive('orderedList')}
+        disabled={!editor.can().chain().focus().toggleOrderedList().run()}
         tooltip="번호 매기기 목록"
       >
         <ListOrdered className="h-4 w-4" />
@@ -158,6 +160,7 @@ export function EditorToolbar({ editor, onImageUpload, className }: EditorToolba
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
         isActive={editor.isActive('blockquote')}
+        disabled={!editor.can().chain().focus().toggleBlockquote().run()}
         tooltip="인용구"
       >
         <Quote className="h-4 w-4" />

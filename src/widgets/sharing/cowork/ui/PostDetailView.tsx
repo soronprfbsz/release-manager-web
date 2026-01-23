@@ -503,7 +503,7 @@ export function PostDetailView({
         )}
 
         <div
-          className="prose prose-sm dark:prose-invert max-w-none break-words"
+          className="prose prose-sm dark:prose-invert max-w-none break-words [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:border-l-4 [&_blockquote]:border-muted-foreground/30 [&_blockquote]:pl-4 [&_blockquote]:italic"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>

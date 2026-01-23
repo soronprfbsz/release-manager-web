@@ -106,6 +106,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           class: cn(
             'prose prose-sm dark:prose-invert max-w-none focus:outline-none',
             'px-3 py-2',
+            // 목록 및 인용구 스타일
+            '[&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6',
+            '[&_blockquote]:border-l-4 [&_blockquote]:border-muted-foreground/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted-foreground',
             editorClassName
           ),
           style: `min-height: ${minHeight}; max-height: ${maxHeight}; overflow-y: auto;`,
