@@ -169,7 +169,7 @@ export function PostForm({
         <div className="space-y-0.5">
           <Label htmlFor="isPinned">고정 게시글</Label>
           <p className="text-xs text-muted-foreground">
-            게시판 상단에 고정됩니다
+            게시글 상단에 고정됩니다
           </p>
         </div>
         <Switch

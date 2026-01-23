@@ -444,28 +444,26 @@ export function PostDetailView({
 
         {/* 오른쪽: 액션 버튼들 (좋아요 등) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {/* 좋아요 그룹 */}
-          <div className="flex items-center bg-muted/50 rounded-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleTogglePostLike}
-              disabled={togglePostLike.isPending}
-              className={cn(
-                "rounded-l-full px-4 h-9 gap-2 hover:bg-muted",
-                post.isLikedByMe && "text-primary"
-              )}
-            >
-              <ThumbsUp className={cn("h-4 w-4", post.isLikedByMe && "fill-current")} />
-              <span className="font-medium">{post.likeCount}</span>
-            </Button>
-          </div>
+          {/* 좋아요 버튼 */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleTogglePostLike}
+            disabled={togglePostLike.isPending}
+            className={cn(
+              "rounded-full px-4 h-9 gap-2",
+              post.isLikedByMe && "text-primary"
+            )}
+          >
+            <ThumbsUp className={cn("h-4 w-4", post.isLikedByMe && "fill-current")} />
+            <span className="font-medium">{post.likeCount}</span>
+          </Button>
 
           {/* 더보기 메뉴 */}
           {isPostAuthor && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full h-9 w-9">
+                <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
