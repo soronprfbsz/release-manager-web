@@ -19,12 +19,6 @@ export function validatePostForm(data: PostFormData): ValidationResult {
     errors.title = '제목은 200자 이내로 입력해주세요.'
   }
 
-  // HTML 태그 제거 후 컨텐츠 길이 확인
-  const plainText = data.content.replace(/<[^>]*>/g, '').trim()
-  if (!plainText) {
-    errors.content = '내용을 입력해주세요.'
-  }
-
   const isValid = Object.keys(errors).length === 0
 
   return { isValid, errors }
