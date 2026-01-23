@@ -31,8 +31,8 @@ type TabType = 'announcements' | 'qna'
 const TAB_CONFIG = {
   announcements: {
     icon: Megaphone,
-    label: '공지사항',
-    addTooltip: '공지사항 작성',
+    label: '가이드',
+    addTooltip: '가이드 작성',
   },
   qna: {
     icon: HelpCircle,
