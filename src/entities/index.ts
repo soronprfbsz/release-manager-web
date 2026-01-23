@@ -23,3 +23,6 @@ export * from './infrastructure'
 
 // Remote Jobs (원격 작업)
 export * from './remote-jobs'
+
+// Board (게시판)
+export * from './board'

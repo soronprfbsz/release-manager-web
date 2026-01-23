@@ -4,7 +4,7 @@ import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { HomePage } from '@/pages/home'
-import { ResourcePage } from '@/pages/infrastructure'
+import { ResourcePage, CoworkPage } from '@/pages/sharing'
 import { MariaDBPage, TerminalPage } from '@/pages/remote-jobs'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
@@ -129,11 +129,21 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.SUPPORT.INFRASTRUCTURE.RESOURCES,
+    path: ROUTES.SUPPORT.SHARING.RESOURCES,
     element: (
       <ProtectedRoute>
         <MainLayout>
           <ResourcePage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.SUPPORT.SHARING.COWORK,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <CoworkPage />
         </MainLayout>
       </ProtectedRoute>
     ),

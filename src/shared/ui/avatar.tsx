@@ -1,6 +1,6 @@
 /**
  * Avatar Component
- * 사용자 아바타 (이니셜 기반)
+ * 사용자 아바타 (이미지 또는 이니셜 기반)
  */
 
 import * as React from 'react'
@@ -43,7 +43,82 @@ function getInitials(name: string): string {
   return trimmed.charAt(0).toUpperCase()
 }
 
-interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+// ===== New Composable Avatar (Radix-style) =====
+
+interface AvatarRootProps extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode
+}
+
+const AvatarRoot = React.forwardRef<HTMLDivElement, AvatarRootProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+AvatarRoot.displayName = 'Avatar'
+
+interface AvatarImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {}
+
+const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
+  ({ className, src, alt = '', ...props }, ref) => {
+    const [hasError, setHasError] = React.useState(false)
+
+    // Reset error state when src changes
+    React.useEffect(() => {
+      setHasError(false)
+    }, [src])
+
+    if (!src || hasError) {
+      return null
+    }
+
+    return (
+      <img
+        ref={ref}
+        src={src}
+        alt={alt}
+        className={cn('aspect-square h-full w-full object-cover', className)}
+        onError={() => setHasError(true)}
+        {...props}
+      />
+    )
+  }
+)
+AvatarImage.displayName = 'AvatarImage'
+
+interface AvatarFallbackProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const AvatarFallback = React.forwardRef<HTMLDivElement, AvatarFallbackProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground font-medium',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+AvatarFallback.displayName = 'AvatarFallback'
+
+// ===== Legacy Avatar (backward compatible) =====
+
+interface LegacyAvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
   size?: 'sm' | 'md' | 'lg'
 }
@@ -54,7 +129,7 @@ const sizeClasses = {
   lg: 'h-10 w-10 text-base',
 }
 
-export function Avatar({ name, size = 'md', className, ...props }: AvatarProps) {
+function LegacyAvatar({ name, size = 'md', className, ...props }: LegacyAvatarProps) {
   const initials = getInitials(name)
   const colorClass = getColorFromName(name)
 
@@ -72,3 +147,6 @@ export function Avatar({ name, size = 'md', className, ...props }: AvatarProps) 
     </div>
   )
 }
+
+// Export both patterns
+export { AvatarRoot as Avatar, AvatarImage, AvatarFallback, LegacyAvatar }

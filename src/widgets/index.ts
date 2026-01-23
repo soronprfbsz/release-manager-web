@@ -21,7 +21,7 @@ export {
   ThemeToggle,
 } from './_shared'
 
-// Infrastructure Widgets
+// Sharing Widgets
 export {
   ServiceTab,
   type ServiceTabHandle,
@@ -32,7 +32,7 @@ export {
   PublishingTab,
   type PublishingTabHandle,
   PublishingFileExplorer,
-} from './infrastructure'
+} from './sharing'
 
 // Remote Jobs Widgets
 export { BackupForm, RestoreForm } from './remote-jobs'

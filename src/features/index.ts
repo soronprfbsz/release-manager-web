@@ -7,8 +7,8 @@
 export * from './auth/login'
 export * from './auth/signup'
 
-// Infrastructure Features
-export * from './infrastructure'
+// Sharing Features
+export * from './sharing'
 
 // Operations Features
 export * from './operations'
@@ -53,3 +53,6 @@ export {
   type SshShellState,
   type UseSshShellReturn,
 } from './remote-jobs'
+
+// Board Features
+export * from './board'

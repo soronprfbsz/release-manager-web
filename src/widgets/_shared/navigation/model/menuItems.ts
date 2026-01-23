@@ -53,15 +53,15 @@ export const menuItems: MenuItem[] = [
         ],
       },
       {
-        label: '인프라',
+        label: '공유',
         children: [
           {
             label: '리소스',
-            path: ROUTES.SUPPORT.INFRASTRUCTURE.RESOURCES,
+            path: ROUTES.SUPPORT.SHARING.RESOURCES,
           },
           {
-            label: '서비스',
-            path: ROUTES.SUPPORT.INFRASTRUCTURE.SERVICES,
+            label: '협업',
+            path: ROUTES.SUPPORT.SHARING.COWORK,
           },
         ],
       },

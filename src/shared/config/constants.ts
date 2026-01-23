@@ -28,9 +28,9 @@ export const ROUTES = {
       MARIADB: '/support/remote-jobs/mariadb',
       TERMINAL: '/support/remote-jobs/terminal',
     },
-    INFRASTRUCTURE: {
-      RESOURCES: '/support/infrastructure/resources',
-      SERVICES: '/support/infrastructure/services',
+    SHARING: {
+      RESOURCES: '/support/sharing/resources',
+      COWORK: '/support/sharing/cowork',
     },
   },
 } as const
