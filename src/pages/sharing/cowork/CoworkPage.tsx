@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Megaphone, HelpCircle, Plus, Search } from 'lucide-react'
+import { BookOpen, HelpCircle, Plus, Search } from 'lucide-react'
 
 import {
   AnnouncementTab,
@@ -30,7 +30,7 @@ type TabType = 'announcements' | 'qna'
 
 const TAB_CONFIG = {
   announcements: {
-    icon: Megaphone,
+    icon: BookOpen,
     label: '가이드',
     addTooltip: '가이드 작성',
   },
