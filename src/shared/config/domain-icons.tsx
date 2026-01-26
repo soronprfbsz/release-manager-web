@@ -10,6 +10,7 @@
 
 import {
   Building2,
+  Calendar,
   Database,
   Flame,
   FolderKanban,
@@ -67,6 +68,7 @@ export const DOMAIN_ICONS = {
   terminal: Terminal,
   mariadbBackup: Database,
   mariadbRestore: RotateCcw,
+  scheduler: Calendar,
 } as const
 
 export type DomainType = keyof typeof DOMAIN_ICONS

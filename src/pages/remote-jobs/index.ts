@@ -5,3 +5,4 @@
 
 export { MariaDBPage } from './mariadb'
 export { TerminalPage } from './terminal'
+export { SchedulerPage } from './scheduler'

@@ -5,7 +5,7 @@ import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { HomePage } from '@/pages/home'
 import { ResourcePage, CoworkPage } from '@/pages/sharing'
-import { MariaDBPage, TerminalPage } from '@/pages/remote-jobs'
+import { MariaDBPage, TerminalPage, SchedulerPage } from '@/pages/remote-jobs'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
 import { CustomerListPage } from '@/pages/operations/customers'
 import { DepartmentPage } from '@/pages/operations/departments'
@@ -124,6 +124,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <TerminalPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.SUPPORT.REMOTE_JOBS.SCHEDULER,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <SchedulerPage />
         </MainLayout>
       </ProtectedRoute>
     ),

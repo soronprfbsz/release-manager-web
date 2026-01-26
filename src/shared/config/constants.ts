@@ -27,6 +27,7 @@ export const ROUTES = {
     REMOTE_JOBS: {
       MARIADB: '/support/remote-jobs/mariadb',
       TERMINAL: '/support/remote-jobs/terminal',
+      SCHEDULER: '/support/remote-jobs/scheduler',
     },
     SHARING: {
       RESOURCES: '/support/sharing/resources',

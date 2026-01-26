@@ -15,6 +15,7 @@ import {
 
 import type { CumulativePatch } from '@/entities/patches/patch'
 
+import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { UserAvatar } from '@/shared/ui/user-avatar'
@@ -240,9 +241,9 @@ export function PatchTable({
                           avatarStyle={patch.assigneeAvatarStyle}
                           avatarSeed={patch.assigneeAvatarSeed}
                           isDeleted={patch.isDeletedAssignee}
-                          size={28}
+                          size={24}
                         />
-                        <span className={patch.isDeletedAssignee ? 'text-muted-foreground' : ''}>
+                        <span className={cn('text-sm', patch.isDeletedAssignee && 'text-muted-foreground')}>
                           {patch.assigneeName || patch.assigneeEmail}
                         </span>
                       </div>
@@ -264,9 +265,9 @@ export function PatchTable({
                         avatarStyle={patch.createdByAvatarStyle}
                         avatarSeed={patch.createdByAvatarSeed}
                         isDeleted={patch.isDeletedCreator}
-                        size={28}
+                        size={24}
                       />
-                      <span className={patch.isDeletedCreator ? 'text-muted-foreground' : ''}>
+                      <span className={cn('text-sm', patch.isDeletedCreator && 'text-muted-foreground')}>
                         {patch.createdByName || patch.createdByEmail}
                       </span>
                     </div>

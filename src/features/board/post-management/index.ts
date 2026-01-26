@@ -7,6 +7,7 @@
 export { PostCard } from './ui/PostCard'
 export { PostCardGrid } from './ui/PostCardGrid'
 export { PostListCard } from './ui/PostListCard'
+export { PostListTable } from './ui/PostListTable'
 export { PostForm } from './ui/PostForm'
 export { PostDeleteDialog } from './ui/PostDeleteDialog'
 

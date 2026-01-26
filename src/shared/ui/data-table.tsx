@@ -1,15 +1,19 @@
 import * as React from "react"
 
+import { Loader2 } from "lucide-react"
+
 import { cn } from "@/shared/lib/utils"
 
+import { InfiniteScrollContainer } from "./infinite-scroll/InfiniteScrollContainer"
 import { ScrollArea } from "./scroll-area"
 
 /**
  * 데이터 테이블 래퍼 컴포넌트
  * - shadcn ScrollArea 기반으로 테마에 맞는 스크롤바 스타일 제공
  * - 테이블 영역의 고정 높이를 설정하고, 내용이 넘치면 스크롤 표시
+ * - 무한 스크롤 또는 고전적 페이징 지원
  *
- * 사용 예:
+ * 사용 예 (고전적 페이징):
  * <DataTable visibleRows={10}>
  *   <Table>...</Table>
  * </DataTable>
@@ -18,9 +22,25 @@ import { ScrollArea } from "./scroll-area"
  * <DataTable viewportHeight="calc(100vh - 20rem)">
  *   <Table>...</Table>
  * </DataTable>
+ *
+ * 무한 스크롤 사용 예:
+ * <DataTable
+ *   paginationMode="infinite"
+ *   hasNextPage={hasNextPage}
+ *   isFetchingNextPage={isFetchingNextPage}
+ *   fetchNextPage={fetchNextPage}
+ * >
+ *   <Table>...</Table>
+ * </DataTable>
  */
-interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
+
+/** 페이징 모드 */
+type PaginationMode = 'classic' | 'infinite'
+
+interface DataTableBaseProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
+  /** 페이징 모드 (기본: classic) */
+  paginationMode?: PaginationMode
   /** 테이블 영역에 표시할 row 수 기준 (기본: 10) - 이 값으로 영역 높이 계산 */
   visibleRows?: number
   /** row 높이 (기본: 41px - border 포함) */
@@ -35,18 +55,82 @@ interface DataTableProps extends React.HTMLAttributes<HTMLDivElement> {
   bordered?: boolean
 }
 
+interface InfiniteScrollProps {
+  /** 추가 데이터가 있는지 여부 (무한 스크롤 모드 필수) */
+  hasNextPage?: boolean
+  /** 데이터 로딩 중인지 여부 (무한 스크롤 모드 필수) */
+  isFetchingNextPage?: boolean
+  /** 다음 페이지 로드 함수 (무한 스크롤 모드 필수) */
+  fetchNextPage?: () => void
+  /** 끝 메시지 (무한 스크롤 모드) */
+  endMessage?: React.ReactNode
+}
+
+type DataTableProps = DataTableBaseProps & InfiniteScrollProps
+
 export function DataTable({
   children,
   className,
+  paginationMode = 'classic',
   visibleRows = 10,
-  rowHeight = 41,
-  headerHeight = 41,
+  rowHeight = 40,
+  headerHeight = 33,
   autoHeight = false,
   viewportHeight,
   bordered = false,
+  // Infinite scroll props
+  hasNextPage = false,
+  isFetchingNextPage = false,
+  fetchNextPage,
+  endMessage,
 }: DataTableProps) {
   const borderClass = bordered ? "rounded-md border" : ""
 
+  // 무한 스크롤 모드
+  if (paginationMode === 'infinite' && fetchNextPage) {
+    const loader = (
+      <div className="flex items-center justify-center py-4">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    )
+
+    // 뷰포트 높이가 지정된 경우 ScrollArea 내부에 InfiniteScrollContainer
+    if (viewportHeight) {
+      return (
+        <ScrollArea
+          className={cn(borderClass, className)}
+          style={{ height: viewportHeight }}
+        >
+          <InfiniteScrollContainer
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+            loader={loader}
+            endMessage={endMessage}
+          >
+            {children}
+          </InfiniteScrollContainer>
+        </ScrollArea>
+      )
+    }
+
+    // autoHeight 또는 기본
+    return (
+      <div className={cn("w-full", borderClass, className)}>
+        <InfiniteScrollContainer
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+          loader={loader}
+          endMessage={endMessage}
+        >
+          {children}
+        </InfiniteScrollContainer>
+      </div>
+    )
+  }
+
+  // 기존 고전적 페이징 모드
   if (autoHeight) {
     return (
       <div className={cn("w-full", borderClass, className)}>

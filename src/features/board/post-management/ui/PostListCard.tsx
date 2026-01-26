@@ -62,7 +62,7 @@ export function PostListCard({ post, onClick, showLike = false }: PostListCardPr
       {/* 작성자 아바타 + 이름 */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="shrink-0 flex items-center gap-2 w-28 cursor-default">
+          <div className="shrink-0 flex items-center gap-2 w-36 cursor-default">
             <UserAvatar
               email={post.createdByEmail}
               accountName={post.createdByName}

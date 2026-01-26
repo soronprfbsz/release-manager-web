@@ -8,6 +8,7 @@ export {
   PostCard,
   PostCardGrid,
   PostListCard,
+  PostListTable,
   PostForm,
   PostDeleteDialog,
   type PostFormData,

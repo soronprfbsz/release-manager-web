@@ -24,7 +24,10 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("[&_tr]:border-0 sticky top-0 z-10 bg-muted", className)}
+    className={cn(
+      "[&_tr]:border-0 sticky top-0 z-10 bg-muted/30 [&_tr]:border-b [&_tr]:border-border",
+      className
+    )}
     {...props}
   />
 ))
@@ -36,7 +39,7 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("[&_tr:last-child]:border-0 [&_tr:hover]:bg-accent/60", className)}
+    className={cn("[&_tr:last-child]:border-0 [&_tr:hover]:bg-muted/50", className)}
     {...props}
   />
 ))
@@ -64,7 +67,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b transition-colors data-[state=selected]:bg-accent",
+      "border-b border-border/50 transition-colors data-[state=selected]:bg-accent",
       className
     )}
     {...props}
@@ -79,7 +82,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-9 px-2 text-left align-middle font-semibold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "h-8 px-4 text-left align-middle text-xs font-normal text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
     {...props}
@@ -94,7 +97,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "px-2 py-1 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      "px-4 py-2.5 align-middle text-sm [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
     {...props}
@@ -211,7 +214,7 @@ const SortableTableHead = React.forwardRef<HTMLTableCellElement, SortableTableHe
     return (
       <TableHead
         ref={ref}
-        className={cn('cursor-pointer select-none hover:bg-accent/60 transition-colors', className)}
+        className={cn('cursor-pointer select-none hover:bg-muted/50 transition-colors', className)}
         onClick={() => onSort(id)}
         {...props}
       >
