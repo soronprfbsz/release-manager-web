@@ -32,7 +32,7 @@ interface PostFormProps {
   mode: PostFormMode
   post?: Post | null
   topicId: string
-  showIssueTracking?: boolean // QnA용 이슈 트래킹 필드 표시
+  showIssueTracking?: boolean // 자유게시판용 이슈 트래킹 필드 표시
   isSubmitting: boolean
   onSubmit: (data: PostFormData) => void
   onClose: () => void
@@ -181,7 +181,7 @@ export function PostForm({
         />
       </div>
 
-      {/* QnA 이슈 트래킹 필드 */}
+      {/* 자유게시판 이슈 트래킹 필드 */}
       {showIssueTracking && (
         <>
           <div className="h-px bg-border" />

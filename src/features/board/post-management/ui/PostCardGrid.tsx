@@ -8,12 +8,11 @@ import {
   ThumbsUp,
   Eye,
   Pin,
-  Image as ImageIcon,
+  Clock,
 } from 'lucide-react'
 
 import type { PostListItem } from '@/entities/board'
 
-import { Card, CardContent } from '@/shared/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 import { cn } from '@/shared/lib/utils'
@@ -27,6 +26,27 @@ interface PostCardGridProps {
  * 안전한 인라인 스타일 태그만 유지하고 나머지 제거
  * 굵게, 기울임, 취소선, 밑줄 등 스타일 유지
  */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffHours < 1) {
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    return diffMinutes < 1 ? '방금 전' : `${diffMinutes}분 전`
+  }
+  if (diffHours < 24) return `${diffHours}시간 전`
+  if (diffDays < 7) return `${diffDays}일 전`
+
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
 function sanitizeHtmlPreview(html: string): string {
   // 허용할 인라인 스타일 태그
   const allowedTags = ['strong', 'b', 'em', 'i', 's', 'del', 'u', 'mark', 'code']
@@ -50,92 +70,98 @@ function sanitizeHtmlPreview(html: string): string {
 }
 
 export function PostCardGrid({ post, onClick }: PostCardGridProps) {
+  const hasThumbnail = !!post.thumbnailUrl
+
   return (
-    <Card
+    <div
       className={cn(
-        'transition-all cursor-pointer hover:bg-muted/50 group h-full overflow-hidden',
-        post.isPinned && 'border-primary/30 bg-primary/5'
+        'py-6 px-4 cursor-pointer hover:bg-muted/50 transition-colors',
+        post.isPinned && 'bg-primary/5'
       )}
       onClick={onClick}
     >
-      {/* 썸네일 영역 - 항상 표시 */}
-      <div className="relative w-full aspect-video bg-muted">
-        {post.thumbnailUrl ? (
-          <img
-            src={post.thumbnailUrl}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <ImageIcon className="h-12 w-12 text-muted-foreground/30" />
-          </div>
-        )}
-        {/* 고정 배지 */}
-        {post.isPinned && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-primary/90 text-primary-foreground text-xs rounded-md">
-            <Pin className="h-3 w-3" />
-            <span>고정</span>
-          </div>
-        )}
-      </div>
-
-      <CardContent className="p-4 flex flex-col">
-        {/* 제목 */}
-        <h3 className="font-semibold text-sm mb-2 line-clamp-2 text-foreground">
-          {post.title}
-        </h3>
-
-        {/* 내용 미리보기 */}
-        {post.contentPreview && (
-          <p
-            className="text-xs text-muted-foreground line-clamp-2 mb-3 [&_strong]:font-bold [&_b]:font-bold [&_em]:italic [&_i]:italic [&_s]:line-through [&_del]:line-through [&_u]:underline"
-            dangerouslySetInnerHTML={{
-              __html: sanitizeHtmlPreview(post.contentPreview),
-            }}
-          />
-        )}
-
-        {/* 하단: 작성자 + 통계 */}
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/50">
-          {/* 작성자 */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-2 cursor-default">
-                <UserAvatar
-                  email={post.createdByEmail}
-                  accountName={post.createdByName}
-                  avatarStyle={post.createdByAvatarStyle}
-                  avatarSeed={post.createdByAvatarSeed}
-                  size={20}
-                />
-                <span className="text-xs text-muted-foreground">
-                  {post.createdByName}
-                </span>
+      <div className="flex gap-6">
+        {/* 왼쪽: 텍스트 컨텐츠 */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* 작성자 + 고정 배지 */}
+          <div className="flex items-center gap-2 mb-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 cursor-default">
+                  <UserAvatar
+                    email={post.createdByEmail}
+                    accountName={post.createdByName}
+                    avatarStyle={post.createdByAvatarStyle}
+                    avatarSeed={post.createdByAvatarSeed}
+                    size={32}
+                  />
+                  <span className="text-sm font-medium">
+                    {post.createdByName}
+                  </span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{post.createdByEmail}</p>
+              </TooltipContent>
+            </Tooltip>
+            {post.isPinned && (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/90 text-primary-foreground text-xs rounded-md">
+                <Pin className="h-3 w-3" />
+                <span>고정</span>
               </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{post.createdByEmail}</p>
-            </TooltipContent>
-          </Tooltip>
+            )}
+          </div>
 
-          {/* 통계 */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <ThumbsUp className="h-3 w-3" />
+          {/* 제목 */}
+          <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-foreground">
+            {post.title}
+          </h3>
+
+          {/* 내용 미리보기 */}
+          {post.contentPreview && (
+            <p
+              className={cn(
+                "text-sm text-muted-foreground mb-4 [&_strong]:font-bold [&_b]:font-bold [&_em]:italic [&_i]:italic [&_s]:line-through [&_del]:line-through [&_u]:underline",
+                hasThumbnail ? "line-clamp-2" : "line-clamp-3"
+              )}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtmlPreview(post.contentPreview),
+              }}
+            />
+          )}
+
+          {/* 하단: 통계 */}
+          <div className="flex items-center gap-4 mt-auto">
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <ThumbsUp className="h-4 w-4" />
               <span>{post.likeCount}</span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MessageSquare className="h-3 w-3" />
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <MessageSquare className="h-4 w-4" />
               <span>{post.commentCount}</span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Eye className="h-3 w-3" />
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Eye className="h-4 w-4" />
               <span>{post.viewCount}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>{formatDate(post.updatedAt)}</span>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* 오른쪽: 썸네일 (있을 때만 표시) */}
+        {hasThumbnail && (
+          <div className="shrink-0">
+            <img
+              src={post.thumbnailUrl!}
+              alt=""
+              className="w-36 h-36 object-cover rounded-lg"
+            />
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

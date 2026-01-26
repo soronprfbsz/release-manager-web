@@ -5,7 +5,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 
-import { FileText, Loader2 } from 'lucide-react'
+import { FileText, Loader2, Eye, MessageSquare, Clock, ThumbsUp } from 'lucide-react'
 
 import type { PostListItem } from '@/entities/board'
 import { usePosts, useCreatePost, useDeletePost } from '@/entities/board'
@@ -25,10 +25,12 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 
 interface BoardWidgetProps {
-  /** 토픽 코드 (announcements, suggestions, qna) */
+  /** 토픽 코드 */
   topicId: string
-  /** QnA용 이슈 트래킹 표시 */
+  /** 자유게시판용 이슈 트래킹 표시 */
   showIssueTracking?: boolean
+  /** 좋아요 표시 여부 (기본: true) */
+  showLike?: boolean
   /** 레이아웃 타입: list(기본) 또는 grid(공지사항용) */
   layout?: 'list' | 'grid'
   /** 게시글 클릭 핸들러 */
@@ -72,6 +74,7 @@ function PostCardSkeleton() {
 export function BoardWidget({
   topicId,
   showIssueTracking = false,
+  showLike = true,
   layout = 'list',
   onPostClick,
   formMode,
@@ -226,7 +229,7 @@ export function BoardWidget({
           hasNextPage={hasNextPage || false}
           isFetchingNextPage={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          className="divide-y divide-border"
           loader={
             <div className="col-span-full flex items-center justify-center py-4">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -252,36 +255,52 @@ export function BoardWidget({
           ))}
         </InfiniteScrollContainer>
       ) : (
-        // 리스트 레이아웃 (QnA)
-        <InfiniteScrollContainer
-          hasNextPage={hasNextPage || false}
-          isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
-          className="divide-y divide-border/50"
-          loader={
-            <div className="flex items-center justify-center py-4">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        // 리스트 레이아웃 (자유게시판)
+        <div>
+          {/* 헤더 */}
+          <div className="py-2 px-4 flex items-center gap-4 text-xs text-muted-foreground border-b border-border bg-muted/30">
+            <span className="shrink-0 w-12 text-center">번호</span>
+            <span className="shrink-0 w-28">작성자</span>
+            <span className="flex-1">제목</span>
+            <div className="shrink-0 flex items-center gap-3">
+              <Eye className="h-3.5 w-3.5" />
+              <MessageSquare className="h-3.5 w-3.5" />
+              {showLike && <ThumbsUp className="h-3.5 w-3.5" />}
+              <Clock className="h-3.5 w-3.5" />
             </div>
-          }
-        >
-          {/* 고정 게시글 */}
-          {pinnedPosts.map((post) => (
-            <PostListCard
-              key={`pinned-${post.postId}`}
-              post={post}
-              onClick={() => onPostClick?.(post)}
-            />
-          ))}
+          </div>
+          <InfiniteScrollContainer
+            hasNextPage={hasNextPage || false}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+            className="divide-y divide-border/50"
+            loader={
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            }
+          >
+            {/* 고정 게시글 */}
+            {pinnedPosts.map((post) => (
+              <PostListCard
+                key={`pinned-${post.postId}`}
+                post={post}
+                showLike={showLike}
+                onClick={() => onPostClick?.(post)}
+              />
+            ))}
 
-          {/* 일반 게시글 */}
-          {regularPosts.map((post) => (
-            <PostListCard
-              key={post.postId}
-              post={post}
-              onClick={() => onPostClick?.(post)}
-            />
-          ))}
-        </InfiniteScrollContainer>
+            {/* 일반 게시글 */}
+            {regularPosts.map((post) => (
+              <PostListCard
+                key={post.postId}
+                post={post}
+                showLike={showLike}
+                onClick={() => onPostClick?.(post)}
+              />
+            ))}
+          </InfiniteScrollContainer>
+        </div>
       )}
 
       {/* 게시글 작성 폼 */}

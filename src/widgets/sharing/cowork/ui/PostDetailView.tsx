@@ -3,7 +3,7 @@
  * 게시글 상세 + 댓글 섹션 컴포넌트
  */
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
   Pin,
   ArrowLeft,
+  X,
 } from 'lucide-react'
 
 import { useQueryClient } from '@tanstack/react-query'
@@ -44,6 +45,8 @@ import {
   type CommentFormMode,
 } from '@/features/board'
 
+import { createPortal } from 'react-dom'
+
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import {
@@ -63,6 +66,8 @@ interface PostDetailViewProps {
   postId: number
   topicId: string
   showIssueTracking?: boolean
+  /** 게시글 좋아요 표시 여부 (기본: true) */
+  showPostLike?: boolean
   /** 글쓰기 폼 모드 (외부 제어 - 생성용) */
   formMode?: PostFormMode
   /** 글쓰기 폼 닫기 핸들러 */
@@ -122,6 +127,7 @@ export function PostDetailView({
   postId,
   topicId,
   showIssueTracking = false,
+  showPostLike = true,
   formMode,
   onFormClose,
 }: PostDetailViewProps) {
@@ -139,6 +145,10 @@ export function PostDetailView({
   const [replyToComment, setReplyToComment] = useState<Comment | null>(null)
   const [editingComment, setEditingComment] = useState<Comment | null>(null)
   const [deleteCommentId, setDeleteCommentId] = useState<number | null>(null)
+
+  // Image lightbox state
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Queries
   const { data: post, isLoading: isLoadingPost } = usePost(postId)
@@ -363,6 +373,23 @@ export function PostDetailView({
     [postId, toggleCommentLike]
   )
 
+  // Image click handler for lightbox
+  useEffect(() => {
+    const contentEl = contentRef.current
+    if (!contentEl) return
+
+    const handleImageClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (target.tagName === 'IMG') {
+        const imgSrc = (target as HTMLImageElement).src
+        setLightboxImage(imgSrc)
+      }
+    }
+
+    contentEl.addEventListener('click', handleImageClick)
+    return () => contentEl.removeEventListener('click', handleImageClick)
+  }, [post])
+
   // Loading state
   if (isLoadingPost) {
     return <PostDetailSkeleton />
@@ -445,19 +472,21 @@ export function PostDetailView({
         {/* 오른쪽: 액션 버튼들 (좋아요 등) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {/* 좋아요 버튼 */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleTogglePostLike}
-            disabled={togglePostLike.isPending}
-            className={cn(
-              "rounded-full px-4 h-9 gap-2",
-              post.isLikedByMe && "text-primary"
-            )}
-          >
-            <ThumbsUp className={cn("h-4 w-4", post.isLikedByMe && "fill-current")} />
-            <span className="font-medium">{post.likeCount}</span>
-          </Button>
+          {showPostLike && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleTogglePostLike}
+              disabled={togglePostLike.isPending}
+              className={cn(
+                "rounded-full px-4 h-9 gap-2",
+                post.isLikedByMe && "text-primary"
+              )}
+            >
+              <ThumbsUp className={cn("h-4 w-4", post.isLikedByMe && "fill-current")} />
+              <span className="font-medium">{post.likeCount}</span>
+            </Button>
+          )}
 
           {/* 더보기 메뉴 */}
           {isPostAuthor && (
@@ -487,7 +516,7 @@ export function PostDetailView({
 
       {/* 3. 내용 박스 영역 */}
       <div className="rounded-xl p-3 text-sm space-y-3 hover:bg-muted/50 transition-colors">
-        {/* QnA 담당자 정보가 있다면 여기에 표시 */}
+        {/* 자유게시판 담당자 정보가 있다면 여기에 표시 */}
         {showIssueTracking && post.issue?.assigneeName && (
           <div className="flex items-center gap-2 text-sm p-2 rounded-md bg-background/50 border w-fit">
             <span className="text-muted-foreground">담당자:</span>
@@ -503,7 +532,8 @@ export function PostDetailView({
         )}
 
         <div
-          className="prose prose-sm dark:prose-invert max-w-none break-words [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:border-l-4 [&_blockquote]:border-muted-foreground/30 [&_blockquote]:pl-4 [&_blockquote]:italic"
+          ref={contentRef}
+          className="prose prose-sm dark:prose-invert max-w-none break-words [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_blockquote]:border-l-4 [&_blockquote]:border-muted-foreground/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_img]:max-h-[1200px] [&_img]:w-auto [&_img]:cursor-pointer [&_img]:rounded-lg [&_img]:transition-opacity [&_img]:hover:opacity-80"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>
@@ -617,6 +647,30 @@ export function PostDetailView({
         onConfirm={handleDeleteComment}
         onClose={() => setDeleteCommentId(null)}
       />
+
+      {/* 이미지 원본 보기 */}
+      {lightboxImage && createPortal(
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 overflow-auto p-4 cursor-pointer"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="relative">
+            <img
+              src={lightboxImage}
+              alt="확대 이미지"
+              className="rounded-lg cursor-pointer"
+              style={{ maxWidth: 'none', maxHeight: 'none' }}
+            />
+            <button
+              onClick={() => setLightboxImage(null)}
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }

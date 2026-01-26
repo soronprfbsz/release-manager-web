@@ -22,7 +22,7 @@ import { cn } from '@/shared/lib/utils'
 interface PostCardProps {
   post: PostListItem
   onClick?: () => void
-  showStatus?: boolean // QnA용 이슈 트래킹 표시
+  showStatus?: boolean // 자유게시판용 이슈 트래킹 표시
 }
 
 const STATUS_CONFIG: Record<PostStatus, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive' }> = {

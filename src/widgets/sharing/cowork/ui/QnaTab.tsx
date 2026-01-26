@@ -26,6 +26,7 @@ export function QnaTab({
       <PostDetailView
         postId={Number(postId)}
         topicId={TOPIC_ID}
+        showPostLike={true}
         formMode={formMode}
         onFormClose={onFormClose}
       />

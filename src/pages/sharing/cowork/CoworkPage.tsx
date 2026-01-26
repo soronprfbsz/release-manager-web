@@ -1,12 +1,12 @@
 /**
  * Cowork Page
- * 협업 페이지 - 공지사항, 개선제안, QnA 탭 구성
+ * 협업 페이지 - 가이드, 자유게시판 탭 구성
  */
 
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { BookOpen, HelpCircle, Plus, Search } from 'lucide-react'
+import { BookOpen, MessageCircle, Plus, Search } from 'lucide-react'
 
 import {
   AnnouncementTab,
@@ -31,13 +31,13 @@ type TabType = 'announcements' | 'qna'
 const TAB_CONFIG = {
   announcements: {
     icon: BookOpen,
-    label: '가이드',
-    addTooltip: '가이드 작성',
+    label: '정보게시판',
+    addTooltip: '정보 공유글 작성',
   },
   qna: {
-    icon: HelpCircle,
-    label: 'QnA',
-    addTooltip: 'QnA 작성',
+    icon: MessageCircle,
+    label: '자유게시판',
+    addTooltip: '게시글 작성',
   },
 } as const
 

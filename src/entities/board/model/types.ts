@@ -108,6 +108,7 @@ export interface PostListItem {
   issueStatus: IssueStatus | null
   issuePriority: IssuePriority | null
   createdAt: string
+  updatedAt: string
 }
 
 /** 게시글 생성 요청 (BoardPostDto.CreateRequest) */
