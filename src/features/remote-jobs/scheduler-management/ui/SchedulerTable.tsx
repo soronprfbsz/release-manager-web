@@ -138,7 +138,7 @@ export function SchedulerTable({
               <TableCell>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="text-sm truncate block max-w-[200px] cursor-default">
+                    <span className="text-sm truncate block cursor-default">
                       {job.apiUrl}
                     </span>
                   </TooltipTrigger>

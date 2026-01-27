@@ -13,6 +13,7 @@ import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
 import { PatchesPage } from '@/pages/patches'
 import { ReleasesPage } from '@/pages/releases'
 import { FileSyncPage } from '@/pages/operations/file-sync/FileSyncPage'
+import { ApiLogPage } from '@/pages/operations/history'
 
 import { ROUTES } from '@/shared/config/constants'
 
@@ -104,6 +105,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <FileSyncPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.OPERATIONS.HISTORY,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <ApiLogPage />
         </MainLayout>
       </ProtectedRoute>
     ),

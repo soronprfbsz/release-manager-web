@@ -76,7 +76,7 @@ function HistoryDetailRow({ history }: { history: ScheduleJobHistory }) {
       <TableRow className={hasDetails ? 'cursor-pointer hover:bg-muted/50' : ''}>
         <TableCell className="whitespace-nowrap">
           <TypographyMuted className="text-xs">
-            {formatDateTime(history.startedAt)}
+            {history.startedAt ? formatDateTime(history.startedAt) : '-'}
           </TypographyMuted>
         </TableCell>
         <TableCell>
@@ -96,12 +96,12 @@ function HistoryDetailRow({ history }: { history: ScheduleJobHistory }) {
         </TableCell>
         <TableCell className="text-right">
           <TypographyMuted className="text-xs">
-            {history.executionTimeMs.toLocaleString()}ms
+            {history.executionTimeMs != null ? `${history.executionTimeMs.toLocaleString()}ms` : '-'}
           </TypographyMuted>
         </TableCell>
         <TableCell className="text-center">
           <TypographyMuted className="text-xs">
-            #{history.attemptNumber}
+            {history.attemptNumber != null ? `#${history.attemptNumber}` : '-'}
           </TypographyMuted>
         </TableCell>
         <TableCell className="text-center">

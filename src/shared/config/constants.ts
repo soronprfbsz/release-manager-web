@@ -22,6 +22,7 @@ export const ROUTES = {
     ACCOUNTS: '/operations/accounts',
     PROJECTS: '/operations/projects',
     FILE_SYNC: '/operations/file-sync',
+    HISTORY: '/operations/history',
   },
   SUPPORT: {
     REMOTE_JOBS: {
