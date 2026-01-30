@@ -159,9 +159,17 @@ export function useFileContentViewer({
   const blobData = useMemo(() => {
     if (!contentData?.content) return null
     if (!isBinary) return null
+
+    // SVG 파일이고 API 응답이 텍스트인 경우(isBinary가 false), 텍스트를 직접 Blob으로 변환
+    const isSvg = fileName?.toLowerCase().endsWith('.svg')
+    if (isSvg && !contentData.isBinary) {
+      // SVG 텍스트를 직접 Blob으로 변환 (base64 디코딩 불필요)
+      return new Blob([contentData.content], { type: 'image/svg+xml' })
+    }
+
     // 바이너리 타입 파일은 항상 base64로 인코딩된 것으로 처리
     return base64ToBlob(contentData.content, contentData.mimeType)
-  }, [contentData, isBinary])
+  }, [contentData, isBinary, fileName])
 
   // 텍스트 콘텐츠 처리
   const textContent = useMemo(() => {

@@ -69,11 +69,11 @@ function isPdfFile(fileName: string): boolean {
 
 /**
  * 파일이 이미지인지 확인
- * SVG는 XML 기반 텍스트 파일이므로 제외 (코드 뷰어로 표시)
+ * SVG도 브라우저에서 이미지로 렌더링 가능하므로 포함
  */
 function isImageFile(fileName: string): boolean {
   const extension = fileName.toLowerCase().split('.').pop()
-  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico'].includes(extension || '')
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'svg'].includes(extension || '')
 }
 
 /**
