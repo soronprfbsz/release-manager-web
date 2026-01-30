@@ -78,7 +78,7 @@ export const VIEWABLE_EXTENSIONS = [
   // 텍스트/코드
   '.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
   '.yml', '.yaml', '.ini', '.conf', '.properties', '.bat', '.ps1', '.env',
-  '.css', '.scss', '.less', '.js', '.jsx', '.ts', '.tsx',
+  '.css', '.scss', '.less', '.js', '.jsx', '.ts', '.tsx', '.html', '.htm',
   // 이미지
   '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.svg',
   // 압축
