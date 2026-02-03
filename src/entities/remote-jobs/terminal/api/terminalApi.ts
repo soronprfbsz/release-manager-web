@@ -77,9 +77,15 @@ export const terminalApi = {
       remotePath: remotePath || '(default)',
     })
 
-    await apiClient.post(`${BASE_URL}/${sessionId}/patches`, {
-      patchId,
-      remotePath,
-    })
+    await apiClient.post(
+      `${BASE_URL}/${sessionId}/patches`,
+      {
+        patchId,
+        remotePath,
+      },
+      {
+        timeout: API_TIMEOUT.FILE_OPERATION, // 파일 전송 작업이므로 긴 타임아웃 사용
+      }
+    )
   },
 }
