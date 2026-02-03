@@ -231,7 +231,7 @@ export function HomePage() {
                   </div>
                 ) : recentPatches.length > 0 ? (
                   <div className="space-y-2">
-                    {recentPatches.map((patch) => {
+                    {recentPatches.slice(0, 3).map((patch) => {
                       const content = (
                         <>
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
