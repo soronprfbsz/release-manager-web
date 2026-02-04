@@ -44,6 +44,7 @@ import {
 } from '@/entities/operations/account'
 
 import { useQueryClient } from '@tanstack/react-query'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { Button } from '@/shared/ui/button'
@@ -56,6 +57,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 export function DepartmentPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const {
+    canCreateDepartment,
+    canEditDepartment,
+    canMoveDepartment,
+    canDeleteDepartment,
+    canAssignAccount,
+    canMoveAccount,
+  } = usePermission()
 
   // 선택된 부서 및 특수 모드 (전체 계정, 미배치 계정)
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null)
@@ -394,16 +403,18 @@ export function DepartmentPage() {
   return (
     <PageLayout
       actions={
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={() => openCreateForm()} variant="outline" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>부서 생성</p>
-          </TooltipContent>
-        </Tooltip>
+        canCreateDepartment ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => openCreateForm()} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>부서 생성</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : null
       }
     >
       <ContentSplit treeWidth={25}>
@@ -443,12 +454,12 @@ export function DepartmentPage() {
                 draggedDepartmentId={draggedDepartment?.departmentId ?? null}
                 isDraggingAccount={!!draggedAccount}
                 onSelect={handleSelect}
-                onCreateChild={openCreateForm}
-                onAssignAccount={handleAssignAccount}
-                onEdit={openEditForm}
-                onDelete={handleDelete}
-                onDepartmentDragStart={handleDepartmentDragStart}
-                onDepartmentDragEnd={handleDepartmentDragEnd}
+                onCreateChild={canCreateDepartment ? openCreateForm : undefined}
+                onAssignAccount={canAssignAccount ? handleAssignAccount : undefined}
+                onEdit={canEditDepartment ? openEditForm : undefined}
+                onDelete={canDeleteDepartment ? handleDelete : undefined}
+                onDepartmentDragStart={canMoveDepartment ? handleDepartmentDragStart : undefined}
+                onDepartmentDragEnd={canMoveDepartment ? handleDepartmentDragEnd : undefined}
                 onDragOver={handleDragOverDepartment}
                 onDragLeave={handleDragLeaveDepartment}
                 onDrop={handleDropOnDepartment}
@@ -513,7 +524,7 @@ export function DepartmentPage() {
                   )}
                 </div>
                 {/* 일괄 부서 이동 버튼 */}
-                {selectedAccountIds.length > 0 && (
+                {canMoveAccount && selectedAccountIds.length > 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -539,10 +550,10 @@ export function DepartmentPage() {
             isLoading={showAllAccounts ? isAllAccountsLoading : (showUnassigned ? isAccountsLoading : (isDetailLoading || isAccountsLoading))}
             showAllAccounts={showAllAccounts}
             showUnassigned={showUnassigned}
-            selectedAccountIds={selectedAccountIds}
-            onSelectionChange={setSelectedAccountIds}
-            onDragStart={handleAccountDragStart}
-            onDragEnd={handleAccountDragEnd}
+            selectedAccountIds={canMoveAccount ? selectedAccountIds : undefined}
+            onSelectionChange={canMoveAccount ? setSelectedAccountIds : undefined}
+            onDragStart={canMoveAccount ? handleAccountDragStart : undefined}
+            onDragEnd={canMoveAccount ? handleAccountDragEnd : undefined}
           />
         </ContentSplit.Detail>
       </ContentSplit>

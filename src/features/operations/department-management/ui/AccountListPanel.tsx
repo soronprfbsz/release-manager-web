@@ -95,7 +95,7 @@ export function AccountListPanel({
       {/* 전체 선택 헤더 */}
       {onSelectionChange && accounts.length > 0 && (
         <div className="flex items-center gap-3 px-4 py-2 bg-muted/30">
-          <div className="w-4" /> {/* Spacer for drag handle alignment */}
+          {onDragStart && <div className="w-4" />} {/* Spacer for drag handle alignment */}
           <Checkbox
             checked={isAllSelected}
             // @ts-expect-error - indeterminate prop is valid
@@ -121,14 +121,16 @@ export function AccountListPanel({
           )}
         >
           {/* Drag handle */}
-          <div
-            draggable
-            onDragStart={(e) => handleDragStart(e, account)}
-            onDragEnd={handleDragEnd}
-            className="cursor-grab active:cursor-grabbing p-1 -m-1 rounded hover:bg-accent flex-shrink-0"
-          >
-            <GripVertical className="h-4 w-4 text-muted-foreground/50" />
-          </div>
+          {onDragStart && (
+            <div
+              draggable
+              onDragStart={(e) => handleDragStart(e, account)}
+              onDragEnd={handleDragEnd}
+              className="cursor-grab active:cursor-grabbing p-1 -m-1 rounded hover:bg-accent flex-shrink-0"
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+            </div>
+          )}
 
           {/* Checkbox */}
           {onSelectionChange && (

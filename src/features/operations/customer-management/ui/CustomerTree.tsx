@@ -32,8 +32,8 @@ interface CustomerTreeProps {
   isLoading?: boolean
   searchTerm?: string
   onSelect: (customer: Customer) => void
-  onEdit: (customer: Customer) => void
-  onDelete: (customer: Customer) => void
+  onEdit?: (customer: Customer) => void
+  onDelete?: (customer: Customer) => void
 }
 
 interface TreeRootNodeProps {
@@ -51,8 +51,8 @@ interface CustomerNodeProps {
   customer: Customer
   isSelected: boolean
   onSelect: (customer: Customer) => void
-  onEdit: (customer: Customer) => void
-  onDelete: (customer: Customer) => void
+  onEdit?: (customer: Customer) => void
+  onDelete?: (customer: Customer) => void
 }
 
 function TreeRootNode({
@@ -155,17 +155,23 @@ function CustomerNode({
       <span className="flex-1" />
 
       {/* Action Menu */}
-      <TreeActionMenu>
-        <TreeActionMenuItem onClick={() => onEdit(customer)}>
-          <Pencil className="h-4 w-4 mr-2" />
-          수정
-        </TreeActionMenuItem>
-        <TreeActionMenuSeparator />
-        <TreeActionMenuItem destructive onClick={() => onDelete(customer)}>
-          <Trash2 className="h-4 w-4 mr-2" />
-          삭제
-        </TreeActionMenuItem>
-      </TreeActionMenu>
+      {(onEdit || onDelete) && (
+        <TreeActionMenu>
+          {onEdit && (
+            <TreeActionMenuItem onClick={() => onEdit(customer)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              수정
+            </TreeActionMenuItem>
+          )}
+          {onEdit && onDelete && <TreeActionMenuSeparator />}
+          {onDelete && (
+            <TreeActionMenuItem destructive onClick={() => onDelete(customer)}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              삭제
+            </TreeActionMenuItem>
+          )}
+        </TreeActionMenu>
+      )}
     </div>
   )
 }

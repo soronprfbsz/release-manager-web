@@ -18,7 +18,7 @@ import { SortablePublishingCard } from './SortablePublishingCard'
 
 interface PublishingGroupListProps {
   publishings: PublishingListItem[]
-  onDelete: (publishing: PublishingListItem) => void
+  onDelete?: (publishing: PublishingListItem) => void
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
   onReorder?: (category: string, publishingIds: number[]) => void

@@ -3,7 +3,7 @@
  * 계정 수정 폼 컴포넌트
  */
 
-import { useCodesByType } from '@/entities/_shared/code'
+import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
 
@@ -26,13 +26,6 @@ interface AccountFormProps {
   onClose: () => void
 }
 
-const ROLE_OPTIONS = [
-  { value: 'ADMIN', label: 'ADMIN' },
-  { value: 'DEVELOPER', label: 'DEVELOPER' },
-  { value: 'USER', label: 'USER' },
-  { value: 'GUEST', label: 'GUEST' },
-]
-
 export function AccountForm({
   open,
   email,
@@ -43,7 +36,12 @@ export function AccountForm({
   onClose,
 }: AccountFormProps) {
   // Position 코드 목록 조회
-  const { data: positionCodes = [] } = useCodesByType('POSITION', {
+  const { data: positionCodes = [] } = useCodesByType(CODE_TYPE.POSITION, {
+    enabled: open,
+  })
+
+  // Role 코드 목록 조회
+  const { data: roleCodes = [] } = useCodesByType(CODE_TYPE.ACCOUNT_ROLE, {
     enabled: open,
   })
 
@@ -54,6 +52,11 @@ export function AccountForm({
       label: code.name,
     })),
   ]
+
+  const roleOptions = roleCodes.map((code) => ({
+    value: code.value,
+    label: code.value,
+  }))
 
   return (
     <FormSheet
@@ -107,7 +110,7 @@ export function AccountForm({
       <div className="space-y-2">
         <Label>권한</Label>
         <Combobox
-          options={ROLE_OPTIONS}
+          options={roleOptions}
           value={formData.role}
           onValueChange={(value) =>
             onFormDataChange({ ...formData, role: value })

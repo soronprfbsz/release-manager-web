@@ -21,7 +21,7 @@ import { getSubCategoryIcon, getSubCategoryLabel } from '../lib/publishingHelper
 
 interface PublishingCardProps {
   publishing: PublishingListItem
-  onDelete: (publishing: PublishingListItem) => void
+  onDelete?: (publishing: PublishingListItem) => void
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
   dragHandleProps?: any
@@ -157,7 +157,7 @@ export function PublishingCard({
       description={publishing.description}
       icon={icon}
       dragHandleProps={dragHandleProps}
-      onDelete={() => onDelete(publishing)}
+      onDelete={onDelete ? () => onDelete(publishing) : undefined}
       headerActions={
         <div className="flex items-center gap-1">
           {onEdit && (

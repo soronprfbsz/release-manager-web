@@ -127,7 +127,7 @@ export function ProjectListPage() {
   const { startTransfer, updateProgress, handleProgress, startServerProcessing, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const [onboardingUploadCompleted, setOnboardingUploadCompleted] = useState(false)
   const [installUploadCompleted, setInstallUploadCompleted] = useState(false)
-  const { canDeleteProject, canManageProjectFiles } = usePermission()
+  const { canCreateProject, canEditProject, canDeleteProject, canManageProjectFiles } = usePermission()
   const [searchParams, setSearchParams] = useSearchParams()
   const currentTab = (searchParams.get('tab') as TabType) || 'management'
 
@@ -750,7 +750,7 @@ export function ProjectListPage() {
   return (
     <PageLayout
       actions={
-        currentTab === 'management' ? (
+        currentTab === 'management' && canCreateProject ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button onClick={handleAddClick} variant="outline" size="icon">
@@ -890,6 +890,7 @@ export function ProjectListPage() {
                   projects={projects}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  showEdit={canEditProject}
                   showDelete={canDeleteProject}
                 />
               )}

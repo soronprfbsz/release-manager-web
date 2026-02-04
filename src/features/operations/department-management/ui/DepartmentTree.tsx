@@ -49,10 +49,10 @@ interface DepartmentTreeProps {
   /** 계정 드래그 중 여부 (순서 변경 불가, 오직 부서 내부로만 이동 가능) */
   isDraggingAccount?: boolean
   onSelect: (department: DepartmentTreeType) => void
-  onCreateChild: (parentId: number) => void
-  onAssignAccount: (departmentId: number) => void
-  onEdit: (department: DepartmentTreeType) => void
-  onDelete: (department: DepartmentTreeType) => void
+  onCreateChild?: (parentId: number) => void
+  onAssignAccount?: (departmentId: number) => void
+  onEdit?: (department: DepartmentTreeType) => void
+  onDelete?: (department: DepartmentTreeType) => void
   // Department drag handlers
   onDepartmentDragStart?: (department: DepartmentTreeType) => void
   onDepartmentDragEnd?: () => void
@@ -75,10 +75,10 @@ interface TreeNodeProps {
   expandedIds: Set<number>
   onToggleExpand: (id: number) => void
   onSelect: (department: DepartmentTreeType) => void
-  onCreateChild: (parentId: number) => void
-  onAssignAccount: (departmentId: number) => void
-  onEdit: (department: DepartmentTreeType) => void
-  onDelete: (department: DepartmentTreeType) => void
+  onCreateChild?: (parentId: number) => void
+  onAssignAccount?: (departmentId: number) => void
+  onEdit?: (department: DepartmentTreeType) => void
+  onDelete?: (department: DepartmentTreeType) => void
   onDepartmentDragStart?: (department: DepartmentTreeType) => void
   onDepartmentDragEnd?: () => void
   onDragOver?: (departmentId: number, position: DropPosition) => void
@@ -115,7 +115,7 @@ function TreeNode({
   const isSelected = selectedId === node.departmentId
   const isDropTarget = dropTargetId === node.departmentId
   const isRootDepartment = node.depth === 0
-  const isDraggable = !isRootDepartment
+  const isDraggable = !isRootDepartment && !!onDepartmentDragStart
 
   // 드래그 중인 부서를 제외한 형제 목록에서의 인덱스 계산
   // 백엔드에서도 드래그 부서를 제외하고 정렬하므로 동일한 기준 사용
@@ -317,29 +317,41 @@ function TreeNode({
         <span className="flex-1" />
 
         {/* Action Menu */}
-        <TreeActionMenu>
-          <TreeActionMenuItem onClick={() => onCreateChild(node.departmentId)}>
-            <Plus className="h-4 w-4 mr-2" />
-            하위 부서 추가
-          </TreeActionMenuItem>
-          <TreeActionMenuItem onClick={() => onAssignAccount(node.departmentId)}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            계정 배치
-          </TreeActionMenuItem>
-          <TreeActionMenuItem onClick={() => onEdit(node)}>
-            <Pencil className="h-4 w-4 mr-2" />
-            수정
-          </TreeActionMenuItem>
-          <TreeActionMenuSeparator />
-          <TreeActionMenuItem
-            destructive
-            onClick={() => onDelete(node)}
-            disabled={isRootDepartment}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            삭제
-          </TreeActionMenuItem>
-        </TreeActionMenu>
+        {(onCreateChild || onAssignAccount || onEdit || onDelete) && (
+          <TreeActionMenu>
+            {onCreateChild && (
+              <TreeActionMenuItem onClick={() => onCreateChild(node.departmentId)}>
+                <Plus className="h-4 w-4 mr-2" />
+                하위 부서 추가
+              </TreeActionMenuItem>
+            )}
+            {onAssignAccount && (
+              <TreeActionMenuItem onClick={() => onAssignAccount(node.departmentId)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                계정 배치
+              </TreeActionMenuItem>
+            )}
+            {onEdit && (
+              <TreeActionMenuItem onClick={() => onEdit(node)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                수정
+              </TreeActionMenuItem>
+            )}
+            {onDelete && (
+              <>
+                <TreeActionMenuSeparator />
+                <TreeActionMenuItem
+                  destructive
+                  onClick={() => onDelete(node)}
+                  disabled={isRootDepartment}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  삭제
+                </TreeActionMenuItem>
+              </>
+            )}
+          </TreeActionMenu>
+        )}
       </div>
 
       {/* After indicator - 계정 드래그 중일 때는 표시하지 않음 */}

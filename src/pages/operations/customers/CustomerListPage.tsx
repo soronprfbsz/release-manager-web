@@ -25,6 +25,7 @@ import {
   type Customer,
 } from '@/entities/operations'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { formatDateTime } from '@/shared/lib/utils/date'
@@ -46,6 +47,7 @@ const INITIAL_FORM_DATA: CustomerFormData = {
 
 export function CustomerListPage() {
   const { toast } = useToast()
+  const { canCreateCustomer, canEditCustomer, canDeleteCustomer } = usePermission()
   const { projectId } = useProjectStore()
 
   // Selected customer
@@ -175,16 +177,18 @@ export function CustomerListPage() {
   return (
     <PageLayout
       actions={
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={openCreateModal} variant="outline" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>고객사 생성</p>
-          </TooltipContent>
-        </Tooltip>
+        canCreateCustomer ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={openCreateModal} variant="outline" size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>고객사 생성</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : null
       }
     >
       <ContentSplit treeWidth={25}>
@@ -225,8 +229,8 @@ export function CustomerListPage() {
             isLoading={isLoading}
             searchTerm={searchTerm}
             onSelect={handleCustomerSelect}
-            onEdit={openEditModal}
-            onDelete={(customer) => setDeleteConfirmId(customer.customerId)}
+            onEdit={canEditCustomer ? openEditModal : undefined}
+            onDelete={canDeleteCustomer ? (customer) => setDeleteConfirmId(customer.customerId) : undefined}
           />
         </ContentSplit.Tree>
 

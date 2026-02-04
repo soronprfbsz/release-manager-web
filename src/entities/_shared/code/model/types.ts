@@ -24,6 +24,8 @@ export const CODE_TYPE = {
   RESOURCE_SUBCATEGORY_DOCUMENT: 'RESOURCE_SUBCATEGORY_DOCUMENT',
   // 엔지니어 직급
   POSITION: 'POSITION',
+  // 계정 권한
+  ACCOUNT_ROLE: 'ACCOUNT_ROLE',
   // 서비스 타입
   SERVICE_TYPE: 'SERVICE_TYPE',
   // 리소스 링크 카테고리

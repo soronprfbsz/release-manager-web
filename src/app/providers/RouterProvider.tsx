@@ -16,8 +16,10 @@ import { FileSyncPage } from '@/pages/operations/file-sync/FileSyncPage'
 import { ApiLogPage } from '@/pages/operations/history'
 
 import { ROUTES } from '@/shared/config/constants'
+import { ROUTE_PERMISSIONS } from '@/shared/config/permissions'
 
 import { ProtectedRoute } from './ProtectedRoute'
+import { RoleGuard } from './RoleGuard'
 import { MainLayout } from '../layouts/MainLayout'
 
 const router = createBrowserRouter([
@@ -44,7 +46,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ReleasesPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.RELEASES]}>
+            <ReleasesPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -54,7 +58,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <PatchesPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.PATCHES]}>
+            <PatchesPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -64,7 +70,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <CustomerListPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.CUSTOMERS]}>
+            <CustomerListPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -74,7 +82,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <DepartmentPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.DEPARTMENTS]}>
+            <DepartmentPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -84,7 +94,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <AccountListPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.ACCOUNTS]}>
+            <AccountListPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -94,7 +106,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ProjectListPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.PROJECTS]}>
+            <ProjectListPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -104,7 +118,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <FileSyncPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.FILE_SYNC]}>
+            <FileSyncPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -114,7 +130,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ApiLogPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.HISTORY]}>
+            <ApiLogPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -124,7 +142,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <MariaDBPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.REMOTE_JOBS.MARIADB]}>
+            <MariaDBPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -134,7 +154,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <TerminalPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.REMOTE_JOBS.TERMINAL]}>
+            <TerminalPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -144,7 +166,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <SchedulerPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.REMOTE_JOBS.SCHEDULER]}>
+            <SchedulerPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -154,7 +178,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <ResourcePage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.SHARING.RESOURCES]}>
+            <ResourcePage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -164,7 +190,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <CoworkPage />
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.SHARING.COWORK]}>
+            <CoworkPage />
+          </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),

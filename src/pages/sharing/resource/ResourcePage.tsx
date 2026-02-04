@@ -3,7 +3,7 @@
  * 리소스 관리 페이지 - 서비스, 링크, 파일 등 탭 조합
  */
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 
 import { Plus, Search, FolderPlus, X, ArrowUpDown } from 'lucide-react'
 
@@ -30,6 +30,7 @@ import type { FileFiltersState } from '@/features/sharing/file-management'
 import type { PublishingFiltersState } from '@/features/sharing/publishing-management'
 import { FILE_SORT_OPTIONS } from '@/shared/lib/utils/file-sort'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
@@ -77,7 +78,30 @@ const TAB_CONFIG = {
 
 export function ResourcePage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentTab = (searchParams.get('tab') as TabType) || 'services'
+  const {
+    canManageService,
+    canManageLink,
+    canManageFile,
+    canCreatePublishing,
+    canEditPublishing,
+    canDeletePublishing,
+  } = usePermission()
+
+  // 권한에 따라 접근 가능한 탭 필터링
+  const TAB_PERMISSION: Record<TabType, boolean> = useMemo(() => ({
+    services: canManageService,
+    links: canManageLink,
+    files: canManageFile,
+    publishing: true, // 퍼블리싱은 모든 인증 사용자 조회 가능
+  }), [canManageService, canManageLink, canManageFile])
+
+  const visibleTabs = useMemo(
+    () => (Object.keys(TAB_CONFIG) as TabType[]).filter((key) => TAB_PERMISSION[key]),
+    [TAB_PERMISSION]
+  )
+
+  const paramTab = searchParams.get('tab') as TabType | null
+  const currentTab = paramTab && visibleTabs.includes(paramTab) ? paramTab : visibleTabs[0] || 'publishing'
 
   // Filter states for each tab
   const [serviceFilters, setServiceFilters] = useState<ServiceFiltersState>({
@@ -168,7 +192,7 @@ export function ResourcePage() {
   return (
     <PageLayout
       actions={
-        currentTab === 'files' ? (
+        currentTab === 'files' && canManageFile ? (
           // 파일 탭: 카테고리 생성 드롭다운
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -183,7 +207,9 @@ export function ResourcePage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
+        ) : (currentTab === 'services' && canManageService) ||
+             (currentTab === 'links' && canManageLink) ||
+             (currentTab === 'publishing' && canCreatePublishing) ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button onClick={handleAdd} variant="outline" size="icon">
@@ -194,7 +220,7 @@ export function ResourcePage() {
               <p>{currentTabConfig.addTooltip}</p>
             </TooltipContent>
           </Tooltip>
-        )
+        ) : null
       }
     >
       {/* Tabs */}
@@ -203,7 +229,7 @@ export function ResourcePage() {
           {/* Tab Header with integrated filters */}
           <div className="flex items-center justify-between px-8 pt-2">
             <TabsList variant="line" className="border-0">
-              {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+              {visibleTabs.map((tabKey) => {
                 const config = TAB_CONFIG[tabKey]
                 const Icon = config.icon
                 return (
@@ -317,20 +343,31 @@ export function ResourcePage() {
             </div>
           </div>
 
-          <TabsContent value="services" className="px-8 pb-8">
-            <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
-          </TabsContent>
+          {canManageService && (
+            <TabsContent value="services" className="px-8 pb-8">
+              <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
+            </TabsContent>
+          )}
 
-          <TabsContent value="links" className="px-8 pb-8">
-            <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
-          </TabsContent>
+          {canManageLink && (
+            <TabsContent value="links" className="px-8 pb-8">
+              <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
+            </TabsContent>
+          )}
 
-          <TabsContent value="files" className="px-8 pb-8">
-            <FileResourceTab ref={fileTabRef} filters={fileFilters} />
-          </TabsContent>
+          {canManageFile && (
+            <TabsContent value="files" className="px-8 pb-8">
+              <FileResourceTab ref={fileTabRef} filters={fileFilters} />
+            </TabsContent>
+          )}
 
           <TabsContent value="publishing" className="px-8 pb-8">
-            <PublishingTab ref={publishingTabRef} filters={publishingFilters} />
+            <PublishingTab
+              ref={publishingTabRef}
+              filters={publishingFilters}
+              canEdit={canEditPublishing}
+              canDelete={canDeletePublishing}
+            />
           </TabsContent>
         </Tabs>
       </ContentCard>

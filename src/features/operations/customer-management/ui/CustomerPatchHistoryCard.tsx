@@ -73,7 +73,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
 
   const queryClient = useQueryClient()
   const { toast } = useToast()
-  const { canDeletePatch } = usePermission()
+  const { canDeletePatchHistory } = usePermission()
   const deleteMutation = useDeletePatchHistory()
 
   // 해당 고객사의 패치 이력 조회 (페이징)
@@ -164,7 +164,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                     <TableCell className="font-medium py-3">
                       <div className="flex items-center gap-1">
                         <span className="truncate max-w-48">{patch.patchName}</span>
-                        {canDeletePatch && (
+                        {canDeletePatchHistory && (
                           <button
                             type="button"
                             className="p-1 flex-shrink-0 text-muted-foreground hover:text-destructive transition-colors"

@@ -45,10 +45,12 @@ export interface PublishingTabHandle {
 interface PublishingTabProps {
   filters: PublishingFiltersState
   onRefresh?: () => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>(
-  function PublishingTab({ filters, onRefresh }, ref) {
+  function PublishingTab({ filters, onRefresh, canEdit = true, canDelete = true }, ref) {
     const { toast } = useToast()
 
     // Modal states
@@ -208,15 +210,15 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
           ) : (
             <PublishingGroupList
               publishings={publishingList}
-              onDelete={setDeleteTarget}
-              onEdit={handleEditPublishing}
+              onDelete={canDelete ? setDeleteTarget : undefined}
+              onEdit={canEdit ? handleEditPublishing : undefined}
               onViewFiles={handleViewFiles}
-              onReorder={handleReorder}
-              onAdd={(category) => {
+              onReorder={canEdit ? handleReorder : undefined}
+              onAdd={canEdit ? (category) => {
                 setFormData({ ...INITIAL_FORM_DATA, publishingCategory: category })
                 setUploadProgress(0)
                 setIsUploadOpen(true)
-              }}
+              } : undefined}
             />
           )}
         </div>

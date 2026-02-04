@@ -56,7 +56,8 @@ export function AccountTable({
   onDelete,
   viewportHeight,
 }: AccountTableProps) {
-  const { isAdmin } = usePermission()
+  const { canEditAccount, canDeleteAccount } = usePermission()
+  const canManageAccount = canEditAccount || canDeleteAccount
 
   if (accounts.length === 0) {
     return (
@@ -137,7 +138,7 @@ export function AccountTable({
             >
               생성일시
             </SortableTableHead>
-            {isAdmin && <TableHead className="w-12 text-center"></TableHead>}
+            {canManageAccount && <TableHead className="w-12 text-center"></TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -186,20 +187,24 @@ export function AccountTable({
               <TableCell className="whitespace-nowrap">
                 <TypographyMuted>{formatDateTime(account.createdAt)}</TypographyMuted>
               </TableCell>
-              {isAdmin && (
+              {canManageAccount && (
                 <TableCell>
                   <TableActionMenu>
-                    <TableActionMenuItem onClick={() => onEdit(account)}>
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      수정
-                    </TableActionMenuItem>
-                    <TableActionMenuItem
-                      onClick={() => onDelete(account.accountId)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      삭제
-                    </TableActionMenuItem>
+                    {canEditAccount && (
+                      <TableActionMenuItem onClick={() => onEdit(account)}>
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        수정
+                      </TableActionMenuItem>
+                    )}
+                    {canDeleteAccount && (
+                      <TableActionMenuItem
+                        onClick={() => onDelete(account.accountId)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        삭제
+                      </TableActionMenuItem>
+                    )}
                   </TableActionMenu>
                 </TableCell>
               )}

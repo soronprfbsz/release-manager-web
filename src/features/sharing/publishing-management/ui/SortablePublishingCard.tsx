@@ -12,7 +12,7 @@ import { PublishingCard } from './PublishingCard'
 
 interface SortablePublishingCardProps {
   publishing: PublishingListItem
-  onDelete: (publishing: PublishingListItem) => void
+  onDelete?: (publishing: PublishingListItem) => void
   onEdit?: (publishing: PublishingListItem) => void
   onViewFiles?: (publishing: PublishingListItem) => void
 }
