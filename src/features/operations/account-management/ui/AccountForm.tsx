@@ -6,6 +6,7 @@
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -53,10 +54,14 @@ export function AccountForm({
     })),
   ]
 
-  const roleOptions = roleCodes.map((code) => ({
-    value: code.value,
-    label: code.value,
-  }))
+  const { isAdmin } = usePermission()
+
+  const roleOptions = roleCodes
+    .filter((code) => isAdmin || code.value !== 'ADMIN')
+    .map((code) => ({
+      value: code.value,
+      label: code.value,
+    }))
 
   return (
     <FormSheet
