@@ -8,21 +8,6 @@ import { useState, forwardRef, useImperativeHandle, useMemo } from 'react'
 import { Download, Plus, File, FolderPlus, Trash2 } from 'lucide-react'
 
 import {
-  useResourceCategories,
-  useResourceCategoryFiles,
-  useUploadResourceToCategory,
-  useDeleteResourceFromCategory,
-  useCreateResourceDirectory,
-  useCreateResourceCategory,
-  useDeleteResourceCategory,
-  useFileContent,
-  fileApi,
-  type ResourceFileNode,
-  type ResourceCategoryInfo,
-} from '@/entities/infrastructure/file'
-import { fileDownloadApi } from '@/shared/api'
-
-import {
   ResourceFileTree,
   ResourceFileUploadSheet,
   ResourceFileDeleteDialog,
@@ -37,14 +22,29 @@ import {
   type FileFiltersState,
   INITIAL_RESOURCE_TREE_UPLOAD_FORM_DATA,
 } from '@/features/sharing/file-management'
-import { sortFileTree, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
 
+import {
+  useResourceCategories,
+  useResourceCategoryFiles,
+  useUploadResourceToCategory,
+  useDeleteResourceFromCategory,
+  useCreateResourceDirectory,
+  useCreateResourceCategory,
+  useDeleteResourceCategory,
+  useFileContent,
+  fileApi,
+  type ResourceFileNode,
+  type ResourceCategoryInfo,
+} from '@/entities/infrastructure/file'
+
+import { fileDownloadApi } from '@/shared/api'
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
-import { formatFileSize } from '@/shared/lib/utils/format'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { isViewableFile } from '@/shared/lib/utils/file-icon'
+import { sortFileTree, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
+import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import {

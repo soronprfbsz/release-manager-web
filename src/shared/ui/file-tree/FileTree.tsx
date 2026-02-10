@@ -28,9 +28,9 @@ import {
   File,
 } from 'lucide-react'
 
-import { formatFileSize } from '@/shared/lib/utils/format'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { getFileIcon, isViewableFile } from '@/shared/lib/utils/file-icon'
+import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,

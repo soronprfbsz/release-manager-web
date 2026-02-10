@@ -4,6 +4,7 @@
  */
 
 import { AlertTriangle } from 'lucide-react'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
+
 import type { DeleteTarget } from '../model/types'
 
 interface ServiceDeleteDialogProps {

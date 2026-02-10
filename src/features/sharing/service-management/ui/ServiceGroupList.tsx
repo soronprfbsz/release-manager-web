@@ -4,18 +4,20 @@
  */
 
 import { useMemo, useState } from 'react'
+
 import { Plus, Server } from 'lucide-react'
 
+import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 import type { Service } from '@/entities/infrastructure/service'
 import { useReorderServices } from '@/entities/infrastructure/service'
-import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
+
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { getServiceGroupIcon } from '../lib/serviceHelpers'
 import { SortableServiceCard } from './SortableServiceCard'
+import { getServiceGroupIcon } from '../lib/serviceHelpers'
 
 interface ServiceGroupListProps {
   services: Service[]

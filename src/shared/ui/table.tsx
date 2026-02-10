@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react"
 import { ArrowUp, ArrowDown, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/shared/lib/utils"
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
 
 const Table = React.forwardRef<

@@ -10,13 +10,14 @@ import { FolderOpen, Plus } from 'lucide-react'
 import type { CodeSimpleResponse } from '@/entities/_shared/code'
 import type { ResourceFile } from '@/entities/infrastructure/file'
 import { useReorderResources } from '@/entities/infrastructure/file'
+
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { getFileGroupIcon } from '../lib/fileHelpers'
 import { SortableFileCard } from './SortableFileCard'
+import { getFileGroupIcon } from '../lib/fileHelpers'
 
 interface FileGroupListProps {
   resources: ResourceFile[]

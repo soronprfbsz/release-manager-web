@@ -13,9 +13,9 @@ import {
 
 import type { PostListItem } from '@/entities/board'
 
+import { cn } from '@/shared/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { cn } from '@/shared/lib/utils'
 
 interface PostCardGridProps {
   post: PostListItem

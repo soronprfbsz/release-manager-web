@@ -4,9 +4,12 @@
  */
 
 import { Pencil, Trash2, Settings, GripVertical } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@/shared/ui/card'
-import { Button } from '@/shared/ui/button'
+
 import type { Service } from '@/entities/infrastructure/service'
+
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader } from '@/shared/ui/card'
+
 import { ComponentList } from './ComponentList'
 
 interface ServiceCardProps {

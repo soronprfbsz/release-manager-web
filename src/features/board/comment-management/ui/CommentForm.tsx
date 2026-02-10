@@ -7,12 +7,13 @@ import { useState, useEffect, useRef } from 'react'
 
 import { Loader2, X, CornerDownRight } from 'lucide-react'
 
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Textarea } from '@/shared/ui/textarea'
-import { cn } from '@/shared/lib/utils'
+
+import { validateCommentForm } from '../model/validation'
 
 import type { CommentFormData, CommentFormMode } from '../model/types'
-import { validateCommentForm } from '../model/validation'
 
 interface CommentFormProps {
   mode: CommentFormMode

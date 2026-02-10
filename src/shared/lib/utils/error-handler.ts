@@ -3,9 +3,10 @@
  * 에러 처리 유틸리티 - 공통 에러 핸들링 패턴 제공
  */
 
+import type { ApiError } from '@/shared/api'
+
 import type { AxiosError } from 'axios'
 
-import type { ApiError } from '@/shared/api'
 
 /**
  * Error 객체에서 사용자 친화적인 메시지 추출

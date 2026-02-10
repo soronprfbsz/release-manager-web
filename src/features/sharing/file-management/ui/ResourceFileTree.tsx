@@ -19,9 +19,9 @@ import {
 
 import type { ResourceFileNode } from '@/entities/infrastructure/file'
 
-import { formatFileSize } from '@/shared/lib/utils/format'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { getFileIcon, VIEWABLE_EXTENSIONS } from '@/shared/lib/utils/file-icon'
+import { formatFileSize } from '@/shared/lib/utils/format'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,

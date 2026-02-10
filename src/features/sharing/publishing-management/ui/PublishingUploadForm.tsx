@@ -3,14 +3,14 @@
  * 퍼블리싱 업로드 폼 컴포넌트
  */
 
-import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
 
-import { getDomainIcon } from '@/shared/config/domain-icons'
 import { useQuery } from '@tanstack/react-query'
+import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import { customerApi } from '@/entities/operations'
 
+import { getDomainIcon } from '@/shared/config/domain-icons'
 import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'

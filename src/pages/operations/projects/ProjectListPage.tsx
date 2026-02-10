@@ -4,7 +4,6 @@
  */
 
 import { useState, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
 import {
   Plus,
@@ -15,6 +14,33 @@ import {
   X,
   ArrowUpDown,
 } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+
+
+import {
+  InstallFileUploadSheet,
+  InstallFileDeleteDialog,
+  InstallDirectoryCreateDialog,
+  INITIAL_INSTALL_UPLOAD_FORM_DATA,
+  type InstallFileUploadFormData,
+  type InstallFileDeleteTarget,
+} from '@/features/operations/install-management'
+import {
+  OnboardingFileUploadSheet,
+  OnboardingFileDeleteDialog,
+  OnboardingDirectoryCreateDialog,
+  INITIAL_UPLOAD_FORM_DATA,
+  type OnboardingFileUploadFormData,
+  type OnboardingFileDeleteTarget,
+} from '@/features/operations/onboarding-management'
+import {
+  ProjectList,
+  ProjectForm,
+  ProjectDeleteDialog,
+  validateProjectForm,
+  type ProjectFormData,
+  type ProjectFormMode,
+} from '@/features/operations/project-management'
 
 import {
   useProjects,
@@ -38,47 +64,30 @@ import {
   type OnboardingFileNode,
   type InstallFileNode,
 } from '@/entities/operations/project'
-import { fileDownloadApi } from '@/shared/api'
-import {
-  ProjectList,
-  ProjectForm,
-  ProjectDeleteDialog,
-  validateProjectForm,
-  type ProjectFormData,
-  type ProjectFormMode,
-} from '@/features/operations/project-management'
-import {
-  OnboardingFileUploadSheet,
-  OnboardingFileDeleteDialog,
-  OnboardingDirectoryCreateDialog,
-  INITIAL_UPLOAD_FORM_DATA,
-  type OnboardingFileUploadFormData,
-  type OnboardingFileDeleteTarget,
-} from '@/features/operations/onboarding-management'
-import {
-  InstallFileUploadSheet,
-  InstallFileDeleteDialog,
-  InstallDirectoryCreateDialog,
-  INITIAL_INSTALL_UPLOAD_FORM_DATA,
-  type InstallFileUploadFormData,
-  type InstallFileDeleteTarget,
-} from '@/features/operations/install-management'
 
+import { fileDownloadApi } from '@/shared/api'
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
-import { useProjectStore } from '@/shared/store'
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
-import { formatFileSize } from '@/shared/lib/utils/format'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { isViewableFile } from '@/shared/lib/utils/file-icon'
 import { sortFileTree, FILE_SORT_OPTIONS, type FileSortBy, type FileSortDirection } from '@/shared/lib/utils/file-sort'
+import { formatFileSize } from '@/shared/lib/utils/format'
+import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
+import { ContentCard } from '@/shared/ui/content-layout'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
-import { ContentCard } from '@/shared/ui/content-layout'
+import { FileTree, type FileTreeNode } from '@/shared/ui/file-tree'
+import { FileViewer } from '@/shared/ui/file-viewer'
 import { Input } from '@/shared/ui/input'
+import { PageLayout } from '@/shared/ui/page-layout'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -86,15 +95,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { FileTree, type FileTreeNode } from '@/shared/ui/file-tree'
-import { FileViewer } from '@/shared/ui/file-viewer'
-import { PageLayout } from '@/shared/ui/page-layout'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
-import { usePermission } from '@/shared/lib/hooks/use-permission'
 
 type TabType = 'management' | 'onboarding' | 'install'
 

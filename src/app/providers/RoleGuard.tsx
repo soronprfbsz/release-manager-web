@@ -3,9 +3,10 @@
  * 역할 기반 라우트 접근 제어 컴포넌트
  */
 
+import { ForbiddenPage } from '@/pages/error/ForbiddenPage'
+
 import type { Role } from '@/shared/config/permissions'
 import { useAuthStore } from '@/shared/store'
-import { ForbiddenPage } from '@/pages/error/ForbiddenPage'
 
 interface RoleGuardProps {
   allowedRoles: readonly Role[]

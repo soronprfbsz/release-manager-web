@@ -9,14 +9,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import { postKeys } from './postQueries'
 import { commentApi } from '../api/commentApi'
+
 import type {
   CommentCreateRequest,
   CommentUpdateRequest,
   Comment,
   BoardPageResponse,
 } from '../model/types'
-import { postKeys } from './postQueries'
 
 // Query Keys Factory
 export const commentKeys = {

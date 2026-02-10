@@ -5,6 +5,7 @@ import {
   type AccountListParams,
   type BatchTransferDepartmentRequest,
 } from '../api/accountApi'
+
 import type { AccountUpdateRequest, MyAccountUpdateRequest } from '../model/types'
 
 export const accountKeys = {

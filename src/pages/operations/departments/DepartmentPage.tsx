@@ -5,6 +5,7 @@
 
 import { useState } from 'react'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRightLeft, Network, Plus, TableOfContents, Users, UserX } from 'lucide-react'
 
 import {
@@ -33,7 +34,6 @@ import {
   departmentKeys,
   type DepartmentTree as DepartmentTreeType,
 } from '@/entities/_shared/department'
-
 import {
   useAccountsByDepartment,
   useAccounts,
@@ -43,7 +43,6 @@ import {
   type Account,
 } from '@/entities/operations/account'
 
-import { useQueryClient } from '@tanstack/react-query'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'

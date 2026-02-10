@@ -31,8 +31,8 @@ import {
   TableActionMenuItem,
   TableActionMenuSeparator,
 } from '@/shared/ui/table-action-menu'
-import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 
 interface SchedulerTableProps {
   jobs: ScheduleJob[]

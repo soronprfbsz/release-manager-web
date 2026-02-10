@@ -7,10 +7,9 @@ import { useState, useMemo } from 'react'
 
 import { ArrowRight, Building2 } from 'lucide-react'
 
-import type { Account } from '@/entities/operations/account'
 import type { Department } from '@/entities/_shared/department'
+import type { Account } from '@/entities/operations/account'
 
-import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -20,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Label } from '@/shared/ui/label'
 import {
   Select,

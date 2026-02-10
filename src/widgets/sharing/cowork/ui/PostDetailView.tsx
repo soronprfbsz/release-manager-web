@@ -4,8 +4,8 @@
  */
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
+import { useQueryClient } from '@tanstack/react-query'
 import {
   ThumbsUp,
   Pencil,
@@ -15,8 +15,22 @@ import {
   ArrowLeft,
   X,
 } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { useSearchParams } from 'react-router-dom'
 
-import { useQueryClient } from '@tanstack/react-query'
+
+
+import {
+  PostForm,
+  PostDeleteDialog,
+  CommentForm,
+  CommentList,
+  CommentDeleteDialog,
+  type PostFormData,
+  type PostFormMode,
+  type CommentFormData,
+  type CommentFormMode,
+} from '@/features/board'
 
 import type { Comment, IssueStatus, IssuePriority } from '@/entities/board'
 import {
@@ -33,20 +47,11 @@ import {
   useToggleCommentLike,
 } from '@/entities/board'
 
-import {
-  PostForm,
-  PostDeleteDialog,
-  CommentForm,
-  CommentList,
-  CommentDeleteDialog,
-  type PostFormData,
-  type PostFormMode,
-  type CommentFormData,
-  type CommentFormMode,
-} from '@/features/board'
 
-import { createPortal } from 'react-dom'
 
+import { useToast } from '@/shared/lib/hooks/use-toast'
+import { cn } from '@/shared/lib/utils'
+import { useAuthStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import {
@@ -58,9 +63,6 @@ import {
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { cn } from '@/shared/lib/utils'
-import { useAuthStore } from '@/shared/store'
 
 interface PostDetailViewProps {
   postId: number

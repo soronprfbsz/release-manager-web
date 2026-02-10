@@ -13,11 +13,11 @@ import {
 
 import type { PostListItem, PostStatus, PostPriority } from '@/entities/board'
 
+import { cn } from '@/shared/lib/utils'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { cn } from '@/shared/lib/utils'
 
 interface PostCardProps {
   post: PostListItem

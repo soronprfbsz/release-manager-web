@@ -6,6 +6,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { terminalApi } from '../api/terminalApi'
+
 import type { ShellConnectRequest } from '../model/types'
 
 // ============================================================================

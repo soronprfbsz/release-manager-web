@@ -5,7 +5,9 @@
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+
 import type { Service } from '@/entities/infrastructure/service'
+
 import { ServiceCard } from './ServiceCard'
 
 interface SortableServiceCardProps {

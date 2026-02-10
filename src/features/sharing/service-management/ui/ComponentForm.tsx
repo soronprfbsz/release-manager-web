@@ -4,7 +4,13 @@
  */
 
 import { useState } from 'react'
+
 import { Plus, Settings } from 'lucide-react'
+
+import type { Service, ServiceComponent } from '@/entities/infrastructure/service'
+import { useReorderComponents } from '@/entities/infrastructure/service'
+
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
@@ -12,12 +18,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/shared/ui/sheet'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import type { Service, ServiceComponent } from '@/entities/infrastructure/service'
-import { useReorderComponents } from '@/entities/infrastructure/service'
 import { SortableList } from '@/shared/ui/sortable'
+
 import { ComponentModal } from './ComponentModal'
 import { SortableComponentCard } from './SortableComponentCard'
+
 import type { ComponentFormData, ComponentFormMode, DeleteTarget } from '../model/types'
 
 interface ComponentFormProps {

@@ -4,11 +4,13 @@
  */
 
 import { useState } from 'react'
+
 import { useMutation } from '@tanstack/react-query'
 import { Loader2, FileUp, Package } from 'lucide-react'
 
-import { terminalApi } from '@/entities/remote-jobs/terminal'
 import { usePatches, type CumulativePatch } from '@/entities/patches/patch'
+import { terminalApi } from '@/entities/remote-jobs/terminal'
+
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
@@ -17,6 +19,13 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/select'
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -24,13 +33,6 @@ import {
   SheetTitle,
 } from '@/shared/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 
 interface FileTransferFormProps {
   open: boolean

@@ -11,8 +11,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patches'
 
-import { usePermission } from '@/shared/lib/hooks'
-import { useAuthStore, useProjectStore } from '@/shared/store'
 
 import {
   PatchTable,
@@ -43,9 +41,11 @@ import {
 import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
-import { useToast } from '@/shared/lib/hooks/use-toast'
+import { usePermission } from '@/shared/lib/hooks'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
+import { useAuthStore, useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'

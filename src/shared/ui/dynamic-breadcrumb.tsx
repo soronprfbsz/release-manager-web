@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import { ROUTES } from '@/shared/config/constants'
 import { useMenuPath } from '@/shared/lib/hooks/use-menu-path'
 import {
   Breadcrumb,
@@ -10,7 +11,6 @@ import {
   BreadcrumbSeparator,
 } from '@/shared/ui/breadcrumb'
 
-import { ROUTES } from '@/shared/config/constants'
 
 /**
  * 메뉴 데이터를 기반으로 자동으로 Breadcrumb을 생성하는 컴포넌트

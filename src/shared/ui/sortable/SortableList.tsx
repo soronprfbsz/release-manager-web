@@ -3,6 +3,8 @@
  * 드래그 앤 드롭으로 순서 변경 가능한 리스트 컴포넌트
  */
 
+import React, { useState } from 'react'
+
 import {
   DndContext,
   closestCenter,
@@ -15,6 +17,7 @@ import {
   DragStartEvent,
   MeasuringStrategy,
 } from '@dnd-kit/core'
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
   arrayMove,
   SortableContext,
@@ -22,8 +25,6 @@ import {
   verticalListSortingStrategy,
   rectSortingStrategy,
 } from '@dnd-kit/sortable'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import React, { useState } from 'react'
 
 interface SortableListProps<T> {
   items: T[]

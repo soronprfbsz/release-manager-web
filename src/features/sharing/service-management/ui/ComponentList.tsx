@@ -4,9 +4,12 @@
  */
 
 import { ExternalLink, Terminal } from 'lucide-react'
+
 import type { ServiceComponent } from '@/entities/infrastructure/service'
-import { getComponentTypeIcon, getComponentDisplayInfo, getComponentTypeTextColor } from '../lib/serviceHelpers'
+
 import { Badge } from '@/shared/ui/badge'
+
+import { getComponentTypeIcon, getComponentDisplayInfo, getComponentTypeTextColor } from '../lib/serviceHelpers'
 
 interface ComponentListProps {
   components: ServiceComponent[]

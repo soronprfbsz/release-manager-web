@@ -16,12 +16,6 @@ import {
   Shield,
   Box,
 } from 'lucide-react'
-
-import { FaDocker } from "react-icons/fa"
-import { RiFileExcel2Line, RiNumber1, RiNumber2 } from "react-icons/ri"
-import { VscFileMedia, VscFile } from "react-icons/vsc"
-import { LuFileTerminal } from "react-icons/lu"
-import { FaRegFilePdf, FaRegFileArchive } from "react-icons/fa"
 import {
   BsFiletypeExe,
   BsFiletypeTxt,
@@ -35,6 +29,10 @@ import {
   BsFiletypeSvg,
   BsFiletypeXml,
 } from "react-icons/bs"
+import { FaDocker , FaRegFilePdf, FaRegFileArchive } from "react-icons/fa"
+import { LuFileTerminal } from "react-icons/lu"
+import { RiFileExcel2Line, RiNumber1, RiNumber2 } from "react-icons/ri"
+import { VscFileMedia, VscFile } from "react-icons/vsc"
 
 /**
  * 파일 타입별 아이콘 반환

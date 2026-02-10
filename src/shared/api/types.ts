@@ -56,12 +56,3 @@ export interface PageResponse<T> {
     unsorted: boolean
   }
 }
-
-/** @deprecated Use PageResponse instead */
-export interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}

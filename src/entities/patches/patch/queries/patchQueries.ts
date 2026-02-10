@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@tanstack/react-query'
 
-import type { PaginationParams, PageResponse } from '@/shared/api/types'
 import { fileContentKeys, useFileContentByPath } from '@/shared/api'
+import type { PaginationParams, PageResponse } from '@/shared/api/types'
 
 import { patchApi } from '../api/patchApi'
 

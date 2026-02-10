@@ -5,8 +5,8 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 
-import * as XLSX from 'xlsx'
 import { Loader2, Info } from 'lucide-react'
+import * as XLSX from 'xlsx'
 
 import { cn } from '@/shared/lib/utils'
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'

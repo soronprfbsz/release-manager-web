@@ -18,7 +18,6 @@ import type { CumulativePatch } from '@/entities/patches/patch'
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { Checkbox } from '@/shared/ui/checkbox'
-import { UserAvatar } from '@/shared/ui/user-avatar'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
 import {
@@ -38,6 +37,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import type { SortConfig } from '../model/types'
 

@@ -10,7 +10,6 @@ import { Check, Search, UserPlus, Users } from 'lucide-react'
 import type { Account } from '@/entities/operations/account'
 
 import { cn } from '@/shared/lib/utils'
-import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Checkbox } from '@/shared/ui/checkbox'
@@ -22,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Input } from '@/shared/ui/input'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 

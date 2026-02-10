@@ -6,12 +6,11 @@
 import { Save } from 'lucide-react'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
-
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
 import { Switch } from '@/shared/ui/switch'
+import { Textarea } from '@/shared/ui/textarea'
 
 import type { ProjectFormData, ProjectFormMode } from '../model/types'
 

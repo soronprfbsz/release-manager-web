@@ -12,11 +12,10 @@ import {
   Trash2,
 } from 'lucide-react'
 
-import { cn } from '@/shared/lib/utils'
-import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import type { BackupFile } from '@/entities/remote-jobs/mariadb'
 
+import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -37,6 +36,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
+import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import type { SortConfig } from '../model/types'
 

@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-query'
 
 import { departmentApi } from '../api/departmentApi'
+
 import type {
   Department,
   DepartmentDetail,

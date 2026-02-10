@@ -2,7 +2,6 @@ import { useState, createContext, useContext } from 'react'
 
 import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, X, Check } from 'lucide-react'
 
-import { getFileIcon, isViewableFile } from '@/shared/lib/utils/file-icon'
 
 import {
   releaseApi,
@@ -13,16 +12,16 @@ import {
   useUpdateVersionComment,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
-import { fileDownloadApi } from '@/shared/api'
 
+import { fileDownloadApi } from '@/shared/api'
+import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
+import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
-import { useProjectStore } from '@/shared/store'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { getFileIcon, isViewableFile } from '@/shared/lib/utils/file-icon'
 import { formatFileSize } from '@/shared/lib/utils/format'
-import { UserAvatar } from '@/shared/ui/user-avatar'
-import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
+import { useProjectStore } from '@/shared/store'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +41,7 @@ import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Textarea } from '@/shared/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
+import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import { HotfixCreateForm } from './HotfixCreateForm'
 
@@ -345,7 +345,7 @@ function VersionDetailProvider({
 
   // 파일 내용 조회 쿼리 함수 (VersionDetailDialogs에서 useFileContentViewer와 함께 사용)
   const useFileContentQuery = (path: string, enabled: boolean) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+     
     const result = useReleaseFileContent(path, enabled)
     return {
       data: result.data,

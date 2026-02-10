@@ -7,8 +7,8 @@ import { useState } from 'react'
 
 import { Building2, Users } from 'lucide-react'
 
-import type { Account } from '@/entities/operations/account'
 import type { Department } from '@/entities/_shared/department'
+import type { Account } from '@/entities/operations/account'
 
 import { Button } from '@/shared/ui/button'
 import {
@@ -19,7 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Label } from '@/shared/ui/label'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -27,8 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 
 interface BulkAccountMoveDialogProps {
   open: boolean

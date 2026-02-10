@@ -3,8 +3,9 @@
  * 테이블 행 액션 메뉴 컴포넌트
  */
 
-import { MoreHorizontal } from 'lucide-react'
 import type { ReactNode } from 'react'
+
+import { MoreHorizontal } from 'lucide-react'
 
 import { Button } from './button'
 import {

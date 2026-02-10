@@ -5,19 +5,20 @@
 
 import { useState } from 'react'
 
-import { Link as LinkIcon, Plus } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link as LinkIcon, Plus } from 'lucide-react'
 
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import type { LinkResource } from '@/entities/infrastructure/link'
 import { linkResourceApi, linkResourceKeys } from '@/entities/infrastructure/link'
-import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { getLinkGroupIcon } from '../lib/linkHelpers'
 import { SortableLinkCard } from './SortableLinkCard'
+import { getLinkGroupIcon } from '../lib/linkHelpers'
 
 interface LinkGroupListProps {
   resources: LinkResource[]

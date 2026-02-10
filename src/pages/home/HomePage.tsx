@@ -20,8 +20,8 @@ import {
 } from '@/entities/_shared/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
-import { useProjectStore } from '@/shared/store'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'

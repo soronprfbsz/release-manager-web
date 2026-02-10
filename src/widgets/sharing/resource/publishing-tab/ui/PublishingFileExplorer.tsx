@@ -5,12 +5,13 @@
 
 import { Globe } from 'lucide-react'
 
+import { FileExplorer, type FileTreeData, type FileContentData } from '@/widgets/common/file-explorer'
+
 import {
   usePublishingFileTree,
   usePublishingFileContent,
 } from '@/entities/infrastructure/publishing'
 
-import { FileExplorer, type FileTreeData, type FileContentData } from '@/widgets/common/file-explorer'
 
 interface PublishingFileExplorerProps {
   open: boolean

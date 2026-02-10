@@ -3,11 +3,12 @@
  * 서비스 생성/수정 폼
  */
 
+import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
+
 import { getFormIcon } from '@/shared/config/domain-icons'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -15,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
+import { Textarea } from '@/shared/ui/textarea'
+
 import type { ServiceFormData, ServiceFormMode } from '../model/types'
 
 interface ServiceFormProps {

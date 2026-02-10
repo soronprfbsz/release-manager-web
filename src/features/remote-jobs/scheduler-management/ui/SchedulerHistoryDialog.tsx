@@ -12,6 +12,7 @@ import { useScheduleJobHistories } from '@/entities/remote-jobs'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { Button } from '@/shared/ui/button'
+import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import {

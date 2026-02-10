@@ -10,10 +10,11 @@ import { useSearchParams, useLocation } from 'react-router-dom'
 
 import { VersionCreateForm, CustomVersionCreateForm } from '@/widgets/releases'
 
-import { usePermission } from '@/shared/lib/hooks'
-import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useProjectStore } from '@/shared/store'
 
+import {
+  CustomReleaseTree,
+  type SelectedCustomVersionInfo,
+} from '@/features/releases/custom'
 import {
   ReleaseTree,
   VersionDetail,
@@ -21,10 +22,6 @@ import {
   type SelectedVersionInfo,
   type SelectedVersionData,
 } from '@/features/releases/standard'
-import {
-  CustomReleaseTree,
-  type SelectedCustomVersionInfo,
-} from '@/features/releases/custom'
 
 import {
   useStandardReleaseTree,
@@ -33,7 +30,10 @@ import {
 } from '@/entities/releases/release'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
+import { usePermission } from '@/shared/lib/hooks'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { findLatestVersionString } from '@/shared/lib/utils/version'
+import { useProjectStore } from '@/shared/store'
 import {
   AlertDialog,
   AlertDialogAction,

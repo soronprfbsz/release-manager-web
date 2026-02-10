@@ -8,8 +8,8 @@ import { useEffect, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { dashboardKeys } from '@/entities/_shared/dashboard'
-import { patchKeys } from '@/entities/patches/patch'
 import { useProjects } from '@/entities/operations/project'
+import { patchKeys } from '@/entities/patches/patch'
 import { releaseKeys } from '@/entities/releases/release'
 
 import { useAuthStore, useProjectStore, initializeAuth } from '@/shared/store'

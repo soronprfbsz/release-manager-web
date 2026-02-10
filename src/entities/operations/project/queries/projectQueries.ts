@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@ta
 import { fileContentKeys, useFileContentByPath } from '@/shared/api'
 
 import { projectApi } from '../api/projectApi'
+
 import type {
   Project,
   ProjectCreateRequest,

@@ -13,8 +13,8 @@ import type { Account } from '@/entities/operations/account'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { DataTable } from '@/shared/ui/data-table'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { StatusBadge } from '@/shared/ui/status-badge'
 import {

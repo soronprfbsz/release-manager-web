@@ -13,7 +13,6 @@
 
 import { useState, type ReactNode } from 'react'
 
-import type { LucideIcon } from 'lucide-react'
 
 import { fileDownloadApi } from '@/shared/api'
 import {
@@ -27,6 +26,8 @@ import {
   type FileTreeManageCallbacks,
 } from '@/shared/ui/file-tree'
 import { FileViewer } from '@/shared/ui/file-viewer'
+
+import type { LucideIcon } from 'lucide-react'
 
 // ============================================================================
 // Types

@@ -6,9 +6,8 @@
 import { useRef, useState, useMemo } from 'react'
 
 import { Plus, Search, FolderPlus, X, ArrowUpDown } from 'lucide-react'
-
-import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { useSearchParams } from 'react-router-dom'
+
 
 import {
   ServiceTab,
@@ -21,18 +20,26 @@ import {
   type PublishingTabHandle,
 } from '@/widgets/sharing/resource'
 
+
+import type { FileFiltersState } from '@/features/sharing/file-management'
+import type { LinkFiltersState } from '@/features/sharing/link-management'
+import { PUBLISHING_CATEGORIES } from '@/features/sharing/publishing-management'
+import type { PublishingFiltersState } from '@/features/sharing/publishing-management'
+import type { ServiceFiltersState } from '@/features/sharing/service-management'
+
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 
-import { PUBLISHING_CATEGORIES } from '@/features/sharing/publishing-management'
-import type { ServiceFiltersState } from '@/features/sharing/service-management'
-import type { LinkFiltersState } from '@/features/sharing/link-management'
-import type { FileFiltersState } from '@/features/sharing/file-management'
-import type { PublishingFiltersState } from '@/features/sharing/publishing-management'
-import { FILE_SORT_OPTIONS } from '@/shared/lib/utils/file-sort'
-
+import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
+import { FILE_SORT_OPTIONS } from '@/shared/lib/utils/file-sort'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
 import {
@@ -44,12 +51,6 @@ import {
 } from '@/shared/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
 
 type TabType = 'services' | 'links' | 'files' | 'publishing'
 

@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { customerNoteApi } from '../api/customerNoteApi'
+
 import type {
   CustomerNoteCreateRequest,
   CustomerNoteUpdateRequest,

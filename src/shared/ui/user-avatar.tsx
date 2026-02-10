@@ -5,8 +5,8 @@
 
 import { UserX } from 'lucide-react'
 
-import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { cn } from '@/shared/lib/utils'
+import { DiceBearAvatar, DEFAULT_AVATAR_STYLE, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 
 interface UserAvatarProps {
     /** 사용자 이메일 (또는 이름) */

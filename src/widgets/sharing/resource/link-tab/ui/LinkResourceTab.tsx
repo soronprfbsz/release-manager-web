@@ -6,6 +6,12 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 
 import {
+  LinkList,
+  LinkForm,
+  type LinkFiltersState,
+} from '@/features/sharing/link-management'
+
+import {
   useLinkResources,
   useCreateLinkResource,
   useUpdateLinkResource,
@@ -14,11 +20,6 @@ import {
   type LinkResourceCreateRequest,
 } from '@/entities/infrastructure/link'
 
-import {
-  LinkList,
-  LinkForm,
-  type LinkFiltersState,
-} from '@/features/sharing/link-management'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import {

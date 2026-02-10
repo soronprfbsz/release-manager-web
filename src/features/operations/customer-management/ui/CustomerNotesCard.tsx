@@ -11,9 +11,8 @@ import {
   Pencil,
   Trash2,
   FileQuestion,
-} from 'lucide-react'
+ Loader2 } from 'lucide-react'
 
-import { useAuthStore } from '@/shared/store'
 import {
   useCustomerNotes,
   useCreateCustomerNote,
@@ -22,20 +21,21 @@ import {
   type CustomerNote,
 } from '@/entities/operations/customer-note'
 
-import { formatDateTime } from '@/shared/lib/utils/date'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { Loader2 } from 'lucide-react'
 
+
+import { CustomerNoteDeleteDialog } from './CustomerNoteDeleteDialog'
 import {
   CustomerNoteForm,
   type CustomerNoteFormMode,
   type CustomerNoteFormData,
 } from './CustomerNoteForm'
-import { CustomerNoteDeleteDialog } from './CustomerNoteDeleteDialog'
 
 interface CustomerNotesCardProps {
   customerId: number

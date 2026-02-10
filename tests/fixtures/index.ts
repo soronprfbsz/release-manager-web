@@ -46,6 +46,8 @@ export function generateTestVersion(majorMinor?: string): TestReleaseVersion {
 }
 
 // Extended test with custom fixtures
+// Playwright의 `use`는 React Hook이 아님 - ESLint 오탐 방지
+/* eslint-disable react-hooks/rules-of-hooks, no-empty-pattern */
 export const test = base.extend<{
   testCustomer: TestCustomer
 }>({
@@ -54,5 +56,6 @@ export const test = base.extend<{
     await use(customer)
   },
 })
+/* eslint-enable react-hooks/rules-of-hooks, no-empty-pattern */
 
 export { expect }

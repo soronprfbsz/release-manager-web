@@ -3,8 +3,8 @@
  * 페이지를 찾을 수 없을 때 표시되는 에러 페이지
  */
 
-import { useNavigate } from 'react-router-dom'
 import { Home, ArrowLeft, Search } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/shared/ui/button'
 

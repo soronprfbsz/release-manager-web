@@ -3,7 +3,7 @@
  * ZIP 파일 탐색기 - FileExplorer를 사용하여 ZIP 파일 내용을 표시
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import JSZip from 'jszip'
 import { FolderOpen, type LucideIcon } from 'lucide-react'
@@ -93,67 +93,28 @@ function zipToFileTree(zip: JSZip): FileTreeData {
   }
 }
 
-export function ZipFileExplorer({
-  open,
-  onOpenChange,
-  zipBlob,
-  fileName,
-  icon = FolderOpen,
-  isLoading = false,
-  error = null,
-}: ZipFileExplorerProps) {
-  const [fileTree, setFileTree] = useState<FileTreeData | undefined>(undefined)
-  const [parseError, setParseError] = useState<Error | null>(null)
-  const [isParsing, setIsParsing] = useState(false)
-
-  // ZIP 객체를 저장하여 파일 내용 조회에 사용
-  const zipRef = useRef<JSZip | null>(null)
-
-  // 파일 내용 캐시
-  const contentCacheRef = useRef<Map<string, FileContentData>>(new Map())
-
-  // ZIP 파일 파싱
-  useEffect(() => {
-    async function parseZip() {
-      if (!zipBlob || !open) {
-        return
-      }
-
-      setIsParsing(true)
-      setParseError(null)
-      contentCacheRef.current.clear()
-
-      try {
-        const zip = await JSZip.loadAsync(zipBlob)
-        zipRef.current = zip
-        const tree = zipToFileTree(zip)
-        setFileTree(tree)
-      } catch (err) {
-        console.error('Failed to parse ZIP file:', err)
-        setParseError(new Error('압축 파일을 읽는데 실패했습니다.'))
-        setFileTree(undefined)
-      } finally {
-        setIsParsing(false)
-      }
-    }
-
-    parseZip()
-  }, [zipBlob, open])
-
-  // 파일 내용 조회 훅 생성
-  const useFileContent = useCallback((path: string, enabled: boolean) => {
+/**
+ * ZIP 파일 내용 조회를 위한 커스텀 훅 팩토리
+ * FileExplorer의 useFileContent prop으로 전달할 훅을 반환
+ */
+function useZipFileContent(
+  zipRef: React.RefObject<JSZip | null>,
+  contentCacheRef: React.RefObject<Map<string, FileContentData>>
+) {
+  return function useContent(path: string, enabled: boolean) {
     const [data, setData] = useState<FileContentData | undefined>(undefined)
     const [isLoadingContent, setIsLoadingContent] = useState(false)
     const [contentError, setContentError] = useState<Error | null>(null)
 
     useEffect(() => {
       async function loadContent() {
-        if (!enabled || !path || !zipRef.current) {
+        const cache = contentCacheRef.current
+        if (!enabled || !path || !zipRef.current || !cache) {
           return
         }
 
         // 캐시 확인
-        const cached = contentCacheRef.current.get(path)
+        const cached = cache.get(path)
         if (cached) {
           setData(cached)
           return
@@ -208,7 +169,7 @@ export function ZipFileExplorer({
           }
 
           // 캐시에 저장
-          contentCacheRef.current.set(path, fileContentData)
+          cache.set(path, fileContentData)
           setData(fileContentData)
         } catch (err) {
           console.error('Failed to load file content:', err)
@@ -222,7 +183,58 @@ export function ZipFileExplorer({
     }, [path, enabled])
 
     return { data, isLoading: isLoadingContent, error: contentError }
-  }, [])
+  }
+}
+
+export function ZipFileExplorer({
+  open,
+  onOpenChange,
+  zipBlob,
+  fileName,
+  icon = FolderOpen,
+  isLoading = false,
+  error = null,
+}: ZipFileExplorerProps) {
+  const [fileTree, setFileTree] = useState<FileTreeData | undefined>(undefined)
+  const [parseError, setParseError] = useState<Error | null>(null)
+  const [isParsing, setIsParsing] = useState(false)
+
+  // ZIP 객체를 저장하여 파일 내용 조회에 사용
+  const zipRef = useRef<JSZip | null>(null)
+
+  // 파일 내용 캐시
+  const contentCacheRef = useRef<Map<string, FileContentData>>(new Map())
+
+  // ZIP 파일 파싱
+  useEffect(() => {
+    async function parseZip() {
+      if (!zipBlob || !open) {
+        return
+      }
+
+      setIsParsing(true)
+      setParseError(null)
+      contentCacheRef.current.clear()
+
+      try {
+        const zip = await JSZip.loadAsync(zipBlob)
+        zipRef.current = zip
+        const tree = zipToFileTree(zip)
+        setFileTree(tree)
+      } catch (err) {
+        console.error('Failed to parse ZIP file:', err)
+        setParseError(new Error('압축 파일을 읽는데 실패했습니다.'))
+        setFileTree(undefined)
+      } finally {
+        setIsParsing(false)
+      }
+    }
+
+    parseZip()
+  }, [zipBlob, open])
+
+  // 파일 내용 조회 훅
+  const useFileContent = useZipFileContent(zipRef, contentCacheRef)
 
   return (
     <FileExplorer

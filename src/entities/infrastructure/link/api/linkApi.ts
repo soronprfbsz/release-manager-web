@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '@/shared/api/client'
+
 import type { Link, LinkCreateRequest } from '../model/types'
 
 const ENDPOINTS = {

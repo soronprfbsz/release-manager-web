@@ -4,19 +4,19 @@
  */
 
 import { useEffect, useState, useRef } from 'react'
-import { useForm } from 'react-hook-form'
+
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { useQuery } from '@tanstack/react-query'
-
 import { Save } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
-import { getFormIcon } from '@/shared/config/domain-icons'
 
-import type { PublishingListItem, PublishingUpdateRequest } from '@/entities/infrastructure/publishing'
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import type { PublishingListItem, PublishingUpdateRequest } from '@/entities/infrastructure/publishing'
 import { customerApi } from '@/entities/operations'
 
+import { getFormIcon } from '@/shared/config/domain-icons'
 import { Combobox } from '@/shared/ui/combobox'
 import {
   Form,

@@ -5,7 +5,9 @@
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+
 import type { ResourceFile } from '@/entities/infrastructure/file'
+
 import { FileCard } from './FileCard'
 
 interface SortableFileCardProps {

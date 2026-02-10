@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react'
+
 import { PlugZap, Unplug, Upload } from 'lucide-react'
 
 import {
@@ -13,9 +14,9 @@ import {
   useSshShell,
   useSshConnectionHistory,
   type XtermTerminalHandle,
-} from '@/features/remote-jobs/terminal'
+ SshConnectionFormData } from '@/features/remote-jobs/terminal'
 import { FileTransferForm } from '@/features/remote-jobs/terminal/ui/FileTransferForm'
-import type { SshConnectionFormData } from '@/features/remote-jobs/terminal'
+
 import { Button } from '@/shared/ui/button'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'

@@ -4,19 +4,21 @@
  */
 
 import { useEffect, useState, useCallback } from 'react'
-import { useForm } from 'react-hook-form'
-import { useQueryClient } from '@tanstack/react-query'
+
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { Save, Lock, Eye, EyeOff, User, Shuffle, Check } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
-import { useUpdateMyAccount, type MyAccountUpdateRequest } from '@/entities/operations/account'
 import { useCodesByType } from '@/entities/_shared/code'
-import { useAuthStore } from '@/shared/store'
-import { useToast } from '@/shared/lib/hooks/use-toast'
+import { useUpdateMyAccount, type MyAccountUpdateRequest } from '@/entities/operations/account'
 
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { cn } from '@/shared/lib/utils'
+import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
+import { Combobox } from '@/shared/ui/combobox'
 import {
   DiceBearAvatar,
   AVATAR_STYLES,
@@ -32,7 +34,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/shared/ui/form'
-import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'

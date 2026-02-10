@@ -4,6 +4,7 @@
  */
 
 import type { LinkResource } from '@/entities/infrastructure/link'
+
 import { LinkGroupList } from './LinkGroupList'
 
 interface LinkListProps {

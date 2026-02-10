@@ -5,12 +5,13 @@
 
 import { Tag, type LucideIcon } from 'lucide-react'
 
+import { FileExplorer, type FileTreeData, type FileContentData } from '@/widgets/common/file-explorer'
+
 import {
   usePatchFileStructure,
   usePatchFileContent,
 } from '@/entities/patches/patch'
 
-import { FileExplorer, type FileTreeData, type FileContentData } from '@/widgets/common/file-explorer'
 
 interface PatchFileExplorerProps {
   open: boolean

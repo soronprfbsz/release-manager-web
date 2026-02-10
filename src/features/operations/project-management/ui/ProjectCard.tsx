@@ -7,9 +7,9 @@ import { Pencil, Trash2 } from 'lucide-react'
 
 import type { Project } from '@/entities/operations/project'
 
+import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Badge } from '@/shared/ui/badge'
 
 interface ProjectCardProps {
   project: Project

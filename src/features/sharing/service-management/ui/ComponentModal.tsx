@@ -4,7 +4,10 @@
  */
 
 import { useEffect, useState } from 'react'
+
 import { Plus, Pencil } from 'lucide-react'
+
+import { Button } from '@/shared/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -12,10 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -23,8 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { ScrollArea } from '@/shared/ui/scroll-area'
+import { Textarea } from '@/shared/ui/textarea'
+
 import { validateComponentForm } from '../model/validation'
+
 import type { ComponentFormData, ComponentFormMode } from '../model/types'
 
 interface ComponentModalProps {

@@ -1,12 +1,14 @@
 import { useState } from 'react'
+
 import { LogOut, ChevronDown, User } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 
-import { useMenus, type MenuItem } from '@/entities/_shared/menu'
 
 import { ProfileEditForm } from '@/widgets/_shared/profile-edit'
 import { ProjectSelector } from '@/widgets/_shared/project-selector'
 import { ThemeToggle } from '@/widgets/_shared/theme-toggle'
+
+import { useMenus, type MenuItem } from '@/entities/_shared/menu'
 
 import { ROUTES } from '@/shared/config/constants'
 import { getMenuIcon } from '@/shared/config/menu-icons'

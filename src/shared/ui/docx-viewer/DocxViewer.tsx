@@ -5,8 +5,8 @@
 
 import { useState, useEffect } from 'react'
 
-import mammoth from 'mammoth'
 import { Loader2, Info } from 'lucide-react'
+import mammoth from 'mammoth'
 
 import { ScrollArea, ScrollBar } from '@/shared/ui/scroll-area'
 import { TypographyMuted } from '@/shared/ui/typography'

@@ -6,9 +6,12 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Pencil, Trash2, GripVertical } from 'lucide-react'
+
 import type { ServiceComponent } from '@/entities/infrastructure/service'
+
 import { Button } from '@/shared/ui/button'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
+
 import { getComponentTypeIcon, getComponentDisplayInfo } from '../lib/serviceHelpers'
 
 interface SortableComponentCardProps {

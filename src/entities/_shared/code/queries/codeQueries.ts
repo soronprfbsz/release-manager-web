@@ -6,6 +6,7 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 
 import { codeApi } from '../api/codeApi'
+
 import type { CodeSimpleResponse } from '../model/types'
 
 // ============================================================================

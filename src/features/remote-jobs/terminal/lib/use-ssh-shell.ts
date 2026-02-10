@@ -7,12 +7,14 @@ import { useCallback, useEffect, type RefObject } from 'react'
 
 import { useConnectShell, useDisconnectShell } from '@/entities/remote-jobs/terminal'
 import type { ShellConnectRequest, OutputMessage } from '@/entities/remote-jobs/terminal'
+
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { useSshSessionStore, type SshSession } from '@/shared/store/useSshSessionStore'
 import { useAuthStore } from '@/shared/store/useAuthStore'
+import { useSshSessionStore, type SshSession } from '@/shared/store/useSshSessionStore'
 
 import { useSshShellWebSocket } from './use-ssh-shell-websocket'
 import { validateSshConnectionForm } from '../model/validation'
+
 import type { SshConnectionFormData } from '../model/types'
 import type { XtermTerminalHandle } from '../ui/XtermTerminal'
 

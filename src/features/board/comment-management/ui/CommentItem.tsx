@@ -14,6 +14,7 @@ import {
 
 import type { Comment } from '@/entities/board'
 
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -23,7 +24,6 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { cn } from '@/shared/lib/utils'
 
 interface CommentItemProps {
   comment: Comment

@@ -4,8 +4,8 @@
  * MainLayout 내부에서 렌더링됨
  */
 
-import { useNavigate } from 'react-router-dom'
 import { Home, ArrowLeft, ShieldX } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/shared/ui/button'
 

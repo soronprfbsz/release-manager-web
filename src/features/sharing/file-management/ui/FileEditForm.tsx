@@ -4,13 +4,16 @@
  */
 
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { Save } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+
+import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
+import type { ResourceFile, ResourceFileUpdateRequest } from '@/entities/infrastructure/file'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
-
 import {
   Form,
   FormControl,
@@ -21,7 +24,6 @@ import {
 } from '@/shared/ui/form'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
-import { Textarea } from '@/shared/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -29,9 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
+import { Textarea } from '@/shared/ui/textarea'
 
-import type { ResourceFile, ResourceFileUpdateRequest } from '@/entities/infrastructure/file'
-import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 
 const formSchema = z.object({
   resourceFileName: z.string().min(1, '파일명을 입력해주세요.'),

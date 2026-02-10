@@ -5,7 +5,9 @@
 
 import { Server, Globe, Database, Cog, Package, Box, Settings, type LucideIcon } from 'lucide-react'
 import { RiNumber1, RiNumber2 } from 'react-icons/ri'
+
 import type { ServiceType, ComponentType, ServiceComponent } from '@/entities/infrastructure/service'
+
 import {
   getCategoryCardColorClass,
   getCategoryIconBgColorClass,

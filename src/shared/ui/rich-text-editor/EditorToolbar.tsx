@@ -5,7 +5,6 @@
 
 import { useCallback } from 'react'
 
-import type { Editor } from '@tiptap/react'
 import {
   Bold,
   Italic,
@@ -26,6 +25,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '../button'
 import { Separator } from '../separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../tooltip'
+
+import type { Editor } from '@tiptap/react'
 
 interface EditorToolbarProps {
   editor: Editor | null

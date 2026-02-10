@@ -18,13 +18,13 @@ import {
   UserX,
 } from 'lucide-react'
 
+import type { Customer } from '@/entities/operations/customer'
 import {
   usePatchHistories,
   useDeletePatchHistory,
   patchKeys,
   type CumulativePatch,
 } from '@/entities/patches/patch'
-import type { Customer } from '@/entities/operations/customer'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -40,8 +40,8 @@ import {
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
 import { Button } from '@/shared/ui/button'
-import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import {
   Select,
   SelectContent,

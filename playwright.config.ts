@@ -1,7 +1,8 @@
-import { defineConfig, devices } from '@playwright/test'
-import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
+
+import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
 
 // ES Module에서 __dirname 대체
 const __filename = fileURLToPath(import.meta.url)

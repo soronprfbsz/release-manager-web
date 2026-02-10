@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react'
-import { createAvatar } from '@dicebear/core'
+
 import {
   avataaars,
   avataaarsNeutral,
@@ -22,6 +22,7 @@ import {
   shapes,
   thumbs,
 } from '@dicebear/collection'
+import { createAvatar } from '@dicebear/core'
 
 import { cn } from '@/shared/lib/utils'
 

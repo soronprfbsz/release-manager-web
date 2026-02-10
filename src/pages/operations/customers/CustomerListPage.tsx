@@ -27,8 +27,8 @@ import {
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import { ContentSplit } from '@/shared/ui/content-layout'

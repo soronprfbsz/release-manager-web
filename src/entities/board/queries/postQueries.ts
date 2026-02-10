@@ -10,7 +10,9 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
+import { commentKeys } from './commentQueries'
 import { postApi } from '../api/postApi'
+
 import type {
   PostCreateRequest,
   PostUpdateRequest,
@@ -18,7 +20,6 @@ import type {
   PostListItem,
   BoardPageResponse,
 } from '../model/types'
-import { commentKeys } from './commentQueries'
 
 // Query Keys Factory
 export const postKeys = {

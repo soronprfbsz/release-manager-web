@@ -4,18 +4,21 @@
  */
 
 import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback, useState } from 'react'
-import { Terminal as XTerm } from '@xterm/xterm'
+
 import type { ITheme } from '@xterm/xterm'
+
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
+import { Terminal as XTerm } from '@xterm/xterm'
 import { Terminal as TerminalIcon, Maximize2, Minimize2 } from 'lucide-react'
 import '@xterm/xterm/css/xterm.css'
 
 import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
-import { Button } from '@/shared/ui/button'
-import { useThemeStore } from '@/shared/store/useThemeStore'
-import type { Theme } from '@/shared/store/useThemeStore'
 import { useSshSessionStore } from '@/shared/store/useSshSessionStore'
+import type { Theme } from '@/shared/store/useThemeStore'
+import { useThemeStore } from '@/shared/store/useThemeStore'
+import { Button } from '@/shared/ui/button'
+
 import { XTERM_THEMES } from '../config/xterm-themes'
 
 interface XtermTerminalProps {

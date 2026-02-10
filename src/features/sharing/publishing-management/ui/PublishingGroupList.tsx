@@ -8,13 +8,14 @@ import { useState } from 'react'
 import { Globe, Plus } from 'lucide-react'
 
 import type { PublishingListItem } from '@/entities/infrastructure/publishing'
+
 import { Button } from '@/shared/ui/button'
 import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { SortableList } from '@/shared/ui/sortable'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-import { getCategoryIcon, getCategoryLabel } from '../lib/publishingHelpers'
 import { SortablePublishingCard } from './SortablePublishingCard'
+import { getCategoryIcon, getCategoryLabel } from '../lib/publishingHelpers'
 
 interface PublishingGroupListProps {
   publishings: PublishingListItem[]

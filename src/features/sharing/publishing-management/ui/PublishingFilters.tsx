@@ -15,6 +15,7 @@ import {
 } from '@/shared/ui/select'
 
 import { PUBLISHING_CATEGORIES } from '../lib/publishingHelpers'
+
 import type { PublishingFiltersState } from '../model/types'
 
 interface PublishingFiltersProps {

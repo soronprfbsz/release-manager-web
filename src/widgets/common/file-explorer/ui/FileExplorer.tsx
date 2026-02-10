@@ -10,7 +10,6 @@ import { Folder, FolderOpen, ChevronRight, ChevronDown, Info, type LucideIcon } 
 
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import { getFileIcon, isViewableFile as checkIsViewableFile } from '@/shared/lib/utils/file-icon'
-
 import { FileViewer } from '@/shared/ui/file-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import {

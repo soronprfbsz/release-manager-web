@@ -7,9 +7,6 @@ import { useState, useMemo, useCallback } from 'react'
 
 import { FileText, Loader2 } from 'lucide-react'
 
-import type { PostListItem } from '@/entities/board'
-import { usePosts, useCreatePost, useDeletePost } from '@/entities/board'
-
 import {
   PostCardGrid,
   PostListTable,
@@ -19,10 +16,14 @@ import {
   type PostFormMode,
 } from '@/features/board'
 
+import type { PostListItem } from '@/entities/board'
+import { usePosts, useCreatePost, useDeletePost } from '@/entities/board'
+
+
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { EmptyState } from '@/shared/ui/empty-state'
 import { InfiniteScrollContainer } from '@/shared/ui/infinite-scroll'
 import { Skeleton } from '@/shared/ui/skeleton'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 
 interface BoardWidgetProps {
   /** 토픽 코드 */

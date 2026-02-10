@@ -4,7 +4,6 @@
  */
 
 import { getFormIcon } from '@/shared/config/domain-icons'
-
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -19,8 +18,9 @@ import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { SchedulerFormData, SchedulerFormMode } from '../model/types'
 import { HTTP_METHOD_OPTIONS, TIMEZONE_OPTIONS } from '../model/types'
+
+import type { SchedulerFormData, SchedulerFormMode } from '../model/types'
 
 interface SchedulerFormProps {
   mode: SchedulerFormMode

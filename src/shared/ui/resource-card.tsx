@@ -6,6 +6,7 @@
  */
 
 import { useRef, useState, useEffect, type ReactNode } from 'react'
+
 import { GripVertical, Trash2 } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'

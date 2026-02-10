@@ -4,9 +4,10 @@
  */
 
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
 import { BookOpen, MessageCircle, Plus, Search } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+
 
 import {
   AnnouncementTab,
@@ -15,11 +16,11 @@ import {
 
 import type { PostFormMode } from '@/features/board'
 
+import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
+import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
 import {
   Tooltip,
   TooltipContent,

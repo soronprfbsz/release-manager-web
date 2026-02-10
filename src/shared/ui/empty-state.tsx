@@ -3,12 +3,13 @@
  * 빈 상태 표시 컴포넌트 - 데이터가 없을 때 사용
  */
 
-import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 
 import { TypographyMuted } from './typography'
+
+import type { LucideIcon } from 'lucide-react'
 
 interface EmptyStateProps {
   icon: LucideIcon

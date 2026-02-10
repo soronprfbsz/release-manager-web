@@ -10,8 +10,11 @@ import { FileText } from 'lucide-react'
 import type { Post, IssueStatus, IssuePriority } from '@/entities/board'
 import { useUploadPostImage } from '@/entities/board'
 
+import { cn } from '@/shared/lib/utils'
+import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { RichTextEditor, type RichTextEditorRef } from '@/shared/ui/rich-text-editor'
 import {
   Select,
   SelectContent,
@@ -20,13 +23,11 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 import { Switch } from '@/shared/ui/switch'
-import { FormSheet } from '@/shared/ui/form-sheet'
-import { RichTextEditor, type RichTextEditorRef } from '@/shared/ui/rich-text-editor'
-import { cn } from '@/shared/lib/utils'
 
-import type { PostFormData, PostFormMode } from '../model/types'
 import { INITIAL_POST_FORM_DATA } from '../model/types'
 import { validatePostForm, type ValidationResult } from '../model/validation'
+
+import type { PostFormData, PostFormMode } from '../model/types'
 
 interface PostFormProps {
   mode: PostFormMode

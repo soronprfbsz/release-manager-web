@@ -5,10 +5,9 @@
 
 import { Upload } from 'lucide-react'
 
-import { getDomainIcon } from '@/shared/config/domain-icons'
-
 import type { CodeSimpleResponse } from '@/entities/_shared/code'
 
+import { getDomainIcon } from '@/shared/config/domain-icons'
 import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'

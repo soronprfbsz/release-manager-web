@@ -6,8 +6,8 @@
 
 import type { Customer } from '@/entities/operations/customer'
 
-import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
 import { CustomerNotesCard } from './CustomerNotesCard'
+import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
 
 interface CustomerDetailPanelProps {
   customer: Customer

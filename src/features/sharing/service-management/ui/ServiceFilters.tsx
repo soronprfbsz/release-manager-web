@@ -6,6 +6,8 @@
 import { Search } from 'lucide-react'
 
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
+
+import { Input } from '@/shared/ui/input'
 import {
   Select,
   SelectContent,
@@ -13,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Input } from '@/shared/ui/input'
+
 import type { ServiceFiltersState } from '../model/types'
 
 interface ServiceFiltersProps {
