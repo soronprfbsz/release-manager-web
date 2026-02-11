@@ -14,6 +14,7 @@ import {
 import type { PostListItem, PostStatus, PostPriority } from '@/entities/board'
 
 import { cn } from '@/shared/lib/utils'
+import { getRelativeTime } from '@/shared/lib/utils/date'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -37,27 +38,6 @@ const PRIORITY_CONFIG: Record<PostPriority, { label: string; className: string }
   MEDIUM: { label: '중간', className: 'bg-blue-100 text-blue-600' },
   HIGH: { label: '높음', className: 'bg-orange-100 text-orange-600' },
   URGENT: { label: '긴급', className: 'bg-red-100 text-red-600' },
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffHours < 1) {
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    return diffMinutes < 1 ? '방금 전' : `${diffMinutes}분 전`
-  }
-  if (diffHours < 24) return `${diffHours}시간 전`
-  if (diffDays < 7) return `${diffDays}일 전`
-
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 export function PostCard({ post, onClick, showStatus = false }: PostCardProps) {
@@ -145,7 +125,7 @@ export function PostCard({ post, onClick, showStatus = false }: PostCardProps) {
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>{formatDate(post.createdAt)}</span>
+                  <span>{getRelativeTime(post.createdAt)}</span>
                 </div>
               </div>
             </div>

@@ -51,6 +51,7 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { cn } from '@/shared/lib/utils'
+import { formatDateTimeLong } from '@/shared/lib/utils/date'
 import { useAuthStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -91,16 +92,6 @@ const PRIORITY_CONFIG: Record<IssuePriority, { label: string; className: string 
   MEDIUM: { label: '중간', className: 'bg-blue-100 text-blue-600' },
   HIGH: { label: '높음', className: 'bg-orange-100 text-orange-600' },
   URGENT: { label: '긴급', className: 'bg-red-100 text-red-600' },
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 function PostDetailSkeleton() {
@@ -465,7 +456,7 @@ export function PostDetailView({
           <div className="flex flex-col">
             <span className="font-semibold text-sm">{post.createdByName}</span>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{formatDate(post.createdAt)}</span>
+              <span>{formatDateTimeLong(post.createdAt)}</span>
               {post.createdAt !== post.updatedAt && <span>(수정됨)</span>}
             </div>
           </div>

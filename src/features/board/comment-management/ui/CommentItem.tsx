@@ -15,6 +15,7 @@ import {
 import type { Comment } from '@/entities/board'
 
 import { cn } from '@/shared/lib/utils'
+import { getRelativeTime } from '@/shared/lib/utils/date'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -33,27 +34,6 @@ interface CommentItemProps {
   onEdit?: (comment: Comment) => void
   onDelete?: (commentId: number) => void
   onLike?: (commentId: number) => void
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffHours < 1) {
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    return diffMinutes < 1 ? '방금 전' : `${diffMinutes}분 전`
-  }
-  if (diffHours < 24) return `${diffHours}시간 전`
-  if (diffDays < 7) return `${diffDays}일 전`
-
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
 }
 
 export function CommentItem({
@@ -126,7 +106,7 @@ export function CommentItem({
               </Tooltip>
             )}
             <span className="text-xs text-muted-foreground">
-              {formatDate(comment.createdAt)}
+              {getRelativeTime(comment.createdAt)}
             </span>
             {comment.createdAt !== comment.updatedAt && !isDeleted && (
               <span className="text-xs text-muted-foreground">(수정됨)</span>

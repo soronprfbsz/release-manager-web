@@ -14,6 +14,7 @@ import {
 import type { PostListItem } from '@/entities/board'
 
 import { cn } from '@/shared/lib/utils'
+import { getRelativeTime } from '@/shared/lib/utils/date'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
@@ -26,27 +27,6 @@ interface PostCardGridProps {
  * 안전한 인라인 스타일 태그만 유지하고 나머지 제거
  * 굵게, 기울임, 취소선, 밑줄 등 스타일 유지
  */
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffHours < 1) {
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    return diffMinutes < 1 ? '방금 전' : `${diffMinutes}분 전`
-  }
-  if (diffHours < 24) return `${diffHours}시간 전`
-  if (diffDays < 7) return `${diffDays}일 전`
-
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
 function sanitizeHtmlPreview(html: string): string {
   // 허용할 인라인 스타일 태그
   const allowedTags = ['strong', 'b', 'em', 'i', 's', 'del', 'u', 'mark', 'code']
@@ -146,7 +126,7 @@ export function PostCardGrid({ post, onClick }: PostCardGridProps) {
             </div>
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>{formatDate(post.updatedAt)}</span>
+              <span>{getRelativeTime(post.updatedAt)}</span>
             </div>
           </div>
         </div>
