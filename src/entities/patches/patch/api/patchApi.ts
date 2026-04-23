@@ -77,7 +77,11 @@ export const patchApi = {
 
   /** 표준 패치 생성 */
   generateStandard: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
-    const response = await apiClient.post<CumulativePatch>(ENDPOINTS.generateStandard, request)
+    const response = await apiClient.post<CumulativePatch>(
+      ENDPOINTS.generateStandard,
+      request,
+      { timeout: API_TIMEOUT.FILE_OPERATION },
+    )
     return response
   },
 
@@ -95,7 +99,11 @@ export const patchApi = {
 
   /** 커스텀 패치 생성 */
   generateCustom: async (request: CustomPatchGenerateRequest): Promise<CumulativePatch> => {
-    const response = await apiClient.post<CumulativePatch>(ENDPOINTS.generateCustom, request)
+    const response = await apiClient.post<CumulativePatch>(
+      ENDPOINTS.generateCustom,
+      request,
+      { timeout: API_TIMEOUT.FILE_OPERATION },
+    )
     return response
   },
 
