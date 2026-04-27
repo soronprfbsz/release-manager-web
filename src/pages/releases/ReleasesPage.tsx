@@ -19,6 +19,7 @@ import {
   ReleaseTree,
   VersionDetail,
   HotfixCreateForm,
+  BuildCreateForm,
   type SelectedVersionInfo,
   type SelectedVersionData,
 } from '@/features/releases/standard'
@@ -73,6 +74,10 @@ interface StandardSelectedState {
   versionId: number
   version: string
   isHotfix: boolean
+  /** 빌드 여부 */
+  isBuild?: boolean
+  /** 빌드 base 버전 (예: 1.1.0) */
+  buildBaseVersion?: string
 }
 
 /** Custom 선택 상태 */
@@ -82,6 +87,10 @@ interface CustomSelectedState {
   isHotfix: boolean
   customerCode: string
   customBaseVersion: string | null
+  /** 빌드 여부 */
+  isBuild?: boolean
+  /** 빌드 base 버전 (예: 1.1.0) */
+  buildBaseVersion?: string
 }
 
 /** 트리 액션 메뉴용 타겟 정보 */
@@ -112,6 +121,7 @@ export function ReleasesPage() {
   // 공통 상태
   const [prevProjectId, setPrevProjectId] = useState(projectId)
   const [hotfixTarget, setHotfixTarget] = useState<ActionTargetInfo | null>(null)
+  const [buildTarget, setBuildTarget] = useState<ActionTargetInfo | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ActionTargetInfo | null>(null)
 
   const deleteMutation = useDeleteVersion()
@@ -206,6 +216,26 @@ export function ReleasesPage() {
               fileCategories: foundHotfix.fileCategories || []
             } as SelectedVersionData
           }
+          const foundBuild = version.builds?.find(b => b.versionId === standardSelected.versionId)
+          if (foundBuild) {
+            return {
+              versionId: foundBuild.versionId,
+              version: foundBuild.fullVersion,
+              createdAt: foundBuild.createdAt,
+              createdByEmail: foundBuild.createdByEmail || '',
+              createdByName: foundBuild.createdByName,
+              createdByAvatarStyle: foundBuild.createdByAvatarStyle,
+              createdByAvatarSeed: foundBuild.createdByAvatarSeed,
+              isDeletedCreator: foundBuild.isDeletedCreator,
+              comment: foundBuild.comment || '',
+              isApproved: foundBuild.isApproved,
+              approvedBy: null,
+              approvedAt: null,
+              fileCategories: foundBuild.fileCategories || [],
+              buildVersion: foundBuild.buildVersion,
+              buildBaseVersion: version.version,
+            } as SelectedVersionData
+          }
         }
       }
       return null
@@ -240,6 +270,26 @@ export function ReleasesPage() {
                 fileCategories: foundHotfix.fileCategories || []
               } as SelectedVersionData
             }
+            const foundBuild = version.builds?.find(b => b.versionId === customSelected.versionId)
+            if (foundBuild) {
+              return {
+                versionId: foundBuild.versionId,
+                version: foundBuild.fullVersion,
+                createdAt: foundBuild.createdAt,
+                createdByEmail: foundBuild.createdByEmail || '',
+                createdByName: foundBuild.createdByName,
+                createdByAvatarStyle: foundBuild.createdByAvatarStyle,
+                createdByAvatarSeed: foundBuild.createdByAvatarSeed,
+                isDeletedCreator: foundBuild.isDeletedCreator,
+                comment: foundBuild.comment || '',
+                isApproved: foundBuild.isApproved,
+                approvedBy: null,
+                approvedAt: null,
+                fileCategories: foundBuild.fileCategories || [],
+                buildVersion: foundBuild.buildVersion,
+                buildBaseVersion: version.version,
+              } as SelectedVersionData
+            }
           }
         }
       }
@@ -257,7 +307,9 @@ export function ReleasesPage() {
     setStandardSelected({
       versionId: info.versionId,
       version: info.version,
-      isHotfix: info.isHotfix
+      isHotfix: info.isHotfix,
+      isBuild: info.isBuild,
+      buildBaseVersion: info.buildBaseVersion,
     })
   }
 
@@ -268,7 +320,9 @@ export function ReleasesPage() {
       version: info.version,
       isHotfix: info.isHotfix,
       customerCode: info.customerCode,
-      customBaseVersion: info.customBaseVersion
+      customBaseVersion: info.customBaseVersion,
+      isBuild: info.isBuild,
+      buildBaseVersion: info.buildBaseVersion,
     })
   }
 
@@ -297,6 +351,10 @@ export function ReleasesPage() {
   // 트리 액션 메뉴 핸들러
   const handleTreeHotfix = (versionId: number, version: string, customerCode?: string) => {
     setHotfixTarget({ versionId, version, isHotfix: false, customerCode })
+  }
+
+  const handleTreeBuild = (versionId: number, version: string, customerCode?: string) => {
+    setBuildTarget({ versionId, version, isHotfix: false, customerCode })
   }
 
   const handleTreeDelete = (versionId: number, version: string, isHotfix: boolean) => {
@@ -335,6 +393,11 @@ export function ReleasesPage() {
 
   const handleHotfixSuccess = () => {
     setHotfixTarget(null)
+    handleRefresh()
+  }
+
+  const handleBuildSuccess = () => {
+    setBuildTarget(null)
     handleRefresh()
   }
 
@@ -439,6 +502,7 @@ export function ReleasesPage() {
                 selectedVersionId={standardSelected?.versionId || null}
                 onSelectVersion={handleStandardSelect}
                 onHotfix={(versionId, version) => handleTreeHotfix(versionId, version)}
+                onBuild={(versionId, version) => handleTreeBuild(versionId, version)}
                 onDelete={handleTreeDelete}
                 canAddVersion={canAddVersion}
                 canDeleteVersion={canDeleteVersion}
@@ -455,6 +519,7 @@ export function ReleasesPage() {
                 selectedVersionId={customSelected?.versionId || null}
                 onSelectVersion={handleCustomSelect}
                 onHotfix={(versionId, version, customerCode) => handleTreeHotfix(versionId, version, customerCode)}
+                onBuild={(versionId, version, customerCode) => handleTreeBuild(versionId, version, customerCode)}
                 onDelete={handleTreeDelete}
                 canAddVersion={canAddVersion}
                 canDeleteVersion={canDeleteVersion}
@@ -469,6 +534,7 @@ export function ReleasesPage() {
             <VersionDetail.Provider
               version={standardVersion}
               isHotfix={standardSelected?.isHotfix}
+              isBuild={standardSelected?.isBuild}
               onDelete={handleDeleteSuccess}
             >
               <ContentSplit.Detail header={<VersionDetail.Header />}>
@@ -484,6 +550,7 @@ export function ReleasesPage() {
             <VersionDetail.Provider
               version={customVersion}
               isHotfix={customSelected?.isHotfix}
+              isBuild={customSelected?.isBuild}
               onDelete={handleDeleteSuccess}
               baseVersion={customSelected?.customBaseVersion}
             >
@@ -522,6 +589,17 @@ export function ReleasesPage() {
           hotfixBaseVersionId={hotfixTarget.versionId}
           hotfixBaseVersion={hotfixTarget.version}
           onSuccess={handleHotfixSuccess}
+        />
+      )}
+
+      {/* 빌드 생성 다이얼로그 */}
+      {buildTarget && (
+        <BuildCreateForm
+          open={true}
+          onOpenChange={(open) => !open && setBuildTarget(null)}
+          baseVersionId={buildTarget.versionId}
+          baseVersion={buildTarget.version}
+          onSuccess={handleBuildSuccess}
         />
       )}
 

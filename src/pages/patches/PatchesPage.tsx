@@ -103,13 +103,19 @@ function getVersionsFromTree(
   data.majorMinorGroups.forEach((group) => {
     group.versions.forEach((v) => {
       versions.push(v.version)
+      v.hotfixes?.forEach((h) => versions.push(h.fullVersion))
+      v.builds?.forEach((b) => versions.push(b.fullVersion))
     })
   })
+  // major.minor.patch[.subVersion] (subVersion = hotfixVersion 또는 buildVersion)
   return versions.sort((a, b) => {
     const aParts = a.split('.').map(Number)
     const bParts = b.split('.').map(Number)
-    for (let i = 0; i < 3; i++) {
-      if (aParts[i] !== bParts[i]) return aParts[i] - bParts[i]
+    const len = Math.max(aParts.length, bParts.length)
+    for (let i = 0; i < len; i++) {
+      const ai = aParts[i] ?? 0
+      const bi = bParts[i] ?? 0
+      if (ai !== bi) return ai - bi
     }
     return 0
   })

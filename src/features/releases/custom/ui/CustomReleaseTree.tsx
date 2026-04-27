@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Star, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Hammer, Star, Trash2 } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -52,6 +52,10 @@ export interface SelectedCustomVersionInfo {
   isHotfix: boolean
   customerCode: string
   customBaseVersion: string | null
+  /** 빌드 여부 */
+  isBuild?: boolean
+  /** 빌드 base 버전 (예: 1.0.0) */
+  buildBaseVersion?: string
 }
 
 interface CustomReleaseTreeProps {
@@ -60,9 +64,11 @@ interface CustomReleaseTreeProps {
   onSelectVersion: (info: SelectedCustomVersionInfo) => void
   /** 핫픽스 생성 콜백 */
   onHotfix?: (versionId: number, version: string, customerCode: string) => void
+  /** 빌드 생성 콜백 */
+  onBuild?: (versionId: number, version: string, customerCode: string) => void
   /** 삭제 콜백 */
   onDelete?: (versionId: number, version: string, isHotfix: boolean) => void
-  /** 핫픽스 생성 권한 */
+  /** 핫픽스/빌드 생성 권한 */
   canAddVersion?: boolean
   /** 삭제 권한 */
   canDeleteVersion?: boolean
@@ -73,6 +79,7 @@ export function CustomReleaseTree({
   selectedVersionId,
   onSelectVersion,
   onHotfix,
+  onBuild,
   onDelete,
   canAddVersion = false,
   canDeleteVersion = false,
@@ -214,6 +221,8 @@ export function CustomReleaseTree({
                         <div className="ml-4 pl-2 border-l border-border">
                           {group.versions.map((version) => {
                             const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
+                            const hasBuilds = version.builds && version.builds.length > 0
+                            const hasChildren = hasHotfixes || hasBuilds
                             const isVersionExpanded = expandedVersions.has(version.versionId)
 
                             return (
@@ -232,8 +241,8 @@ export function CustomReleaseTree({
                                     customBaseVersion: customer.customBaseVersion
                                   })}
                                 >
-                                  {/* 핫픽스가 있는 경우 확장 버튼 */}
-                                  {hasHotfixes ? (
+                                  {/* 자식(핫픽스/빌드)이 있는 경우 확장 버튼 */}
+                                  {hasChildren ? (
                                     <button
                                       onClick={(e) => toggleVersion(version.versionId, e)}
                                       className="p-0.5 rounded shrink-0"
@@ -285,6 +294,12 @@ export function CustomReleaseTree({
                                           핫픽스 생성
                                         </TreeActionMenuItem>
                                       )}
+                                      {canAddVersion && (
+                                        <TreeActionMenuItem onClick={() => onBuild?.(version.versionId, version.version, customer.customerCode)}>
+                                          <Hammer className="h-4 w-4 mr-2 text-blue-500" />
+                                          빌드 생성
+                                        </TreeActionMenuItem>
+                                      )}
                                       {canAddVersion && canDeleteVersion && <TreeActionMenuSeparator />}
                                       {canDeleteVersion && (
                                         <TreeActionMenuItem
@@ -299,12 +314,13 @@ export function CustomReleaseTree({
                                   )}
                                 </div>
 
-                                {/* 핫픽스 목록 */}
-                                {hasHotfixes && isVersionExpanded && (
+                                {/* 핫픽스 / 빌드 목록 (확장 시) */}
+                                {hasChildren && isVersionExpanded && (
                                   <div className="ml-6 pl-2 border-l border-border/50">
-                                    {version.hotfixes.map((hotfix) => (
+                                    {/* 핫픽스 */}
+                                    {hasHotfixes && version.hotfixes.map((hotfix) => (
                                       <div
-                                        key={hotfix.versionId}
+                                        key={`hotfix-${hotfix.versionId}`}
                                         className={cn(
                                           'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
                                           'hover:bg-accent',
@@ -351,6 +367,62 @@ export function CustomReleaseTree({
                                             <TreeActionMenuItem
                                               destructive
                                               onClick={() => onDelete?.(hotfix.versionId, hotfix.fullVersion, true)}
+                                            >
+                                              <Trash2 className="h-4 w-4 mr-2" />
+                                              삭제
+                                            </TreeActionMenuItem>
+                                          </TreeActionMenu>
+                                        )}
+                                      </div>
+                                    ))}
+
+                                    {/* 빌드 */}
+                                    {hasBuilds && version.builds!.map((build) => (
+                                      <div
+                                        key={`build-${build.versionId}`}
+                                        className={cn(
+                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
+                                          'hover:bg-accent',
+                                          selectedVersionId === build.versionId && 'bg-accent'
+                                        )}
+                                        onClick={() => onSelectVersion({
+                                          versionId: build.versionId,
+                                          version: build.fullVersion,
+                                          isHotfix: false,
+                                          isBuild: true,
+                                          buildBaseVersion: version.version,
+                                          customerCode: customer.customerCode,
+                                          customBaseVersion: customer.customBaseVersion,
+                                        })}
+                                      >
+                                        <div className="flex items-center gap-2 flex-1 text-left text-sm">
+                                          <Hammer className="h-4 w-4 shrink-0 text-blue-500" />
+                                          <span className="flex-shrink-0">
+                                            {build.fullVersion}
+                                          </span>
+                                          <div className="flex gap-1 ml-auto items-center">
+                                            {build.fileCategories && build.fileCategories.length > 0 && (
+                                              <>
+                                                {build.fileCategories.map((category) => (
+                                                  <Badge
+                                                    key={category}
+                                                    variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                                                    className="text-[10px] px-1 py-0 h-4 leading-none"
+                                                  >
+                                                    {getCategoryShortName(category)}
+                                                  </Badge>
+                                                ))}
+                                              </>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        {/* 액션 메뉴 (빌드) */}
+                                        {showActions && canDeleteVersion && (
+                                          <TreeActionMenu>
+                                            <TreeActionMenuItem
+                                              destructive
+                                              onClick={() => onDelete?.(build.versionId, build.fullVersion, false)}
                                             >
                                               <Trash2 className="h-4 w-4 mr-2" />
                                               삭제

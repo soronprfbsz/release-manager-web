@@ -1,6 +1,6 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, useRef, createContext, useContext } from 'react'
 
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, X, Check } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
 
 
 import {
@@ -10,6 +10,7 @@ import {
   useDeleteVersion,
   useApproveVersion,
   useUpdateVersionComment,
+  useReplaceBuildZip,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
 
@@ -64,12 +65,18 @@ export interface SelectedVersionData {
   approvedByAvatarSeed?: string | null
   isDeletedApprover?: boolean
   approvedAt: string | null
+  /** 빌드 버전 번호 (1+이면 빌드, 예: 260427) */
+  buildVersion?: number
+  /** 빌드 base 버전 (예: 1.1.0) — `version` 은 fullVersion(1.1.0.260427) 일 때 채움 */
+  buildBaseVersion?: string
 }
 
 interface VersionDetailPanelProps {
   version: SelectedVersionData | null
   /** 핫픽스 여부 */
   isHotfix?: boolean
+  /** 빌드 여부 */
+  isBuild?: boolean
   onDelete?: () => void
   /** 기준 표준본 버전 (커스텀 릴리즈의 경우) */
   baseVersion?: string | null
@@ -79,6 +86,7 @@ interface VersionDetailPanelProps {
 interface VersionDetailContextValue {
   version: SelectedVersionData
   isHotfix: boolean
+  isBuild: boolean
   baseVersion?: string | null
   fileStructure: ReturnType<typeof useVersionFileStructure>['data']
   isLoading: boolean
@@ -235,6 +243,7 @@ function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNod
 function VersionDetailProvider({
   version,
   isHotfix = false,
+  isBuild = false,
   onDelete,
   baseVersion,
   children,
@@ -388,6 +397,7 @@ function VersionDetailProvider({
   const contextValue: VersionDetailContextValue = {
     version,
     isHotfix,
+    isBuild,
     baseVersion,
     fileStructure,
     isLoading,
@@ -434,7 +444,7 @@ function VersionDetailProvider({
 // Header component
 function VersionDetailHeader() {
   const ctx = useVersionDetailContext()
-  const { version, isHotfix, baseVersion } = ctx
+  const { version, isHotfix, isBuild, baseVersion } = ctx
 
   const getCategoryShortName = (category: string) => {
     switch (category) {
@@ -457,6 +467,15 @@ function VersionDetailHeader() {
       </h2>
       {isHotfix && (
         <Badge variant="destructive" className="h-5 text-xs">HOTFIX</Badge>
+      )}
+      {isBuild && (
+        <Badge className="h-5 text-xs bg-blue-500 hover:bg-blue-500/90 text-white">BUILD</Badge>
+      )}
+      {isBuild && version.buildBaseVersion && (
+        <span className="flex items-center gap-1 text-muted-foreground text-xs">
+          <Tag className="h-3 w-3" />
+          base {version.buildBaseVersion}
+        </span>
       )}
       {version.fileCategories && version.fileCategories.length > 0 && (
         <div className="flex items-center gap-1">
@@ -574,6 +593,101 @@ function CommentSection() {
   )
 }
 
+// 빌드 ZIP 재업로드 액션 (빌드 노드에서만 표시)
+function BuildZipReplaceAction() {
+  const ctx = useVersionDetailContext()
+  const { version, isBuild, canAddVersion } = ctx
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const replaceMutation = useReplaceBuildZip()
+  const { toast } = useToast()
+
+  if (!isBuild || !canAddVersion) return null
+
+  const handleSelectFile = () => fileInputRef.current?.click()
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) setPendingFile(file)
+    e.target.value = ''
+  }
+
+  const handleConfirm = () => {
+    if (!pendingFile) return
+    replaceMutation.mutate(
+      { buildVersionId: version.versionId, file: pendingFile },
+      {
+        onSuccess: (data) => {
+          toast({
+            title: 'ZIP 재업로드 완료',
+            description: `${data.uploadedFileCount}개 파일이 교체되었습니다.`,
+          })
+          setPendingFile(null)
+        },
+        onError: (err) => {
+          toast({
+            title: 'ZIP 재업로드 실패',
+            description: err instanceof Error ? err.message : '업로드 중 오류가 발생했습니다.',
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".zip"
+        hidden
+        onChange={handleFileChange}
+      />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={handleSelectFile}
+            disabled={replaceMutation.isPending}
+          >
+            <Upload />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>ZIP 재업로드</TooltipContent>
+      </Tooltip>
+      <AlertDialog
+        open={pendingFile !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingFile(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>빌드 ZIP 교체</AlertDialogTitle>
+            <AlertDialogDescription>
+              빌드 <strong>{version.version}</strong> 의 기존 파일이 모두 삭제되고 새 ZIP 으로 교체됩니다.
+              <br />
+              파일: <code>{pendingFile?.name}</code>
+              {pendingFile ? ` (${Math.round(pendingFile.size / 1024)} KB)` : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={replaceMutation.isPending}>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirm}
+              disabled={replaceMutation.isPending}
+            >
+              {replaceMutation.isPending ? '업로드 중...' : '교체'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
+
 // Content component
 function VersionDetailContent() {
   const ctx = useVersionDetailContext()
@@ -614,21 +728,24 @@ function VersionDetailContent() {
           )
         }
         actions={
-          canApproveVersion && !version.isApproved && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon-xs"
-                  onClick={handleApprove}
-                  disabled={approveMutation.isPending}
-                >
-                  <CheckCircle2 />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>승인하기</TooltipContent>
-            </Tooltip>
-          )
+          <div className="flex items-center gap-1">
+            <BuildZipReplaceAction />
+            {canApproveVersion && !version.isApproved && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon-xs"
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                  >
+                    <CheckCircle2 />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>승인하기</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         }
       >
         <div className="grid grid-cols-2 gap-4">
@@ -747,7 +864,7 @@ function VersionDetailContent() {
 function VersionDetailDialogs() {
   const ctx = useVersionDetailContext()
   const {
-    version, isHotfix, projectId, onDelete,
+    version, isHotfix, isBuild, projectId, onDelete,
     fileViewerOpen, setFileViewerOpen, selectedFile,
     deleteDialogOpen, setDeleteDialogOpen, hotfixDialogOpen, setHotfixDialogOpen,
     deleteMutation, handleDeleteConfirm, handleDownloadSelectedFile, canDownloadVersion,
@@ -799,8 +916,8 @@ function VersionDetailDialogs() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Hotfix Create Form */}
-      {!isHotfix && (
+      {/* Hotfix Create Form (빌드 위에서는 핫픽스 생성 불가) */}
+      {!isHotfix && !isBuild && (
         <HotfixCreateForm
           open={hotfixDialogOpen}
           onOpenChange={setHotfixDialogOpen}
@@ -815,7 +932,7 @@ function VersionDetailDialogs() {
 }
 
 // Legacy component for backward compatibility
-export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVersion }: VersionDetailPanelProps) {
+export function VersionDetailPanel({ version, isHotfix = false, isBuild = false, onDelete, baseVersion }: VersionDetailPanelProps) {
   if (!version) {
     return (
       <div className="h-full flex flex-col overflow-hidden">
@@ -830,7 +947,7 @@ export function VersionDetailPanel({ version, isHotfix = false, onDelete, baseVe
   }
 
   return (
-    <VersionDetailProvider version={version} isHotfix={isHotfix} onDelete={onDelete} baseVersion={baseVersion}>
+    <VersionDetailProvider version={version} isHotfix={isHotfix} isBuild={isBuild} onDelete={onDelete} baseVersion={baseVersion}>
       <div className="h-full flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 flex-shrink-0">

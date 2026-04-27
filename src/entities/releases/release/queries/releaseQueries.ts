@@ -4,7 +4,16 @@ import { fileContentKeys, useFileContentByPath } from '@/shared/api'
 
 import { releaseApi } from '../api/releaseApi'
 
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
+import type {
+  BuildListResponse,
+  CreateBuildResponse,
+  CustomReleaseTreeResponse,
+  ReleaseFileStructure,
+  ReleaseTreeResponse,
+  ReleaseVersionDetail,
+  StandardVersionSimple,
+  UploadBuildZipResponse,
+} from '../model/types'
 
 // Query Keys Factory
 export const releaseKeys = {
@@ -17,6 +26,7 @@ export const releaseKeys = {
   versions: () => [...releaseKeys.all, 'version'] as const,
   version: (id: number) => [...releaseKeys.versions(), id] as const,
   fileStructure: (id: number) => [...releaseKeys.versions(), id, 'files'] as const,
+  builds: (baseVersionId: number) => [...releaseKeys.versions(), baseVersionId, 'builds'] as const,
   /** @deprecated Use fileContentKeys from shared/api instead */
   fileContent: (filePath: string) => fileContentKeys.content(filePath),
 }
@@ -165,6 +175,84 @@ export const useUpdateVersionComment = () => {
     onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
       queryClient.invalidateQueries({ queryKey: releaseKeys.version(params.versionId) })
+    },
+  })
+}
+
+// =====================================
+// Build (빌드 버전) 관련 hooks
+// =====================================
+
+export const useBuilds = (
+  baseVersionId: number,
+  options?: Omit<UseQueryOptions<BuildListResponse>, 'queryKey' | 'queryFn'>
+) =>
+  useQuery({
+    queryKey: releaseKeys.builds(baseVersionId),
+    queryFn: () => releaseApi.getBuilds(baseVersionId),
+    enabled: !!baseVersionId,
+    ...options,
+  })
+
+interface CreateBuildParams {
+  baseVersionId: number
+  comment: string
+  buildVersion?: number
+  file?: File
+  onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+}
+
+export const useCreateBuild = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<CreateBuildResponse, Error, CreateBuildParams>({
+    mutationFn: (params) =>
+      releaseApi.createBuild(
+        params.baseVersionId,
+        params.comment,
+        params.buildVersion,
+        params.file,
+        params.onUploadProgress
+      ),
+    onSuccess: (_, params) => {
+      queryClient.invalidateQueries({ queryKey: releaseKeys.builds(params.baseVersionId) })
+      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
+    },
+  })
+}
+
+export const useDeleteBuild = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<void, Error, { buildVersionId: number; baseVersionId: number }>({
+    mutationFn: ({ buildVersionId }) => releaseApi.deleteBuild(buildVersionId),
+    onSuccess: (_, { baseVersionId }) => {
+      queryClient.invalidateQueries({ queryKey: releaseKeys.builds(baseVersionId) })
+      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
+    },
+  })
+}
+
+interface ReplaceBuildZipParams {
+  buildVersionId: number
+  /** 캐시 invalidate 용 base 버전 ID (생략 시 트리만 새로고침) */
+  baseVersionId?: number
+  file: File
+  onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+}
+
+export const useReplaceBuildZip = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<UploadBuildZipResponse, Error, ReplaceBuildZipParams>({
+    mutationFn: (params) =>
+      releaseApi.replaceBuildZip(params.buildVersionId, params.file, params.onUploadProgress),
+    onSuccess: (_, params) => {
+      if (params.baseVersionId !== undefined) {
+        queryClient.invalidateQueries({ queryKey: releaseKeys.builds(params.baseVersionId) })
+      }
+      queryClient.invalidateQueries({ queryKey: releaseKeys.version(params.buildVersionId) })
+      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
     },
   })
 }

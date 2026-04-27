@@ -4,6 +4,10 @@
 
 // Types
 export type {
+  BuildItem,
+  BuildListResponse,
+  BuildTreeNode,
+  CreateBuildResponse,
   DatabaseNode,
   HotfixNode,
   VersionNode,
@@ -35,4 +39,8 @@ export {
   useDeleteVersion,
   useApproveVersion,
   useUpdateVersionComment,
+  useBuilds,
+  useCreateBuild,
+  useDeleteBuild,
+  useReplaceBuildZip,
 } from './queries/releaseQueries'

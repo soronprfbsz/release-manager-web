@@ -2,7 +2,16 @@ import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
 import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
 
-import type { ReleaseTreeResponse, ReleaseVersionDetail, ReleaseFileStructure, CustomReleaseTreeResponse, StandardVersionSimple } from '../model/types'
+import type {
+  BuildListResponse,
+  CreateBuildResponse,
+  CustomReleaseTreeResponse,
+  ReleaseFileStructure,
+  ReleaseTreeResponse,
+  ReleaseVersionDetail,
+  StandardVersionSimple,
+  UploadBuildZipResponse,
+} from '../model/types'
 
 const ENDPOINTS = {
   standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
@@ -19,6 +28,11 @@ const ENDPOINTS = {
   // 핫픽스 관련 엔드포인트
   createHotfix: (id: number) => `/api/releases/versions/${id}/hotfix`,
   getHotfixes: (id: number) => `/api/releases/versions/${id}/hotfixes`,
+  // 빌드 관련 엔드포인트
+  createBuild: (id: number) => `/api/releases/versions/${id}/builds`,
+  getBuilds: (id: number) => `/api/releases/versions/${id}/builds`,
+  deleteBuild: (id: number) => `/api/releases/builds/${id}`,
+  replaceBuildZip: (id: number) => `/api/releases/builds/${id}/zip`,
   // 코멘트 수정 엔드포인트
   updateComment: (id: number) => `/api/releases/versions/${id}/comment`,
 } as const
@@ -183,5 +197,74 @@ export const releaseApi = {
   /** 버전 코멘트 수정 */
   updateComment: async (versionId: number, comment: string): Promise<void> => {
     await apiClient.patch(ENDPOINTS.updateComment(versionId), { comment })
+  },
+
+  /**
+   * 빌드 버전 생성 (multipart/form-data)
+   * @param baseVersionId  빌드 원본 버전 ID
+   * @param comment        빌드 노트 (필수)
+   * @param buildVersion   빌드 버전 번호 (선택, 미지정 시 서버가 오늘 yyMMdd 자동 채움)
+   * @param file           ZIP 파일 (선택, 루트는 web/engine/etc 만 허용)
+   */
+  createBuild: async (
+    baseVersionId: number,
+    comment: string,
+    buildVersion?: number,
+    file?: File,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<CreateBuildResponse> => {
+    const formData = new FormData()
+    formData.append('comment', comment)
+    if (buildVersion !== undefined && buildVersion !== null) {
+      formData.append('buildVersion', String(buildVersion))
+    }
+    if (file) {
+      formData.append('file', file)
+    }
+
+    const response = await apiClient.upload<CreateBuildResponse>(
+      ENDPOINTS.createBuild(baseVersionId),
+      formData,
+      {
+        onUploadProgress,
+        timeout: API_TIMEOUT.FILE_OPERATION,
+      }
+    )
+    return response
+  },
+
+  /** 특정 버전의 빌드 목록 조회 (build_version DESC) */
+  getBuilds: async (baseVersionId: number): Promise<BuildListResponse> => {
+    const response = await apiClient.get<BuildListResponse>(ENDPOINTS.getBuilds(baseVersionId))
+    return response
+  },
+
+  /** 빌드 버전 삭제 (행 + 디렉토리) */
+  deleteBuild: async (buildVersionId: number): Promise<void> => {
+    await apiClient.delete(ENDPOINTS.deleteBuild(buildVersionId))
+  },
+
+  /**
+   * 빌드 ZIP 재업로드 (교체 시맨틱 — 기존 파일 삭제 후 새 ZIP 으로 교체)
+   * @param buildVersionId 빌드 버전 ID
+   * @param file           새 ZIP 파일 (필수, web/engine/etc 루트만 허용)
+   */
+  replaceBuildZip: async (
+    buildVersionId: number,
+    file: File,
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  ): Promise<UploadBuildZipResponse> => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await apiClient.upload<UploadBuildZipResponse>(
+      ENDPOINTS.replaceBuildZip(buildVersionId),
+      formData,
+      {
+        onUploadProgress,
+        timeout: API_TIMEOUT.FILE_OPERATION,
+      }
+    )
+    return response
   },
 }
