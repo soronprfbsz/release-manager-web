@@ -21,6 +21,7 @@ import {
   type PatchCreateFormData,
   type CustomPatchCreateFormData,
   type SortConfig,
+  type VersionOption,
   validatePatchForm,
 } from '@/features/patches/patch-management'
 
@@ -59,12 +60,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'standard' | 'custom'
-
-/** 버전 선택 옵션 (버전 문자열 + versionId) */
-interface VersionOption {
-  version: string
-  versionId: number
-}
 
 const TAB_CONFIG = {
   standard: {

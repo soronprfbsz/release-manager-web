@@ -5,9 +5,9 @@
 
 import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
-import { useBuildsInRange } from '@/entities/releases/release/queries/releaseQueries'
+import { useBuildsInRange } from '@/entities/releases/release'
 import type { Customer, Account } from '@/entities/operations'
-import type { BuildSelection } from '@/entities/patches/patch/model/types'
+import type { BuildSelection } from '@/entities/patches/patch'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -24,14 +24,9 @@ import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { PatchCreateFormData } from '../model/types'
+import type { PatchCreateFormData, VersionOption } from '../model/types'
+import { getVersionIdFromOption } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
-
-/** 버전 선택 옵션 (version 문자열 + versionId) */
-export interface VersionOption {
-  version: string
-  versionId: number
-}
 
 interface PatchCreateFormProps {
   isOpen: boolean
@@ -55,7 +50,7 @@ export function PatchCreateForm({
   isOpen,
   formData,
   versions,
-  versionOptions,
+  versionOptions = [],
   customers,
   accounts,
   isVersionsLoading,
@@ -65,29 +60,24 @@ export function PatchCreateForm({
   onClose,
   icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
-  // versionOptions에서 version → versionId 매핑 헬퍼
-  const getVersionId = (version: string): number | null => {
-    if (!versionOptions) return null
-    return versionOptions.find((o) => o.version === version)?.versionId ?? null
-  }
-
   const handleFromVersionChange = (value: string) => {
-    const fromVersionId = getVersionId(value)
+    const fromVersionId = getVersionIdFromOption(versionOptions, value)
     const toVersionCleared =
       formData.toVersion && value >= formData.toVersion ? '' : formData.toVersion
-    const toVersionId = toVersionCleared ? formData.toVersionId : null
     onFormDataChange({
       ...formData,
       fromVersion: value,
       fromVersionId,
       toVersion: toVersionCleared,
-      toVersionId: toVersionCleared ? toVersionId : null,
+      toVersionId: toVersionCleared
+        ? getVersionIdFromOption(versionOptions, toVersionCleared)
+        : null,
       buildSelection: null,
     })
   }
 
   const handleToVersionChange = (value: string) => {
-    const toVersionId = getVersionId(value)
+    const toVersionId = getVersionIdFromOption(versionOptions, value)
     onFormDataChange({
       ...formData,
       toVersion: value,

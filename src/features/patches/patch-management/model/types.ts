@@ -3,7 +3,13 @@
  * 패치 관리 기능 타입 정의
  */
 
-import type { BuildSelection } from '@/entities/patches/patch/model/types'
+import type { BuildSelection } from '@/entities/patches/patch'
+
+/** 버전 선택 옵션 (version 문자열 + versionId) */
+export interface VersionOption {
+  version: string
+  versionId: number
+}
 
 export interface PatchCreateFormData {
   fromVersion: string

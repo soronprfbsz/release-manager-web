@@ -14,12 +14,8 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import { Label } from '@/shared/ui/label'
 
-import type {
-  BuildCandidate,
-  BuildsInRangeResponse,
-  EngineGroup,
-} from '@/entities/releases/release/model/types'
-import type { BuildSelection, SelectedEngine } from '@/entities/patches/patch/model/types'
+import type { BuildCandidate, BuildsInRangeResponse, EngineGroup } from '@/entities/releases/release'
+import type { BuildSelection, SelectedEngine } from '@/entities/patches/patch'
 
 interface BuildPickerSectionProps {
   data: BuildsInRangeResponse
@@ -32,10 +28,13 @@ interface BuildPickerSectionProps {
 export function computeAutoPreselect(data: BuildsInRangeResponse): BuildSelection {
   const web =
     data.web.length > 0 ? { buildVersionId: data.web[0].buildVersionId } : null
-  const engines: SelectedEngine[] = data.engines.map((g) => ({
-    engineName: g.engineName,
-    buildVersionId: g.candidates[0].buildVersionId,
-  }))
+  // candidates 가 비어 있는 EngineGroup 은 안전하게 건너뜀
+  const engines: SelectedEngine[] = data.engines
+    .filter((g) => g.candidates.length > 0)
+    .map((g) => ({
+      engineName: g.engineName,
+      buildVersionId: g.candidates[0].buildVersionId,
+    }))
   return { enabled: true, web, engines }
 }
 
@@ -104,6 +103,7 @@ export function BuildPickerSection({
               <button
                 key={c.buildVersionId}
                 type="button"
+                aria-pressed={value.web?.buildVersionId === c.buildVersionId}
                 onClick={() =>
                   setWeb(
                     value.web?.buildVersionId === c.buildVersionId ? null : c.buildVersionId
@@ -128,6 +128,7 @@ export function BuildPickerSection({
             ))}
             <button
               type="button"
+              aria-pressed={value.web == null}
               onClick={() => setWeb(null)}
               disabled={disabled}
               className={cn(

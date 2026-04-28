@@ -22,7 +22,11 @@ export type {
   PatchFiltersState,
   PatchFormMode,
   SortConfig,
+  VersionOption,
 } from './model/types'
 
 // Validation
 export { validatePatchForm } from './model/validation'
+
+// Helpers
+export { getVersionIdFromOption } from './lib/helpers'

@@ -36,6 +36,8 @@ const ENDPOINTS = {
   replaceBuildZip: (id: number) => `/api/releases/builds/${id}/zip`,
   // 코멘트 수정 엔드포인트
   updateComment: (id: number) => `/api/releases/versions/${id}/comment`,
+  // 빌드 범위 조회
+  buildsInRange: '/api/releases/versions/builds-in-range',
 } as const
 
 export const releaseApi = {
@@ -259,7 +261,7 @@ export const releaseApi = {
     })
     if (customerId != null) queryParams.append('customerId', String(customerId))
     const response = await apiClient.get<BuildsInRangeResponse>(
-      `/api/releases/versions/builds-in-range?${queryParams.toString()}`
+      `${ENDPOINTS.buildsInRange}?${queryParams.toString()}`
     )
     return response
   },
