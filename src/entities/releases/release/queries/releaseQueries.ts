@@ -6,6 +6,7 @@ import { releaseApi } from '../api/releaseApi'
 
 import type {
   BuildListResponse,
+  BuildsInRangeResponse,
   CreateBuildResponse,
   CustomReleaseTreeResponse,
   ReleaseFileStructure,
@@ -240,6 +241,19 @@ interface ReplaceBuildZipParams {
   file: File
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
 }
+
+export const useBuildsInRange = (
+  projectId: string | null,
+  fromVersionId: number | null,
+  toVersionId: number | null,
+  customerId?: number | null,
+) =>
+  useQuery<BuildsInRangeResponse>({
+    queryKey: ['builds-in-range', projectId, fromVersionId, toVersionId, customerId ?? null],
+    queryFn: () =>
+      releaseApi.getBuildsInRange(projectId!, fromVersionId!, toVersionId!, customerId),
+    enabled: !!projectId && !!fromVersionId && !!toVersionId,
+  })
 
 export const useReplaceBuildZip = () => {
   const queryClient = useQueryClient()

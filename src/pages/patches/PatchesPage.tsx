@@ -37,8 +37,12 @@ import {
   type CumulativePatch,
   type CumulativePatchGenerateRequest,
   type CustomPatchGenerateRequest,
+  type GenerateResponse,
 } from '@/entities/patches/patch'
-import { useStandardReleaseTree, type VersionNode } from '@/entities/releases/release'
+import {
+  useStandardReleaseTree,
+  type VersionNode,
+} from '@/entities/releases/release'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks'
@@ -55,6 +59,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'standard' | 'custom'
+
+/** 버전 선택 옵션 (버전 문자열 + versionId) */
+interface VersionOption {
+  version: string
+  versionId: number
+}
 
 const TAB_CONFIG = {
   standard: {
@@ -79,10 +89,14 @@ interface PaginationState {
 const INITIAL_STANDARD_FORM: PatchCreateFormData = {
   fromVersion: '',
   toVersion: '',
+  fromVersionId: null,
+  toVersionId: null,
+  projectId: '',
   customerCode: '',
+  customerId: null,
   assigneeId: null,
   description: '',
-  includeAllBuildVersions: false,
+  buildSelection: null,
   patchName: '',
 }
 
@@ -95,22 +109,24 @@ const INITIAL_CUSTOM_FORM: CustomPatchCreateFormData = {
   patchName: '',
 }
 
+/**
+ * 트리에서 base 버전만 추출합니다.
+ * VersionNode 자체는 항상 base (hotfixVersion=0, buildVersion=0) 이며
+ * 빌드/핫픽스는 각각 v.builds / v.hotfixes 하위에만 있습니다.
+ */
 function getVersionsFromTree(
   data: { majorMinorGroups: { versions: VersionNode[] }[] } | undefined
-): string[] {
+): VersionOption[] {
   if (!data) return []
-  const versions: string[] = []
+  const options: VersionOption[] = []
   data.majorMinorGroups.forEach((group) => {
     group.versions.forEach((v) => {
-      versions.push(v.version)
-      v.hotfixes?.forEach((h) => versions.push(h.fullVersion))
-      v.builds?.forEach((b) => versions.push(b.fullVersion))
+      options.push({ version: v.version, versionId: v.versionId })
     })
   })
-  // major.minor.patch[.subVersion] (subVersion = hotfixVersion 또는 buildVersion)
-  return versions.sort((a, b) => {
-    const aParts = a.split('.').map(Number)
-    const bParts = b.split('.').map(Number)
+  return options.sort((a, b) => {
+    const aParts = a.version.split('.').map(Number)
+    const bParts = b.version.split('.').map(Number)
     const len = Math.max(aParts.length, bParts.length)
     for (let i = 0; i < len; i++) {
       const ai = aParts[i] ?? 0
@@ -197,7 +213,8 @@ export function PatchesPage() {
     enabled: standardFormOpen || customFormOpen,
   })
 
-  const standardVersions = getVersionsFromTree(treeData)
+  const standardVersionOptions = getVersionsFromTree(treeData)
+  const standardVersions = standardVersionOptions.map((o) => o.version)
 
   // Custom Queries
   const {
@@ -266,16 +283,25 @@ export function PatchesPage() {
       createdByEmail: user?.email || '',
       assigneeId: standardFormData.assigneeId || undefined,
       description: standardFormData.description || undefined,
-      includeAllBuildVersions: standardFormData.includeAllBuildVersions || undefined,
       patchName: standardFormData.patchName || undefined,
+      buildSelection: standardFormData.buildSelection ?? null,
     }
 
     standardGenerateMutation.mutate(request, {
-      onSuccess: (data: CumulativePatch) => {
+      onSuccess: (data: GenerateResponse) => {
         toast({
           title: '패치 생성 완료',
           description: `${data.patchName} 패치가 생성되었습니다.`,
         })
+        if (data.hotfixesInRange.length > 0) {
+          toast({
+            title: '핫픽스 안내',
+            description:
+              `이 범위에 핫픽스 ${data.hotfixesInRange.length}건이 있습니다. ` +
+              `핫픽스는 버전 관리 화면에서 별도로 다운로드/적용해 주세요. ` +
+              `(${data.hotfixesInRange.map((h) => h.fullVersion).join(', ')})`,
+          })
+        }
         setStandardFormData(INITIAL_STANDARD_FORM)
         setStandardFormOpen(false)
       },
@@ -406,6 +432,7 @@ export function PatchesPage() {
   // 추가 버튼 핸들러
   const handleAdd = () => {
     if (currentTab === 'standard') {
+      setStandardFormData((prev) => ({ ...prev, projectId }))
       setStandardFormOpen(true)
     } else {
       setCustomFormOpen(true)
@@ -564,6 +591,7 @@ export function PatchesPage() {
         isOpen={standardFormOpen}
         formData={standardFormData}
         versions={standardVersions}
+        versionOptions={standardVersionOptions}
         customers={customers?.content || []}
         accounts={accounts?.content || []}
         isVersionsLoading={isTreeLoading}

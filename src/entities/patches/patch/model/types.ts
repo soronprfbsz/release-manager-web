@@ -54,6 +54,21 @@ export interface CumulativePatchDetail {
   updatedAt: string
 }
 
+export interface SelectedWeb {
+  buildVersionId: number
+}
+
+export interface SelectedEngine {
+  engineName: string
+  buildVersionId: number
+}
+
+export interface BuildSelection {
+  enabled: boolean
+  web: SelectedWeb | null
+  engines: SelectedEngine[]
+}
+
 export interface CumulativePatchGenerateRequest {
   projectId: string
   type: 'standard' | 'custom'
@@ -64,7 +79,37 @@ export interface CumulativePatchGenerateRequest {
   assigneeId?: number
   description?: string
   patchName?: string
-  includeAllBuildVersions?: boolean
+  buildSelection?: BuildSelection | null
+}
+
+export interface IncludedWeb {
+  buildVersionId: number
+  fullVersion: string
+}
+
+export interface IncludedEngine {
+  engineName: string
+  buildVersionId: number
+  fullVersion: string
+}
+
+export interface IncludedBuilds {
+  web: IncludedWeb | null
+  engines: IncludedEngine[]
+}
+
+export interface PatchHotfixInRangeInfo {
+  versionId: number
+  fullVersion: string
+}
+
+export interface GenerateResponse {
+  patchId: number
+  patchName: string
+  outputPath: string
+  isBuildOnly: boolean
+  hotfixesInRange: PatchHotfixInRangeInfo[]
+  includedBuilds: IncludedBuilds
 }
 
 /** 커스텀 패치 생성 요청 (신규 API) */

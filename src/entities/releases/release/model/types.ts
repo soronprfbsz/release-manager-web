@@ -230,3 +230,29 @@ export interface ReleaseFileContent {
   mimeType?: string      // 파일의 MIME 타입
   isBinary?: boolean     // true면 content가 Base64 인코딩됨
 }
+
+// ---- builds-in-range API ----
+
+export interface BuildCandidate {
+  buildVersionId: number
+  fullVersion: string
+  createdAt: string
+  isLatest: boolean
+}
+
+export interface EngineGroup {
+  engineName: string
+  candidates: BuildCandidate[]
+}
+
+export interface HotfixInRangeInfo {
+  versionId: number
+  fullVersion: string
+  hotfixVersion: number
+}
+
+export interface BuildsInRangeResponse {
+  web: BuildCandidate[]
+  engines: EngineGroup[]
+  hotfixesInRange: HotfixInRangeInfo[]
+}

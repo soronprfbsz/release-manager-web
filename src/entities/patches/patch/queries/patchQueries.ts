@@ -12,6 +12,7 @@ import type {
   CustomPatchGenerateRequest,
   CustomPatchCustomer,
   CustomPatchVersion,
+  GenerateResponse,
   PatchFileStructure,
 } from '../model/types'
 
@@ -119,8 +120,8 @@ export const useCustomPatchVersions = (
 export const useGenerateStandardPatch = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (data: CumulativePatchGenerateRequest) => patchApi.generateStandard(data),
+  return useMutation<GenerateResponse, Error, CumulativePatchGenerateRequest>({
+    mutationFn: (data) => patchApi.generateStandard(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
     },

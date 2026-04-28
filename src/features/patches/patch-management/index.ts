@@ -13,6 +13,7 @@ export { PatchGenerateFormCard, type ReleaseType } from './ui/PatchGenerateFormC
 export { PatchPreviewCard } from './ui/PatchPreviewCard'
 export { CustomPatchGenerateFormCard } from './ui/CustomPatchGenerateFormCard'
 export { CustomPatchPreviewCard } from './ui/CustomPatchPreviewCard'
+export { BuildPickerSection, computeAutoPreselect } from './ui/BuildPickerSection'
 
 // Types
 export type {

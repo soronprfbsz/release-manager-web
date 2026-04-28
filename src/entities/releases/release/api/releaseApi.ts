@@ -4,6 +4,7 @@ import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/u
 
 import type {
   BuildListResponse,
+  BuildsInRangeResponse,
   CreateBuildResponse,
   CustomReleaseTreeResponse,
   ReleaseFileStructure,
@@ -242,6 +243,25 @@ export const releaseApi = {
   /** 빌드 버전 삭제 (행 + 디렉토리) */
   deleteBuild: async (buildVersionId: number): Promise<void> => {
     await apiClient.delete(ENDPOINTS.deleteBuild(buildVersionId))
+  },
+
+  /** 버전 범위 내 빌드 후보 조회 */
+  getBuildsInRange: async (
+    projectId: string,
+    fromVersionId: number,
+    toVersionId: number,
+    customerId?: number | null,
+  ): Promise<BuildsInRangeResponse> => {
+    const queryParams = new URLSearchParams({
+      projectId,
+      fromVersionId: String(fromVersionId),
+      toVersionId: String(toVersionId),
+    })
+    if (customerId != null) queryParams.append('customerId', String(customerId))
+    const response = await apiClient.get<BuildsInRangeResponse>(
+      `/api/releases/versions/builds-in-range?${queryParams.toString()}`
+    )
+    return response
   },
 
   /**

@@ -12,6 +12,14 @@ export type {
   CustomPatchVersion,
   PatchFileNode,
   PatchFileStructure,
+  BuildSelection,
+  SelectedWeb,
+  SelectedEngine,
+  IncludedWeb,
+  IncludedEngine,
+  IncludedBuilds,
+  PatchHotfixInRangeInfo,
+  GenerateResponse,
 } from './model/types'
 
 // API

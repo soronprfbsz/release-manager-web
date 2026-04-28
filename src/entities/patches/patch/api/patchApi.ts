@@ -10,6 +10,7 @@ import type {
   CustomPatchGenerateRequest,
   CustomPatchCustomer,
   CustomPatchVersion,
+  GenerateResponse,
   PatchFileStructure,
 } from '../model/types'
 
@@ -76,8 +77,8 @@ export const patchApi = {
   },
 
   /** 표준 패치 생성 */
-  generateStandard: async (request: CumulativePatchGenerateRequest): Promise<CumulativePatch> => {
-    const response = await apiClient.post<CumulativePatch>(
+  generateStandard: async (request: CumulativePatchGenerateRequest): Promise<GenerateResponse> => {
+    const response = await apiClient.post<GenerateResponse>(
       ENDPOINTS.generateStandard,
       request,
       { timeout: API_TIMEOUT.FILE_OPERATION },
