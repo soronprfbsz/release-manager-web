@@ -3,11 +3,15 @@
  * 패치 목록 테이블 컴포넌트
  */
 
+import { useState } from 'react'
+
 import {
   ArrowRight,
   Download,
   Eye,
   FolderArchive,
+  Hammer,
+  Info,
   Tag,
   Trash2,
   type LucideIcon,
@@ -17,6 +21,7 @@ import type { CumulativePatch } from '@/entities/patches/patch'
 
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { Badge } from '@/shared/ui/badge'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { DataTable } from '@/shared/ui/data-table'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -39,6 +44,7 @@ import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
+import { PatchDetailSheet } from './PatchDetailSheet'
 import type { SortConfig } from '../model/types'
 
 interface PatchTableProps {
@@ -77,6 +83,14 @@ export function PatchTable({
   selectedIds = [],
   onSelectionChange,
 }: PatchTableProps) {
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false)
+  const [selectedDetailPatchId, setSelectedDetailPatchId] = useState<number | null>(null)
+
+  const handleOpenDetail = (patchId: number) => {
+    setSelectedDetailPatchId(patchId)
+    setDetailSheetOpen(true)
+  }
+
   const allSelected = selectable && patches.length > 0 && selectedIds.length === patches.length
   const someSelected = selectable && selectedIds.length > 0 && selectedIds.length < patches.length
 
@@ -109,6 +123,7 @@ export function PatchTable({
   }
 
   return (
+    <>
     <DataTable viewportHeight={viewportHeight}>
       <Table>
         <TableHeader>
@@ -188,11 +203,30 @@ export function PatchTable({
                 {patch.rowNumber}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <FolderArchive className="h-4 w-4 text-muted-foreground" />
-                  <TypographyInlineCode className="bg-transparent font-normal">
-                    {patch.patchName}
-                  </TypographyInlineCode>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <FolderArchive className="h-4 w-4 text-muted-foreground" />
+                    <TypographyInlineCode className="bg-transparent font-normal">
+                      {patch.patchName}
+                    </TypographyInlineCode>
+                  </div>
+                  {patch.isBuildIncluded && patch.includedBuildsSummary && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="outline"
+                          className="ml-1 max-w-[200px] cursor-default"
+                        >
+                          <Hammer className="mr-1 h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{patch.includedBuildsSummary}</span>
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>{patch.includedBuildsSummary}</TooltipContent>
+                    </Tooltip>
+                  )}
+                  {patch.isBuildOnly && (
+                    <Badge variant="secondary" className="ml-1">Build-only</Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
@@ -282,6 +316,11 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 <TableActionMenu>
+                  <TableActionMenuItem onClick={() => handleOpenDetail(patch.patchId)}>
+                    <Info className="mr-2 h-4 w-4" />
+                    상세 보기
+                  </TableActionMenuItem>
+                  <TableActionMenuSeparator />
                   <TableActionMenuItem onClick={() => onViewFiles(patch)}>
                     <Eye className="mr-2 h-4 w-4" />
                     파일 보기
@@ -310,5 +349,12 @@ export function PatchTable({
         </TableBody>
       </Table>
     </DataTable>
+
+    <PatchDetailSheet
+      open={detailSheetOpen}
+      onOpenChange={setDetailSheetOpen}
+      patchId={selectedDetailPatchId}
+    />
+    </>
   )
 }

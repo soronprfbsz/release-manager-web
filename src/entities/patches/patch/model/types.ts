@@ -3,6 +3,27 @@
  * 패치 도메인 타입 정의
  */
 
+export interface IncludedWeb {
+  buildVersionId: number | null
+  fullVersion: string
+}
+
+export interface IncludedEngine {
+  engineName: string
+  buildVersionId: number | null
+  fullVersion: string
+}
+
+export interface IncludedBuilds {
+  web: IncludedWeb | null
+  engines: IncludedEngine[]
+}
+
+export interface PatchHotfixInRangeInfo {
+  versionId: number | null
+  fullVersion: string
+}
+
 export interface CumulativePatch {
   rowNumber: number
   patchId: number
@@ -27,6 +48,9 @@ export interface CumulativePatch {
   assigneeAvatarSeed?: string | null
   isDeletedAssignee?: boolean
   createdAt: string
+  isBuildOnly?: boolean | null
+  isBuildIncluded?: boolean | null
+  includedBuildsSummary?: string | null
 }
 
 export interface CumulativePatchDetail {
@@ -52,6 +76,10 @@ export interface CumulativePatchDetail {
   isDeletedAssignee?: boolean
   createdAt: string
   updatedAt: string
+  isBuildOnly?: boolean | null
+  isBuildIncluded?: boolean | null
+  includedBuilds?: IncludedBuilds | null
+  hotfixesInRange?: PatchHotfixInRangeInfo[] | null
 }
 
 export interface SelectedWeb {
@@ -80,27 +108,6 @@ export interface CumulativePatchGenerateRequest {
   description?: string
   patchName?: string
   buildSelection?: BuildSelection | null
-}
-
-export interface IncludedWeb {
-  buildVersionId: number
-  fullVersion: string
-}
-
-export interface IncludedEngine {
-  engineName: string
-  buildVersionId: number
-  fullVersion: string
-}
-
-export interface IncludedBuilds {
-  web: IncludedWeb | null
-  engines: IncludedEngine[]
-}
-
-export interface PatchHotfixInRangeInfo {
-  versionId: number
-  fullVersion: string
 }
 
 export interface GenerateResponse {
