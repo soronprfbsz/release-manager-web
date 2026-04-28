@@ -1,6 +1,7 @@
-import { useState, useRef, createContext, useContext } from 'react'
+import { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 
 
 import {
@@ -144,96 +145,232 @@ function useVersionDetailContext() {
   return context
 }
 
-interface FileNodeProps {
+// ============================================================================
+// VirtualReleaseFileTree — flat list + @tanstack/react-virtual
+// ============================================================================
+
+interface ReleaseFlatRow {
   node: ReleaseFileNode
-  level: number
+  depth: number
+  key: string
+}
+
+function buildReleaseFlatRows(
+  nodes: ReleaseFileNode[],
+  expanded: Set<string>,
+  depth: number,
+  rows: ReleaseFlatRow[],
+) {
+  const sorted = [...nodes].sort((a, b) => {
+    if (a.type === 'directory' && b.type === 'file') return -1
+    if (a.type === 'file' && b.type === 'directory') return 1
+    return a.name.localeCompare(b.name)
+  })
+
+  for (const node of sorted) {
+    const key = node.path
+    rows.push({ node, depth, key })
+    if (node.type === 'directory' && expanded.has(key) && node.children && node.children.length > 0) {
+      buildReleaseFlatRows(node.children, expanded, depth + 1, rows)
+    }
+  }
+}
+
+function collectReleaseDirectoryPaths(nodes: ReleaseFileNode[], result: string[]) {
+  for (const node of nodes) {
+    if (node.type === 'directory') {
+      result.push(node.path)
+      if (node.children) {
+        collectReleaseDirectoryPaths(node.children, result)
+      }
+    }
+  }
+}
+
+interface VirtualReleaseFileTreeProps {
+  rootChildren: ReleaseFileNode[]
   onFileClick: (node: ReleaseFileNode) => void
   onDownload: (node: ReleaseFileNode) => void
   canDownload: boolean
 }
 
-function FileNode({ node, level, onFileClick, onDownload, canDownload }: FileNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+function VirtualReleaseFileTree({ rootChildren, onFileClick, onDownload, canDownload }: VirtualReleaseFileTreeProps) {
+  // 기본 expanded: 루트 직계 children 중 디렉터리만 펼침 (depth=1)
+  const defaultExpanded = useMemo(() => {
+    const paths: string[] = []
+    for (const node of rootChildren) {
+      if (node.type === 'directory') {
+        paths.push(node.path)
+      }
+    }
+    return new Set(paths)
+  }, [rootChildren])
 
-  if (node.type === 'directory') {
-    const sortedChildren = node.children ? [...node.children].sort((a, b) => {
-      if (a.type === 'directory' && b.type === 'file') return -1
-      if (a.type === 'file' && b.type === 'directory') return 1
-      return a.name.localeCompare(b.name)
-    }) : []
+  const [expanded, setExpanded] = useState<Set<string>>(defaultExpanded)
 
-    return (
-      <div>
-        <div
-          className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer"
-          style={{ paddingLeft: `${level * 16 + 8}px` }}
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
-          {isExpanded ? (
-            <FolderOpen className="h-4 w-4 text-blue-500" />
-          ) : (
-            <Folder className="h-4 w-4 text-blue-500" />
-          )}
-          <span className="text-sm font-medium">{node.name}</span>
-        </div>
-        {isExpanded && sortedChildren.length > 0 && (
-          <div>
-            {sortedChildren.map((child: ReleaseFileNode, index: number) => (
-              <FileNode
-                key={`${child.path}-${index}`}
-                node={child}
-                level={level + 1}
-                onFileClick={onFileClick}
-                onDownload={onDownload}
-                canDownload={canDownload}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
+  // rootChildren 변경 시 default expanded 재초기화
+  useEffect(() => {
+    setExpanded(defaultExpanded)
+  }, [defaultExpanded])
 
-  const viewable = isViewableFile(node.name)
+  const toggleExpanded = useCallback((key: string) => {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+      return next
+    })
+  }, [])
 
-  // 확장자별 아이콘
-  const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+  const handleExpandAll = useCallback(() => {
+    const all: string[] = []
+    collectReleaseDirectoryPaths(rootChildren, all)
+    setExpanded(new Set(all))
+  }, [rootChildren])
+
+  const handleCollapseAll = useCallback(() => {
+    setExpanded(new Set())
+  }, [])
+
+  const flatRows = useMemo(() => {
+    const rows: ReleaseFlatRow[] = []
+    buildReleaseFlatRows(rootChildren, expanded, 0, rows)
+    return rows
+  }, [rootChildren, expanded])
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: flatRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 32,
+    overscan: 10,
+  })
+
+  const virtualItems = virtualizer.getVirtualItems()
+  const totalSize = virtualizer.getTotalSize()
 
   return (
-    <div
-      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
-      style={{ paddingLeft: `${level * 16 + 24}px` }}
-    >
-      <div
-        className={`flex items-center gap-2 flex-1 min-w-0 ${viewable ? 'cursor-pointer' : ''}`}
-        onClick={() => viewable && onFileClick(node)}
-      >
-        <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
-        <span className="text-sm truncate">
-          {node.name}
-        </span>
+    <div className="flex flex-col" style={{ height: '100%' }}>
+      {/* 헤더: 모두 펼치기 / 모두 접기 */}
+      <div className="flex items-center gap-1 px-2 py-1.5 border-b flex-shrink-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+          onClick={handleExpandAll}
+        >
+          <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+          모두 펼치기
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+          onClick={handleCollapseAll}
+        >
+          <ChevronsDownUp className="h-3.5 w-3.5 mr-1" />
+          모두 접기
+        </Button>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {node.size !== null && (
-          <TypographyMuted className="text-xs">
-            {formatFileSize(node.size)}
-          </TypographyMuted>
-        )}
-        {node.releaseFileId && canDownload && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={() => onDownload(node)}
-          >
-            <Download className="h-3 w-3" />
-          </Button>
-        )}
+
+      {/* 가상 스크롤 컨테이너 */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-auto"
+      >
+        <div style={{ height: `${totalSize}px`, width: '100%', position: 'relative' }}>
+          {virtualItems.map((virtualItem) => {
+            const row = flatRows[virtualItem.index]
+            const { node, depth, key } = row
+
+            if (node.type === 'directory') {
+              const isNodeExpanded = expanded.has(key)
+              return (
+                <div
+                  key={key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <div
+                    className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer h-full"
+                    style={{ paddingLeft: `${depth * 16 + 8}px` }}
+                    onClick={() => toggleExpanded(key)}
+                  >
+                    {isNodeExpanded ? (
+                      <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                    )}
+                    {isNodeExpanded ? (
+                      <FolderOpen className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                    ) : (
+                      <Folder className="h-4 w-4 flex-shrink-0 text-blue-500" />
+                    )}
+                    <span className="text-sm font-medium truncate">{node.name}</span>
+                  </div>
+                </div>
+              )
+            }
+
+            // 파일 노드
+            const viewable = isViewableFile(node.name)
+            const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+
+            return (
+              <div
+                key={key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualItem.size}px`,
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded h-full"
+                  style={{ paddingLeft: `${depth * 16 + 24}px` }}
+                >
+                  <div
+                    className={`flex items-center gap-2 flex-1 min-w-0 ${viewable ? 'cursor-pointer' : ''}`}
+                    onClick={() => viewable && onFileClick(node)}
+                  >
+                    <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
+                    <span className="text-sm truncate">{node.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {node.size !== null && (
+                      <TypographyMuted className="text-xs">
+                        {formatFileSize(node.size)}
+                      </TypographyMuted>
+                    )}
+                    {node.releaseFileId && canDownload && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => onDownload(node)}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -837,21 +974,13 @@ function VersionDetailContent() {
               <p className="text-sm">등록된 릴리즈 파일이 없습니다.</p>
             </div>
           ) : (
-            <div>
-              {[...fileStructure.files.children!].sort((a, b) => {
-                if (a.type === 'directory' && b.type === 'file') return -1
-                if (a.type === 'file' && b.type === 'directory') return 1
-                return a.name.localeCompare(b.name)
-              }).map((node, index) => (
-                <FileNode
-                  key={`${node.path}-${index}`}
-                  node={node}
-                  level={0}
-                  onFileClick={handleViewFile}
-                  onDownload={handleDownload}
-                  canDownload={canDownloadVersion}
-                />
-              ))}
+            <div style={{ height: '400px' }}>
+              <VirtualReleaseFileTree
+                rootChildren={fileStructure.files.children!}
+                onFileClick={handleViewFile}
+                onDownload={handleDownload}
+                canDownload={canDownloadVersion}
+              />
             </div>
           )}
         </CollapsibleSection>
