@@ -3,17 +3,16 @@
  * 공통 파일 탐색기 컴포넌트
  * - 패치, 퍼블리싱 등 여러 도메인에서 사용
  * - @tanstack/react-virtual 기반 가상 스크롤
- * - 기본 1단계 펼침 + 모두 펼치기/접기 토글
+ * - 기본 1단계 펼침
  */
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Folder, FolderOpen, ChevronRight, ChevronDown, Info, ChevronsDownUp, ChevronsUpDown, type LucideIcon } from 'lucide-react'
+import { Folder, FolderOpen, ChevronRight, ChevronDown, Info, type LucideIcon } from 'lucide-react'
 
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import { getFileIcon, isViewableFile as checkIsViewableFile } from '@/shared/lib/utils/file-icon'
-import { Button } from '@/shared/ui/button'
 import { FileViewer } from '@/shared/ui/file-viewer'
 import {
   Sheet,
@@ -163,20 +162,6 @@ function buildFlatRows(
   }
 }
 
-/**
- * 트리 전체를 DFS로 순회하여 모든 디렉터리 노드의 path 수집
- */
-function collectAllDirectoryPaths(nodes: FileNode[], result: string[]) {
-  for (const node of nodes) {
-    if (node.type === 'directory') {
-      result.push(node.path)
-      if (node.children) {
-        collectAllDirectoryPaths(node.children, result)
-      }
-    }
-  }
-}
-
 // ============================================================================
 // VirtualFileTree Component
 // ============================================================================
@@ -218,16 +203,6 @@ function VirtualFileTree({ rootChildren, onFileClick, customViewableExtensions }
     })
   }, [])
 
-  const handleExpandAll = useCallback(() => {
-    const all: string[] = []
-    collectAllDirectoryPaths(rootChildren, all)
-    setExpanded(new Set(all))
-  }, [rootChildren])
-
-  const handleCollapseAll = useCallback(() => {
-    setExpanded(new Set())
-  }, [])
-
   // flat list: expanded set 기준으로 visible 행만 포함
   const flatRows = useMemo(() => {
     const rows: FlatRow[] = []
@@ -250,28 +225,6 @@ function VirtualFileTree({ rootChildren, onFileClick, customViewableExtensions }
 
   return (
     <div className="flex flex-col h-full">
-      {/* 헤더: 모두 펼치기 / 모두 접기 */}
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b flex-shrink-0">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-          onClick={handleExpandAll}
-        >
-          <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
-          모두 펼치기
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-          onClick={handleCollapseAll}
-        >
-          <ChevronsDownUp className="h-3.5 w-3.5 mr-1" />
-          모두 접기
-        </Button>
-      </div>
-
       {/* 가상 스크롤 컨테이너 */}
       <div
         ref={scrollRef}

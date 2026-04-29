@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
 
 
 import {
@@ -176,17 +176,6 @@ function buildReleaseFlatRows(
   }
 }
 
-function collectReleaseDirectoryPaths(nodes: ReleaseFileNode[], result: string[]) {
-  for (const node of nodes) {
-    if (node.type === 'directory') {
-      result.push(node.path)
-      if (node.children) {
-        collectReleaseDirectoryPaths(node.children, result)
-      }
-    }
-  }
-}
-
 interface VirtualReleaseFileTreeProps {
   rootChildren: ReleaseFileNode[]
   onFileClick: (node: ReleaseFileNode) => void
@@ -225,16 +214,6 @@ function VirtualReleaseFileTree({ rootChildren, onFileClick, onDownload, canDown
     })
   }, [])
 
-  const handleExpandAll = useCallback(() => {
-    const all: string[] = []
-    collectReleaseDirectoryPaths(rootChildren, all)
-    setExpanded(new Set(all))
-  }, [rootChildren])
-
-  const handleCollapseAll = useCallback(() => {
-    setExpanded(new Set())
-  }, [])
-
   const flatRows = useMemo(() => {
     const rows: ReleaseFlatRow[] = []
     buildReleaseFlatRows(rootChildren, expanded, 0, rows)
@@ -255,28 +234,6 @@ function VirtualReleaseFileTree({ rootChildren, onFileClick, onDownload, canDown
 
   return (
     <div className="flex flex-col" style={{ height: '100%' }}>
-      {/* 헤더: 모두 펼치기 / 모두 접기 */}
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b flex-shrink-0">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-          onClick={handleExpandAll}
-        >
-          <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
-          모두 펼치기
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-          onClick={handleCollapseAll}
-        >
-          <ChevronsDownUp className="h-3.5 w-3.5 mr-1" />
-          모두 접기
-        </Button>
-      </div>
-
       {/* 가상 스크롤 컨테이너 */}
       <div
         ref={scrollRef}
