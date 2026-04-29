@@ -73,7 +73,12 @@ export function getFileIcon(fileName: string): FileIconResult {
   return { icon: File, color: 'text-muted-foreground' }
 }
 
-/** 조회 가능한 파일 확장자 목록 */
+/** 조회 가능한 파일 확장자 목록
+ *
+ *  압축 파일(.zip / .jar / .war / .ear / .tar / .tar.gz / .gz / .7z / .rar)은
+ *  뷰어에서 펼쳐 보여줄 의미가 없고 다운로드 외 동작이 없으므로 의도적으로 제외한다.
+ *  아이콘 표시(getFileIcon) 의 'archive' 분류는 그대로 유지된다.
+ */
 export const VIEWABLE_EXTENSIONS = [
   // 텍스트/코드
   '.sql', '.sh', '.md', '.txt', '.log', '.json', '.xml',
@@ -81,8 +86,6 @@ export const VIEWABLE_EXTENSIONS = [
   '.css', '.scss', '.less', '.js', '.jsx', '.ts', '.tsx', '.html', '.htm',
   // 이미지
   '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico', '.svg',
-  // 압축
-  '.zip', '.jar', '.war', '.ear',
   // 스프레드시트
   '.xlsx', '.xls', '.csv',
   // Word 문서
