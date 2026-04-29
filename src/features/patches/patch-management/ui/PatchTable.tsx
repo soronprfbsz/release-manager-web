@@ -141,7 +141,7 @@ export function PatchTable({
             )}
             <TableHead className="w-16 text-right">No</TableHead>
             <SortableTableHead
-              className="w-[40rem]"
+              className="w-[32rem]"
               id="patchName"
               currentSort={sort}
               onSort={onSort}
