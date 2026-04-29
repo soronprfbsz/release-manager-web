@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { apiClient } from '@/shared/api'
+import { API_TIMEOUT } from '@/shared/config/constants'
 
 import {
     FileSyncRequest,
@@ -23,7 +24,9 @@ export const fileSyncKeys = {
 export const useAnalyzeFileSync = () => {
     return useMutation({
         mutationFn: async (params: FileSyncRequest = {}) => {
-            const data = await apiClient.post<FileSyncAnalyzeResponse>('/api/file-sync/analyze', params)
+            const data = await apiClient.post<FileSyncAnalyzeResponse>('/api/file-sync/analyze', params, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
     })
@@ -33,7 +36,9 @@ export const useApplyFileSync = () => {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async (params: FileSyncApplyRequest) => {
-            const data = await apiClient.post<void>('/api/file-sync/apply', params)
+            const data = await apiClient.post<void>('/api/file-sync/apply', params, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
         onSuccess: () => {
@@ -74,7 +79,9 @@ export const useRestoreIgnoredFile = () => {
 export const useRegisterResourceFiles = () => {
     return useMutation({
         mutationFn: async (request: ResourceRegisterRequest) => {
-            const data = await apiClient.post<RegisterResponse>('/api/file-sync/resources/register', request)
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/resources/register', request, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
     })
@@ -84,7 +91,9 @@ export const useRegisterResourceFiles = () => {
 export const useRegisterBackupFiles = () => {
     return useMutation({
         mutationFn: async (request: BackupRegisterRequest) => {
-            const data = await apiClient.post<RegisterResponse>('/api/file-sync/backups/register', request)
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/backups/register', request, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
     })
@@ -94,7 +103,9 @@ export const useRegisterBackupFiles = () => {
 export const useRegisterPatchFiles = () => {
     return useMutation({
         mutationFn: async (request: PatchRegisterRequest) => {
-            const data = await apiClient.post<RegisterResponse>('/api/file-sync/patches/register', request)
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/patches/register', request, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
     })
@@ -104,7 +115,9 @@ export const useRegisterPatchFiles = () => {
 export const useRegisterReleaseFiles = () => {
     return useMutation({
         mutationFn: async (request: ReleaseRegisterRequest) => {
-            const data = await apiClient.post<RegisterResponse>('/api/file-sync/releases/register', request)
+            const data = await apiClient.post<RegisterResponse>('/api/file-sync/releases/register', request, {
+                timeout: API_TIMEOUT.FILE_OPERATION,
+            })
             return data
         },
     })
