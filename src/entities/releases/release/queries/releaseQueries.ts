@@ -143,9 +143,13 @@ export const useDeleteVersion = () => {
 
   return useMutation({
     mutationFn: (versionId: number) => releaseApi.deleteVersion(versionId),
-    onSuccess: () => {
+    onSuccess: (_, versionId) => {
+      // 삭제된 버전은 캐시에서 완전히 제거한다 (partial 매칭으로 detail/files/builds 한꺼번에).
+      // invalidate 만 하면 detail 패널이 unmount 되기 전에 자동 refetch 가 발화되어
+      // 이미 사라진 ID 로 GET /api/releases/versions/{id}/files 등을 호출하게 되고
+      // 백엔드에서 RELEASE_VERSION_NOT_FOUND 가 떨어진다.
+      queryClient.removeQueries({ queryKey: releaseKeys.version(versionId) })
       queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
-      queryClient.invalidateQueries({ queryKey: releaseKeys.versions() })
     },
   })
 }
@@ -227,7 +231,10 @@ export const useDeleteBuild = () => {
 
   return useMutation<void, Error, { buildVersionId: number; baseVersionId: number }>({
     mutationFn: ({ buildVersionId }) => releaseApi.deleteBuild(buildVersionId),
-    onSuccess: (_, { baseVersionId }) => {
+    onSuccess: (_, { buildVersionId, baseVersionId }) => {
+      // useDeleteVersion 과 동일 — 사라진 빌드 ID 의 캐시(detail/files)를 명시적으로 제거하여
+      // 자동 refetch 로 인한 RELEASE_VERSION_NOT_FOUND 호출을 차단한다.
+      queryClient.removeQueries({ queryKey: releaseKeys.version(buildVersionId) })
       queryClient.invalidateQueries({ queryKey: releaseKeys.builds(baseVersionId) })
       queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
     },
