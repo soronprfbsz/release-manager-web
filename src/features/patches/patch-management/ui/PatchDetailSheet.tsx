@@ -1,14 +1,12 @@
 /**
  * Patch Detail Sheet Component
- * 패치 상세 정보 시트 — 포함된 빌드 / 범위 안의 핫픽스 섹션
+ * 패치 상세 정보 시트 — 버전 / 포함된 빌드
  */
 
 import { Tag } from 'lucide-react'
 
 import { usePatch } from '@/entities/patches/patch'
 
-import { formatDateTime } from '@/shared/lib/utils/date'
-import { Badge } from '@/shared/ui/badge'
 import {
   Sheet,
   SheetContent,
@@ -37,7 +35,7 @@ export function PatchDetailSheet({ open, onOpenChange, patchId }: PatchDetailShe
             <Tag className="h-5 w-5" />
             패치 상세 정보
           </SheetTitle>
-          <SheetDescription>패치의 빌드 포함 정보와 핫픽스 범위를 확인합니다.</SheetDescription>
+          <SheetDescription>패치의 빌드 포함 정보를 확인합니다.</SheetDescription>
         </SheetHeader>
 
         {isLoading && (
@@ -59,25 +57,14 @@ export function PatchDetailSheet({ open, onOpenChange, patchId }: PatchDetailShe
 
         {patch && !isLoading && !error && (
           <div className="flex flex-col gap-5">
-            {/* 기본 메타 */}
+            {/* 버전 */}
             <section className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <TypographyInlineCode className="bg-transparent font-normal text-sm">
-                  {patch.patchName}
-                </TypographyInlineCode>
-                {patch.isBuildOnly && (
-                  <Badge variant="secondary">빌드 전용 패치</Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <h4 className="text-sm font-semibold">버전</h4>
+              <div className="flex items-center gap-2 text-sm">
                 <TypographyInlineCode className="bg-transparent text-xs">{patch.fromVersion}</TypographyInlineCode>
-                <span>→</span>
+                <span className="text-muted-foreground">→</span>
                 <TypographyInlineCode className="bg-transparent text-xs font-medium">{patch.toVersion}</TypographyInlineCode>
               </div>
-              <TypographyMuted className="text-xs">
-                {formatDateTime(patch.createdAt)}
-                {patch.createdByName ? ` · ${patch.createdByName}` : patch.createdByEmail ? ` · ${patch.createdByEmail}` : ''}
-              </TypographyMuted>
             </section>
 
             {/* 포함된 빌드 섹션 */}
@@ -86,22 +73,24 @@ export function PatchDetailSheet({ open, onOpenChange, patchId }: PatchDetailShe
                 <h4 className="text-sm font-semibold">포함된 빌드</h4>
                 <ul className="flex flex-col gap-1 text-sm">
                   {patch.includedBuilds.web && (
-                    <li className="grid grid-cols-[80px_1fr_auto] gap-2 items-center">
+                    <li className="grid grid-cols-[80px_1fr] gap-2 items-center">
                       <span className="text-muted-foreground">WEB</span>
-                      <span>{patch.includedBuilds.web.fullVersion}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {patch.includedBuilds.web.buildVersionId == null
-                          ? '(삭제됨)'
-                          : `#${patch.includedBuilds.web.buildVersionId}`}
+                      <span>
+                        {patch.includedBuilds.web.fullVersion}
+                        {patch.includedBuilds.web.buildVersionId == null && (
+                          <span className="ml-2 text-xs text-muted-foreground">(삭제됨)</span>
+                        )}
                       </span>
                     </li>
                   )}
                   {patch.includedBuilds.engines.map((e) => (
-                    <li key={e.engineName} className="grid grid-cols-[80px_1fr_auto] gap-2 items-center">
+                    <li key={e.engineName} className="grid grid-cols-[80px_1fr] gap-2 items-center">
                       <span className="text-muted-foreground">{e.engineName}</span>
-                      <span>{e.fullVersion}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {e.buildVersionId == null ? '(삭제됨)' : `#${e.buildVersionId}`}
+                      <span>
+                        {e.fullVersion}
+                        {e.buildVersionId == null && (
+                          <span className="ml-2 text-xs text-muted-foreground">(삭제됨)</span>
+                        )}
                       </span>
                     </li>
                   ))}
@@ -109,31 +98,11 @@ export function PatchDetailSheet({ open, onOpenChange, patchId }: PatchDetailShe
               </section>
             )}
 
-            {/* 범위 안의 핫픽스 섹션 */}
-            {patch.hotfixesInRange && patch.hotfixesInRange.length > 0 && (
-              <section className="flex flex-col gap-2">
-                <h4 className="text-sm font-semibold">범위 안의 핫픽스 (별도 적용 필요)</h4>
-                <ul className="flex flex-col gap-1 text-sm">
-                  {patch.hotfixesInRange.map((h) => (
-                    <li
-                      key={`${h.versionId ?? 'deleted'}-${h.fullVersion}`}
-                      className="grid grid-cols-[1fr_auto] gap-2 items-center"
-                    >
-                      <span>{h.fullVersion}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {h.versionId == null ? '(삭제됨)' : `#${h.versionId}`}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {/* 빌드 미포함 + 핫픽스 없음 안내 */}
-            {!patch.isBuildIncluded && (!patch.hotfixesInRange || patch.hotfixesInRange.length === 0) && (
+            {/* 빌드 미포함 안내 */}
+            {!patch.isBuildIncluded && (
               <div className="flex items-center justify-center p-6">
                 <TypographyMuted className="text-sm text-center">
-                  빌드 포함 정보 및 핫픽스 범위가 없습니다.
+                  빌드 포함 정보가 없습니다.
                 </TypographyMuted>
               </div>
             )}
