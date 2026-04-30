@@ -223,7 +223,7 @@ export function CustomPatchCreateForm({
             <strong className="text-primary">{getFullVersionName(formData.toVersion)}</strong>
           </div>
           <p className="text-xs text-center text-muted-foreground">
-            위 버전 범위 내 모든 DB 변경사항이 포함된 패치가 생성됩니다.
+            위 버전 범위 내 모든 변경사항이 포함된 패치가 생성됩니다.
           </p>
         </div>
       )}
