@@ -10,7 +10,6 @@ import {
   Download,
   Eye,
   FolderArchive,
-  Hammer,
   Info,
   Tag,
   Trash2,
@@ -211,18 +210,21 @@ export function PatchTable({
                     </TypographyInlineCode>
                   </div>
                   {patch.isBuildIncluded && patch.includedBuildsSummary && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge
-                          variant="outline"
-                          className="ml-1 max-w-[200px] cursor-default"
-                        >
-                          <Hammer className="mr-1 h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{patch.includedBuildsSummary}</span>
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>{patch.includedBuildsSummary}</TooltipContent>
-                    </Tooltip>
+                    <div className="flex gap-1 ml-1 items-center">
+                      {patch.includedBuildsSummary.split(',').map((token) => {
+                        const trimmed = token.trim()
+                        if (!trimmed) return null
+                        return (
+                          <Badge
+                            key={trimmed}
+                            variant={trimmed.toLowerCase() as 'web' | 'engine'}
+                            className="text-[10px] px-1 py-0 h-4 leading-none"
+                          >
+                            {trimmed}
+                          </Badge>
+                        )
+                      })}
+                    </div>
                   )}
                   {patch.isBuildOnly && (
                     <Badge variant="secondary" className="ml-1">Build-only</Badge>
