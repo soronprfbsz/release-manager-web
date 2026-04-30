@@ -204,23 +204,21 @@ export const releaseApi = {
 
   /**
    * 빌드 버전 생성 (multipart/form-data)
+   *
+   * buildVersion 은 항상 서버가 오늘 날짜(yyMMdd)-회차 형태로 자동 부여한다.
+   *
    * @param baseVersionId  빌드 원본 버전 ID
    * @param comment        빌드 노트 (필수)
-   * @param buildVersion   빌드 버전 번호 (선택, 미지정 시 서버가 오늘 yyMMdd 자동 채움)
-   * @param file           ZIP 파일 (선택, 루트는 web/engine/etc 만 허용)
+   * @param file           ZIP 파일 (선택, 루트는 web/engine 만 허용)
    */
   createBuild: async (
     baseVersionId: number,
     comment: string,
-    buildVersion?: number,
     file?: File,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<CreateBuildResponse> => {
     const formData = new FormData()
     formData.append('comment', comment)
-    if (buildVersion !== undefined && buildVersion !== null) {
-      formData.append('buildVersion', String(buildVersion))
-    }
     if (file) {
       formData.append('file', file)
     }
@@ -269,7 +267,7 @@ export const releaseApi = {
   /**
    * 빌드 ZIP 재업로드 (교체 시맨틱 — 기존 파일 삭제 후 새 ZIP 으로 교체)
    * @param buildVersionId 빌드 버전 ID
-   * @param file           새 ZIP 파일 (필수, web/engine/etc 루트만 허용)
+   * @param file           새 ZIP 파일 (필수, web/engine 루트만 허용)
    */
   replaceBuildZip: async (
     buildVersionId: number,

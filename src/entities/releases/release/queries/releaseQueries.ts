@@ -202,7 +202,6 @@ export const useBuilds = (
 interface CreateBuildParams {
   baseVersionId: number
   comment: string
-  buildVersion?: number
   file?: File
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
 }
@@ -215,7 +214,6 @@ export const useCreateBuild = () => {
       releaseApi.createBuild(
         params.baseVersionId,
         params.comment,
-        params.buildVersion,
         params.file,
         params.onUploadProgress
       ),
