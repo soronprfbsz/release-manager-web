@@ -3,7 +3,6 @@
  * 빌드 파일 picker 섹션 — WEB radio + ENGINE 행 + 일괄 액션
  */
 
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -14,7 +13,7 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import { Label } from '@/shared/ui/label'
 
-import type { BuildCandidate, BuildsInRangeResponse, EngineGroup } from '@/entities/releases/release'
+import type { BuildCandidate, BuildsInRangeResponse } from '@/entities/releases/release'
 import type { BuildSelection, SelectedEngine } from '@/entities/patches/patch'
 
 interface BuildPickerSectionProps {
@@ -98,50 +97,15 @@ export function BuildPickerSection({
       {data.web.length > 0 && (
         <section>
           <h4 className="mb-2 text-sm font-semibold">WEB</h4>
-          <div className="flex flex-wrap gap-2">
-            {data.web.map((c) => (
-              <button
-                key={c.buildVersionId}
-                type="button"
-                aria-pressed={value.web?.buildVersionId === c.buildVersionId}
-                onClick={() =>
-                  setWeb(
-                    value.web?.buildVersionId === c.buildVersionId ? null : c.buildVersionId
-                  )
-                }
-                disabled={disabled}
-                className={cn(
-                  'flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors',
-                  value.web?.buildVersionId === c.buildVersionId
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-input bg-background text-foreground hover:bg-accent',
-                  disabled && 'cursor-not-allowed opacity-50'
-                )}
-              >
-                {c.fullVersion}
-                {c.isLatest && (
-                  <span className="ml-1 rounded bg-primary/20 px-1 text-xs text-primary">
-                    최신
-                  </span>
-                )}
-              </button>
-            ))}
-            <button
-              type="button"
-              aria-pressed={value.web == null}
-              onClick={() => setWeb(null)}
+          <ul className="flex flex-col gap-2">
+            <BuildPickerRow
+              label="WEB"
+              candidates={data.web}
+              selectedBuildId={value.web?.buildVersionId ?? null}
+              onChange={(bv) => setWeb(bv)}
               disabled={disabled}
-              className={cn(
-                'flex items-center rounded-md border px-3 py-1.5 text-sm transition-colors',
-                value.web == null
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-input bg-background text-muted-foreground hover:bg-accent',
-                disabled && 'cursor-not-allowed opacity-50'
-              )}
-            >
-              포함 안 함
-            </button>
-          </div>
+            />
+          </ul>
         </section>
       )}
 
@@ -150,9 +114,10 @@ export function BuildPickerSection({
           <h4 className="mb-2 text-sm font-semibold">ENGINE</h4>
           <ul className="flex flex-col gap-2">
             {data.engines.map((g) => (
-              <EngineRow
+              <BuildPickerRow
                 key={g.engineName}
-                group={g}
+                label={g.engineName}
+                candidates={g.candidates}
                 selectedBuildId={
                   value.engines.find((e) => e.engineName === g.engineName)
                     ?.buildVersionId ?? null
@@ -168,22 +133,34 @@ export function BuildPickerSection({
   )
 }
 
-interface EngineRowProps {
-  group: EngineGroup
+interface BuildPickerRowProps {
+  label: string
+  candidates: BuildCandidate[]
   selectedBuildId: number | null
   onChange: (buildVersionId: number | null) => void
   disabled?: boolean
 }
 
-function EngineRow({ group, selectedBuildId, onChange, disabled }: EngineRowProps) {
+/**
+ * 빌드 picker 의 한 행 — WEB 1개 또는 각 ENGINE 1개에 동일 형태로 사용.
+ * dropdown trigger 안에 현재 선택값(또는 '포함 안 함') 표시,
+ * dropdown menu 에 후보 목록 + 마지막에 '포함 안 함' 옵션.
+ */
+function BuildPickerRow({
+  label,
+  candidates,
+  selectedBuildId,
+  onChange,
+  disabled,
+}: BuildPickerRowProps) {
   const selected: BuildCandidate | undefined =
     selectedBuildId == null
       ? undefined
-      : group.candidates.find((c) => c.buildVersionId === selectedBuildId)
+      : candidates.find((c) => c.buildVersionId === selectedBuildId)
 
   return (
     <li className="grid grid-cols-[160px_1fr] items-center gap-2">
-      <Label className="text-sm">{group.engineName}</Label>
+      <Label className="text-sm">{label}</Label>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="outline" size="sm" disabled={disabled}>
@@ -202,7 +179,7 @@ function EngineRow({ group, selectedBuildId, onChange, disabled }: EngineRowProp
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {group.candidates.map((c) => (
+          {candidates.map((c) => (
             <DropdownMenuItem
               key={c.buildVersionId}
               onSelect={() => onChange(c.buildVersionId)}
