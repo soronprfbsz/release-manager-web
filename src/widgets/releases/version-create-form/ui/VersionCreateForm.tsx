@@ -217,9 +217,12 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
                   <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.war</div>
                   <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.tar</div>
                   <div>📁 engine/</div>
-                  <div className="ml-4">📁 NC_SMS/</div>
-                  <div className="ml-8">📄 ...</div>
+                  <div className="ml-4">📄 NC_SMS    ← 단일 실행 파일 (예: NC_SMS, NC_CONF)</div>
+                  <div className="ml-4">📄 NC_CONF</div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  * engine/ 하위는 엔진명 단일 실행 파일입니다. 디렉터리로 감싸면 안 됩니다.
+                </p>
               </div>
 
               <div className="space-y-1">
@@ -237,10 +240,10 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
                       • 카테고리: database, web, engine
                     </p>
                     <p className="text-muted-foreground">
-                      • 하위카테고리: MARIADB, CRATEDB, NC_SMS 등
+                      • database 하위: MARIADB, CRATEDB 등 (대문자 필수)
                     </p>
                     <p className="text-muted-foreground">
-                      • database 및 engine 이름은 반드시 대문자로 작성
+                      • engine 하위: 엔진명 단일 실행 파일 (대문자 필수, 디렉터리 금지)
                     </p>
                     <p className="text-muted-foreground ml-4">
                       mariadb<span className="text-red-500">(✗)</span> MARIADB<span className="text-green-500">(✓)</span> / Nc_Sms<span className="text-red-500">(✗)</span> NC_SMS<span className="text-green-500">(✓)</span>
