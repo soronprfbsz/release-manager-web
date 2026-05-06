@@ -111,7 +111,16 @@ export function BuildPickerSection({
 
       {data.engines.length > 0 && (
         <section>
-          <h4 className="mb-2 text-sm font-semibold">ENGINE</h4>
+          <h4 className="mb-1 text-sm font-semibold">ENGINE</h4>
+          <p className="mb-2 text-xs text-muted-foreground">
+            <span className="mr-1">ⓘ</span>
+            <span>
+              엔진 후보는{' '}
+              <span className="font-mono">SubCategoryValidator</span> 화이트리스트 ∪{' '}
+              <span className="font-mono">NC_*</span>/<span className="font-mono">OZ_*</span>{' '}
+              prefix 통과 항목으로 결정됩니다 (확장자 있는 파일은 공유 자산으로 자동 동반).
+            </span>
+          </p>
           <ul className="flex flex-col gap-2">
             {data.engines.map((g) => (
               <BuildPickerRow
@@ -128,6 +137,18 @@ export function BuildPickerSection({
             ))}
           </ul>
         </section>
+      )}
+
+      {!hasBuilds && (
+        <p className="text-xs text-muted-foreground">
+          <span className="mr-1">ⓘ</span>
+          <span>
+            엔진 후보는{' '}
+            <span className="font-mono">SubCategoryValidator</span> 화이트리스트 ∪{' '}
+            <span className="font-mono">NC_*</span>/<span className="font-mono">OZ_*</span>{' '}
+            prefix 통과 항목으로 결정됩니다 (확장자 있는 파일은 공유 자산으로 자동 동반).
+          </span>
+        </p>
       )}
     </div>
   )
