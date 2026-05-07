@@ -117,11 +117,14 @@ export const useCustomPatchVersions = (
   })
 
 // Mutation Hooks
+type GenerateStandardArgs = { data: CumulativePatchGenerateRequest; progressId?: string }
+type GenerateCustomArgs = { data: CustomPatchGenerateRequest; progressId?: string }
+
 export const useGenerateStandardPatch = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<GenerateResponse, Error, CumulativePatchGenerateRequest>({
-    mutationFn: (data) => patchApi.generateStandard(data),
+  return useMutation<GenerateResponse, Error, GenerateStandardArgs>({
+    mutationFn: ({ data, progressId }) => patchApi.generateStandard(data, progressId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
     },
@@ -131,13 +134,24 @@ export const useGenerateStandardPatch = () => {
 export const useGenerateCustomPatch = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: (data: CustomPatchGenerateRequest) => patchApi.generateCustom(data),
+  return useMutation<CumulativePatch, Error, GenerateCustomArgs>({
+    mutationFn: ({ data, progressId }) => patchApi.generateCustom(data, progressId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
     },
   })
 }
+
+/** 패치 생성 진행 상황 polling (1초 간격, mutation 진행 중에만 활성화) */
+export const usePatchProgress = (progressId: string | null, enabled: boolean) =>
+  useQuery({
+    queryKey: ['patch-progress', progressId],
+    queryFn: () => patchApi.getProgress(progressId!),
+    enabled: enabled && !!progressId,
+    refetchInterval: 1000,
+    refetchIntervalInBackground: false,
+    staleTime: 0,
+  })
 
 export const useDeletePatch = () => {
   const queryClient = useQueryClient()

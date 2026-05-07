@@ -9,7 +9,7 @@ import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
 import type { Customer, Account } from '@/entities/operations'
-import type { BuildSelection } from '@/entities/patches/patch'
+import type { BuildSelection, PatchProgress } from '@/entities/patches/patch'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -30,6 +30,7 @@ import type { PatchCreateFormData, VersionOption } from '../model/types'
 import { getVersionIdFromOption, detectOutdatedSelections } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
 import { OutdatedBuildsWarningDialog } from './OutdatedBuildsWarningDialog'
+import { PatchProgressView } from './PatchProgressView'
 
 interface PatchCreateFormProps {
   isOpen: boolean
@@ -42,6 +43,8 @@ interface PatchCreateFormProps {
   accounts: Account[]
   isVersionsLoading: boolean
   isSubmitting: boolean
+  /** 진행도 polling 결과 — isSubmitting 일 때만 의미 있음. null/undefined 면 메시지 비표시 */
+  progress?: PatchProgress | null
   onFormDataChange: (data: PatchCreateFormData) => void
   onSubmit: () => void
   onClose: () => void
@@ -58,6 +61,7 @@ export function PatchCreateForm({
   accounts,
   isVersionsLoading,
   isSubmitting,
+  progress,
   onFormDataChange,
   onSubmit,
   onClose,
@@ -185,7 +189,11 @@ export function PatchCreateForm({
       open={isOpen}
       icon={PageIcon}
       title="패치 생성"
-      description="선택한 버전 범위 내의 모든 변경사항이 하나의 패치 파일로 생성됩니다."
+      description={
+        isSubmitting
+          ? '진행 중인 작업이 끝날 때까지 잠시만 기다려 주세요.'
+          : '선택한 버전 범위 내의 모든 변경사항이 하나의 패치 파일로 생성됩니다.'
+      }
       submitLabel="패치 생성"
       submitIcon={PageIcon}
       isSubmitting={isSubmitting}
@@ -194,6 +202,10 @@ export function PatchCreateForm({
       onClose={onClose}
       width="w-[500px] sm:max-w-[500px]"
     >
+      {isSubmitting ? (
+        <PatchProgressView progress={progress} />
+      ) : (
+      <>
       {/* 버전 선택 */}
       <div className="space-y-2">
         <Label required>버전 범위</Label>
@@ -370,6 +382,8 @@ export function PatchCreateForm({
             포함된 패치가 생성됩니다.
           </p>
         </div>
+      )}
+      </>
       )}
     </FormSheet>
     </>

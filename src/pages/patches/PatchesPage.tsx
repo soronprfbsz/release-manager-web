@@ -33,6 +33,7 @@ import {
   useCustomPatchVersions,
   useGenerateStandardPatch,
   useGenerateCustomPatch,
+  usePatchProgress,
   useDeletePatch,
   useBulkDeletePatches,
   type CumulativePatch,
@@ -179,6 +180,9 @@ export function PatchesPage() {
   const [customSelectedIds, setCustomSelectedIds] = useState<number[]>([])
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
 
+  // 패치 생성 진행도 polling 용 ID — mutation 시작 시 UUID 설정, 종료 시 null
+  const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
+
   // Standard Queries
   const {
     data: standardPatchesData,
@@ -242,6 +246,12 @@ export function PatchesPage() {
   const customGenerateMutation = useGenerateCustomPatch()
   const deleteMutation = useDeletePatch()
   const bulkDeleteMutation = useBulkDeletePatches()
+
+  // 패치 생성 진행도 polling — activeProgressId 가 set 된 동안 1초 간격 fetch
+  const progressQuery = usePatchProgress(
+    activeProgressId,
+    activeProgressId !== null,
+  )
 
   // 패치 생성 진행 중에만 페이지 이탈 차단.
   // - 폼이 열려있기만 한 (작성 중) 상태는 자유롭게 떠날 수 있도록 허용 (이전엔 false-alarm 발생)
@@ -314,7 +324,11 @@ export function PatchesPage() {
       buildSelection: standardFormData.buildSelection ?? null,
     }
 
-    standardGenerateMutation.mutate(request, {
+    // 진행도 polling 용 ID — mutation 시작 시점에 고유 UUID 생성
+    const progressId = crypto.randomUUID()
+    setActiveProgressId(progressId)
+
+    standardGenerateMutation.mutate({ data: request, progressId }, {
       onSuccess: (data: GenerateResponse) => {
         toast({
           title: '패치 생성 완료',
@@ -331,8 +345,12 @@ export function PatchesPage() {
         }
         setStandardFormData(INITIAL_STANDARD_FORM)
         setStandardFormOpen(false)
+        setActiveProgressId(null)
       },
-      onError: createErrorHandler(toast, '패치 생성 실패'),
+      onError: (error) => {
+        setActiveProgressId(null)
+        createErrorHandler(toast, '패치 생성 실패')(error)
+      },
     })
   }
 
@@ -368,7 +386,10 @@ export function PatchesPage() {
       patchName: customFormData.patchName || undefined,
     }
 
-    customGenerateMutation.mutate(request, {
+    const progressId = crypto.randomUUID()
+    setActiveProgressId(progressId)
+
+    customGenerateMutation.mutate({ data: request, progressId }, {
       onSuccess: (data: CumulativePatch) => {
         toast({
           title: '패치 생성 완료',
@@ -376,8 +397,12 @@ export function PatchesPage() {
         })
         setCustomFormData(INITIAL_CUSTOM_FORM)
         setCustomFormOpen(false)
+        setActiveProgressId(null)
       },
-      onError: createErrorHandler(toast, '패치 생성 실패'),
+      onError: (error) => {
+        setActiveProgressId(null)
+        createErrorHandler(toast, '패치 생성 실패')(error)
+      },
     })
   }
 
@@ -624,6 +649,7 @@ export function PatchesPage() {
         accounts={accounts?.content || []}
         isVersionsLoading={isTreeLoading}
         isSubmitting={standardGenerateMutation.isPending}
+        progress={progressQuery.data ?? null}
         onFormDataChange={setStandardFormData}
         onSubmit={handleStandardSubmit}
         onClose={() => {

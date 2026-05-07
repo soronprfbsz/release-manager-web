@@ -31,7 +31,17 @@ const ENDPOINTS = {
   files: (id: number) => `/api/patches/${id}/files`,
   delete: (id: number) => `/api/patches/${id}`,
   bulkDelete: (ids: number[]) => `/api/patches?ids=${ids.join(',')}`,
+  // 패치 생성 진행도
+  progress: (id: string) => `/api/patches/progress/${id}`,
 } as const
+
+/** 패치 생성 진행 상황 */
+export interface PatchProgress {
+  step: number
+  totalSteps: number
+  message: string
+  completed: boolean
+}
 
 export const patchApi = {
   /** 패치 목록 조회 (페이징) */
@@ -76,12 +86,18 @@ export const patchApi = {
     return response
   },
 
-  /** 표준 패치 생성 */
-  generateStandard: async (request: CumulativePatchGenerateRequest): Promise<GenerateResponse> => {
+  /** 표준 패치 생성 — 선택적으로 X-Progress-Id 헤더 전송 (frontend polling 으로 진행도 표시) */
+  generateStandard: async (
+    request: CumulativePatchGenerateRequest,
+    progressId?: string,
+  ): Promise<GenerateResponse> => {
     const response = await apiClient.post<GenerateResponse>(
       ENDPOINTS.generateStandard,
       request,
-      { timeout: API_TIMEOUT.FILE_OPERATION },
+      {
+        timeout: API_TIMEOUT.FILE_OPERATION,
+        ...(progressId ? { headers: { 'X-Progress-Id': progressId } } : {}),
+      },
     )
     return response
   },
@@ -98,13 +114,25 @@ export const patchApi = {
     return response
   },
 
-  /** 커스텀 패치 생성 */
-  generateCustom: async (request: CustomPatchGenerateRequest): Promise<CumulativePatch> => {
+  /** 커스텀 패치 생성 — 선택적으로 X-Progress-Id 헤더 전송 */
+  generateCustom: async (
+    request: CustomPatchGenerateRequest,
+    progressId?: string,
+  ): Promise<CumulativePatch> => {
     const response = await apiClient.post<CumulativePatch>(
       ENDPOINTS.generateCustom,
       request,
-      { timeout: API_TIMEOUT.FILE_OPERATION },
+      {
+        timeout: API_TIMEOUT.FILE_OPERATION,
+        ...(progressId ? { headers: { 'X-Progress-Id': progressId } } : {}),
+      },
     )
+    return response
+  },
+
+  /** 패치 생성 진행 상황 조회 (1초 polling 용) */
+  getProgress: async (progressId: string): Promise<PatchProgress | null> => {
+    const response = await apiClient.get<PatchProgress | null>(ENDPOINTS.progress(progressId))
     return response
   },
 
