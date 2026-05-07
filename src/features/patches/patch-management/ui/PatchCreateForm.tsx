@@ -319,46 +319,45 @@ export function PatchCreateForm({
         />
       </div>
 
-      {/* 빌드 파일 포함 토글 + BuildPickerSection */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between rounded-lg border p-4">
-          <div className="space-y-1">
-            <Label htmlFor="buildToggle" className="cursor-pointer font-medium">
-              빌드 파일 포함
-            </Label>
-            <TypographyMuted className="text-xs">
-              WEB/ENGINE 카테고리의 빌드 파일을 선택하여 포함합니다.
-            </TypographyMuted>
-          </div>
-          <Switch
-            id="buildToggle"
-            checked={toggleEnabled}
-            onCheckedChange={handleToggleEnabled}
-            disabled={
-              isSubmitting ||
-              (buildsQuery.isLoading && !buildsQuery.data) ||
-              (!formData.fromVersionId || !formData.toVersionId)
-            }
-          />
-        </div>
-        {toggleEnabled && buildsQuery.data && (
-          <div className="rounded-lg border p-4">
-            <BuildPickerSection
-              data={buildsQuery.data}
-              value={
-                formData.buildSelection ?? { enabled: true, web: null, engines: [] }
-              }
-              onChange={(next) =>
-                onFormDataChange({ ...formData, buildSelection: next })
-              }
-              disabled={isSubmitting}
+      {/* 빌드 파일 포함 토글 + BuildPickerSection.
+          from / to 모두 선택된 시점부터 표시 (그 전엔 builds-in-range 가 의미 없음). */}
+      {formData.fromVersionId && formData.toVersionId && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="space-y-1">
+              <Label htmlFor="buildToggle" className="cursor-pointer font-medium">
+                빌드 파일 포함
+              </Label>
+              <TypographyMuted className="text-xs">
+                WEB/ENGINE 카테고리의 빌드 파일을 선택하여 포함합니다.
+              </TypographyMuted>
+            </div>
+            <Switch
+              id="buildToggle"
+              checked={toggleEnabled}
+              onCheckedChange={handleToggleEnabled}
+              disabled={isSubmitting || (buildsQuery.isLoading && !buildsQuery.data)}
             />
           </div>
-        )}
-        {toggleEnabled && buildsQuery.isLoading && (
-          <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
-        )}
-      </div>
+          {toggleEnabled && buildsQuery.data && (
+            <div className="rounded-lg border p-4">
+              <BuildPickerSection
+                data={buildsQuery.data}
+                value={
+                  formData.buildSelection ?? { enabled: true, web: null, engines: [] }
+                }
+                onChange={(next) =>
+                  onFormDataChange({ ...formData, buildSelection: next })
+                }
+                disabled={isSubmitting}
+              />
+            </div>
+          )}
+          {toggleEnabled && buildsQuery.isLoading && (
+            <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
+          )}
+        </div>
+      )}
 
       {/* 생성 정보 미리보기 */}
       {formData.fromVersion && formData.toVersion && (
