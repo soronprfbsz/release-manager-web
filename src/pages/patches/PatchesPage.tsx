@@ -134,6 +134,36 @@ function getVersionsFromTree(
   })
 }
 
+/**
+ * 패치 생성 진행도 polling 용 ID 생성.
+ *
+ * <p>crypto.randomUUID 는 secure context (HTTPS) 에서만 동작 — 운영 환경이
+ * HTTP 라 사용 불가. crypto.getRandomValues 도 secure context 만이지만 일부
+ * 브라우저는 HTTP 에서도 동작. 모두 실패하면 timestamp + Math.random fallback.
+ *
+ * <p>progressId 는 단일 사용자의 단일 패치 생성 매핑 용도라 충돌 / 보안 강도가
+ * 낮아도 충분. UUID v4 형식만 유지.
+ */
+function generateProgressId(): string {
+  const c: Crypto | undefined =
+    typeof crypto !== 'undefined' ? crypto : undefined
+  if (c && typeof c.randomUUID === 'function') {
+    return c.randomUUID()
+  }
+  const bytes = new Uint8Array(16)
+  if (c && typeof c.getRandomValues === 'function') {
+    c.getRandomValues(bytes)
+  } else {
+    for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256)
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40 // RFC 4122 v4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80
+  const hex = Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+}
+
 export function PatchesPage() {
   const { toast } = useToast()
   const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
@@ -180,7 +210,7 @@ export function PatchesPage() {
   const [customSelectedIds, setCustomSelectedIds] = useState<number[]>([])
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false)
 
-  // 패치 생성 진행도 polling 용 ID — mutation 시작 시 UUID 설정, 종료 시 null
+  // 패치 생성 진행도 polling 용 ID — mutation 시작 시 ID 설정, 종료 시 null
   const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
 
   // Standard Queries
@@ -324,8 +354,11 @@ export function PatchesPage() {
       buildSelection: standardFormData.buildSelection ?? null,
     }
 
-    // 진행도 polling 용 ID — mutation 시작 시점에 고유 UUID 생성
-    const progressId = crypto.randomUUID()
+    // 진행도 polling 용 ID — mutation 시작 시점에 고유 ID 생성.
+    // crypto.randomUUID 는 secure context (HTTPS) 에서만 동작 → HTTP 운영 환경에서도
+    // 작동하도록 timestamp + random fallback 사용. progressId 는 단일 사용자의 단일
+    // 패치 생성 매핑 용도라 보안 강도 낮아도 충분.
+    const progressId = generateProgressId()
     setActiveProgressId(progressId)
 
     standardGenerateMutation.mutate({ data: request, progressId }, {
