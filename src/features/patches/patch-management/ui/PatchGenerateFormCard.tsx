@@ -3,7 +3,7 @@
  * 패치 생성 폼 카드 컴포넌트
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -118,6 +118,18 @@ export function PatchGenerateFormCard({
       : { enabled: true, web: null, engines: [] }
     onFormDataChange({ ...formData, buildSelection: { ...selection, enabled: true } })
   }
+
+  // 토글 ON + data 로드 시 자동 preselect (모두 최신).
+  // 이미 selection 이 채워져 있으면 사용자 선택을 보존.
+  useEffect(() => {
+    if (!toggleEnabled || !buildsQuery.data) return
+    const sel = formData.buildSelection
+    const isEmpty = !sel?.web && (sel?.engines?.length ?? 0) === 0
+    if (!isEmpty) return
+    const auto = computeAutoPreselect(buildsQuery.data)
+    onFormDataChange({ ...formData, buildSelection: { ...auto, enabled: true } })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toggleEnabled, buildsQuery.data])
 
   // 구버전 빌드 선택 검출
   const outdatedSelections = useMemo(() => {

@@ -1,6 +1,10 @@
 /**
  * BuildPickerSection Component
- * 빌드 파일 picker 섹션 — WEB radio + ENGINE 행 + 일괄 액션
+ * 빌드 파일 picker 섹션 — WEB radio + ENGINE 행
+ *
+ * 정책: 토글 ON 시 PatchCreateForm 이 computeAutoPreselect 로 모든 항목을 범위 내 최신
+ * 빌드로 자동 선택해 둔다. 운영자가 dropdown 으로 의도적으로 다른 빌드를 고를 때만
+ * OutdatedBuildsWarningDialog 가 트리거된다.
  */
 
 import { Button } from '@/shared/ui/button'
@@ -56,42 +60,16 @@ export function BuildPickerSection({
     })
   }
 
-  const selectAllLatest = () => {
-    onChange(computeAutoPreselect(data))
-  }
-
-  const clearAll = () => onChange({ ...value, web: null, engines: [] })
-
   const hasBuilds = data.web.length > 0 || data.engines.length > 0
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {!hasBuilds ? '이 범위에 빌드가 없습니다' : '빌드 파일을 선택하세요'}
+          {!hasBuilds
+            ? '이 범위에 빌드가 없습니다'
+            : '범위 내 최신 빌드가 자동 선택됩니다'}
         </span>
-        {hasBuilds && (
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={selectAllLatest}
-              disabled={disabled}
-            >
-              모두 최신
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={clearAll}
-              disabled={disabled}
-            >
-              모두 해제
-            </Button>
-          </div>
-        )}
       </div>
 
       {data.web.length > 0 && (
@@ -115,10 +93,8 @@ export function BuildPickerSection({
           <p className="mb-2 text-xs text-muted-foreground">
             <span className="mr-1">ⓘ</span>
             <span>
-              엔진 후보는{' '}
-              <span className="font-mono">SubCategoryValidator</span> 화이트리스트 ∪{' '}
-              <span className="font-mono">NC_*</span>/<span className="font-mono">OZ_*</span>{' '}
-              prefix 통과 항목으로 결정됩니다 (확장자 있는 파일은 공유 자산으로 자동 동반).
+              <span className="font-mono">NC_</span>, <span className="font-mono">OZ_</span>
+              {' '}로 시작하는 파일이 엔진 빌드 파일로 인식됩니다. 그 외 동봉된 자산은 자동 포함됩니다.
             </span>
           </p>
           <ul className="flex flex-col gap-2">
@@ -143,10 +119,8 @@ export function BuildPickerSection({
         <p className="text-xs text-muted-foreground">
           <span className="mr-1">ⓘ</span>
           <span>
-            엔진 후보는{' '}
-            <span className="font-mono">SubCategoryValidator</span> 화이트리스트 ∪{' '}
-            <span className="font-mono">NC_*</span>/<span className="font-mono">OZ_*</span>{' '}
-            prefix 통과 항목으로 결정됩니다 (확장자 있는 파일은 공유 자산으로 자동 동반).
+            <span className="font-mono">NC_</span>, <span className="font-mono">OZ_</span>
+            {' '}로 시작하는 파일이 엔진 빌드 파일로 인식됩니다. 그 외 동봉된 자산은 자동 포함됩니다.
           </span>
         </p>
       )}

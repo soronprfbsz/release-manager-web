@@ -8,9 +8,9 @@ import type { BuildSelection } from '@/entities/patches/patch'
 
 import type { VersionOption } from '../model/types'
 
-/** 엔진 후보 식별 정책 안내 문구 */
+/** 엔진 후보 식별 정책 안내 문구 (사용자 친화적 단순 표현) */
 export const ENGINE_CANDIDATE_POLICY_HINT =
-  'SubCategoryValidator 화이트리스트 ∪ NC_*/OZ_* prefix 통과 항목이 엔진 후보입니다 (확장자 있는 파일은 공유 자산으로 자동 동반).'
+  'NC_, OZ_ 로 시작하는 파일이 엔진 빌드 파일로 인식됩니다. 그 외 동봉된 자산은 자동 포함됩니다.'
 
 /**
  * versionOptions 배열에서 version 문자열에 해당하는 versionId를 반환합니다.

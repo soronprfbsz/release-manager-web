@@ -91,7 +91,8 @@ const INITIAL_STANDARD_FORM: PatchCreateFormData = {
   customerId: null,
   assigneeId: null,
   description: '',
-  buildSelection: null,
+  // 빌드 파일 포함 default ON. data 로드 후 PatchCreateForm 의 useEffect 가 자동 preselect.
+  buildSelection: { enabled: true, web: null, engines: [] },
   patchName: '',
 }
 
