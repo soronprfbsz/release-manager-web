@@ -44,7 +44,8 @@ export type OutdatedSelection = {
  * 빌드 선택의 위험 항목 (구버전 / 미선택) 을 검출합니다.
  *
  * 검사 정책:
- * - BuildSelection.enabled 가 false 이면 빈 배열 반환 (검사 skip — 토글 OFF)
+ * - 토글 OFF 인데 사이의 빌드에 변경 사항(WEB / ENGINE 후보)이 있으면 모두 missing 으로 간주
+ *   → 빌드 미포함 자체가 "옛 상태로 남는다" 는 호환성 위험이라 동일 dialog 로 경고
  * - 토글 ON 이지만 picker 에서 후보가 있는 항목을 '포함 안 함' 으로 두면 missing
  * - 선택된 buildVersionId 가 그 그룹의 isLatest=true 가 아니면 outdated
  */
@@ -52,9 +53,34 @@ export function detectOutdatedSelections(
   buildsInRange: BuildsInRangeResponse,
   selection: BuildSelection,
 ): OutdatedSelection[] {
-  if (!selection.enabled) return []
-
   const result: OutdatedSelection[] = []
+
+  // 토글 OFF: 후보가 있는 항목을 모두 missing 으로 보고
+  if (!selection.enabled) {
+    if (buildsInRange.web.length > 0) {
+      const latest = buildsInRange.web.find((c) => c.isLatest)
+      if (latest) {
+        result.push({
+          kind: 'WEB',
+          reason: 'missing',
+          selected: null,
+          latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
+        })
+      }
+    }
+    for (const group of buildsInRange.engines) {
+      const latest = group.candidates.find((c) => c.isLatest)
+      if (!latest) continue
+      result.push({
+        kind: 'ENGINE',
+        engineName: group.engineName,
+        reason: 'missing',
+        selected: null,
+        latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
+      })
+    }
+    return result
+  }
 
   // WEB 검사
   if (buildsInRange.web.length > 0) {

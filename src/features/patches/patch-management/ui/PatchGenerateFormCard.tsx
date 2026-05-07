@@ -131,11 +131,11 @@ export function PatchGenerateFormCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toggleEnabled, buildsQuery.data])
 
-  // 구버전 빌드 선택 검출
+  // 빌드 선택 위험 항목 검출 (구버전 / 미선택 / 토글 OFF + 사이 변경 있음)
   const outdatedSelections = useMemo(() => {
-    if (!toggleEnabled || !buildsQuery.data || !formData.buildSelection) return []
+    if (!buildsQuery.data || !formData.buildSelection) return []
     return detectOutdatedSelections(buildsQuery.data, formData.buildSelection)
-  }, [toggleEnabled, buildsQuery.data, formData.buildSelection])
+  }, [buildsQuery.data, formData.buildSelection])
 
   // 패치 생성 버튼 클릭 처리 — 구버전 선택 시 경고 dialog 먼저
   const handleSubmitWithCheck = () => {

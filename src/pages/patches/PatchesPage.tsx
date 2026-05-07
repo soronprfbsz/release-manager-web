@@ -425,10 +425,11 @@ export function PatchesPage() {
     })
   }
 
-  // 추가 버튼 핸들러
+  // 추가 버튼 핸들러 — 매번 INITIAL 로 reset 해서 buildSelection default ON 보장.
+  // (사용자가 이전 세션에서 토글 OFF 한 채 close 했더라도 다시 열면 default 적용)
   const handleAdd = () => {
     if (currentTab === 'standard') {
-      setStandardFormData((prev) => ({ ...prev, projectId }))
+      setStandardFormData({ ...INITIAL_STANDARD_FORM, projectId })
       setStandardFormOpen(true)
     } else {
       setCustomFormOpen(true)
