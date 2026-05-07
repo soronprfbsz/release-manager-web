@@ -3,7 +3,7 @@
  * 패치 관리 통합 페이지 - Standard/Custom 탭으로 구분
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Plus, Trash2 } from 'lucide-react'
@@ -242,6 +242,30 @@ export function PatchesPage() {
   const customGenerateMutation = useGenerateCustomPatch()
   const deleteMutation = useDeletePatch()
   const bulkDeleteMutation = useBulkDeletePatches()
+
+  // F5 / 페이지 이탈 경고 — 폼이 열려있거나 패치 생성이 진행 중일 때
+  // 작성 중인 데이터 유실 / 생성 도중 새로고침으로 인한 부분 실패를 방지.
+  // (export TZ='Asia/Seoul' 처럼 export 형태가 아니므로 호스트 환경 영향 없음)
+  useEffect(() => {
+    const isFormOpen = standardFormOpen || customFormOpen
+    const isGenerating =
+      standardGenerateMutation.isPending || customGenerateMutation.isPending
+    if (!isFormOpen && !isGenerating) return
+
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      // 표준에 따라 returnValue 를 설정해야 브라우저가 confirm 표시.
+      // 메시지 자체는 모던 브라우저에서 무시되고 표준 안내로 대체됨.
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [
+    standardFormOpen,
+    customFormOpen,
+    standardGenerateMutation.isPending,
+    customGenerateMutation.isPending,
+  ])
 
   // 탭 변경
   const handleTabChange = (value: string) => {
