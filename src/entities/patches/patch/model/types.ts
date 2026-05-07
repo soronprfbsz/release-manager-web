@@ -129,6 +129,8 @@ export interface CustomPatchGenerateRequest {
   description?: string
   assigneeId?: number
   patchName?: string
+  /** 빌드 파일 선택 (null 또는 enabled=false 면 미포함) */
+  buildSelection?: BuildSelection | null
 }
 
 /** 커스텀 버전 보유 고객사 */

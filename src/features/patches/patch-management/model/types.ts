@@ -31,11 +31,21 @@ export interface PatchCreateFormData {
 
 export interface CustomPatchCreateFormData {
   customerId: number | null
+  /** 시작 버전 (베이스 또는 커스텀, 빌드 인식) */
   fromVersion: string
+  /** 종료 커스텀 버전 (빌드 인식) */
   toVersion: string
+  /** 시작 버전 ID (builds-in-range 조회용) */
+  fromVersionId: number | null
+  /** 종료 버전 ID (builds-in-range 조회용) */
+  toVersionId: number | null
+  /** 프로젝트 ID (builds-in-range 조회용) */
+  projectId: string
   assigneeId: number | null
   description: string
   patchName: string
+  /** 빌드 파일 선택 (default ON, picker) — 표준 흐름과 동일 */
+  buildSelection: BuildSelection | null
 }
 
 export interface PatchFiltersState {

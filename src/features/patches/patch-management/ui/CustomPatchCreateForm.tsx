@@ -1,21 +1,41 @@
 /**
  * Custom Patch Create Form Component
  * 커스텀 패치 생성 폼 컴포넌트 (FormSheet 기반)
+ *
+ * 표준(PatchCreateForm) 과 동일한 정책:
+ *  - 빌드 파일 포함 토글 default ON
+ *  - from/to 모두 선택된 시점부터 picker 영역 노출
+ *  - 자동으로 모두 최신 빌드 preselect (computeAutoPreselect)
+ *  - 구버전/미선택 시 OutdatedBuildsWarningDialog 경고
+ *  - 패치 생성 진행 중 PatchProgressView 로 폼 입력 영역 대체
  */
+
+import { useEffect, useMemo, useState } from 'react'
 
 import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
+import { useBuildsInRange } from '@/entities/releases/release'
 import type { Account } from '@/entities/operations'
-import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
+import type {
+  BuildSelection,
+  CustomPatchCustomer,
+  CustomPatchVersion,
+  PatchProgress,
+} from '@/entities/patches/patch'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 import type { CustomPatchCreateFormData } from '../model/types'
+import { detectOutdatedSelections } from '../lib/helpers'
+import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+import { OutdatedBuildsWarningDialog } from './OutdatedBuildsWarningDialog'
+import { PatchProgressView } from './PatchProgressView'
 
 interface CustomPatchCreateFormProps {
   isOpen: boolean
@@ -26,6 +46,8 @@ interface CustomPatchCreateFormProps {
   isCustomersLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
+  /** 진행도 polling 결과 — isSubmitting 일 때만 의미 */
+  progress?: PatchProgress | null
   onFormDataChange: (data: CustomPatchCreateFormData) => void
   onSubmit: () => void
   onClose: () => void
@@ -42,191 +64,327 @@ export function CustomPatchCreateForm({
   isCustomersLoading,
   isVersionsLoading,
   isSubmitting,
+  progress,
   onFormDataChange,
   onSubmit,
   onClose,
   icon: PageIcon = GitBranch,
 }: CustomPatchCreateFormProps) {
+  const [warningOpen, setWarningOpen] = useState(false)
+
   // 승인된 버전만 필터링
   const approvedVersions = versions.filter((v) => v.isApproved)
-
-  // fromVersion: 승인된 모든 버전 (베이스 버전 포함)
   const fromVersionOptions = approvedVersions
-
-  // toVersion: 베이스 버전이 아닌 것 + fromVersion보다 큰 것
   const filteredToVersions = approvedVersions.filter(
-    (v) => !v.isBaseVersion && formData.fromVersion && v.version > formData.fromVersion
+    (v) => !v.isBaseVersion && formData.fromVersion && v.version > formData.fromVersion,
   )
 
+  const findVersionId = (versionStr: string): number | null =>
+    approvedVersions.find((v) => v.version === versionStr)?.versionId ?? null
+
   const handleFromVersionChange = (value: string) => {
+    const fromVersionId = findVersionId(value)
+    const clearTo =
+      formData.toVersion && value >= formData.toVersion
+        ? { toVersion: '', toVersionId: null }
+        : { toVersion: formData.toVersion, toVersionId: formData.toVersionId }
     onFormDataChange({
       ...formData,
       fromVersion: value,
-      toVersion: formData.toVersion && value >= formData.toVersion ? '' : formData.toVersion,
+      fromVersionId,
+      ...clearTo,
+      // from/to 변경 시 picker 선택은 비우되 토글 ON 은 유지 (default ON 정책)
+      buildSelection: { enabled: true, web: null, engines: [] },
     })
   }
 
-  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
+  const handleToVersionChange = (value: string) => {
+    onFormDataChange({
+      ...formData,
+      toVersion: value,
+      toVersionId: findVersionId(value),
+      buildSelection: { enabled: true, web: null, engines: [] },
+    })
+  }
 
-  // 베이스 버전에서 표준 버전 부분 추출 (e.g., "1.0.0-customerA.1.0.0" -> "1.0.0")
+  const toggleEnabled = formData.buildSelection?.enabled ?? false
+
+  const handleToggleEnabled = (next: boolean) => {
+    if (!next) {
+      onFormDataChange({
+        ...formData,
+        buildSelection: { enabled: false, web: null, engines: [] },
+      })
+      return
+    }
+    const data = buildsQuery.data
+    const selection: BuildSelection = data
+      ? computeAutoPreselect(data)
+      : { enabled: true, web: null, engines: [] }
+    onFormDataChange({ ...formData, buildSelection: { ...selection, enabled: true } })
+  }
+
+  // builds-in-range 쿼리 — customerId 동봉
+  const buildsQuery = useBuildsInRange(
+    formData.projectId || null,
+    formData.fromVersionId ?? null,
+    formData.toVersionId ?? null,
+    formData.customerId,
+  )
+
+  // 토글 ON + data 로드 시 자동 preselect (모두 최신).
+  useEffect(() => {
+    if (!toggleEnabled || !buildsQuery.data) return
+    const sel = formData.buildSelection
+    const isEmpty = !sel?.web && (sel?.engines?.length ?? 0) === 0
+    if (!isEmpty) return
+    const auto = computeAutoPreselect(buildsQuery.data)
+    onFormDataChange({ ...formData, buildSelection: { ...auto, enabled: true } })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toggleEnabled, buildsQuery.data])
+
+  // 빌드 선택 위험 항목 검출 (구버전 / 미선택 / 토글 OFF + 사이 변경)
+  const outdatedSelections = useMemo(() => {
+    if (!buildsQuery.data || !formData.buildSelection) return []
+    return detectOutdatedSelections(buildsQuery.data, formData.buildSelection)
+  }, [buildsQuery.data, formData.buildSelection])
+
+  const handleSubmitWithCheck = () => {
+    if (outdatedSelections.length > 0) {
+      setWarningOpen(true)
+    } else {
+      onSubmit()
+    }
+  }
+
+  const handleWarningConfirm = () => {
+    setWarningOpen(false)
+    onSubmit()
+  }
+
+  const handleWarningCancel = () => setWarningOpen(false)
+
+  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
   const fullBaseVersion = versions.find((v) => v.isBaseVersion)?.version || ''
   const standardVersion = fullBaseVersion.includes('-')
     ? fullBaseVersion.split('-')[0]
     : fullBaseVersion
 
-  // 풀네임 커스텀 버전 생성: {standardVersion}-{customerCode}.{customVersion}
   const getFullVersionName = (version: string) => {
     if (!standardVersion || !selectedCustomer?.customerCode) return version
-    // 베이스 버전(표준 버전)은 변환하지 않음
     if (version === standardVersion) return version
-    // 이미 풀네임 형식인 경우 그대로 반환
     if (version.includes(`-${selectedCustomer.customerCode}.`)) return version
     return `${standardVersion}-${selectedCustomer.customerCode}.${version}`
   }
 
+  const submitDisabled =
+    !formData.customerId || !formData.fromVersion || !formData.toVersion
+
   return (
-    <FormSheet
-      open={isOpen}
-      icon={PageIcon}
-      title="커스텀 패치 생성"
-      description="고객사의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다."
-      submitLabel="패치 생성"
-      submitIcon={PageIcon}
-      isSubmitting={isSubmitting}
-      submitDisabled={!formData.customerId || !formData.fromVersion || !formData.toVersion}
-      onSubmit={onSubmit}
-      onClose={onClose}
-      width="w-[500px] sm:max-w-[500px]"
-    >
-      {/* 고객사 & 담당자 */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label required>고객사</Label>
-          <Combobox
-            options={customers.map((c) => ({
-              value: String(c.customerId),
-              label: `${c.customerName} (${c.customerCode})`,
-            }))}
-            value={formData.customerId ? String(formData.customerId) : ''}
-            onValueChange={(value) => {
-              onFormDataChange({
-                ...formData,
-                customerId: value ? Number(value) : null,
-                fromVersion: '',
-                toVersion: '',
-              })
-            }}
-            placeholder="고객사 선택"
-            searchPlaceholder="고객사 검색..."
-            disabled={isCustomersLoading}
-          />
-          {isCustomersLoading && (
-            <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
-          )}
-          {!isCustomersLoading && customers.length === 0 && (
-            <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label>담당자</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...accounts.map((a) => ({
-                value: String(a.accountId),
-                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-              })),
-            ]}
-            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
-            onValueChange={(value) =>
-              onFormDataChange({
-                ...formData,
-                assigneeId: value === '__none__' ? null : Number(value),
-              })
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="담당자 검색..."
-          />
-        </div>
-      </div>
+    <>
+      <OutdatedBuildsWarningDialog
+        open={warningOpen}
+        outdatedSelections={outdatedSelections}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
+      />
+      <FormSheet
+        open={isOpen}
+        icon={PageIcon}
+        title="커스텀 패치 생성"
+        description={
+          isSubmitting
+            ? '진행 중인 작업이 끝날 때까지 잠시만 기다려 주세요.'
+            : '고객사의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.'
+        }
+        submitLabel="패치 생성"
+        submitIcon={PageIcon}
+        isSubmitting={isSubmitting}
+        submitDisabled={submitDisabled}
+        onSubmit={handleSubmitWithCheck}
+        onClose={onClose}
+        width="w-[500px] sm:max-w-[500px]"
+      >
+        {isSubmitting ? (
+          <PatchProgressView progress={progress} />
+        ) : (
+          <>
+            {/* 고객사 & 담당자 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label required>고객사</Label>
+                <Combobox
+                  options={customers.map((c) => ({
+                    value: String(c.customerId),
+                    label: `${c.customerName} (${c.customerCode})`,
+                  }))}
+                  value={formData.customerId ? String(formData.customerId) : ''}
+                  onValueChange={(value) => {
+                    onFormDataChange({
+                      ...formData,
+                      customerId: value ? Number(value) : null,
+                      fromVersion: '',
+                      toVersion: '',
+                      fromVersionId: null,
+                      toVersionId: null,
+                      buildSelection: { enabled: true, web: null, engines: [] },
+                    })
+                  }}
+                  placeholder="고객사 선택"
+                  searchPlaceholder="고객사 검색..."
+                  disabled={isCustomersLoading}
+                />
+                {isCustomersLoading && (
+                  <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
+                )}
+                {!isCustomersLoading && customers.length === 0 && (
+                  <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>담당자</Label>
+                <Combobox
+                  options={[
+                    { value: '__none__', label: '선택 안함' },
+                    ...accounts.map((a) => ({
+                      value: String(a.accountId),
+                      label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
+                    })),
+                  ]}
+                  value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
+                  onValueChange={(value) =>
+                    onFormDataChange({
+                      ...formData,
+                      assigneeId: value === '__none__' ? null : Number(value),
+                    })
+                  }
+                  placeholder="선택 안함"
+                  searchPlaceholder="담당자 검색..."
+                />
+              </div>
+            </div>
 
-      {/* 버전 선택 */}
-      <div className="space-y-2">
-        <Label required>버전 범위</Label>
-        <div className="flex items-center gap-3">
-          <Combobox
-            options={fromVersionOptions.map((v) => ({
-              value: v.version,
-              label: v.isBaseVersion ? `${v.version} (베이스)` : v.version,
-            }))}
-            value={formData.fromVersion}
-            onValueChange={handleFromVersionChange}
-            placeholder="시작 버전"
-            searchPlaceholder="버전 검색..."
-            disabled={
-              isVersionsLoading || !formData.customerId || fromVersionOptions.length === 0
-            }
-            className="flex-1"
-          />
-          <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <Combobox
-            options={filteredToVersions.map((v) => ({
-              value: v.version,
-              label: v.version,
-            }))}
-            value={formData.toVersion}
-            onValueChange={(value) => onFormDataChange({ ...formData, toVersion: value })}
-            placeholder="종료 버전"
-            searchPlaceholder="버전 검색..."
-            disabled={isVersionsLoading || !formData.customerId || !formData.fromVersion}
-            className="flex-1"
-          />
-        </div>
-        {formData.customerId && isVersionsLoading && (
-          <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
+            {/* 버전 선택 */}
+            <div className="space-y-2">
+              <Label required>버전 범위</Label>
+              <div className="flex items-center gap-3">
+                <Combobox
+                  options={fromVersionOptions.map((v) => ({
+                    value: v.version,
+                    label: v.isBaseVersion ? `${v.version} (베이스)` : v.version,
+                  }))}
+                  value={formData.fromVersion}
+                  onValueChange={handleFromVersionChange}
+                  placeholder="시작 버전"
+                  searchPlaceholder="버전 검색..."
+                  disabled={
+                    isVersionsLoading || !formData.customerId || fromVersionOptions.length === 0
+                  }
+                  className="flex-1"
+                />
+                <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <Combobox
+                  options={filteredToVersions.map((v) => ({
+                    value: v.version,
+                    label: v.version,
+                  }))}
+                  value={formData.toVersion}
+                  onValueChange={handleToVersionChange}
+                  placeholder="종료 버전"
+                  searchPlaceholder="버전 검색..."
+                  disabled={isVersionsLoading || !formData.customerId || !formData.fromVersion}
+                  className="flex-1"
+                />
+              </div>
+              {formData.customerId && isVersionsLoading && (
+                <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
+              )}
+              {formData.customerId && !isVersionsLoading && approvedVersions.length === 0 && (
+                <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
+              )}
+            </div>
+
+            {/* 패치명 */}
+            <div className="space-y-2">
+              <Label>패치명</Label>
+              <Input
+                value={formData.patchName}
+                onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
+                placeholder="미입력 시 자동 생성 (e.g. 20260102_1.0.0_1.1.0)"
+                maxLength={100}
+              />
+            </div>
+
+            {/* 설명 */}
+            <div className="space-y-2">
+              <Label>설명</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => onFormDataChange({ ...formData, description: e.target.value })}
+                placeholder="패치에 대한 설명"
+                className="min-h-[80px]"
+              />
+            </div>
+
+            {/* 빌드 파일 포함 토글 + BuildPickerSection. from/to 모두 선택된 시점부터 표시 */}
+            {formData.fromVersionId && formData.toVersionId && (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="customBuildToggle" className="cursor-pointer font-medium">
+                      빌드 파일 포함
+                    </Label>
+                    <TypographyMuted className="text-xs">
+                      WEB/ENGINE 카테고리의 빌드 파일을 선택하여 포함합니다.
+                    </TypographyMuted>
+                  </div>
+                  <Switch
+                    id="customBuildToggle"
+                    checked={toggleEnabled}
+                    onCheckedChange={handleToggleEnabled}
+                    disabled={isSubmitting || (buildsQuery.isLoading && !buildsQuery.data)}
+                  />
+                </div>
+                {toggleEnabled && buildsQuery.data && (
+                  <div className="rounded-lg border p-4">
+                    <BuildPickerSection
+                      data={buildsQuery.data}
+                      value={
+                        formData.buildSelection ?? { enabled: true, web: null, engines: [] }
+                      }
+                      onChange={(next) =>
+                        onFormDataChange({ ...formData, buildSelection: next })
+                      }
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                )}
+                {toggleEnabled && buildsQuery.isLoading && (
+                  <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
+                )}
+              </div>
+            )}
+
+            {/* 생성 정보 미리보기 */}
+            {formData.customerId && formData.fromVersion && formData.toVersion && (
+              <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+                <div className="flex items-center justify-center gap-3 text-sm">
+                  <span className="text-muted-foreground">
+                    {getFullVersionName(formData.fromVersion)}
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                  <strong className="text-primary">
+                    {getFullVersionName(formData.toVersion)}
+                  </strong>
+                </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  위 버전 범위 내 모든 변경사항이 포함된 패치가 생성됩니다.
+                </p>
+              </div>
+            )}
+          </>
         )}
-        {formData.customerId && !isVersionsLoading && approvedVersions.length === 0 && (
-          <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
-        )}
-      </div>
-
-      {/* 패치명 */}
-      <div className="space-y-2">
-        <Label>패치명</Label>
-        <Input
-          value={formData.patchName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, patchName: e.target.value })
-          }
-          placeholder="미입력 시 자동 생성 (e.g. 20260102_1.0.0_1.1.0)"
-          maxLength={100}
-        />
-      </div>
-
-      {/* 설명 */}
-      <div className="space-y-2">
-        <Label>설명</Label>
-        <Textarea
-          value={formData.description}
-          onChange={(e) => onFormDataChange({ ...formData, description: e.target.value })}
-          placeholder="패치에 대한 설명"
-          className="min-h-[80px]"
-        />
-      </div>
-
-      {/* 생성 정보 미리보기 */}
-      {formData.customerId && formData.fromVersion && formData.toVersion && (
-        <div className="p-4 bg-primary/10 rounded-lg space-y-2">
-          <div className="flex items-center justify-center gap-3 text-sm">
-            <span className="text-muted-foreground">{getFullVersionName(formData.fromVersion)}</span>
-            <ArrowRight className="h-4 w-4 text-primary" />
-            <strong className="text-primary">{getFullVersionName(formData.toVersion)}</strong>
-          </div>
-          <p className="text-xs text-center text-muted-foreground">
-            위 버전 범위 내 모든 변경사항이 포함된 패치가 생성됩니다.
-          </p>
-        </div>
-      )}
-    </FormSheet>
+      </FormSheet>
+    </>
   )
 }

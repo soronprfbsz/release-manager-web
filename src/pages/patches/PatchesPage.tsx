@@ -101,9 +101,14 @@ const INITIAL_CUSTOM_FORM: CustomPatchCreateFormData = {
   customerId: null,
   fromVersion: '',
   toVersion: '',
+  fromVersionId: null,
+  toVersionId: null,
+  projectId: '',
   assigneeId: null,
   description: '',
   patchName: '',
+  // 빌드 파일 포함 default ON — 표준 흐름과 동일 정책
+  buildSelection: { enabled: true, web: null, engines: [] },
 }
 
 /**
@@ -417,9 +422,10 @@ export function PatchesPage() {
       assigneeId: customFormData.assigneeId || undefined,
       description: customFormData.description || undefined,
       patchName: customFormData.patchName || undefined,
+      buildSelection: customFormData.buildSelection ?? null,
     }
 
-    const progressId = crypto.randomUUID()
+    const progressId = generateProgressId()
     setActiveProgressId(progressId)
 
     customGenerateMutation.mutate({ data: request, progressId }, {
@@ -521,6 +527,7 @@ export function PatchesPage() {
       setStandardFormData({ ...INITIAL_STANDARD_FORM, projectId })
       setStandardFormOpen(true)
     } else {
+      setCustomFormData({ ...INITIAL_CUSTOM_FORM, projectId })
       setCustomFormOpen(true)
     }
   }
@@ -701,6 +708,7 @@ export function PatchesPage() {
         isCustomersLoading={isCustomersLoading}
         isVersionsLoading={isVersionsLoading}
         isSubmitting={customGenerateMutation.isPending}
+        progress={progressQuery.data ?? null}
         onFormDataChange={setCustomFormData}
         onSubmit={handleCustomSubmit}
         onClose={() => {
