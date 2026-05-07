@@ -1,9 +1,12 @@
 /**
  * OutdatedBuildsWarningDialog Component
- * 구버전 빌드 선택 시 경고 다이얼로그
+ * 빌드 선택 위험(구버전/미선택) 경고 다이얼로그
  *
- * 패치 생성 시 선택된 빌드가 범위 내 최신이 아닐 때 표시합니다.
- * 운영자가 "이대로 진행" 또는 "취소"를 명시적으로 선택해야 합니다.
+ * 패치 생성 시 다음 두 가지 위험 항목을 한 번에 경고합니다:
+ *  - reason='outdated': 선택된 빌드가 범위 내 최신이 아님
+ *  - reason='missing':  picker 후보가 있는데 운영자가 '포함 안 함' 으로 두어 누락
+ *
+ * 두 경우 모두 사이트가 to 버전인데 그 항목만 옛 상태가 되어 호환성 사고 위험.
  */
 
 import { AlertTriangle } from 'lucide-react'
@@ -43,12 +46,12 @@ export function OutdatedBuildsWarningDialog({
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <AlertDialogTitle className="text-destructive">
-              구버전 빌드가 선택되어 있습니다
+              빌드 선택을 한번 더 확인해주세요
             </AlertDialogTitle>
           </div>
           <AlertDialogDescription className="pt-3 space-y-3">
             <p>
-              아래 항목에서 범위 내 최신 빌드가 아닌 구버전 빌드가 선택되어 있습니다.
+              아래 항목은 사이트에 <strong>옛 버전 그대로 남거나 아예 적용되지 않습니다</strong>.
             </p>
 
             {/* 비교 표 */}
@@ -66,7 +69,7 @@ export function OutdatedBuildsWarningDialog({
                       현재 선택
                     </th>
                     <th className="px-3 py-2 text-left font-semibold text-foreground">
-                      범위 내 최신
+                      적용되어야 할 최신
                     </th>
                   </tr>
                 </thead>
@@ -83,9 +86,15 @@ export function OutdatedBuildsWarningDialog({
                         {item.engineName ?? '-'}
                       </td>
                       <td className="px-3 py-2">
-                        <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-mono text-xs text-destructive">
-                          {item.selected.fullVersion}
-                        </span>
+                        {item.selected ? (
+                          <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-mono text-xs text-destructive">
+                            {item.selected.fullVersion} (구버전)
+                          </span>
+                        ) : (
+                          <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive">
+                            포함 안 함
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2">
                         <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-xs text-primary">
@@ -98,12 +107,16 @@ export function OutdatedBuildsWarningDialog({
               </table>
             </div>
 
-            {/* 경고 메시지 */}
-            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3">
+            {/* 경고 메시지 — 비개발자도 이해 가능한 단순 표현 */}
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-2">
               <p className="text-sm text-destructive">
-                이대로 패치를 만들면 사이트의 엔진 바이너리는 구버전이지만 누적 config
-                자산은 최신 상태로 들어가 <strong>호환성 사고</strong>가 발생할 수
-                있습니다. 의도된 선택이 아니라면 취소 후 최신 빌드로 변경하세요.
+                사이트는 새 버전 (To 버전) 으로 패치되지만, 위 항목들만{' '}
+                <strong>옛 버전 그대로 남습니다</strong>.
+              </p>
+              <p className="text-sm text-destructive">
+                이렇게 사이트 안에 새 / 옛 버전이 섞이면{' '}
+                <strong>이후 버전 관리가 꼬이거나, 일부 기능이 정상 동작하지 않을 수 있습니다</strong>.
+                특별한 이유가 없다면 <strong>취소</strong> 후 모두 최신으로 맞춰주세요.
               </p>
             </div>
           </AlertDialogDescription>

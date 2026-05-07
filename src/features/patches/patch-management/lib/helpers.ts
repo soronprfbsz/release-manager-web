@@ -25,22 +25,28 @@ export const getVersionIdFromOption = (
 }
 
 /**
- * 구버전 빌드 선택 항목 타입
- * 현재 선택된 빌드가 범위 내 최신이 아닐 때 해당 정보를 담습니다.
+ * 빌드 선택 위험 항목 타입
+ * - reason='outdated': 선택된 빌드가 범위 내 최신이 아님
+ * - reason='missing':  picker 후보가 있는데 사용자가 '포함 안 함' 으로 두어 누락됨
+ *
+ * 두 경우 모두 to 버전 사이트에 “해당 항목만 옛 상태” 가 되어 호환성 사고 위험.
  */
 export type OutdatedSelection = {
   kind: 'WEB' | 'ENGINE'
   engineName?: string
-  selected: { buildVersionId: number; fullVersion: string }
+  reason: 'outdated' | 'missing'
+  /** 미선택(missing) 케이스에서는 null */
+  selected: { buildVersionId: number; fullVersion: string } | null
   latest: { buildVersionId: number; fullVersion: string }
 }
 
 /**
- * 빌드 선택에서 구버전 항목을 검출합니다.
+ * 빌드 선택의 위험 항목 (구버전 / 미선택) 을 검출합니다.
  *
- * - BuildSelection.enabled 가 false 이면 빈 배열 반환 (검사 skip)
- * - WEB / ENGINE 각각 isLatest=true 인 후보와 비교
- * - 선택된 buildVersionId 가 최신이 아니면 OutdatedSelection 으로 수집
+ * 검사 정책:
+ * - BuildSelection.enabled 가 false 이면 빈 배열 반환 (검사 skip — 토글 OFF)
+ * - 토글 ON 이지만 picker 에서 후보가 있는 항목을 '포함 안 함' 으로 두면 missing
+ * - 선택된 buildVersionId 가 그 그룹의 isLatest=true 가 아니면 outdated
  */
 export function detectOutdatedSelections(
   buildsInRange: BuildsInRangeResponse,
@@ -51,33 +57,57 @@ export function detectOutdatedSelections(
   const result: OutdatedSelection[] = []
 
   // WEB 검사
-  if (selection.web && buildsInRange.web.length > 0) {
+  if (buildsInRange.web.length > 0) {
     const latest = buildsInRange.web.find((c) => c.isLatest)
-    if (latest && latest.buildVersionId !== selection.web.buildVersionId) {
-      const sel = buildsInRange.web.find(
-        (c) => c.buildVersionId === selection.web!.buildVersionId,
-      )
-      if (sel) {
+    if (latest) {
+      if (!selection.web) {
+        // 토글 ON 이지만 WEB 미선택 → 사이트 WEB 만 옛 상태가 됨
         result.push({
           kind: 'WEB',
-          selected: { buildVersionId: sel.buildVersionId, fullVersion: sel.fullVersion },
+          reason: 'missing',
+          selected: null,
           latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
         })
+      } else if (latest.buildVersionId !== selection.web.buildVersionId) {
+        const sel = buildsInRange.web.find(
+          (c) => c.buildVersionId === selection.web!.buildVersionId,
+        )
+        if (sel) {
+          result.push({
+            kind: 'WEB',
+            reason: 'outdated',
+            selected: { buildVersionId: sel.buildVersionId, fullVersion: sel.fullVersion },
+            latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
+          })
+        }
       }
     }
   }
 
-  // ENGINE 검사
-  for (const eng of selection.engines) {
-    const group = buildsInRange.engines.find((g) => g.engineName === eng.engineName)
-    if (!group) continue
+  // ENGINE 검사 — 후보(EngineGroup) 기준으로 순회 (미선택 검출을 위해)
+  for (const group of buildsInRange.engines) {
     const latest = group.candidates.find((c) => c.isLatest)
-    if (latest && latest.buildVersionId !== eng.buildVersionId) {
+    if (!latest) continue
+
+    const eng = selection.engines.find((e) => e.engineName === group.engineName)
+    if (!eng) {
+      // 후보 있는데 picker 미선택 → 사이트 해당 엔진만 옛 상태
+      result.push({
+        kind: 'ENGINE',
+        engineName: group.engineName,
+        reason: 'missing',
+        selected: null,
+        latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
+      })
+      continue
+    }
+    if (latest.buildVersionId !== eng.buildVersionId) {
       const sel = group.candidates.find((c) => c.buildVersionId === eng.buildVersionId)
       if (sel) {
         result.push({
           kind: 'ENGINE',
-          engineName: eng.engineName,
+          engineName: group.engineName,
+          reason: 'outdated',
           selected: { buildVersionId: sel.buildVersionId, fullVersion: sel.fullVersion },
           latest: { buildVersionId: latest.buildVersionId, fullVersion: latest.fullVersion },
         })
