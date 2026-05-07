@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Plus, Trash2 } from 'lucide-react'
-import { useSearchParams } from 'react-router-dom'
+import { useBlocker, useSearchParams } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patches'
 
@@ -243,29 +243,36 @@ export function PatchesPage() {
   const deleteMutation = useDeletePatch()
   const bulkDeleteMutation = useBulkDeletePatches()
 
-  // F5 / 페이지 이탈 경고 — 폼이 열려있거나 패치 생성이 진행 중일 때
-  // 작성 중인 데이터 유실 / 생성 도중 새로고침으로 인한 부분 실패를 방지.
-  // (export TZ='Asia/Seoul' 처럼 export 형태가 아니므로 호스트 환경 영향 없음)
-  useEffect(() => {
-    const isFormOpen = standardFormOpen || customFormOpen
-    const isGenerating =
-      standardGenerateMutation.isPending || customGenerateMutation.isPending
-    if (!isFormOpen && !isGenerating) return
+  // 패치 생성 진행 중에만 페이지 이탈 차단.
+  // - 폼이 열려있기만 한 (작성 중) 상태는 자유롭게 떠날 수 있도록 허용 (이전엔 false-alarm 발생)
+  // - 진행 중일 때만 F5 / 새로고침 / 탭 닫기 / SPA 라우팅 차단
+  const isGenerating =
+    standardGenerateMutation.isPending || customGenerateMutation.isPending
 
+  // (1) F5 / 새로고침 버튼 / 탭/창 닫기 / 다른 사이트 이동 — beforeunload
+  useEffect(() => {
+    if (!isGenerating) return
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault()
-      // 표준에 따라 returnValue 를 설정해야 브라우저가 confirm 표시.
-      // 메시지 자체는 모던 브라우저에서 무시되고 표준 안내로 대체됨.
       e.returnValue = ''
     }
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
-  }, [
-    standardFormOpen,
-    customFormOpen,
-    standardGenerateMutation.isPending,
-    customGenerateMutation.isPending,
-  ])
+  }, [isGenerating])
+
+  // (2) SPA 라우팅 (메뉴 클릭으로 다른 페이지 이동 등) — useBlocker
+  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
+    isGenerating && currentLocation.pathname !== nextLocation.pathname
+  )
+
+  useEffect(() => {
+    if (blocker.state !== 'blocked') return
+    const ok = window.confirm(
+      '패치 생성이 진행 중입니다. 떠나시겠습니까? 진행 중인 작업이 미완료될 수 있습니다.'
+    )
+    if (ok) blocker.proceed?.()
+    else blocker.reset?.()
+  }, [blocker])
 
   // 탭 변경
   const handleTabChange = (value: string) => {

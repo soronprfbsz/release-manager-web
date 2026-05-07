@@ -101,9 +101,30 @@ export function FormSheet({
     onSubmit()
   }
 
+  // isSubmitting 중에는 외부 클릭 / ESC / X 버튼으로 인한 close 를 차단.
+  // (제출 진행 중 폼이 갑자기 닫히면 사용자 데이터/진행 상태 손실 위험)
+  const handleOpenChange = (openState: boolean) => {
+    if (!openState) {
+      if (isSubmitting) return
+      onClose()
+    }
+  }
+
   return (
-    <Sheet open={isOpen} onOpenChange={(openState) => !openState && onClose()}>
-      <SheetContent className={width}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+      <SheetContent
+        className={width}
+        // isSubmitting 중 외부 클릭 / ESC 차단을 Radix 차원에서도 보강
+        onPointerDownOutside={(e) => {
+          if (isSubmitting) e.preventDefault()
+        }}
+        onEscapeKeyDown={(e) => {
+          if (isSubmitting) e.preventDefault()
+        }}
+        onInteractOutside={(e) => {
+          if (isSubmitting) e.preventDefault()
+        }}
+      >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Icon className={`h-5 w-5 ${iconClassName ?? ''}`} />
