@@ -72,7 +72,8 @@ export function PatchGenerateFormCard({
       toVersionId: toVersionCleared
         ? getVersionIdFromOption(versionOptions, toVersionCleared)
         : null,
-      buildSelection: null,
+      // from/to 변경 시 picker 선택은 비우되 토글 ON 은 유지 — default ON 정책
+      buildSelection: { enabled: true, web: null, engines: [] },
     })
   }
 
@@ -82,7 +83,8 @@ export function PatchGenerateFormCard({
       ...formData,
       toVersion: value,
       toVersionId,
-      buildSelection: null,
+      // from/to 변경 시 picker 선택은 비우되 토글 ON 은 유지 — default ON 정책
+      buildSelection: { enabled: true, web: null, engines: [] },
     })
   }
 
