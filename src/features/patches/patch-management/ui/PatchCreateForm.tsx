@@ -3,6 +3,8 @@
  * 패치 생성 폼 컴포넌트
  */
 
+import { useMemo, useState } from 'react'
+
 import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
@@ -25,8 +27,9 @@ import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 import type { PatchCreateFormData, VersionOption } from '../model/types'
-import { getVersionIdFromOption } from '../lib/helpers'
+import { getVersionIdFromOption, detectOutdatedSelections } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+import { OutdatedBuildsWarningDialog } from './OutdatedBuildsWarningDialog'
 
 interface PatchCreateFormProps {
   isOpen: boolean
@@ -60,6 +63,8 @@ export function PatchCreateForm({
   onClose,
   icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
+  const [warningOpen, setWarningOpen] = useState(false)
+
   const handleFromVersionChange = (value: string) => {
     const fromVersionId = getVersionIdFromOption(versionOptions, value)
     const toVersionCleared =
@@ -116,6 +121,30 @@ export function PatchCreateForm({
     onFormDataChange({ ...formData, buildSelection: { ...selection, enabled: true } })
   }
 
+  // 구버전 빌드 선택 검출
+  const outdatedSelections = useMemo(() => {
+    if (!toggleEnabled || !buildsQuery.data || !formData.buildSelection) return []
+    return detectOutdatedSelections(buildsQuery.data, formData.buildSelection)
+  }, [toggleEnabled, buildsQuery.data, formData.buildSelection])
+
+  // 패치 생성 버튼 클릭 처리 — 구버전 선택 시 경고 dialog 먼저
+  const handleSubmitWithCheck = () => {
+    if (outdatedSelections.length > 0) {
+      setWarningOpen(true)
+    } else {
+      onSubmit()
+    }
+  }
+
+  const handleWarningConfirm = () => {
+    setWarningOpen(false)
+    onSubmit()
+  }
+
+  const handleWarningCancel = () => {
+    setWarningOpen(false)
+  }
+
   // 클라이언트 검증
   const sameBase =
     formData.fromVersionId != null &&
@@ -130,6 +159,13 @@ export function PatchCreateForm({
     (sameBase && (!toggleEnabled || pickerEmpty))
 
   return (
+    <>
+      <OutdatedBuildsWarningDialog
+        open={warningOpen}
+        outdatedSelections={outdatedSelections}
+        onConfirm={handleWarningConfirm}
+        onCancel={handleWarningCancel}
+      />
     <FormSheet
       open={isOpen}
       icon={PageIcon}
@@ -139,7 +175,7 @@ export function PatchCreateForm({
       submitIcon={PageIcon}
       isSubmitting={isSubmitting}
       submitDisabled={submitDisabled}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmitWithCheck}
       onClose={onClose}
       width="w-[500px] sm:max-w-[500px]"
     >
@@ -322,5 +358,6 @@ export function PatchCreateForm({
         </div>
       )}
     </FormSheet>
+    </>
   )
 }

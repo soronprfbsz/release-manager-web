@@ -15,6 +15,7 @@ export { PatchPreviewCard } from './ui/PatchPreviewCard'
 export { CustomPatchGenerateFormCard } from './ui/CustomPatchGenerateFormCard'
 export { CustomPatchPreviewCard } from './ui/CustomPatchPreviewCard'
 export { BuildPickerSection, computeAutoPreselect } from './ui/BuildPickerSection'
+export { OutdatedBuildsWarningDialog } from './ui/OutdatedBuildsWarningDialog'
 
 // Types
 export type {
@@ -30,4 +31,5 @@ export type {
 export { validatePatchForm } from './model/validation'
 
 // Helpers
-export { getVersionIdFromOption } from './lib/helpers'
+export { getVersionIdFromOption, detectOutdatedSelections } from './lib/helpers'
+export type { OutdatedSelection } from './lib/helpers'
