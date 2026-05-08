@@ -304,27 +304,27 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
             <div className="text-muted-foreground space-y-3">
               <div className="space-y-1">
                 <p className="text-xs">
-                  버전에는 <strong className="text-foreground">DB 마이그레이션 SQL</strong> 과
-                  {' '}<strong className="text-foreground">수동 적용 자산</strong> (xml / config / 스크립트 등) 을 등록합니다.
+                  버전에는 <strong className="text-foreground">db 패치 sql</strong> 과
+                  {' '}<strong className="text-foreground">수동 패치용 파일</strong> 을 등록합니다.
                 </p>
                 <p className="text-xs">
-                  실제 빌드 산출물 (<span className="font-mono">.war</span>,{' '}
-                  <span className="font-mono">webobjects.tar.gz</span>, 엔진 바이너리) 은
-                  {' '}<strong className="text-foreground">빌드 버전</strong> 으로 별도 등록하세요.
+                  빌드 산출물 (<span className="font-mono">web: war, webobjects</span> /{' '}
+                  <span className="font-mono">engine: 바이너리</span>) 은
+                  {' '}<strong className="text-foreground">빌드 버전</strong> 으로 등록하세요.
                 </p>
               </div>
 
               <div className="space-y-1">
                 <p className="font-medium text-foreground text-xs">예시 폴더 구조</p>
                 <div className="font-mono text-xs bg-muted rounded border p-2">
-                  <div>📁 database/   <span className="text-muted-foreground">← 자동 적용 (db patch)</span></div>
+                  <div>📁 database/   <span className="text-muted-foreground">← (db patch)</span></div>
                   <div className="ml-4">📁 MARIADB/</div>
                   <div className="ml-8">📄 1.patch_mariadb_xxx.sql</div>
                   <div className="ml-4">📁 CRATEDB/</div>
                   <div className="ml-8">📄 1.patch_cratedb_xxx.sql</div>
-                  <div>📁 web/   <span className="text-muted-foreground">← 수동 적용 자산 (선택)</span></div>
+                  <div>📁 web/   <span className="text-muted-foreground">← (빌드파일 외 패치 파일)</span></div>
                   <div className="ml-4">📄 context_xml_patch.sh</div>
-                  <div>📁 engine/   <span className="text-muted-foreground">← 수동 적용 자산 (선택)</span></div>
+                  <div>📁 engine/   <span className="text-muted-foreground">← (빌드파일 외 패치 파일)</span></div>
                   <div className="ml-4">📄 nc_conf.conf</div>
                   <div className="ml-4">📄 NMS_COMMON.conf</div>
                 </div>
@@ -332,8 +332,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
 
               <div className="bg-accent/40 border border-accent rounded p-2 text-xs space-y-1">
                 <span className="text-foreground">⚠️ 폴더 규칙</span>
-                <p className="text-muted-foreground">• 루트는 <span className="font-mono">database/</span>, <span className="font-mono">web/</span>, <span className="font-mono">engine/</span> 만 허용</p>
-                <p className="text-muted-foreground">• <span className="font-mono">database/</span> 하위 폴더명은 대문자 (<span className="font-mono">MARIADB</span>, <span className="font-mono">CRATEDB</span>)</p>
+                <p className="text-muted-foreground">• 루트는 <span className="font-mono">database/</span>, <span className="font-mono">web/</span>, <span className="font-mono">engine/</span>, <span className="font-mono">etc/</span> 만 허용</p>
                 <p className="text-muted-foreground">
                   • 빌드 산출물 (war, webobjects.tar.gz, 엔진 바이너리) 은 여기 <strong>아님</strong> — 빌드 버전으로
                 </p>
