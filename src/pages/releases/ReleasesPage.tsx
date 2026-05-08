@@ -32,6 +32,7 @@ import {
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks'
+import { useNavigationBlock } from '@/shared/lib/hooks/use-navigation-block'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useProjectStore } from '@/shared/store'
@@ -125,6 +126,14 @@ export function ReleasesPage() {
   const [deleteTarget, setDeleteTarget] = useState<ActionTargetInfo | null>(null)
 
   const deleteMutation = useDeleteVersion()
+
+  // 버전/빌드 생성 폼이 열려있는 동안 페이지 이탈 차단
+  // (폼 내부에서도 isSubmitting 시 닫기 차단하지만, SPA 라우팅까지 잡으려면 Page 레벨도 필요)
+  const isFormOpen = standardCreateOpen || customCreateOpen || !!buildTarget || !!hotfixTarget
+  useNavigationBlock(
+    isFormOpen,
+    '작업이 진행 중이거나 폼이 열려있습니다. 떠나시겠습니까?'
+  )
 
   // 프로젝트 변경 시 선택 초기화
   if (projectId !== prevProjectId) {

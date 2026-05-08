@@ -3,11 +3,11 @@
  * 패치 관리 통합 페이지 - Standard/Custom 탭으로 구분
  */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Plus, Trash2 } from 'lucide-react'
-import { useBlocker, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patches'
 
@@ -33,7 +33,6 @@ import {
   useCustomPatchVersions,
   useGenerateStandardPatch,
   useGenerateCustomPatch,
-  usePatchProgress,
   useDeletePatch,
   useBulkDeletePatches,
   type CumulativePatch,
@@ -46,8 +45,11 @@ import {
   type VersionNode,
 } from '@/entities/releases/release'
 
+import { useServerProgress } from '@/shared/api'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks'
+import { useNavigationBlock } from '@/shared/lib/hooks/use-navigation-block'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
@@ -137,36 +139,6 @@ function getVersionsFromTree(
     }
     return 0
   })
-}
-
-/**
- * 패치 생성 진행도 polling 용 ID 생성.
- *
- * <p>crypto.randomUUID 는 secure context (HTTPS) 에서만 동작 — 운영 환경이
- * HTTP 라 사용 불가. crypto.getRandomValues 도 secure context 만이지만 일부
- * 브라우저는 HTTP 에서도 동작. 모두 실패하면 timestamp + Math.random fallback.
- *
- * <p>progressId 는 단일 사용자의 단일 패치 생성 매핑 용도라 충돌 / 보안 강도가
- * 낮아도 충분. UUID v4 형식만 유지.
- */
-function generateProgressId(): string {
-  const c: Crypto | undefined =
-    typeof crypto !== 'undefined' ? crypto : undefined
-  if (c && typeof c.randomUUID === 'function') {
-    return c.randomUUID()
-  }
-  const bytes = new Uint8Array(16)
-  if (c && typeof c.getRandomValues === 'function') {
-    c.getRandomValues(bytes)
-  } else {
-    for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256)
-  }
-  bytes[6] = (bytes[6] & 0x0f) | 0x40 // RFC 4122 v4
-  bytes[8] = (bytes[8] & 0x3f) | 0x80
-  const hex = Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
 export function PatchesPage() {
@@ -283,41 +255,19 @@ export function PatchesPage() {
   const bulkDeleteMutation = useBulkDeletePatches()
 
   // 패치 생성 진행도 polling — activeProgressId 가 set 된 동안 1초 간격 fetch
-  const progressQuery = usePatchProgress(
+  const progressQuery = useServerProgress(
     activeProgressId,
     activeProgressId !== null,
   )
 
-  // 패치 생성 진행 중에만 페이지 이탈 차단.
-  // - 폼이 열려있기만 한 (작성 중) 상태는 자유롭게 떠날 수 있도록 허용 (이전엔 false-alarm 발생)
-  // - 진행 중일 때만 F5 / 새로고침 / 탭 닫기 / SPA 라우팅 차단
+  // 패치 생성 진행 중에만 페이지 이탈 차단 (폼 작성 중 상태는 허용)
   const isGenerating =
     standardGenerateMutation.isPending || customGenerateMutation.isPending
 
-  // (1) F5 / 새로고침 버튼 / 탭/창 닫기 / 다른 사이트 이동 — beforeunload
-  useEffect(() => {
-    if (!isGenerating) return
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault()
-      e.returnValue = ''
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [isGenerating])
-
-  // (2) SPA 라우팅 (메뉴 클릭으로 다른 페이지 이동 등) — useBlocker
-  const blocker = useBlocker(({ currentLocation, nextLocation }) =>
-    isGenerating && currentLocation.pathname !== nextLocation.pathname
+  useNavigationBlock(
+    isGenerating,
+    '패치 생성이 진행 중입니다. 떠나시겠습니까? 진행 중인 작업이 미완료될 수 있습니다.'
   )
-
-  useEffect(() => {
-    if (blocker.state !== 'blocked') return
-    const ok = window.confirm(
-      '패치 생성이 진행 중입니다. 떠나시겠습니까? 진행 중인 작업이 미완료될 수 있습니다.'
-    )
-    if (ok) blocker.proceed?.()
-    else blocker.reset?.()
-  }, [blocker])
 
   // 탭 변경
   const handleTabChange = (value: string) => {

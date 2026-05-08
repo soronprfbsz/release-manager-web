@@ -142,17 +142,6 @@ export const useGenerateCustomPatch = () => {
   })
 }
 
-/** 패치 생성 진행 상황 polling (1초 간격, mutation 진행 중에만 활성화) */
-export const usePatchProgress = (progressId: string | null, enabled: boolean) =>
-  useQuery({
-    queryKey: ['patch-progress', progressId],
-    queryFn: () => patchApi.getProgress(progressId!),
-    enabled: enabled && !!progressId,
-    refetchInterval: 1000,
-    refetchIntervalInBackground: false,
-    staleTime: 0,
-  })
-
 export const useDeletePatch = () => {
   const queryClient = useQueryClient()
 

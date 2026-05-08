@@ -7,7 +7,7 @@
  *  - from/to 모두 선택된 시점부터 picker 영역 노출
  *  - 자동으로 모두 최신 빌드 preselect (computeAutoPreselect)
  *  - 구버전/미선택 시 OutdatedBuildsWarningDialog 경고
- *  - 패치 생성 진행 중 PatchProgressView 로 폼 입력 영역 대체
+ *  - 패치 생성 진행 중 ServerProgressView 로 폼 입력 영역 대체
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -20,13 +20,14 @@ import type {
   BuildSelection,
   CustomPatchCustomer,
   CustomPatchVersion,
-  PatchProgress,
 } from '@/entities/patches/patch'
 
+import type { ProgressResponse } from '@/shared/api/progress/types'
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
+import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -35,7 +36,18 @@ import type { CustomPatchCreateFormData } from '../model/types'
 import { detectOutdatedSelections } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
 import { OutdatedBuildsWarningDialog } from './OutdatedBuildsWarningDialog'
-import { PatchProgressView } from './PatchProgressView'
+
+/** 패치 생성 8단계 라벨 — ServerProgressView 체크리스트 미리보기용 */
+const PATCH_STEPS = [
+  '버전 범위 검증',
+  '출력 디렉토리 생성',
+  'DB 누적 변경 파일 복사',
+  'WEB / ENGINE 빌드 파일 복사',
+  '빌드 공유 자산 동반',
+  '패치 스크립트 생성',
+  'README / 빌드 메타 생성',
+  'DB 메타 저장',
+] as const
 
 interface CustomPatchCreateFormProps {
   isOpen: boolean
@@ -47,7 +59,7 @@ interface CustomPatchCreateFormProps {
   isVersionsLoading: boolean
   isSubmitting: boolean
   /** 진행도 polling 결과 — isSubmitting 일 때만 의미 */
-  progress?: PatchProgress | null
+  progress?: ProgressResponse | null
   onFormDataChange: (data: CustomPatchCreateFormData) => void
   onSubmit: () => void
   onClose: () => void
@@ -206,7 +218,12 @@ export function CustomPatchCreateForm({
         width="w-[500px] sm:max-w-[500px]"
       >
         {isSubmitting ? (
-          <PatchProgressView progress={progress} />
+          <ServerProgressView
+            progress={progress}
+            title="패치 생성 중"
+            completedTitle="패치 생성 완료"
+            steps={PATCH_STEPS}
+          />
         ) : (
           <>
             {/* 고객사 & 담당자 */}

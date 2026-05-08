@@ -37,11 +37,7 @@ export {
   useCustomPatchVersions,
   useGenerateStandardPatch,
   useGenerateCustomPatch,
-  usePatchProgress,
   useDeletePatch,
   useDeletePatchHistory,
   useBulkDeletePatches,
 } from './queries/patchQueries'
-
-// Progress type
-export type { PatchProgress } from './api/patchApi'

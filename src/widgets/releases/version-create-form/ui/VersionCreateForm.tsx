@@ -5,6 +5,8 @@ import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
 import { releaseApi } from '@/entities/releases/release'
 
+import { useServerProgress } from '@/shared/api'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { cn } from '@/shared/lib/utils'
@@ -18,9 +20,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/ui/popover'
+import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
+
+/** 버전 생성 5단계 라벨 */
+const VERSION_CREATE_STEPS = [
+  'ZIP 압축 해제',
+  'ZIP 구조 검증',
+  '버전 디렉토리 생성',
+  '파일 복사 / DB 저장',
+  '마무리 정리',
+] as const
 
 interface VersionCreateFormProps {
   open: boolean
@@ -73,6 +85,11 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   const { toast } = useToast()
   const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   const [uploadCompleted, setUploadCompleted] = useState(false)
+  /** 서버 진행도 polling 용 ID */
+  const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
+
+  // 서버 처리 단계 진행도 polling
+  const progressQuery = useServerProgress(activeProgressId, activeProgressId !== null)
 
   // 자동 계산된 버전
   const calculatedVersion = useMemo(() => {
@@ -100,6 +117,10 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
       setUploadCompleted(false)
       startTransfer(file?.name, 'upload')
 
+      // 업로드 완료 후 서버 처리 단계 polling 시작
+      const progressId = generateProgressId()
+      setActiveProgressId(progressId)
+
       const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
         handleProgress(progressEvent)
 
@@ -111,10 +132,12 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         }
       }
 
-      await releaseApi.createVersion(projectId, effectiveVersion, comment, file!, isApproved, progressHandler)
+      await releaseApi.createVersion(projectId, effectiveVersion, comment, file!, isApproved, progressHandler, progressId)
       completeTransfer()
     },
     onSuccess: () => {
+      // 완료 후 0.7초 여유를 두고 progressId 초기화 (completed=true polling 수신 보장)
+      setTimeout(() => setActiveProgressId(null), 700)
       toast({
         title: '버전 생성 완료',
         description: `버전 ${effectiveVersion}이(가) 성공적으로 생성되었습니다.`,
@@ -123,6 +146,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
       onSuccess()
     },
     onError: (error) => {
+      setActiveProgressId(null)
       resetTransfer()
       toast({
         title: '버전 생성 실패',
@@ -133,6 +157,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   })
 
   const handleClose = () => {
+    if (createMutation.isPending) return
     setVersion('')
     setBumpType('patch')
     setIsManualInput(false)
@@ -140,6 +165,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     setFile(null)
     setIsApproved(false)
     setUploadCompleted(false)
+    setActiveProgressId(null)
     resetTransfer()
     onOpenChange(false)
   }
@@ -242,20 +268,36 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     </div>
   )
 
+  // 서버 처리 단계가 시작됐을 때 (업로드 완료 이후) ServerProgressView 표시
+  const isServerProcessing = createMutation.isPending && !!activeProgressId
+
   return (
     <FormSheet
       open={open}
       icon={PageIcon}
       title="버전 생성"
-      description="새로운 릴리즈 버전을 생성합니다."
+      description={
+        isServerProcessing
+          ? '서버에서 파일을 처리 중입니다. 잠시만 기다려 주세요.'
+          : '새로운 릴리즈 버전을 생성합니다.'
+      }
       submitLabel="생성"
       submitIcon={Tag}
       isSubmitting={createMutation.isPending}
       onSubmit={handleSubmit}
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
-      headerContent={headerContent}
+      headerContent={isServerProcessing ? undefined : headerContent}
     >
+      {isServerProcessing ? (
+        <ServerProgressView
+          progress={progressQuery.data ?? null}
+          title="버전 생성 중"
+          completedTitle="버전 생성 완료"
+          steps={VERSION_CREATE_STEPS}
+        />
+      ) : (
+      <>
       {/* 버전 선택 영역 */}
       <div className="space-y-3">
         <Label required>버전</Label>
@@ -376,6 +418,8 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
           onCheckedChange={setIsApproved}
         />
       </div>
+      </>
+      )}
     </FormSheet>
   )
 }

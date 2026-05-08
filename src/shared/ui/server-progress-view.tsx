@@ -1,71 +1,83 @@
 /**
- * PatchProgressView
- * 패치 생성 진행 중 표시되는 큰 영역 — 폼 입력을 대체.
+ * ServerProgressView
  *
- * 사용자 체감 향상 목적:
- *  - 기존: 버튼 텍스트 "패치 생성 중..." + 작은 spinner 만
- *  - 신규: 단계 indicator / progress bar / 현재 메시지 / 8단계 체크리스트 / 안내
- *  - 오프캔버스 닫을 수 없는 상황 (lock) 임을 안내해 안심하고 기다리도록
+ * 서버 처리 진행 중 표시되는 공용 컴포넌트.
+ * 폼 입력 영역을 대체하여 단계별 체크리스트 + 진행 bar 를 표시.
+ *
+ * 사용처: 패치 생성, 버전 생성, 빌드 생성 등 모든 장시간 서버 작업.
  */
 
-import { Check, Loader2, PackageOpen } from 'lucide-react'
+import { Check, Loader2, Server } from 'lucide-react'
 
-import type { PatchProgress } from '@/entities/patches/patch'
+import type { ProgressResponse } from '@/shared/api/progress/types'
 
-interface PatchProgressViewProps {
+interface ServerProgressViewProps {
   /** 진행 상황. null/undefined 면 "시작 중" 상태로 표시 */
-  progress?: PatchProgress | null
+  progress?: ProgressResponse | null
+  /** 헤더 타이틀 (기본: "처리 중") */
+  title?: string
+  /** 완료 타이틀 (기본: "처리 완료") */
+  completedTitle?: string
+  /** 하단 안전 안내 문구 (기본 문구 사용) */
+  safetyMessage?: string
+  /**
+   * 단계 라벨 배열 — 체크리스트 미리보기용.
+   * 미전달 시 progress.totalSteps 수만큼 "단계 N" 형식으로 자동 생성.
+   * backend 의 실제 메시지는 progress.message 로 표시되므로
+   * 라벨이 정확하지 않아도 UX 에 영향 없음.
+   * readonly 배열도 허용 (as const 배열 전달 가능).
+   */
+  steps?: readonly string[]
 }
 
-/**
- * backend 의 8단계 메시지와 매칭되는 클라이언트측 step 라벨.
- * backend 가 update(step, totalSteps, message) 로 보내는 message 를 그대로
- * 표시해도 되지만, "예정된 단계 전체 보기" 를 위해 라벨 리스트를 클라이언트에 둠.
- *
- * backend 와 어긋나도 표시만 차이 — 실제 진행은 backend 의 step 숫자로 결정.
- */
-const STEP_LABELS = [
-  '버전 범위 검증',
-  '출력 디렉토리 생성',
-  'DB 누적 변경 파일 복사',
-  'WEB / ENGINE 빌드 파일 복사',
-  '빌드 공유 자산 동반',
-  '패치 스크립트 생성',
-  'README / 빌드 메타 생성',
-  'DB 메타 저장',
-] as const
-
-const TOTAL = STEP_LABELS.length
-
-export function PatchProgressView({ progress }: PatchProgressViewProps) {
+export function ServerProgressView({
+  progress,
+  title = '처리 중',
+  completedTitle = '처리 완료',
+  safetyMessage,
+  steps,
+}: ServerProgressViewProps) {
   const step = progress?.step ?? 0
-  const totalSteps = progress?.totalSteps && progress.totalSteps > 0 ? progress.totalSteps : TOTAL
+  const rawTotalSteps = progress?.totalSteps ?? 0
   const message = progress?.message ?? '시작 중...'
-  const percent = totalSteps > 0 ? Math.min(100, Math.round((step / totalSteps) * 100)) : 0
   const completed = progress?.completed === true
+
+  // 체크리스트 표시용 라벨 결정 (readonly 배열도 허용하기 위해 전개)
+  const resolvedSteps: string[] =
+    steps && steps.length > 0
+      ? [...steps]
+      : Array.from(
+          { length: rawTotalSteps > 0 ? rawTotalSteps : 1 },
+          (_, i) => `단계 ${i + 1}`
+        )
+
+  const totalSteps = resolvedSteps.length > 0 ? resolvedSteps.length : 1
+  const percent = Math.min(100, Math.round((step / totalSteps) * 100))
+
+  const defaultSafetyMessage = completed
+    ? '잠시 후 화면이 자동으로 닫힙니다.'
+    : '진행 중인 작업이 끝날 때까지 창을 닫지 말고 기다려주세요.'
 
   return (
     <div className="flex flex-col gap-6 py-2">
-      {/* 헤더 — 큰 spinner / 아이콘 + 타이틀 */}
+      {/* 헤더 — spinner / 완료 아이콘 + 타이틀 */}
       <div className="flex flex-col items-center gap-3 pt-4">
         <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           {completed ? (
             <Check className="h-8 w-8 text-primary" strokeWidth={2.5} />
           ) : (
             <>
-              <PackageOpen className="h-7 w-7 text-primary" />
+              <Server className="h-7 w-7 text-primary" />
               <Loader2 className="absolute inset-0 h-16 w-16 animate-spin text-primary/30" strokeWidth={1.5} />
             </>
           )}
         </div>
         <div className="text-center">
           <h3 className="text-base font-semibold text-foreground">
-            {completed ? '패치 생성 완료' : '패치 생성 중'}
+            {completed ? completedTitle : title}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            {completed
-              ? '잠시 후 화면이 자동으로 닫힙니다.'
-              : '진행 중인 작업이 끝날 때까지 창을 닫지 말고 기다려주세요.'}
+            {safetyMessage ?? defaultSafetyMessage}
           </p>
         </div>
       </div>
@@ -90,11 +102,11 @@ export function PatchProgressView({ progress }: PatchProgressViewProps) {
         <p className="text-sm font-medium text-foreground">{message}</p>
       </div>
 
-      {/* 8단계 체크리스트 */}
+      {/* 단계 체크리스트 */}
       <div className="space-y-2 rounded-md border border-border/60 bg-muted/30 p-3">
         <p className="text-xs font-medium text-muted-foreground">처리 단계</p>
         <ul className="space-y-1.5">
-          {STEP_LABELS.map((label, idx) => {
+          {resolvedSteps.map((label, idx) => {
             const stepNo = idx + 1
             const state =
               completed
@@ -105,7 +117,7 @@ export function PatchProgressView({ progress }: PatchProgressViewProps) {
                 ? 'active'
                 : 'pending'
             return (
-              <li key={label} className="flex items-center gap-2 text-xs">
+              <li key={`${label}-${idx}`} className="flex items-center gap-2 text-xs">
                 <span
                   className={
                     state === 'done'

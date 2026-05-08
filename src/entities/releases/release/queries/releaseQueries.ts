@@ -117,6 +117,8 @@ interface CreateVersionParams {
   patchFiles: File
   isApproved?: boolean
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  /** 서버 진행도 polling 용 ID (선택) */
+  progressId?: string
 }
 
 export const useCreateVersion = () => {
@@ -130,7 +132,8 @@ export const useCreateVersion = () => {
         params.comment,
         params.patchFiles,
         params.isApproved,
-        params.onUploadProgress
+        params.onUploadProgress,
+        params.progressId
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
@@ -204,6 +207,8 @@ interface CreateBuildParams {
   comment: string
   file?: File
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+  /** 서버 진행도 polling 용 ID (선택) */
+  progressId?: string
 }
 
 export const useCreateBuild = () => {
@@ -215,7 +220,8 @@ export const useCreateBuild = () => {
         params.baseVersionId,
         params.comment,
         params.file,
-        params.onUploadProgress
+        params.onUploadProgress,
+        params.progressId
       ),
     onSuccess: (_, params) => {
       queryClient.invalidateQueries({ queryKey: releaseKeys.builds(params.baseVersionId) })

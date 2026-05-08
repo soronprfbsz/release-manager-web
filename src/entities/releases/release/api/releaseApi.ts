@@ -78,7 +78,8 @@ export const releaseApi = {
     comment: string,
     patchFiles: File,
     isApproved?: boolean,
-    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    progressId?: string
   ): Promise<void> => {
     const formData = new FormData()
     formData.append('projectId', projectId)
@@ -91,7 +92,8 @@ export const releaseApi = {
 
     await apiClient.upload(ENDPOINTS.createVersion, formData, {
       onUploadProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION
+      timeout: API_TIMEOUT.FILE_OPERATION,
+      ...(progressId ? { headers: { 'X-Progress-Id': progressId } } : {}),
     })
   },
 
@@ -104,7 +106,8 @@ export const releaseApi = {
     patchFiles: File,
     isApproved?: boolean,
     customBaseVersionId?: number,
-    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    progressId?: string
   ): Promise<void> => {
     const formData = new FormData()
     formData.append('projectId', projectId)
@@ -121,7 +124,8 @@ export const releaseApi = {
 
     await apiClient.upload(ENDPOINTS.createCustomVersion, formData, {
       onUploadProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION
+      timeout: API_TIMEOUT.FILE_OPERATION,
+      ...(progressId ? { headers: { 'X-Progress-Id': progressId } } : {}),
     })
   },
 
@@ -215,7 +219,8 @@ export const releaseApi = {
     baseVersionId: number,
     comment: string,
     file?: File,
-    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
+    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
+    progressId?: string
   ): Promise<CreateBuildResponse> => {
     const formData = new FormData()
     formData.append('comment', comment)
@@ -229,6 +234,7 @@ export const releaseApi = {
       {
         onUploadProgress,
         timeout: API_TIMEOUT.FILE_OPERATION,
+        ...(progressId ? { headers: { 'X-Progress-Id': progressId } } : {}),
       }
     )
     return response

@@ -4,12 +4,28 @@ import { Hammer, Info } from 'lucide-react'
 
 import { useCreateBuild } from '@/entities/releases/release'
 
+import { useServerProgress } from '@/shared/api'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
+import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Textarea } from '@/shared/ui/textarea'
+
+/** 빌드 생성 단계 라벨 (ZIP 포함 시 4단계 / 미포함 시 2단계) */
+const BUILD_STEPS_WITH_ZIP = [
+  'ZIP 압축 해제',
+  '구조 검증',
+  '파일 복사 / DB 저장',
+  '마무리 정리',
+] as const
+
+const BUILD_STEPS_NO_ZIP = [
+  '빌드 행 생성',
+  '마무리',
+] as const
 
 interface BuildCreateFormProps {
   open: boolean
@@ -39,14 +55,20 @@ export function BuildCreateForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
+  /** 서버 진행도 polling 용 ID */
+  const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
 
   const createBuild = useCreateBuild()
+
+  // 서버 처리 단계 진행도 polling
+  const progressQuery = useServerProgress(activeProgressId, activeProgressId !== null)
 
   const resetForm = () => {
     setComment('')
     setSelectedFile(null)
     setIsUploading(false)
     setUploadCompleted(false)
+    setActiveProgressId(null)
     resetTransfer()
   }
 
@@ -81,11 +103,16 @@ export function BuildCreateForm({
       startTransfer(selectedFile.name, 'upload')
     }
 
+    // 진행도 polling 용 ID 생성
+    const progressId = generateProgressId()
+    setActiveProgressId(progressId)
+
     try {
       const response = await createBuild.mutateAsync({
         baseVersionId,
         comment,
         file: selectedFile ?? undefined,
+        progressId,
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round(
@@ -109,6 +136,8 @@ export function BuildCreateForm({
         description: `${response.fullVersion} 빌드가 생성되었습니다 (파일 ${response.uploadedFileCount}개).`,
       })
 
+      // 완료 후 0.7초 여유를 두고 progressId 초기화
+      setTimeout(() => setActiveProgressId(null), 700)
       resetForm()
       onOpenChange(false)
       onSuccess?.()
@@ -121,6 +150,7 @@ export function BuildCreateForm({
             : '빌드 생성 중 오류가 발생했습니다.',
         variant: 'destructive',
       })
+      setActiveProgressId(null)
       resetTransfer()
     } finally {
       setIsUploading(false)
@@ -163,6 +193,9 @@ export function BuildCreateForm({
     </div>
   )
 
+  // 서버 처리 단계가 시작됐을 때 ServerProgressView 표시
+  const isServerProcessing = isUploading && !!activeProgressId
+
   return (
     <FormSheet
       open={open}
@@ -170,9 +203,13 @@ export function BuildCreateForm({
       iconClassName="text-blue-500"
       title="빌드 생성"
       description={
-        <>
-          버전 <strong>{baseVersion}</strong>의 빌드를 생성합니다.
-        </>
+        isServerProcessing
+          ? '서버에서 파일을 처리 중입니다. 잠시만 기다려 주세요.'
+          : (
+            <>
+              버전 <strong>{baseVersion}</strong>의 빌드를 생성합니다.
+            </>
+          )
       }
       submitLabel="빌드 생성"
       isSubmitting={isUploading}
@@ -180,8 +217,17 @@ export function BuildCreateForm({
       onSubmit={handleSubmit}
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
-      headerContent={headerContent}
+      headerContent={isServerProcessing ? undefined : headerContent}
     >
+      {isServerProcessing ? (
+        <ServerProgressView
+          progress={progressQuery.data ?? null}
+          title="빌드 생성 중"
+          completedTitle="빌드 생성 완료"
+          steps={selectedFile ? BUILD_STEPS_WITH_ZIP : BUILD_STEPS_NO_ZIP}
+        />
+      ) : (
+      <>
       {/* 대상 버전 */}
       <div className="space-y-2">
         <Label>대상 버전</Label>
@@ -218,6 +264,8 @@ export function BuildCreateForm({
           hint="ZIP 파일만 지원. 루트에 web/, engine/ 만 허용"
         />
       </div>
+      </>
+      )}
     </FormSheet>
   )
 }

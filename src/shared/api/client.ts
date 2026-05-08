@@ -224,6 +224,8 @@ class ApiClient {
     const response = await this.instance.post<ApiResponse<T>>(url, formData, {
       ...config,
       headers: {
+        // 커스텀 헤더(예: X-Progress-Id) 를 병합한 뒤 Content-Type 고정
+        ...(config?.headers ?? {}),
         'Content-Type': 'multipart/form-data',
       },
       onUploadProgress: config?.onUploadProgress,
