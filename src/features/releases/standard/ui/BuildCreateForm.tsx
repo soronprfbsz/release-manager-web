@@ -6,8 +6,8 @@ import { useCreateBuild } from '@/entities/releases/release'
 
 import { useServerProgress } from '@/shared/api'
 import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
@@ -43,18 +43,12 @@ export function BuildCreateForm({
   onSuccess,
 }: BuildCreateFormProps) {
   const { toast } = useToast()
-  const {
-    handleProgress,
-    startTransfer,
-    startServerProcessing,
-    completeTransfer,
-    resetTransfer,
-  } = useFileTransferProgress()
 
   const [comment, setComment] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadCompleted, setUploadCompleted] = useState(false)
+  /** 업로드 phase 진행 정보 (null=비활성 또는 ZIP 없음) */
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null)
   /** 서버 진행도 polling 용 ID */
   const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
 
@@ -67,9 +61,8 @@ export function BuildCreateForm({
     setComment('')
     setSelectedFile(null)
     setIsUploading(false)
-    setUploadCompleted(false)
+    setUploadProgress(null)
     setActiveProgressId(null)
-    resetTransfer()
   }
 
   const handleClose = () => {
@@ -98,9 +91,10 @@ export function BuildCreateForm({
     }
 
     setIsUploading(true)
-    setUploadCompleted(false)
+
+    // ZIP 파일이 있을 때만 업로드 phase 표시
     if (selectedFile) {
-      startTransfer(selectedFile.name, 'upload')
+      setUploadProgress({ loaded: 0, total: 0, percent: 0 })
     }
 
     // 진행도 polling 용 ID 생성
@@ -114,23 +108,15 @@ export function BuildCreateForm({
         file: selectedFile ?? undefined,
         progressId,
         onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            const progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            )
-            handleProgress({
-              loaded: progressEvent.loaded,
-              total: progressEvent.total,
-            })
-            if (progress >= 100 && !uploadCompleted) {
-              setUploadCompleted(true)
-              startServerProcessing()
-            }
+          if (selectedFile && progressEvent.total) {
+            const loaded = progressEvent.loaded
+            const total = progressEvent.total
+            const percent = Math.min(100, Math.round((loaded / total) * 100))
+            setUploadProgress({ loaded, total, percent })
           }
         },
       })
 
-      completeTransfer()
       toast({
         title: '빌드 생성 완료',
         description: `${response.fullVersion} 빌드가 생성되었습니다 (파일 ${response.uploadedFileCount}개).`,
@@ -151,7 +137,7 @@ export function BuildCreateForm({
         variant: 'destructive',
       })
       setActiveProgressId(null)
-      resetTransfer()
+      setUploadProgress(null)
     } finally {
       setIsUploading(false)
     }
@@ -193,8 +179,8 @@ export function BuildCreateForm({
     </div>
   )
 
-  // 서버 처리 단계가 시작됐을 때 ServerProgressView 표시
-  const isServerProcessing = isUploading && !!activeProgressId
+  // 업로드 시작 시점부터 진행 뷰 표시 (isUploading 전체)
+  const isProcessing = isUploading
 
   return (
     <FormSheet
@@ -203,8 +189,8 @@ export function BuildCreateForm({
       iconClassName="text-blue-500"
       title="빌드 생성"
       description={
-        isServerProcessing
-          ? '서버에서 파일을 처리 중입니다. 잠시만 기다려 주세요.'
+        isProcessing
+          ? '파일을 업로드하고 서버에서 처리 중입니다. 잠시만 기다려 주세요.'
           : (
             <>
               버전 <strong>{baseVersion}</strong>의 빌드를 생성합니다.
@@ -217,14 +203,15 @@ export function BuildCreateForm({
       onSubmit={handleSubmit}
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
-      headerContent={isServerProcessing ? undefined : headerContent}
+      headerContent={isProcessing ? undefined : headerContent}
     >
-      {isServerProcessing ? (
+      {isProcessing ? (
         <ServerProgressView
           progress={progressQuery.data ?? null}
           title="빌드 생성 중"
           completedTitle="빌드 생성 완료"
           steps={selectedFile ? BUILD_STEPS_WITH_ZIP : BUILD_STEPS_NO_ZIP}
+          uploadProgress={selectedFile ? uploadProgress : null}
         />
       ) : (
       <>

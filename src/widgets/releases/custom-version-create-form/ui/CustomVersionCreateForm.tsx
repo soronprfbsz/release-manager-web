@@ -8,8 +8,8 @@ import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/e
 
 import { useServerProgress } from '@/shared/api'
 import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { cn } from '@/shared/lib/utils'
 import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useProjectStore } from '@/shared/store'
@@ -95,8 +95,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   const [file, setFile] = useState<File | null>(null)
   const [isApproved, setIsApproved] = useState(false)
   const { toast } = useToast()
-  const { handleProgress, startTransfer, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
-  const [uploadCompleted, setUploadCompleted] = useState(false)
+  /** 업로드 phase 진행 정보 (null=비활성) */
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null)
   /** 서버 진행도 polling 용 ID */
   const [activeProgressId, setActiveProgressId] = useState<string | null>(null)
 
@@ -187,22 +187,18 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      setUploadCompleted(false)
-      startTransfer(file?.name, 'upload')
+      // 업로드 시작: uploadProgress 초기화
+      setUploadProgress({ loaded: 0, total: 0, percent: 0 })
 
-      // 진행도 polling 용 ID 생성
+      // 서버 처리 단계 polling 시작용 ID 생성
       const progressId = generateProgressId()
       setActiveProgressId(progressId)
 
       const progressHandler = (progressEvent: { loaded: number; total?: number }) => {
-        handleProgress(progressEvent)
-
-        if (progressEvent.total && progressEvent.loaded >= progressEvent.total && !uploadCompleted) {
-          setUploadCompleted(true)
-          setTimeout(() => {
-            startServerProcessing()
-          }, 100)
-        }
+        const loaded = progressEvent.loaded
+        const total = progressEvent.total ?? 0
+        const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0
+        setUploadProgress({ loaded, total, percent })
       }
 
       await releaseApi.createCustomVersion(
@@ -216,7 +212,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         progressHandler,
         progressId
       )
-      completeTransfer()
     },
     onSuccess: () => {
       // 완료 후 0.7초 여유를 두고 progressId 초기화
@@ -230,7 +225,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     },
     onError: (error) => {
       setActiveProgressId(null)
-      resetTransfer()
+      setUploadProgress(null)
       toast({
         title: '커스텀 버전 생성 실패',
         description: error instanceof Error ? error.message : '버전 생성 중 오류가 발생했습니다.',
@@ -249,9 +244,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     setComment('')
     setFile(null)
     setIsApproved(false)
-    setUploadCompleted(false)
+    setUploadProgress(null)
     setActiveProgressId(null)
-    resetTransfer()
     onOpenChange(false)
   }
 
@@ -371,8 +365,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     </div>
   )
 
-  // 서버 처리 단계가 시작됐을 때 (업로드 완료 이후) ServerProgressView 표시
-  const isServerProcessing = createMutation.isPending && !!activeProgressId
+  // 업로드 시작 시점부터 진행 뷰 표시 (createMutation.isPending 전체)
+  const isProcessing = createMutation.isPending
 
   return (
     <FormSheet
@@ -380,8 +374,8 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       icon={PageIcon}
       title="커스텀 버전 생성"
       description={
-        isServerProcessing
-          ? '서버에서 파일을 처리 중입니다. 잠시만 기다려 주세요.'
+        isProcessing
+          ? '파일을 업로드하고 서버에서 처리 중입니다. 잠시만 기다려 주세요.'
           : '고객사별 커스텀 릴리즈 버전을 생성합니다.'
       }
       submitLabel="생성"
@@ -391,14 +385,15 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
       scrollHeight="h-[calc(100vh-120px)]"
-      headerContent={isServerProcessing ? undefined : headerContent}
+      headerContent={isProcessing ? undefined : headerContent}
     >
-      {isServerProcessing ? (
+      {isProcessing ? (
         <ServerProgressView
           progress={progressQuery.data ?? null}
           title="커스텀 버전 생성 중"
           completedTitle="커스텀 버전 생성 완료"
           steps={VERSION_CREATE_STEPS}
+          uploadProgress={uploadProgress}
         />
       ) : (
       <>
