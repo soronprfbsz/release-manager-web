@@ -300,58 +300,43 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         </PopoverTrigger>
         <PopoverContent className="w-[440px]" align="start">
           <div className="space-y-3 text-sm">
-            <p className="font-medium text-foreground">
-              버전 파일 생성 방법
-            </p>
-            <div className="text-muted-foreground space-y-2">
+            <p className="font-medium text-foreground">버전 파일 생성 방법</p>
+            <div className="text-muted-foreground space-y-3">
               <div className="space-y-1">
-                <p className="font-medium text-foreground text-xs">1단계: 파일 준비</p>
-                <p className="text-xs">아래와 같은 폴더 구조로 파일을 준비하세요:</p>
-                <div className="font-mono text-xs bg-muted rounded border p-2">
-                  <div>📁 database/</div>
-                  <div className="ml-4">📁 MARIADB/</div>
-                  <div className="ml-8">📄 1.patch_mariadb_테스트1.sql</div>
-                  <div className="ml-8">📄 2.patch_mariadb_테스트2.sql</div>
-                  <div className="ml-8">📄 ...</div>
-                  <div className="ml-4">📁 CRATEDB/</div>
-                  <div className="ml-8">📄 ...</div>
-                  <div>📁 web/</div>
-                  <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.war</div>
-                  <div className="ml-4">📄 nms_solution-2.0.0.240102-1-STD.tar</div>
-                  <div>📁 engine/</div>
-                  <div className="ml-4">📄 NC_SMS    ← 단일 실행 파일 (예: NC_SMS, NC_CONF)</div>
-                  <div className="ml-4">📄 NC_CONF</div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  * engine/ 하위는 엔진명 단일 실행 파일입니다. 디렉터리로 감싸면 안 됩니다.
+                <p className="text-xs">
+                  버전에는 <strong className="text-foreground">DB 마이그레이션 SQL</strong> 과
+                  {' '}<strong className="text-foreground">수동 적용 자산</strong> (xml / config / 스크립트 등) 을 등록합니다.
+                </p>
+                <p className="text-xs">
+                  실제 빌드 산출물 (<span className="font-mono">.war</span>,{' '}
+                  <span className="font-mono">webobjects.tar.gz</span>, 엔진 바이너리) 은
+                  {' '}<strong className="text-foreground">빌드 버전</strong> 으로 별도 등록하세요.
                 </p>
               </div>
 
               <div className="space-y-1">
-                <p className="font-medium text-foreground text-xs">2단계: ZIP 압축</p>
-                <p className="text-xs">
-                  위 구조로 구성된 <strong>폴더들을 선택</strong>하여 ZIP으로 압축
-                </p>
-                <div className="bg-accent/40 border border-accent rounded p-2 text-xs space-y-2">
-                  <span className="text-foreground">⚠️폴더 구조 규칙</span>
-                  <p className="font-mono bg-muted px-2 py-1 rounded">
-                    {'{카테고리}'}/{'{하위카테고리}'}/{'{파일}'}
-                  </p>
-                  <div className="space-y-0.5">
-                    <p className="text-muted-foreground">
-                      • 카테고리: database, web, engine
-                    </p>
-                    <p className="text-muted-foreground">
-                      • database 하위: MARIADB, CRATEDB 등 (대문자 필수)
-                    </p>
-                    <p className="text-muted-foreground">
-                      • engine 하위: 엔진명 단일 실행 파일 (대문자 필수, 디렉터리 금지)
-                    </p>
-                    <p className="text-muted-foreground ml-4">
-                      mariadb<span className="text-red-500">(✗)</span> MARIADB<span className="text-green-500">(✓)</span> / Nc_Sms<span className="text-red-500">(✗)</span> NC_SMS<span className="text-green-500">(✓)</span>
-                    </p>
-                  </div>
+                <p className="font-medium text-foreground text-xs">예시 폴더 구조</p>
+                <div className="font-mono text-xs bg-muted rounded border p-2">
+                  <div>📁 database/   <span className="text-muted-foreground">← 자동 적용 (db patch)</span></div>
+                  <div className="ml-4">📁 MARIADB/</div>
+                  <div className="ml-8">📄 1.patch_mariadb_xxx.sql</div>
+                  <div className="ml-4">📁 CRATEDB/</div>
+                  <div className="ml-8">📄 1.patch_cratedb_xxx.sql</div>
+                  <div>📁 web/   <span className="text-muted-foreground">← 수동 적용 자산 (선택)</span></div>
+                  <div className="ml-4">📄 context_xml_patch.sh</div>
+                  <div>📁 engine/   <span className="text-muted-foreground">← 수동 적용 자산 (선택)</span></div>
+                  <div className="ml-4">📄 nc_conf.conf</div>
+                  <div className="ml-4">📄 NMS_COMMON.conf</div>
                 </div>
+              </div>
+
+              <div className="bg-accent/40 border border-accent rounded p-2 text-xs space-y-1">
+                <span className="text-foreground">⚠️ 폴더 규칙</span>
+                <p className="text-muted-foreground">• 루트는 <span className="font-mono">database/</span>, <span className="font-mono">web/</span>, <span className="font-mono">engine/</span> 만 허용</p>
+                <p className="text-muted-foreground">• <span className="font-mono">database/</span> 하위 폴더명은 대문자 (<span className="font-mono">MARIADB</span>, <span className="font-mono">CRATEDB</span>)</p>
+                <p className="text-muted-foreground">
+                  • 빌드 산출물 (war, webobjects.tar.gz, 엔진 바이너리) 은 여기 <strong>아님</strong> — 빌드 버전으로
+                </p>
               </div>
             </div>
           </div>
