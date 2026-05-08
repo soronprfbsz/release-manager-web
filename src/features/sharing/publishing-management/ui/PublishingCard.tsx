@@ -7,8 +7,6 @@ import { ChevronDown, Download, Pencil, ExternalLink, FileText, FolderSearch } f
 
 import { publishingApi, type PublishingListItem } from '@/entities/infrastructure/publishing'
 
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import {
   DropdownMenu,
@@ -35,8 +33,6 @@ export function PublishingCard({
   onViewFiles,
   dragHandleProps,
 }: PublishingCardProps) {
-  const { toast } = useToast()
-  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const icon = getSubCategoryIcon(publishing.subCategory)
   const htmlFiles = publishing.htmlFiles || []
 
@@ -46,25 +42,8 @@ export function PublishingCard({
     window.open(fullUrl, '_blank')
   }
 
-  const handleDownload = async () => {
-    if (transferState.isTransferring) return
-    const fileName = `${publishing.publishingName}.zip`
-
-    const controller = startTransfer(fileName, 'download')
-    try {
-      await publishingApi.download(publishing.publishingId, fileName, handleProgress, controller.signal)
-      completeTransfer()
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return
-      }
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    }
+  const handleDownload = () => {
+    publishingApi.download(publishing.publishingId)
   }
 
   // 열기 버튼 렌더링
@@ -133,7 +112,6 @@ export function PublishingCard({
         variant="outline"
         className="flex-1"
         onClick={handleDownload}
-        disabled={transferState.isTransferring}
       >
         <Download className="h-4 w-4 mr-2" />
         다운로드

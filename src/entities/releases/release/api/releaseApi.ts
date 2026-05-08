@@ -1,6 +1,6 @@
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
-import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
+import { triggerBrowserDownload } from '@/shared/lib/download/triggerBrowserDownload'
 
 import type {
   BuildListResponse,
@@ -140,20 +140,9 @@ export const releaseApi = {
     return response
   },
 
-  /** 버전 전체 다운로드 (ZIP) - 진행률 지원 */
-  downloadVersion: async (
-    id: number,
-    fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.versionDownload(id),
-      filename: fileName,
-      onProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION,
-      signal,
-    })
+  /** 버전 전체 다운로드 (ZIP) - 브라우저 네이티브 다운로드 */
+  downloadVersion: (id: number): void => {
+    triggerBrowserDownload(ENDPOINTS.versionDownload(id))
   },
 
   /** 버전 승인 */

@@ -17,7 +17,6 @@ import {
 
 import { fileDownloadApi } from '@/shared/api'
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatDateTime } from '@/shared/lib/utils/date'
@@ -347,7 +346,6 @@ function VersionDetailProvider({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const { canDeleteVersion, canApproveVersion, canAddVersion, canDownloadVersion } = usePermission()
   const projectId = useProjectStore((state) => state.projectId)
 
@@ -463,25 +461,9 @@ function VersionDetailProvider({
     }
   }
 
-  const handleDownloadAll = async () => {
-    if (!version || transferState.isTransferring) return
-    const fileName = `release-${version.version}.zip`
-
-    const controller = startTransfer(fileName, 'download')
-    try {
-      await releaseApi.downloadVersion(version.versionId, fileName, handleProgress, controller.signal)
-      completeTransfer()
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        return
-      }
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    }
+  const handleDownloadAll = () => {
+    if (!version) return
+    releaseApi.downloadVersion(version.versionId)
   }
 
   if (!version) {

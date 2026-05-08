@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/client'
-import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
+import { triggerBrowserDownload } from '@/shared/lib/download/triggerBrowserDownload'
 
 import type {
   BackupFile,
@@ -70,19 +70,9 @@ export const mariadbApi = {
     return response
   },
 
-  /** 백업 파일 다운로드 - 진행률 지원 */
-  downloadBackupFile: async (
-    id: number,
-    fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.backupFileDownload(id),
-      filename: fileName,
-      onProgress,
-      signal,
-    })
+  /** 백업 파일 다운로드 - 브라우저 네이티브 다운로드 */
+  downloadBackupFile: (id: number): void => {
+    triggerBrowserDownload(ENDPOINTS.backupFileDownload(id))
   },
 
   /** 백업 파일 삭제 */
@@ -104,19 +94,9 @@ export const mariadbApi = {
     return response
   },
 
-  /** 로그 파일 다운로드 - 진행률 지원 */
-  downloadLogFile: async (
-    backupFileId: number,
-    logFileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.backupFileLogDownload(backupFileId, logFileName),
-      filename: logFileName,
-      onProgress,
-      signal,
-    })
+  /** 로그 파일 다운로드 - 브라우저 네이티브 다운로드 */
+  downloadLogFile: (backupFileId: number, logFileName: string): void => {
+    triggerBrowserDownload(ENDPOINTS.backupFileLogDownload(backupFileId, logFileName))
   },
 
   /** 로그 파일 내용 조회 */

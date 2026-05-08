@@ -190,29 +190,6 @@ class ApiClient {
     return response.data.data
   }
 
-  async download(
-    url: string,
-    filename: string,
-    onDownloadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
-    timeout?: number
-  ): Promise<void> {
-    const response = await this.instance.get(url, {
-      responseType: 'blob',
-      onDownloadProgress,
-      timeout: timeout || undefined,
-    })
-
-    const blob = new Blob([response.data])
-    const downloadUrl = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(downloadUrl)
-  }
-
   async upload<T>(
     url: string,
     formData: FormData,

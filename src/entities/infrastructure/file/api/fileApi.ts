@@ -5,7 +5,7 @@
 
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
-import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
+import { triggerBrowserDownload } from '@/shared/lib/download/triggerBrowserDownload'
 
 import type {
   File,
@@ -173,20 +173,9 @@ export const fileApi = {
     return response
   },
 
-  /** 카테고리 전체 파일 ZIP 다운로드 */
-  downloadCategoryZip: async (
-    category: string,
-    filename: string,
-    onProgress?: (e: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.categoryZipDownload(category),
-      filename,
-      onProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION,
-      signal,
-    })
+  /** 카테고리 전체 파일 ZIP 다운로드 - 브라우저 네이티브 다운로드 */
+  downloadCategoryZip: (category: string): void => {
+    triggerBrowserDownload(ENDPOINTS.categoryZipDownload(category))
   },
 }
 

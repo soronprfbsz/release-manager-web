@@ -97,7 +97,6 @@ function filterTreeByKeyword(node: ResourceFileNode, keyword: string): ResourceF
 export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTabProps>(
   function FileResourceTab({ onRefresh, filters }, ref) {
     const { toast } = useToast()
-    const { startTransfer, updateProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
 
     // 카테고리 목록 조회
     const {
@@ -210,32 +209,9 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
       }
     }
 
-    // 전체 다운로드
-    const handleDownloadAll = async (category: string) => {
-      if (transferState.isTransferring) return
-
-      const filename = `${category}_files.zip`
-      const controller = startTransfer(filename, 'download')
-
-      try {
-        await fileApi.downloadCategoryZip(
-          category,
-          filename,
-          (e) => updateProgress(e.loaded, e.total, e.isApproximate),
-          controller.signal
-        )
-        completeTransfer()
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          return
-        }
-        resetTransfer()
-        toast({
-          variant: 'destructive',
-          title: '다운로드 실패',
-          description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-        })
-      }
+    // 전체 다운로드 - 브라우저 네이티브 다운로드
+    const handleDownloadAll = (category: string) => {
+      fileApi.downloadCategoryZip(category)
     }
 
     // 업로드 다이얼로그 열기
@@ -308,7 +284,6 @@ export const FileResourceTab = forwardRef<FileResourceTabHandle, FileResourceTab
                   onDelete={(node) => handleDeleteClick(category.category, category.category, node)}
                   onCreateDirectory={(parentPath) => handleCreateDirectoryClick(category.category, category.category, parentPath)}
                   onDeleteCategory={() => setCategoryDeleteTarget({ category: category.category, fileCount: category.fileCount })}
-                  isDownloading={transferState.isTransferring}
                   filterKeyword={filters?.keyword || ''}
                   sortBy={filters?.sortBy || 'name'}
                   sortDirection={filters?.sortDirection || 'asc'}
@@ -406,7 +381,6 @@ interface CategorySectionProps {
   onDelete: (node: ResourceFileNode) => void
   onCreateDirectory: (parentPath: string) => void
   onDeleteCategory: () => void
-  isDownloading: boolean
   filterKeyword: string
   sortBy: FileSortBy
   sortDirection: FileSortDirection
@@ -423,7 +397,6 @@ function CategorySection({
   onDelete,
   onCreateDirectory,
   onDeleteCategory,
-  isDownloading,
   filterKeyword,
   sortBy,
   sortDirection,
@@ -485,7 +458,6 @@ function CategorySection({
                   variant="outline"
                   size="icon-xs"
                   onClick={onDownloadAll}
-                  disabled={isDownloading}
                 >
                   <Download className="h-3.5 w-3.5" />
                 </Button>

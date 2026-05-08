@@ -5,7 +5,7 @@
 
 import { apiClient } from '@/shared/api/client'
 import { API_TIMEOUT } from '@/shared/config/constants'
-import { downloadWithProgress, type DownloadProgressEvent } from '@/shared/lib/utils/download-helper'
+import { triggerBrowserDownload } from '@/shared/lib/download/triggerBrowserDownload'
 
 import type {
   Project,
@@ -70,20 +70,9 @@ export const projectApi = {
     return response
   },
 
-  /** 온보딩 전체 파일 다운로드 (ZIP) - 진행률 지원 */
-  downloadOnboardingFiles: async (
-    id: string,
-    fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.onboardingDownload(id),
-      filename: fileName,
-      onProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION,
-      signal,
-    })
+  /** 온보딩 전체 파일 다운로드 (ZIP) - 브라우저 네이티브 다운로드 */
+  downloadOnboardingFiles: (id: string): void => {
+    triggerBrowserDownload(ENDPOINTS.onboardingDownload(id))
   },
 
   /** 온보딩 파일 업로드 */
@@ -151,20 +140,9 @@ export const projectApi = {
     return response
   },
 
-  /** 인스톨 전체 파일 다운로드 (ZIP) - 진행률 지원 */
-  downloadInstallFiles: async (
-    id: string,
-    fileName: string,
-    onProgress?: (event: DownloadProgressEvent) => void,
-    signal?: AbortSignal
-  ): Promise<void> => {
-    await downloadWithProgress({
-      url: ENDPOINTS.installDownload(id),
-      filename: fileName,
-      onProgress,
-      timeout: API_TIMEOUT.FILE_OPERATION,
-      signal,
-    })
+  /** 인스톨 전체 파일 다운로드 (ZIP) - 브라우저 네이티브 다운로드 */
+  downloadInstallFiles: (id: string): void => {
+    triggerBrowserDownload(ENDPOINTS.installDownload(id))
   },
 
   /** 인스톨 파일 업로드 */

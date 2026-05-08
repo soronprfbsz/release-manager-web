@@ -126,7 +126,7 @@ const INITIAL_FORM_DATA: ProjectFormData = {
 
 export function ProjectListPage() {
   const { toast } = useToast()
-  const { startTransfer, updateProgress, handleProgress, startServerProcessing, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
+  const { startTransfer, handleProgress, startServerProcessing, completeTransfer, resetTransfer } = useFileTransferProgress()
   const [onboardingUploadCompleted, setOnboardingUploadCompleted] = useState(false)
   const [installUploadCompleted, setInstallUploadCompleted] = useState(false)
   const { canCreateProject, canEditProject, canDeleteProject, canManageProjectFiles } = usePermission()
@@ -436,32 +436,9 @@ export function ProjectListPage() {
   }
 
   // 온보딩 전체 파일 다운로드 핸들러
-  const handleDownloadAllOnboardingFiles = async () => {
-    if (!projectId || transferState.isTransferring) return
-
-    const filename = `${projectId}_onboarding_files.zip`
-    const controller = startTransfer(filename, 'download')
-
-    try {
-      await projectApi.downloadOnboardingFiles(
-        projectId,
-        filename,
-        (e) => updateProgress(e.loaded, e.total, e.isApproximate),
-        controller.signal
-      )
-      completeTransfer()
-    } catch (error) {
-      // 취소된 경우 에러 토스트 표시하지 않음
-      if (error instanceof Error && error.name === 'AbortError') {
-        return
-      }
-      resetTransfer()
-      toast({
-        variant: 'destructive',
-        title: '다운로드 실패',
-        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-      })
-    }
+  const handleDownloadAllOnboardingFiles = () => {
+    if (!projectId) return
+    projectApi.downloadOnboardingFiles(projectId)
   }
 
   // onboardings/{projectId}/ prefix 제거 유틸
@@ -614,32 +591,9 @@ export function ProjectListPage() {
   }
 
   // 인스톨 전체 파일 다운로드 핸들러
-  const handleDownloadAllInstallFiles = async () => {
-    if (!projectId || transferState.isTransferring) return
-
-    const filename = `${projectId}_install_files.zip`
-    const controller = startTransfer(filename, 'download')
-
-    try {
-      await projectApi.downloadInstallFiles(
-        projectId,
-        filename,
-        (e) => updateProgress(e.loaded, e.total, e.isApproximate),
-        controller.signal
-      )
-      completeTransfer()
-    } catch (error) {
-      // 취소된 경우 에러 토스트 표시하지 않음
-      if (error instanceof Error && error.name === 'AbortError') {
-        return
-      }
-      resetTransfer()
-      toast({
-        variant: 'destructive',
-        title: '다운로드 실패',
-        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-      })
-    }
+  const handleDownloadAllInstallFiles = () => {
+    if (!projectId) return
+    projectApi.downloadInstallFiles(projectId)
   }
 
   // 인스톨 파일 업로드 핸들러
@@ -936,7 +890,6 @@ export function ProjectListPage() {
                             variant="outline"
                             size="icon-xs"
                             onClick={handleDownloadAllOnboardingFiles}
-                            disabled={transferState.isTransferring}
                           >
                             <Download />
                           </Button>
@@ -1021,7 +974,6 @@ export function ProjectListPage() {
                             variant="outline"
                             size="icon-xs"
                             onClick={handleDownloadAllInstallFiles}
-                            disabled={transferState.isTransferring}
                           >
                             <Download />
                           </Button>

@@ -50,7 +50,6 @@ import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks'
 import { useNavigationBlock } from '@/shared/lib/hooks/use-navigation-block'
-import { useFileTransferProgress } from '@/shared/lib/hooks/use-file-transfer-progress'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useAuthStore, useProjectStore } from '@/shared/store'
@@ -143,7 +142,6 @@ function getVersionsFromTree(
 
 export function PatchesPage() {
   const { toast } = useToast()
-  const { startTransfer, handleProgress, completeTransfer, resetTransfer, transferState } = useFileTransferProgress()
   const user = useAuthStore((state) => state.user)
   const projectId = useProjectStore((state) => state.projectId)
   const { canAddPatch, canDeletePatch } = usePermission()
@@ -396,26 +394,8 @@ export function PatchesPage() {
   }
 
   // 공통 핸들러
-  const handleDownload = async (patch: CumulativePatch) => {
-    if (transferState.isTransferring) return
-    const fileName = `${patch.patchName}.zip`
-
-    const controller = startTransfer(fileName, 'download')
-    try {
-      await patchApi.download(patch.patchId, fileName, handleProgress, controller.signal)
-      completeTransfer()
-    } catch (error) {
-      // 취소된 경우 에러 토스트 표시하지 않음
-      if (error instanceof Error && error.name === 'AbortError') {
-        return
-      }
-      resetTransfer()
-      toast({
-        title: '다운로드 실패',
-        description: error instanceof Error ? error.message : '파일 다운로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      })
-    }
+  const handleDownload = (patch: CumulativePatch) => {
+    patchApi.download(patch.patchId)
   }
 
   const handleViewFiles = (patch: CumulativePatch, type: TabType) => {
