@@ -421,7 +421,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
                 >
                   <div className="text-center">
                     <div className="font-semibold">MAJOR</div>
-                    <div className="text-[11px] opacity-70 mt-0.5">주요 변경</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">핵심 변경</div>
                   </div>
                 </button>
                 <button
@@ -431,7 +431,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
                 >
                   <div className="text-center">
                     <div className="font-semibold">MINOR</div>
-                    <div className="text-[11px] opacity-70 mt-0.5">기능 추가</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">주요 변경</div>
                   </div>
                 </button>
                 <button
@@ -441,7 +441,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
                 >
                   <div className="text-center">
                     <div className="font-semibold">PATCH</div>
-                    <div className="text-[11px] opacity-70 mt-0.5">버그 수정</div>
+                    <div className="text-[11px] opacity-70 mt-0.5">단순 변경</div>
                   </div>
                 </button>
               </div>
