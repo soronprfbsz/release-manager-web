@@ -1,12 +1,13 @@
 import { apiClient } from '@/shared/api/client'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
 
-import type { Customer, CustomerCreateRequest, CustomerUpdateRequest } from '../model/types'
+import type { Customer, CustomerCreateRequest, CustomerUpdateRequest, ResetPatchStateResponse } from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/customers',
   byId: (id: number) => `/api/customers/${id}`,
   status: (id: number) => `/api/customers/${id}/status`,
+  resetPatchState: (id: number) => `/api/customers/${id}/reset-patch-state`,
 } as const
 
 export const customerApi = {
@@ -53,5 +54,10 @@ export const customerApi = {
   /** 고객사 활성화 상태 변경 */
   updateStatus: async (id: number, isActive: boolean): Promise<void> => {
     await apiClient.patch(`${ENDPOINTS.status(id)}?isActive=${isActive}`)
+  },
+
+  /** 고객사 패치 적용 이력 전체 초기화 (ADMIN 전용) */
+  resetPatchState: async (id: number): Promise<ResetPatchStateResponse> => {
+    return await apiClient.post<ResetPatchStateResponse>(ENDPOINTS.resetPatchState(id), null)
   },
 }

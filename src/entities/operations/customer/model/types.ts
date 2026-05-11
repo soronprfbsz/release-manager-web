@@ -43,3 +43,16 @@ export interface CustomerUpdateRequest {
   description?: string
   isActive?: boolean
 }
+
+/**
+ * 고객사 패치 상태 초기화 응답 DTO
+ * POST /api/customers/{customerId}/reset-patch-state
+ */
+export interface ResetPatchStateResponse {
+  /** customer_site_version 삭제 건수 */
+  deletedSiteVersionCount: number
+  /** customer_project.last_patched_* NULL 처리된 row 수 */
+  resetCustomerProjectCount: number
+  /** patch_history 삭제 건수 */
+  deletedPatchHistoryCount: number
+}

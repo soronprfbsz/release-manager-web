@@ -94,6 +94,7 @@ export function usePermission() {
     canDeleteCustomerNote: hasPermission('customer', 'deleteNote'),
     canViewPatchHistory: hasPermission('customer', 'viewPatchHistory'),
     canDeletePatchHistory: hasPermission('customer', 'deletePatchHistory'),
+    canResetCustomerPatchState: hasPermission('customer', 'resetPatchState'),
 
     // ========================================================================
     // 부서 관리 권한

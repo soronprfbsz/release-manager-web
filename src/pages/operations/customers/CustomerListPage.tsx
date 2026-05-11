@@ -290,6 +290,7 @@ export function CustomerListPage() {
         mode={modalMode}
         formData={formData}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
+        editingCustomer={editingCustomer}
         onFormDataChange={setFormData}
         onSubmit={handleSubmit}
         onClose={closeModal}

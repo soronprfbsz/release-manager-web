@@ -4,7 +4,7 @@ import type { PaginationParams } from '@/shared/api/types'
 
 import { customerApi } from '../api/customerApi'
 
-import type { CustomerCreateRequest, CustomerUpdateRequest } from '../model/types'
+import type { CustomerCreateRequest, CustomerUpdateRequest, ResetPatchStateResponse } from '../model/types'
 
 // Query Keys Factory
 export const customerKeys = {
@@ -62,6 +62,25 @@ export const useDeleteCustomer = () => {
     mutationFn: (id: number) => customerApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() })
+    },
+  })
+}
+
+export const useResetCustomerPatchState = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ResetPatchStateResponse, Error, number>({
+    mutationFn: (customerId: number) => customerApi.resetPatchState(customerId),
+    onSuccess: (_, customerId) => {
+      // 고객사 목록 / 상세 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: customerKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: customerKeys.detail(customerId) })
+      // 사이트 버전 캐시 무효화 (customer-site-versions 키 prefix)
+      queryClient.invalidateQueries({ queryKey: ['customer-site-versions'] })
+      // 패치 이력 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['patch-histories'] })
+      // 고객사 프로젝트 관련 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ['customer-projects'] })
     },
   })
 }

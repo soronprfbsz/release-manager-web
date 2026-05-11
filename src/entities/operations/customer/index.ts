@@ -7,6 +7,7 @@ export type {
   Customer,
   CustomerCreateRequest,
   CustomerUpdateRequest,
+  ResetPatchStateResponse,
 } from './model/types'
 
 // API
@@ -21,4 +22,5 @@ export {
   useUpdateCustomer,
   useDeleteCustomer,
   useUpdateCustomerStatus,
+  useResetCustomerPatchState,
 } from './queries/customerQueries'
