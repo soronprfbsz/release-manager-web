@@ -7,19 +7,31 @@ import { useState } from 'react'
 
 import {
   ArrowRight,
+  CheckCircle2,
   Download,
   Eye,
   FolderArchive,
   Info,
+  Loader2,
   Tag,
   Trash2,
   type LucideIcon,
 } from 'lucide-react'
 
-import type { CumulativePatch } from '@/entities/patches/patch'
+import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch'
 
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { DataTable } from '@/shared/ui/data-table'
@@ -42,6 +54,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { UserAvatar } from '@/shared/ui/user-avatar'
+import { useToast } from '@/shared/lib/hooks/use-toast'
 
 import { PatchDetailSheet } from './PatchDetailSheet'
 import type { SortConfig } from '../model/types'
@@ -84,10 +97,36 @@ export function PatchTable({
 }: PatchTableProps) {
   const [detailSheetOpen, setDetailSheetOpen] = useState(false)
   const [selectedDetailPatchId, setSelectedDetailPatchId] = useState<number | null>(null)
+  /** 완료 처리 확인 다이얼로그 대상 patch */
+  const [completeTarget, setCompleteTarget] = useState<CumulativePatch | null>(null)
+
+  const { toast } = useToast()
+  const completeMutation = useCompletePatch()
 
   const handleOpenDetail = (patchId: number) => {
     setSelectedDetailPatchId(patchId)
     setDetailSheetOpen(true)
+  }
+
+  /** 패치 완료 처리 확인 */
+  const handleCompleteConfirm = () => {
+    if (!completeTarget) return
+    completeMutation.mutate(completeTarget.patchId, {
+      onSuccess: () => {
+        toast({
+          title: '패치 완료 처리 완료',
+          description: `${completeTarget.patchName} 패치가 완료 처리되었습니다.`,
+        })
+        setCompleteTarget(null)
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: '패치 완료 처리 실패',
+          description: error instanceof Error ? error.message : '완료 처리 중 오류가 발생했습니다.',
+        })
+      },
+    })
   }
 
   const allSelected = selectable && patches.length > 0 && selectedIds.length === patches.length
@@ -331,6 +370,15 @@ export function PatchTable({
                     <Download className="mr-2 h-4 w-4" />
                     다운로드
                   </TableActionMenuItem>
+                  <TableActionMenuSeparator />
+                  <TableActionMenuItem
+                    onClick={() => setCompleteTarget(patch)}
+                    disabled={completeMutation.isPending}
+                    className="text-green-600 focus:text-green-600"
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    패치 완료
+                  </TableActionMenuItem>
                   {showDelete && (
                     <>
                       <TableActionMenuSeparator />
@@ -357,6 +405,60 @@ export function PatchTable({
       onOpenChange={setDetailSheetOpen}
       patchId={selectedDetailPatchId}
     />
+
+    {/* 패치 완료 처리 확인 다이얼로그 */}
+    <AlertDialog
+      open={!!completeTarget}
+      onOpenChange={(open) => {
+        if (!open && !completeMutation.isPending) setCompleteTarget(null)
+      }}
+    >
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>패치 완료 처리</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>이 패치를 완료 처리하시겠습니까?</p>
+              <div className="rounded-md border bg-muted/50 px-4 py-3 space-y-1.5">
+                <p className="text-foreground font-medium">완료 후 다음이 진행됩니다:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  {completeTarget?.customerName && (
+                    <li>
+                      사이트 (<span className="text-foreground font-medium">{completeTarget.customerName}</span>)의
+                      최신 버전이{' '}
+                      <span className="font-mono text-foreground">{completeTarget?.toVersion}</span>
+                      {' '}으로 갱신
+                    </li>
+                  )}
+                  <li>패치 파일이 자동 삭제 (패치 관리에서 사라짐)</li>
+                  <li>패치 이력 / 버전 이력에 영구 보존</li>
+                </ul>
+              </div>
+              <p className="text-destructive font-medium">되돌릴 수 없습니다.</p>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={completeMutation.isPending}>
+            취소
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleCompleteConfirm}
+            disabled={completeMutation.isPending}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            {completeMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                처리중...
+              </>
+            ) : (
+              '완료 처리'
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   )
 }

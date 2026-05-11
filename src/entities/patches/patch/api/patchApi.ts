@@ -27,6 +27,7 @@ const ENDPOINTS = {
   generateCustom: '/api/patches/custom/generate',
   // Common
   byId: (id: number) => `/api/patches/${id}`,
+  complete: (id: number) => `/api/patches/${id}/complete`,
   download: (id: number) => `/api/patches/${id}/download`,
   files: (id: number) => `/api/patches/${id}/files`,
   delete: (id: number) => `/api/patches/${id}`,
@@ -129,6 +130,11 @@ export const patchApi = {
   getFileStructure: async (id: number): Promise<PatchFileStructure> => {
     const response = await apiClient.get<PatchFileStructure>(ENDPOINTS.files(id))
     return response
+  },
+
+  /** 패치 완료 처리 — 완료 후 해당 patch row 삭제됨 */
+  completePatch: async (id: number): Promise<void> => {
+    await apiClient.post(ENDPOINTS.complete(id), null)
   },
 
   /** 패치 삭제 */

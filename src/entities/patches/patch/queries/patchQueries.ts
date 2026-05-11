@@ -142,6 +142,21 @@ export const useGenerateCustomPatch = () => {
   })
 }
 
+/** 패치 완료 처리 — 완료 후 patch 삭제, 이력 생성 */
+export const useCompletePatch = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (patchId: number) => patchApi.completePatch(patchId),
+    onSuccess: () => {
+      // 패치 목록 갱신 (완료된 patch 제거)
+      queryClient.invalidateQueries({ queryKey: patchKeys.lists() })
+      // 패치 이력 갱신 (완료 이력 추가)
+      queryClient.invalidateQueries({ queryKey: patchKeys.histories() })
+    },
+  })
+}
+
 export const useDeletePatch = () => {
   const queryClient = useQueryClient()
 

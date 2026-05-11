@@ -37,6 +37,7 @@ export {
   useCustomPatchVersions,
   useGenerateStandardPatch,
   useGenerateCustomPatch,
+  useCompletePatch,
   useDeletePatch,
   useDeletePatchHistory,
   useBulkDeletePatches,

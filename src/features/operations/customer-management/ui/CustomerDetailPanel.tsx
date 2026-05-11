@@ -8,6 +8,7 @@ import type { Customer } from '@/entities/operations/customer'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
 import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
+import { CustomerVersionHistoryCard } from './CustomerVersionHistoryCard'
 
 interface CustomerDetailPanelProps {
   customer: Customer
@@ -23,6 +24,9 @@ export function CustomerDetailPanel({
 
       {/* 패치 이력 */}
       <CustomerPatchHistoryCard customer={customer} />
+
+      {/* 버전 이력 — 패치 완료 처리 후 갱신된 버전 이력 */}
+      <CustomerVersionHistoryCard customer={customer} />
     </div>
   )
 }
