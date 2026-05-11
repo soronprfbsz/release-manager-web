@@ -77,47 +77,45 @@ function PatchMetaBox({ patch }: PatchMetaBoxProps) {
   )
 
   return (
-    <div className="rounded-md border border-border bg-muted/30 px-4 py-3">
-      <dl className="grid grid-cols-[100px_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm">
-        <dt className="text-muted-foreground">버전</dt>
-        <dd className="flex items-center gap-2">
+    <div className="rounded-md border border-border bg-muted/30 px-4 py-3 space-y-2.5 text-sm">
+      {/* 버전 — 라벨 옆 한 줄 */}
+      <div className="grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-3">
+        <span className="text-muted-foreground">버전</span>
+        <span className="flex items-center gap-2">
           <TypographyInlineCode className="bg-transparent text-xs">{patch.fromVersion}</TypographyInlineCode>
           <span className="text-muted-foreground">→</span>
           <TypographyInlineCode className="bg-transparent text-xs font-medium">{patch.toVersion}</TypographyInlineCode>
-        </dd>
+        </span>
+      </div>
 
-        {hasBuilds && (
-          <>
-            <dt className="text-muted-foreground self-start pt-0.5">포함된 빌드</dt>
-            <dd className="flex flex-col gap-0.5">
-              {patch.includedBuilds?.web && (
-                <BuildRow label="WEB" fullVersion={patch.includedBuilds.web.fullVersion}
-                          deleted={patch.includedBuilds.web.buildVersionId == null} />
-              )}
-              {patch.includedBuilds?.engines.map((e) => (
-                <BuildRow key={e.engineName} label={e.engineName} fullVersion={e.fullVersion}
-                          deleted={e.buildVersionId == null} />
-              ))}
-            </dd>
-          </>
-        )}
-
-        {!hasBuilds && (
-          <>
-            <dt className="text-muted-foreground">포함된 빌드</dt>
-            <dd>
-              <TypographyMuted className="text-sm">없음</TypographyMuted>
-            </dd>
-          </>
-        )}
-      </dl>
+      {/* 포함된 빌드 — 라벨 한 줄, 항목들은 다음 줄부터 */}
+      {hasBuilds ? (
+        <div className="space-y-1">
+          <div className="text-muted-foreground">포함된 빌드</div>
+          <div className="flex flex-col gap-0.5 pl-3">
+            {patch.includedBuilds?.web && (
+              <BuildRow label="WEB" fullVersion={patch.includedBuilds.web.fullVersion}
+                        deleted={patch.includedBuilds.web.buildVersionId == null} />
+            )}
+            {patch.includedBuilds?.engines.map((e) => (
+              <BuildRow key={e.engineName} label={e.engineName} fullVersion={e.fullVersion}
+                        deleted={e.buildVersionId == null} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-3">
+          <span className="text-muted-foreground">포함된 빌드</span>
+          <TypographyMuted className="text-sm">없음</TypographyMuted>
+        </div>
+      )}
     </div>
   )
 }
 
 function BuildRow({ label, fullVersion, deleted }: { label: string; fullVersion: string; deleted: boolean }) {
   return (
-    <div className="grid grid-cols-[70px_minmax(0,1fr)] items-center gap-2">
+    <div className="grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-3">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="font-mono text-xs break-all">
         {fullVersion}
