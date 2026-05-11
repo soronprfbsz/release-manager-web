@@ -8,7 +8,7 @@ import type { Customer } from '@/entities/operations/customer'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
 import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
-import { CustomerVersionHistoryCard } from './CustomerVersionHistoryCard'
+import { CustomerVersionInfo } from './CustomerVersionInfo'
 
 interface CustomerDetailPanelProps {
   customer: Customer
@@ -18,15 +18,17 @@ export function CustomerDetailPanel({
   customer,
 }: CustomerDetailPanelProps) {
   return (
-    <div className="space-y-16 pt-2">
-      {/* 특이사항 */}
-      <CustomerNotesCard customerId={customer.customerId} />
+    <div className="pt-2">
+      {/* 버전 정보 — 고객사 속성 (사이트 현재 버전 / 빌드 요약) */}
+      <CustomerVersionInfo customer={customer} />
 
-      {/* 패치 이력 */}
-      <CustomerPatchHistoryCard customer={customer} />
+      <div className="space-y-16 pt-8">
+        {/* 특이사항 */}
+        <CustomerNotesCard customerId={customer.customerId} />
 
-      {/* 버전 이력 — 패치 완료 처리 후 갱신된 버전 이력 */}
-      <CustomerVersionHistoryCard customer={customer} />
+        {/* 패치 이력 — 완료된 패치만 (생성 시점 ≠ 완료 시점 워크플로) */}
+        <CustomerPatchHistoryCard customer={customer} />
+      </div>
     </div>
   )
 }
