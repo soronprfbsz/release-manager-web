@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 
-import { Plus, Network, Search, X, TableOfContents, Calendar } from 'lucide-react'
+import { Plus, Network, Search, X, Calendar } from 'lucide-react'
 
 import {
   CustomerForm,
@@ -241,12 +241,6 @@ export function CustomerListPage() {
           header={
             selectedCustomer && (
               <div className="flex items-center gap-2 min-w-0 w-full">
-                <TableOfContents className="h-4 w-4 flex-shrink-0" />
-                <StatusBadge
-                  variant={selectedCustomer.isActive ? 'active' : 'inactive'}
-                >
-                  {selectedCustomer.isActive ? '활성' : '비활성'}
-                </StatusBadge>
                 {selectedCustomer.description ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -266,6 +260,11 @@ export function CustomerListPage() {
                 <span className="text-muted-foreground text-sm">
                   [{selectedCustomer.customerCode}]
                 </span>
+                <StatusBadge
+                  variant={selectedCustomer.isActive ? 'active' : 'inactive'}
+                >
+                  {selectedCustomer.isActive ? '활성' : '비활성'}
+                </StatusBadge>
                 <span className="flex-1" />
                 <Tooltip>
                   <TooltipTrigger asChild>
