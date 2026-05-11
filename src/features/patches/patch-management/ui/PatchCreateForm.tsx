@@ -14,7 +14,6 @@ import type { BuildSelection } from '@/entities/patches/patch'
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
-import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import {
   Select,
@@ -137,10 +136,26 @@ export function PatchCreateForm({
   const sel = formData.buildSelection
   const pickerEmpty =
     !sel || (sel.web == null && (!sel.engines || sel.engines.length === 0))
+  // customerCode 가 비어있으면 미선택. '__undefined__' 는 명시적 "없음" 선택.
+  const customerChosen = formData.customerCode !== ''
   const submitDisabled =
     !formData.fromVersion ||
     !formData.toVersion ||
+    !customerChosen ||
     (sameBase && pickerEmpty)
+
+  /** 자동 생성될 패치명 미리보기 — 백엔드 resolvePatchName 와 동일한 prefix_yyMMdd 규칙 */
+  const computedPatchName = (() => {
+    if (!customerChosen) return null
+    const prefix = formData.customerCode === '__undefined__' ? 'undefined' : formData.customerCode
+    const now = new Date()
+    // KST 기준 yyMMdd
+    const kst = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60 * 1000)
+    const yy = String(kst.getUTCFullYear() % 100).padStart(2, '0')
+    const MM = String(kst.getUTCMonth() + 1).padStart(2, '0')
+    const dd = String(kst.getUTCDate()).padStart(2, '0')
+    return `${prefix}_${yy}${MM}${dd}`
+  })()
 
   return (
     <FormSheet
@@ -223,39 +238,27 @@ export function PatchCreateForm({
         )}
       </div>
 
-      {/* 고객사 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
+      {/* 고객사 — 필수. "없음" 선택 시 customerCode 'undefined' 로 처리됨.
+          담당자는 백엔드가 현재 로그인 사용자로 자동 설정. */}
       <div className="space-y-2">
-        <Label>고객사</Label>
+        <Label required>고객사</Label>
         <Combobox
           options={[
-            { value: '__none__', label: '선택 안함' },
+            { value: '__undefined__', label: '없음' },
             ...customers.map((c) => ({
               value: c.customerCode,
               label: `${c.customerName} (${c.customerCode})`,
             })),
           ]}
-          value={formData.customerCode || '__none__'}
+          value={formData.customerCode || ''}
           onValueChange={(value) =>
             onFormDataChange({
               ...formData,
-              customerCode: value === '__none__' ? '' : value,
+              customerCode: value,
             })
           }
-          placeholder="선택 안함"
+          placeholder="고객사 선택..."
           searchPlaceholder="고객사 검색..."
-        />
-      </div>
-
-      {/* 패치명 */}
-      <div className="space-y-2">
-        <Label>패치명</Label>
-        <Input
-          value={formData.patchName}
-          onChange={(e) =>
-            onFormDataChange({ ...formData, patchName: e.target.value })
-          }
-          placeholder="미입력 시 자동 생성 (e.g. customerCode_260511)"
-          maxLength={100}
         />
       </div>
 
@@ -272,8 +275,8 @@ export function PatchCreateForm({
         />
       </div>
 
-      {/* 빌드 파일 자동 포함 — from/to 모두 선택된 시점부터 표시. 빌드 후보 없으면 자연 생략. */}
-      {formData.fromVersionId && formData.toVersionId && buildsQuery.data &&
+      {/* 빌드 정보 + 패치명 preview — 버전 범위 + 고객사 모두 채워졌을 때만 표시 */}
+      {formData.fromVersionId && formData.toVersionId && customerChosen && buildsQuery.data &&
         (buildsQuery.data.web.length > 0 || buildsQuery.data.engines.length > 0) && (
         <div className="flex flex-col gap-2">
           <div className="rounded-lg border p-4 space-y-3">
@@ -287,18 +290,25 @@ export function PatchCreateForm({
           </div>
         </div>
       )}
-      {formData.fromVersionId && formData.toVersionId && buildsQuery.isLoading && (
+      {formData.fromVersionId && formData.toVersionId && customerChosen && buildsQuery.isLoading && (
         <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
       )}
 
-      {/* 생성 정보 미리보기 */}
-      {formData.fromVersion && formData.toVersion && (
-        <div className="p-4 bg-primary/10 rounded-lg">
+      {/* 생성 정보 미리보기 (버전 범위 + 패치명) */}
+      {formData.fromVersion && formData.toVersion && customerChosen && (
+        <div className="p-4 bg-primary/10 rounded-lg space-y-2">
           <p className="text-sm text-primary">
             <strong>{formData.fromVersion}</strong> 이상 ~{' '}
             <strong>{formData.toVersion}</strong> 이하 버전의 모든 변경사항이
             포함된 패치가 생성됩니다.
           </p>
+          {computedPatchName && (
+            <p className="text-xs text-muted-foreground">
+              패치명:{' '}
+              <span className="font-mono text-foreground">{computedPatchName}</span>
+              <span className="ml-1">(같은 이름이 이미 있으면 -2, -3 자동 부여)</span>
+            </p>
+          )}
         </div>
       )}
       </>
