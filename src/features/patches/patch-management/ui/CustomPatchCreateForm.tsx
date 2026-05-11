@@ -28,7 +28,6 @@ import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
-import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
@@ -116,23 +115,6 @@ export function CustomPatchCreateForm({
     })
   }
 
-  const toggleEnabled = formData.buildSelection?.enabled ?? false
-
-  const handleToggleEnabled = (next: boolean) => {
-    if (!next) {
-      onFormDataChange({
-        ...formData,
-        buildSelection: { enabled: false, web: null, engines: [] },
-      })
-      return
-    }
-    const data = buildsQuery.data
-    const selection: BuildSelection = data
-      ? computeAutoPreselect(data)
-      : { enabled: true, web: null, engines: [] }
-    onFormDataChange({ ...formData, buildSelection: { ...selection, enabled: true } })
-  }
-
   // builds-in-range 쿼리 — customerId 동봉
   const buildsQuery = useBuildsInRange(
     formData.projectId || null,
@@ -141,16 +123,17 @@ export function CustomPatchCreateForm({
     formData.customerId,
   )
 
-  // 토글 ON + data 로드 시 자동 preselect (모두 최신).
+  // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
   useEffect(() => {
-    if (!toggleEnabled || !buildsQuery.data) return
-    const sel = formData.buildSelection
-    const isEmpty = !sel?.web && (sel?.engines?.length ?? 0) === 0
-    if (!isEmpty) return
-    const auto = computeAutoPreselect(buildsQuery.data)
-    onFormDataChange({ ...formData, buildSelection: { ...auto, enabled: true } })
+    if (!buildsQuery.data) return
+    const data = buildsQuery.data
+    const hasBuilds = data.web.length > 0 || data.engines.length > 0
+    const selection: BuildSelection = hasBuilds
+      ? computeAutoPreselect(data)
+      : { enabled: false, web: null, engines: [] }
+    onFormDataChange({ ...formData, buildSelection: selection })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toggleEnabled, buildsQuery.data])
+  }, [buildsQuery.data])
 
   const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
   const fullBaseVersion = versions.find((v) => v.isBaseVersion)?.version || ''
@@ -313,33 +296,22 @@ export function CustomPatchCreateForm({
             </div>
 
             {/* 빌드 파일 포함 토글 + BuildPickerSection. from/to 모두 선택된 시점부터 표시 */}
-            {formData.fromVersionId && formData.toVersionId && (
+            {formData.fromVersionId && formData.toVersionId && buildsQuery.data &&
+              (buildsQuery.data.web.length > 0 || buildsQuery.data.engines.length > 0) && (
               <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="rounded-lg border p-4 space-y-3">
                   <div className="space-y-1">
-                    <Label htmlFor="customBuildToggle" className="cursor-pointer font-medium">
-                      빌드 파일 포함
-                    </Label>
+                    <Label className="font-medium">포함될 빌드 파일</Label>
                     <TypographyMuted className="text-xs">
                       선택된 버전 범위 내 WEB/ENGINE 카테고리의 최신 빌드파일을 포함합니다.
                     </TypographyMuted>
                   </div>
-                  <Switch
-                    id="customBuildToggle"
-                    checked={toggleEnabled}
-                    onCheckedChange={handleToggleEnabled}
-                    disabled={isSubmitting || (buildsQuery.isLoading && !buildsQuery.data)}
-                  />
+                  <BuildPickerSection data={buildsQuery.data} />
                 </div>
-                {toggleEnabled && buildsQuery.data && (
-                  <div className="rounded-lg border p-4">
-                    <BuildPickerSection data={buildsQuery.data} />
-                  </div>
-                )}
-                {toggleEnabled && buildsQuery.isLoading && (
-                  <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
-                )}
               </div>
+            )}
+            {formData.fromVersionId && formData.toVersionId && buildsQuery.isLoading && (
+              <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
             )}
 
             {/* 생성 정보 미리보기 */}
