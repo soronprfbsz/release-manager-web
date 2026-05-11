@@ -356,24 +356,32 @@ export function PatchTable({
                     <Download className="mr-2 h-4 w-4" />
                     다운로드
                   </TableActionMenuItem>
-                  <TableActionMenuSeparator />
-                  <TableActionMenuItem
-                    onClick={() => setCompleteTarget(patch)}
-                    disabled={completeMutation.isPending}
-                    className="text-green-600 focus:text-green-600"
-                  >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    패치 완료
-                  </TableActionMenuItem>
+                  {/* 패치 완료는 고객사가 지정된 패치만 가능 (없음 패치는 갱신 대상 없음) */}
+                  {patch.customerCode && (
+                    <>
+                      <TableActionMenuSeparator />
+                      <TableActionMenuItem
+                        onClick={() => setCompleteTarget(patch)}
+                        disabled={completeMutation.isPending}
+                        className="text-green-600 focus:text-green-600"
+                      >
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        패치 완료
+                      </TableActionMenuItem>
+                    </>
+                  )}
                   {showDelete && (
-                    <TableActionMenuItem
-                      onClick={() => onDelete(patch)}
-                      disabled={isDeleting}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      삭제
-                    </TableActionMenuItem>
+                    <>
+                      {!patch.customerCode && <TableActionMenuSeparator />}
+                      <TableActionMenuItem
+                        onClick={() => onDelete(patch)}
+                        disabled={isDeleting}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        삭제
+                      </TableActionMenuItem>
+                    </>
                   )}
                 </TableActionMenu>
               </TableCell>
