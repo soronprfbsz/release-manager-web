@@ -3,7 +3,7 @@
  */
 
 // Types
-export type { SiteVersionResponse, SiteComponent } from './model/types'
+export type { SiteVersionResponse, SiteComponent, NextPatchRangeResponse } from './model/types'
 
 // API
 export { customerSiteVersionApi } from './api/customerSiteVersionApi'
@@ -12,4 +12,5 @@ export { customerSiteVersionApi } from './api/customerSiteVersionApi'
 export {
   customerSiteVersionKeys,
   useCustomerSiteVersions,
+  useNextPatchRange,
 } from './queries/customerSiteVersionQueries'

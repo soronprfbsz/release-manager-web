@@ -1,15 +1,19 @@
 /**
  * Patch Create Form Component
  * 패치 생성 폼 컴포넌트
+ *
+ * 폼 항목 순서: 고객사 → 버전 범위 → 설명 → 빌드 파일 picker → 미리보기
+ * 고객사 선택 시 next-patch-range API 호출 → from/to 자동 채움
  */
 
 import { useEffect } from 'react'
 
-import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
 import type { Customer } from '@/entities/operations'
 import type { BuildSelection } from '@/entities/patches/patch'
+import { useNextPatchRange } from '@/entities/operations/customer-site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { Combobox } from '@/shared/ui/combobox'
@@ -75,6 +79,61 @@ export function PatchCreateForm({
   onClose,
   icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
+
+  // 현재 선택된 고객사 객체 — customerCode로 역참조
+  const selectedCustomer =
+    formData.customerCode && formData.customerCode !== '__undefined__'
+      ? customers.find((c) => c.customerCode === formData.customerCode) ?? null
+      : null
+
+  // 다음 패치 추천 범위 — 실제 고객사 선택 + 폼 열린 상태일 때만 fetch
+  // isOpen 이 false 면 customerId/projectId 를 undefined 로 전달해 enabled=false 유도
+  const { data: nextRange, isFetching: isRangeFetching } = useNextPatchRange(
+    isOpen ? selectedCustomer?.customerId : undefined,
+    isOpen ? (formData.projectId || undefined) : undefined,
+  )
+
+  /**
+   * 고객사가 변경될 때마다 추천 범위로 from/to 자동 채움.
+   * - "__undefined__" 또는 미선택: 채움 안 함, from/to 초기화
+   * - 실제 고객사 선택 → nextRange 데이터 도착 시 덮어씀
+   * customerId 를 dep 에 포함해 고객사가 바뀔 때만 트리거.
+   */
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (!selectedCustomer) {
+      // "없음" 또는 미선택: from/to 초기화
+      onFormDataChange({
+        ...formData,
+        fromVersion: '',
+        fromVersionId: null,
+        toVersion: '',
+        toVersionId: null,
+        buildSelection: { enabled: true, web: null, engines: [] },
+      })
+      return
+    }
+
+    if (!nextRange) return
+
+    // 추천 값이 있을 때만 채움 (null 이면 해당 필드는 그대로)
+    const newFrom = nextRange.suggestedFromVersion ?? ''
+    const newFromId = nextRange.suggestedFromVersionId ?? null
+    const newTo = nextRange.suggestedToVersion ?? ''
+    const newToId = nextRange.suggestedToVersionId ?? null
+
+    onFormDataChange({
+      ...formData,
+      fromVersion: newFrom,
+      fromVersionId: newFromId,
+      toVersion: newTo,
+      toVersionId: newToId,
+      buildSelection: { enabled: true, web: null, engines: [] },
+    })
+    // selectedCustomer.customerId, nextRange 변경 시에만 자동 채움 (폼 전체 변경 추적 X)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCustomer?.customerId, nextRange])
 
   const handleFromVersionChange = (value: string) => {
     const fromVersionId = getVersionIdFromOption(versionOptions, value)
@@ -157,6 +216,28 @@ export function PatchCreateForm({
     return `${prefix}_${yy}${MM}${dd}`
   })()
 
+  /** 추천 범위 상태 안내 메시지 */
+  const rangeHint = (() => {
+    if (!selectedCustomer) return null
+    if (isRangeFetching) return null
+
+    if (!nextRange) return null
+
+    if (nextRange.currentVersion === null) {
+      // 패치 이력 없음 — 신규 사이트
+      return { type: 'info' as const, text: '패치 이력 없음 — 초기 적용입니다.' }
+    }
+    if (nextRange.suggestedFromVersion === null) {
+      // 이미 최신 상태
+      return { type: 'warning' as const, text: `최신 상태 (${nextRange.currentVersion}) — 적용할 패치 없음` }
+    }
+    // 정상 추천
+    return {
+      type: 'success' as const,
+      text: `사이트 현재 버전: ${nextRange.currentVersion}`,
+    }
+  })()
+
   return (
     <FormSheet
       open={isOpen}
@@ -184,7 +265,55 @@ export function PatchCreateForm({
         />
       ) : (
       <>
-      {/* 버전 선택 */}
+      {/* 1. 고객사 — 필수. "없음" 선택 시 customerCode 'undefined' 로 처리됨.
+          담당자는 백엔드가 현재 로그인 사용자로 자동 설정.
+          고객사 선택 시 next-patch-range API 로 from/to 자동 추천. */}
+      <div className="space-y-2">
+        <Label required>고객사</Label>
+        <Combobox
+          options={[
+            { value: '__undefined__', label: '없음' },
+            ...customers.map((c) => ({
+              value: c.customerCode,
+              label: `${c.customerName} (${c.customerCode})`,
+            })),
+          ]}
+          value={formData.customerCode || ''}
+          onValueChange={(value) =>
+            onFormDataChange({
+              ...formData,
+              customerCode: value,
+              // 고객사 변경 시 customerId 동기화
+              customerId:
+                value === '__undefined__'
+                  ? null
+                  : (customers.find((c) => c.customerCode === value)?.customerId ?? null),
+            })
+          }
+          placeholder="고객사 선택..."
+          searchPlaceholder="고객사 검색..."
+        />
+
+        {/* 추천 범위 상태 안내 */}
+        {isRangeFetching && selectedCustomer && (
+          <TypographyMuted className="text-xs">버전 범위 확인 중...</TypographyMuted>
+        )}
+        {rangeHint && (
+          <div
+            className={[
+              'flex items-center gap-1.5 text-xs',
+              rangeHint.type === 'warning'
+                ? 'text-amber-600 dark:text-amber-400'
+                : 'text-muted-foreground',
+            ].join(' ')}
+          >
+            <Info className="h-3.5 w-3.5 shrink-0" />
+            <span>{rangeHint.text}</span>
+          </div>
+        )}
+      </div>
+
+      {/* 2. 버전 선택 */}
       <div className="space-y-2">
         <Label required>버전 범위</Label>
         <div className="flex items-center gap-3">
@@ -238,31 +367,7 @@ export function PatchCreateForm({
         )}
       </div>
 
-      {/* 고객사 — 필수. "없음" 선택 시 customerCode 'undefined' 로 처리됨.
-          담당자는 백엔드가 현재 로그인 사용자로 자동 설정. */}
-      <div className="space-y-2">
-        <Label required>고객사</Label>
-        <Combobox
-          options={[
-            { value: '__undefined__', label: '없음' },
-            ...customers.map((c) => ({
-              value: c.customerCode,
-              label: `${c.customerName} (${c.customerCode})`,
-            })),
-          ]}
-          value={formData.customerCode || ''}
-          onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
-              customerCode: value,
-            })
-          }
-          placeholder="고객사 선택..."
-          searchPlaceholder="고객사 검색..."
-        />
-      </div>
-
-      {/* 설명 */}
+      {/* 3. 설명 */}
       <div className="space-y-2">
         <Label>설명</Label>
         <Textarea

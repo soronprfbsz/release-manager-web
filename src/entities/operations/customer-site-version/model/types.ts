@@ -17,3 +17,20 @@ export interface SiteVersionResponse {
   /** 마지막 갱신 처리자 계정 식별자 */
   updatedBy: string | null
 }
+
+/**
+ * 다음 패치 범위 추천 응답 DTO
+ * GET /api/customers/{customerId}/projects/{projectId}/next-patch-range
+ */
+export interface NextPatchRangeResponse {
+  /** 사이트에 마지막으로 적용된 base 버전 (패치 이력 없으면 null) */
+  currentVersion: string | null
+  /** 추천 시작 버전 — currentVersion 직후 버전 (사이트가 이미 최신이면 null) */
+  suggestedFromVersion: string | null
+  /** 추천 시작 버전 ID */
+  suggestedFromVersionId: number | null
+  /** 추천 종료 버전 — 가장 최신 base 버전 (표준 버전 없으면 null) */
+  suggestedToVersion: string | null
+  /** 추천 종료 버전 ID */
+  suggestedToVersionId: number | null
+}
