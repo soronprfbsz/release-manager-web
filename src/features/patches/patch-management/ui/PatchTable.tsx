@@ -19,6 +19,8 @@ import {
 
 import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch'
 
+import { usePermission } from '@/shared/lib/hooks/use-permission'
+import { useAuthStore } from '@/shared/store'
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import {
@@ -98,6 +100,18 @@ export function PatchTable({
 
   const { toast } = useToast()
   const completeMutation = useCompletePatch()
+  const { isUser } = usePermission()
+  const currentEmail = useAuthStore((s) => s.user?.email)
+
+  /**
+   * 패치 완료 / 삭제 권한 — 본인 생성 분기
+   *  - USER: 본인이 만든 패치만 액션 가능
+   *  - OPERATOR / DEVELOPER / ADMIN: 모든 패치에 대해 액션 가능
+   */
+  const canActOnPatch = (patch: CumulativePatch): boolean => {
+    if (!isUser) return true
+    return !!currentEmail && patch.createdByEmail === currentEmail
+  }
 
   /** 패치 완료 처리 확인 */
   const handleCompleteConfirm = () => {
@@ -356,8 +370,8 @@ export function PatchTable({
                     <Download className="mr-2 h-4 w-4" />
                     다운로드
                   </TableActionMenuItem>
-                  {/* 패치 완료는 고객사가 지정된 패치만 가능 (없음 패치는 갱신 대상 없음) */}
-                  {patch.customerCode && (
+                  {/* 패치 완료: 본인 생성(또는 OPERATOR↑) + 고객사가 지정된 패치만 */}
+                  {canActOnPatch(patch) && patch.customerCode && (
                     <>
                       <TableActionMenuSeparator />
                       <TableActionMenuItem
@@ -370,7 +384,8 @@ export function PatchTable({
                       </TableActionMenuItem>
                     </>
                   )}
-                  {showDelete && (
+                  {/* 삭제: showDelete prop (페이지 권한) + 본인 생성(또는 OPERATOR↑) */}
+                  {showDelete && canActOnPatch(patch) && (
                     <>
                       {!patch.customerCode && <TableActionMenuSeparator />}
                       <TableActionMenuItem
