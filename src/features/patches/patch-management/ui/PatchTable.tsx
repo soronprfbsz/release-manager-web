@@ -395,14 +395,23 @@ export function PatchTable({
           <AlertDialogTitle>패치 완료 처리</AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-3 text-sm text-muted-foreground">
-              <p>이 패치를 완료 처리하시겠습니까?</p>
+              <p>
+                이 패치 파일을{' '}
+                {completeTarget?.customerName && (
+                  <>
+                    <span className="text-foreground font-medium">{completeTarget.customerName}</span>{' '}
+                  </>
+                )}
+                사이트에 실제로 적용하셨습니까?
+                <br />
+                적용이 완료된 경우에만 <span className="text-foreground font-medium">‘완료 처리’</span> 를 진행해 주세요.
+              </p>
               <div className="rounded-md border bg-muted/50 px-4 py-3 space-y-1.5">
-                <p className="text-foreground font-medium">완료 후 다음이 진행됩니다:</p>
+                <p className="text-foreground font-medium">완료 처리 시 다음이 진행됩니다:</p>
                 <ul className="list-disc list-inside space-y-1">
                   {completeTarget?.customerName && (
                     <li>
-                      사이트 (<span className="text-foreground font-medium">{completeTarget.customerName}</span>)의
-                      최신 버전이{' '}
+                      사이트의 최신 버전이{' '}
                       <span className="font-mono text-foreground">{completeTarget?.toVersion}</span>
                       {' '}으로 갱신
                     </li>
