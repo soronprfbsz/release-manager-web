@@ -9,7 +9,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Download,
-  Eye,
   FolderArchive,
   Info,
   Loader2,
@@ -56,7 +55,6 @@ import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 import { useToast } from '@/shared/lib/hooks/use-toast'
 
-import { PatchDetailSheet } from './PatchDetailSheet'
 import type { SortConfig } from '../model/types'
 
 interface PatchTableProps {
@@ -95,18 +93,11 @@ export function PatchTable({
   selectedIds = [],
   onSelectionChange,
 }: PatchTableProps) {
-  const [detailSheetOpen, setDetailSheetOpen] = useState(false)
-  const [selectedDetailPatchId, setSelectedDetailPatchId] = useState<number | null>(null)
   /** 완료 처리 확인 다이얼로그 대상 patch */
   const [completeTarget, setCompleteTarget] = useState<CumulativePatch | null>(null)
 
   const { toast } = useToast()
   const completeMutation = useCompletePatch()
-
-  const handleOpenDetail = (patchId: number) => {
-    setSelectedDetailPatchId(patchId)
-    setDetailSheetOpen(true)
-  }
 
   /** 패치 완료 처리 확인 */
   const handleCompleteConfirm = () => {
@@ -357,14 +348,9 @@ export function PatchTable({
               </TableCell>
               <TableCell>
                 <TableActionMenu>
-                  <TableActionMenuItem onClick={() => handleOpenDetail(patch.patchId)}>
+                  <TableActionMenuItem onClick={() => onViewFiles(patch)}>
                     <Info className="mr-2 h-4 w-4" />
                     상세 보기
-                  </TableActionMenuItem>
-                  <TableActionMenuSeparator />
-                  <TableActionMenuItem onClick={() => onViewFiles(patch)}>
-                    <Eye className="mr-2 h-4 w-4" />
-                    파일 보기
                   </TableActionMenuItem>
                   <TableActionMenuItem onClick={() => onDownload(patch)}>
                     <Download className="mr-2 h-4 w-4" />
@@ -380,17 +366,14 @@ export function PatchTable({
                     패치 완료
                   </TableActionMenuItem>
                   {showDelete && (
-                    <>
-                      <TableActionMenuSeparator />
-                      <TableActionMenuItem
-                        onClick={() => onDelete(patch)}
-                        disabled={isDeleting}
-                        className="text-red-600 focus:text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        삭제
-                      </TableActionMenuItem>
-                    </>
+                    <TableActionMenuItem
+                      onClick={() => onDelete(patch)}
+                      disabled={isDeleting}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      삭제
+                    </TableActionMenuItem>
                   )}
                 </TableActionMenu>
               </TableCell>
@@ -399,12 +382,6 @@ export function PatchTable({
         </TableBody>
       </Table>
     </DataTable>
-
-    <PatchDetailSheet
-      open={detailSheetOpen}
-      onOpenChange={setDetailSheetOpen}
-      patchId={selectedDetailPatchId}
-    />
 
     {/* 패치 완료 처리 확인 다이얼로그 */}
     <AlertDialog

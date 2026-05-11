@@ -5,7 +5,6 @@
 
 // UI Components
 export { PatchTable } from './ui/PatchTable'
-export { PatchDetailSheet } from './ui/PatchDetailSheet'
 export { PatchCreateForm } from './ui/PatchCreateForm'
 export { CustomPatchCreateForm } from './ui/CustomPatchCreateForm'
 export { PatchDeleteModal } from './ui/PatchDeleteModal'

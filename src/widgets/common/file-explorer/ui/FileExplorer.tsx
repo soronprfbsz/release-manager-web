@@ -6,7 +6,7 @@
  * - 기본 1단계 펼침
  */
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef, type ReactNode } from 'react'
 
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Folder, FolderOpen, ChevronRight, ChevronDown, Info, type LucideIcon } from 'lucide-react'
@@ -79,6 +79,8 @@ export interface FileExplorerProps {
   }
   /** 조회 가능한 파일 확장자 목록 (선택적) */
   viewableExtensions?: string[]
+  /** Sheet 헤더와 파일 트리 사이에 표시할 추가 영역 (메타데이터 등) */
+  headerSlot?: ReactNode
 }
 
 // ============================================================================
@@ -330,6 +332,7 @@ export function FileExplorer({
   error,
   useFileContent,
   viewableExtensions,
+  headerSlot,
 }: FileExplorerProps) {
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ filePath: string; name: string; size?: number } | null>(null)
@@ -362,7 +365,9 @@ export function FileExplorer({
             <SheetDescription>{description}</SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 8rem)' }}>
+          {headerSlot && <div className="shrink-0">{headerSlot}</div>}
+
+          <div className="flex-1 min-h-0 overflow-hidden">
             {isLoading && (
               <div className="flex items-center justify-center p-8 h-full">
                 <div className="text-muted-foreground">로딩 중...</div>
