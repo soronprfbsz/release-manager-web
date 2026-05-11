@@ -9,7 +9,7 @@ import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 import { useBuildsInRange } from '@/entities/releases/release'
-import type { Customer, Account } from '@/entities/operations'
+import type { Customer } from '@/entities/operations'
 import type { BuildSelection } from '@/entities/patches/patch'
 
 import { ROUTES } from '@/shared/config/constants'
@@ -34,7 +34,6 @@ interface PatchGenerateFormCardProps {
   /** 버전 ID 매핑 (builds-in-range 조회용, 선택 사항) */
   versionOptions?: VersionOption[]
   customers: Customer[]
-  accounts: Account[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onReleaseTypeChange: (type: ReleaseType) => void
@@ -48,7 +47,6 @@ export function PatchGenerateFormCard({
   versions,
   versionOptions = [],
   customers,
-  accounts,
   isVersionsLoading,
   isSubmitting,
   onReleaseTypeChange,
@@ -220,28 +218,7 @@ export function PatchGenerateFormCard({
           />
         </div>
 
-        {/* 담당자 */}
-        <div className="space-y-2">
-          <Label>담당자</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...accounts.map((a) => ({
-                value: String(a.accountId),
-                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-              })),
-            ]}
-            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
-            onValueChange={(value) =>
-              onFormDataChange({
-                ...formData,
-                assigneeId: value === '__none__' || !value ? null : Number(value),
-              })
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="담당자 검색..."
-          />
-        </div>
+        {/* 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
 
         {/* Patch Name */}
         <div className="space-y-2">

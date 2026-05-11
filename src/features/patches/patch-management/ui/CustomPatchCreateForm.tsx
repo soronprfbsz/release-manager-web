@@ -15,7 +15,6 @@ import { useEffect } from 'react'
 import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
-import type { Account } from '@/entities/operations'
 import type {
   BuildSelection,
   CustomPatchCustomer,
@@ -51,7 +50,6 @@ interface CustomPatchCreateFormProps {
   formData: CustomPatchCreateFormData
   customers: CustomPatchCustomer[]
   versions: CustomPatchVersion[]
-  accounts: Account[]
   isCustomersLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
@@ -69,7 +67,6 @@ export function CustomPatchCreateForm({
   formData,
   customers,
   versions,
-  accounts,
   isCustomersLoading,
   isVersionsLoading,
   isSubmitting,
@@ -178,59 +175,36 @@ export function CustomPatchCreateForm({
           />
         ) : (
           <>
-            {/* 고객사 & 담당자 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label required>고객사</Label>
-                <Combobox
-                  options={customers.map((c) => ({
-                    value: String(c.customerId),
-                    label: `${c.customerName} (${c.customerCode})`,
-                  }))}
-                  value={formData.customerId ? String(formData.customerId) : ''}
-                  onValueChange={(value) => {
-                    onFormDataChange({
-                      ...formData,
-                      customerId: value ? Number(value) : null,
-                      fromVersion: '',
-                      toVersion: '',
-                      fromVersionId: null,
-                      toVersionId: null,
-                      buildSelection: { enabled: true, web: null, engines: [] },
-                    })
-                  }}
-                  placeholder="고객사 선택"
-                  searchPlaceholder="고객사 검색..."
-                  disabled={isCustomersLoading}
-                />
-                {isCustomersLoading && (
-                  <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
-                )}
-                {!isCustomersLoading && customers.length === 0 && (
-                  <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>담당자</Label>
-                <Combobox
-                  options={[
-                    { value: '__none__', label: '선택 안함' },
-                    ...accounts.map((a) => ({
-                      value: String(a.accountId),
-                      label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-                    })),
-                  ]}
-                  value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
-                  onValueChange={(value) =>
-                    onFormDataChange({
-                      ...formData,
-                      assigneeId: value === '__none__' ? null : Number(value),
-                    })
-                  }
-                  placeholder="선택 안함"
-                  searchPlaceholder="담당자 검색..."
-                />
-              </div>
+            {/* 고객사 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
+            <div className="space-y-2">
+              <Label required>고객사</Label>
+              <Combobox
+                options={customers.map((c) => ({
+                  value: String(c.customerId),
+                  label: `${c.customerName} (${c.customerCode})`,
+                }))}
+                value={formData.customerId ? String(formData.customerId) : ''}
+                onValueChange={(value) => {
+                  onFormDataChange({
+                    ...formData,
+                    customerId: value ? Number(value) : null,
+                    fromVersion: '',
+                    toVersion: '',
+                    fromVersionId: null,
+                    toVersionId: null,
+                    buildSelection: { enabled: true, web: null, engines: [] },
+                  })
+                }}
+                placeholder="고객사 선택"
+                searchPlaceholder="고객사 검색..."
+                disabled={isCustomersLoading}
+              />
+              {isCustomersLoading && (
+                <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
+              )}
+              {!isCustomersLoading && customers.length === 0 && (
+                <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+              )}
             </div>
 
             {/* 버전 선택 */}

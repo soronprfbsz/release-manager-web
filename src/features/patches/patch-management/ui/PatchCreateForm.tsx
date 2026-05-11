@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { ArrowRight, Tag, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
-import type { Customer, Account } from '@/entities/operations'
+import type { Customer } from '@/entities/operations'
 import type { BuildSelection } from '@/entities/patches/patch'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
@@ -51,7 +51,6 @@ interface PatchCreateFormProps {
   /** 버전 ID 매핑 (builds-in-range 조회용, 선택 사항) */
   versionOptions?: VersionOption[]
   customers: Customer[]
-  accounts: Account[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   /** 진행도 polling 결과 — isSubmitting 일 때만 의미 있음. null/undefined 면 메시지 비표시 */
@@ -69,7 +68,6 @@ export function PatchCreateForm({
   versions,
   versionOptions = [],
   customers,
-  accounts,
   isVersionsLoading,
   isSubmitting,
   progress,
@@ -225,51 +223,27 @@ export function PatchCreateForm({
         )}
       </div>
 
-      {/* 고객사 & 담당자 */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>고객사</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...customers.map((c) => ({
-                value: c.customerCode,
-                label: `${c.customerName} (${c.customerCode})`,
-              })),
-            ]}
-            value={formData.customerCode || '__none__'}
-            onValueChange={(value) =>
-              onFormDataChange({
-                ...formData,
-                customerCode: value === '__none__' ? '' : value,
-              })
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="고객사 검색..."
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>담당자</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...accounts.map((a) => ({
-                value: String(a.accountId),
-                label: `${a.accountName} (${a.departmentName || '부서 없음'})`,
-              })),
-            ]}
-            value={formData.assigneeId !== null ? String(formData.assigneeId) : '__none__'}
-            onValueChange={(value) =>
-              onFormDataChange({
-                ...formData,
-                assigneeId: value === '__none__' ? null : Number(value),
-              })
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="담당자 검색..."
-          />
-        </div>
+      {/* 고객사 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
+      <div className="space-y-2">
+        <Label>고객사</Label>
+        <Combobox
+          options={[
+            { value: '__none__', label: '선택 안함' },
+            ...customers.map((c) => ({
+              value: c.customerCode,
+              label: `${c.customerName} (${c.customerCode})`,
+            })),
+          ]}
+          value={formData.customerCode || '__none__'}
+          onValueChange={(value) =>
+            onFormDataChange({
+              ...formData,
+              customerCode: value === '__none__' ? '' : value,
+            })
+          }
+          placeholder="선택 안함"
+          searchPlaceholder="고객사 검색..."
+        />
       </div>
 
       {/* 패치명 */}

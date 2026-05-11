@@ -25,7 +25,7 @@ import {
   validatePatchForm,
 } from '@/features/patches/patch-management'
 
-import { customerApi, accountApi } from '@/entities/operations'
+import { customerApi } from '@/entities/operations'
 import {
   patchApi,
   usePatches,
@@ -210,12 +210,6 @@ export function PatchesPage() {
     queryKey: ['customers-active'],
     queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
     enabled: standardFormOpen,
-  })
-
-  const { data: accounts } = useQuery({
-    queryKey: ['accounts-engineer'],
-    queryFn: () => accountApi.getList({ size: 10000, departmentType: 'ENGINEER' }),
-    enabled: standardFormOpen || customFormOpen,
   })
 
   const standardVersionOptions = getVersionsFromTree(treeData)
@@ -616,7 +610,6 @@ export function PatchesPage() {
         versions={standardVersions}
         versionOptions={standardVersionOptions}
         customers={customers?.content || []}
-        accounts={accounts?.content || []}
         isVersionsLoading={isTreeLoading}
         isSubmitting={standardGenerateMutation.isPending}
         progress={progressQuery.data ?? null}
@@ -634,7 +627,6 @@ export function PatchesPage() {
         formData={customFormData}
         customers={customCustomers}
         versions={customVersions}
-        accounts={accounts?.content || []}
         isCustomersLoading={isCustomersLoading}
         isVersionsLoading={isVersionsLoading}
         isSubmitting={customGenerateMutation.isPending}
