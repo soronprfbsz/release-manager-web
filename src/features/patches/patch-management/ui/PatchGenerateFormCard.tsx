@@ -294,7 +294,7 @@ export function PatchGenerateFormCard({
                   빌드 파일 포함
                 </Label>
                 <TypographyMuted className="text-xs">
-                  WEB/ENGINE 카테고리의 빌드 파일을 선택하여 포함합니다.
+                  선택된 버전 범위 내 WEB/ENGINE 카테고리의 최신 빌드파일을 포함합니다.
                 </TypographyMuted>
               </div>
               <Switch

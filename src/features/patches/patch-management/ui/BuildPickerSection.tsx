@@ -35,13 +35,9 @@ export function BuildPickerSection({ data }: BuildSummarySectionProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">
-          {!hasBuilds
-            ? '이 범위에 빌드가 없습니다'
-            : '범위 내 최신 빌드가 자동 포함됩니다'}
-        </span>
-      </div>
+      {!hasBuilds && (
+        <span className="text-sm text-muted-foreground">이 범위에 빌드가 없습니다</span>
+      )}
 
       {data.web.length > 0 && (
         <section>
@@ -94,17 +90,12 @@ interface BuildSummaryRowProps {
   build: BuildCandidate
 }
 
-/** read-only 한 줄 — fullVersion + (필요 시) 최신 뱃지 */
+/** read-only 한 줄 — fullVersion 텍스트만 (어차피 항상 최신) */
 function BuildSummaryRow({ label, build }: BuildSummaryRowProps) {
   return (
     <li className="grid grid-cols-[160px_1fr] items-center gap-2">
       <Label className="text-sm">{label}</Label>
-      <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-1.5">
-        <span className="font-mono text-sm">{build.fullVersion}</span>
-        {build.isLatest && (
-          <span className="rounded bg-primary/20 px-1 text-xs text-primary">최신</span>
-        )}
-      </div>
+      <span className="font-mono text-sm">{build.fullVersion}</span>
     </li>
   )
 }
