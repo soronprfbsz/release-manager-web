@@ -279,7 +279,7 @@ export function CustomPatchCreateForm({
               <Input
                 value={formData.patchName}
                 onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
-                placeholder="미입력 시 자동 생성 (e.g. 20260102_1.0.0_1.1.0)"
+                placeholder="미입력 시 자동 생성 (e.g. customerA_260511)"
                 maxLength={100}
               />
             </div>
