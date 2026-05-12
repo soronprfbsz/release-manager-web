@@ -466,8 +466,10 @@ export function ReleasesPage() {
         {/* Tree Panel */}
         <ContentSplit.Tree
           header={
-            <div className="flex flex-col w-full gap-4">
-              <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+            <div className="flex flex-col w-full">
+              {/* 탭은 카드 상단 / 좌우 가장자리에 붙도록 negative margin 으로
+                  ContentSplit.Tree 의 px-8 py-6 padding 상쇄 */}
+              <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full -mx-8 -mt-6">
                 <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
                   {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
                     const config = TAB_CONFIG[tabKey]
@@ -476,7 +478,7 @@ export function ReleasesPage() {
                       <TabsTrigger
                         key={tabKey}
                         value={tabKey}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2"
+                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
                       >
                         <Icon className="w-4 h-4 mr-1.5" />
                         {config.label}
@@ -485,8 +487,8 @@ export function ReleasesPage() {
                   })}
                 </TabsList>
               </Tabs>
-              {/* Title row */}
-              <div className="flex items-center justify-between">
+              {/* Title row — 탭 직후 4px gap 으로 자연스럽게 분리 */}
+              <div className="flex items-center justify-between pt-6">
                 <div className="flex items-center gap-2 text-base font-semibold">
                   <Network className="h-4 w-4" />
                   버전 트리
