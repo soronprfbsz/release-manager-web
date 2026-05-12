@@ -467,9 +467,9 @@ export function ReleasesPage() {
         <ContentSplit.Tree
           header={
             <div className="flex flex-col w-full">
-              {/* 탭은 카드 상단 / 좌우 가장자리에 붙도록 negative margin 으로
-                  ContentSplit.Tree 의 px-8 py-6 padding 상쇄 */}
-              <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full -mx-8 -mt-6">
+              {/* 탭은 카드 상단 / 좌우 가장자리에 붙도록 width 를 ContentSplit.Tree
+                  의 px-8 padding 만큼 양쪽 확장 (+4rem) + negative margin 으로 위치 보정 */}
+              <Tabs value={currentTab} onValueChange={handleTabChange} className="w-[calc(100%+4rem)] -mx-8 -mt-6">
                 <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
                   {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
                     const config = TAB_CONFIG[tabKey]
