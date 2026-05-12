@@ -123,8 +123,9 @@ export function ServiceCard({
           </div>
         </CardHeader>
 
-        {/* 타이틀 ↔ 컴포넌트 영역 구분선 */}
-        <CardContent className="border-t pt-4 px-4 pb-4 flex-1 min-h-[100px]">
+        {/* 타이틀 ↔ 컴포넌트 영역 가운데 정렬 점선 구분선 */}
+        <div className="mx-4 border-t border-dashed border-border" />
+        <CardContent className="pt-3 px-4 pb-4 flex-1 min-h-[100px]">
           <ComponentList components={service.components} maxDisplay={3} />
         </CardContent>
       </Card>
