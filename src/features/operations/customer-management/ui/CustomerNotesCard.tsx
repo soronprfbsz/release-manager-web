@@ -10,7 +10,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  FileQuestion,
   Loader2,
 } from 'lucide-react'
 
@@ -149,46 +148,39 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending
 
+  // 포스트잇 파스텔 배경 팔레트 (순서별 순환)
+  const NOTE_BG_PALETTE = [
+    'bg-yellow-100/70 dark:bg-yellow-950/30',
+    'bg-emerald-100/70 dark:bg-emerald-950/30',
+    'bg-rose-100/70 dark:bg-rose-950/30',
+    'bg-sky-100/70 dark:bg-sky-950/30',
+    'bg-violet-100/70 dark:bg-violet-950/30',
+    'bg-orange-100/70 dark:bg-orange-950/30',
+  ]
+
   return (
     <>
       <SectionWithHairline
         icon={StickyNote}
         title="특이사항"
         count={notes.length}
-        action={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon-xs" onClick={handleCreate}>
-                <Plus />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>특이사항 등록</p>
-            </TooltipContent>
-          </Tooltip>
-        }
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin mr-2" />
             <span className="text-sm">로딩 중...</span>
           </div>
-        ) : notes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-            <FileQuestion className="h-10 w-10 mb-2 opacity-50" />
-            <p className="text-sm">등록된 특이사항이 없습니다.</p>
-          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {notes.map((note) => (
+            {notes.length === 0 ? null : notes.map((note, idx) => (
               <div
                 key={note.noteId}
-                className="p-4 rounded-lg bg-accent/40 hover:bg-accent/60 transition-colors"
+                className={`group p-4 rounded-lg transition-colors ${NOTE_BG_PALETTE[idx % NOTE_BG_PALETTE.length]}`}
               >
                 {/* Title */}
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold">{note.title}</h4>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
                       <>
                         <Button
@@ -213,10 +205,10 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                 </div>
 
                 {/* Content */}
-                <p className="text-sm whitespace-pre-wrap text-muted-foreground mb-3">{note.content}</p>
+                <p className="text-sm whitespace-pre-wrap text-foreground/80 mb-3">{note.content}</p>
 
                 {/* Footer - Author & Date */}
-                <div className="flex items-center gap-2 pt-3 border-t border-border/30">
+                <div className="flex items-center gap-2 pt-3 border-t border-dashed border-foreground/15">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2 cursor-default">
@@ -235,17 +227,25 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
                       <p>{note.createdByEmail}</p>
                     </TooltipContent>
                   </Tooltip>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground ml-auto font-mono">
                     {formatDateTime(note.createdAt)}
                   </span>
                   {note.updatedAt !== note.createdAt && note.updatedByAccountName && (
-                    <span className="text-xs text-muted-foreground">
-                      (수정됨)
-                    </span>
+                    <span className="text-xs text-muted-foreground">(수정됨)</span>
                   )}
                 </div>
               </div>
             ))}
+
+            {/* "+ 특이사항 추가" dashed placeholder 카드 — 항상 그리드 마지막에 */}
+            <button
+              type="button"
+              onClick={handleCreate}
+              className="group flex flex-col items-center justify-center gap-2 min-h-[140px] p-4 rounded-lg border border-dashed border-border hover:border-foreground/30 hover:bg-muted/30 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-sm">특이사항 추가</span>
+            </button>
           </div>
         )}
       </SectionWithHairline>
