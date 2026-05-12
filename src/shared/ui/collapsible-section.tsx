@@ -73,10 +73,12 @@ export function CollapsibleSection({
   if (variant === 'boxed-icon') {
     return (
       <div className={cn('', className)}>
-        {/* Header — 하단 border 가 컨텐츠 카드 좌우 테두리에 닿도록 -mx-8 / px-8 로 확장 */}
+        {/* Header — 하단 line 이 컨텐츠 카드 좌우 끝까지 닿도록 absolute hairline */}
         <div
           className={cn(
-            '-mx-8 px-8 flex items-center gap-3 w-full pb-3 border-b border-border',
+            'relative -mx-8 px-8 flex items-center gap-3 w-full pb-3',
+            'after:absolute after:bottom-0 after:left-0 after:right-0',
+            'after:border-b after:border-border',
             headerClassName
           )}
         >
