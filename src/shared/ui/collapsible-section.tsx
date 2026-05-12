@@ -73,12 +73,10 @@ export function CollapsibleSection({
   if (variant === 'boxed-icon') {
     return (
       <div className={cn('', className)}>
-        {/* Header — 하단 line 이 컨텐츠 카드 좌우 끝까지 닿도록 absolute hairline */}
+        {/* Header — 본문은 padding 안쪽, 하단 line 은 별도 block 으로 분리해 좌우 카드 끝까지 보장 */}
         <div
           className={cn(
-            'relative -mx-8 px-8 flex items-center gap-3 w-full pb-3',
-            'after:absolute after:bottom-0 after:left-0 after:right-0',
-            'after:border-b after:border-border',
+            'flex items-center gap-3 w-full pb-3',
             headerClassName
           )}
         >
@@ -124,6 +122,10 @@ export function CollapsibleSection({
             {isExpanded ? <ChevronDown /> : <ChevronRight />}
           </Button>
         </div>
+
+        {/* 헤더 ↔ 컨텐츠 line — block element 로 분리해 부모 width 까지 자동 확장,
+            -mx-8 negative margin 으로 TabbedContentCard 의 px-8 좌우 padding 무효화 */}
+        <div className="-mx-8 border-t border-border" />
 
         {/* Content */}
         {isExpanded && (
