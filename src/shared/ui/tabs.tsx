@@ -95,7 +95,7 @@ const TabsBar = React.forwardRef<
     <div
         ref={ref}
         className={cn(
-            "flex items-center justify-between gap-4 w-full border-b pl-2 pr-8",
+            "flex items-center justify-between gap-4 w-full border-b border-border/50 pl-2 pr-8",
             className
         )}
         {...props}

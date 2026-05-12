@@ -506,7 +506,7 @@ export function PatchesPage() {
             value: 'standard',
             label: TAB_CONFIG.standard.label,
             icon: TAB_CONFIG.standard.icon,
-            contentClassName: 'pt-2 pb-8',
+            contentClassName: 'pt-8 pb-8',
             content: isStandardLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -550,7 +550,7 @@ export function PatchesPage() {
             value: 'custom',
             label: TAB_CONFIG.custom.label,
             icon: TAB_CONFIG.custom.icon,
-            contentClassName: 'pt-2 pb-8',
+            contentClassName: 'pt-8 pb-8',
             content: isCustomLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

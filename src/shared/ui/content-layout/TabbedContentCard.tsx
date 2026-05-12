@@ -53,7 +53,7 @@ interface TabbedContentCardProps {
   defaultContentClassName?: string
 }
 
-const DEFAULT_CONTENT_CLASS = 'px-8 pb-8'
+const DEFAULT_CONTENT_CLASS = 'px-8 pb-8 pt-10'
 
 export function TabbedContentCard({
   value,
