@@ -178,7 +178,21 @@ export function PatchCreateForm({
     }))
   }
 
-  const filteredToVersions = versions.filter(
+  // 버전 옵션을 semver desc 로 정렬 — 최신 버전이 위에 노출되어 운영자가 흔히
+  // 고르는 "최신" 을 빠르게 선택할 수 있게.
+  const compareVersionDesc = (a: string, b: string) => {
+    const aParts = a.split('.').map(Number)
+    const bParts = b.split('.').map(Number)
+    const len = Math.max(aParts.length, bParts.length)
+    for (let i = 0; i < len; i++) {
+      const ai = aParts[i] ?? 0
+      const bi = bParts[i] ?? 0
+      if (ai !== bi) return bi - ai
+    }
+    return 0
+  }
+  const sortedVersions = [...versions].sort(compareVersionDesc)
+  const filteredToVersions = sortedVersions.filter(
     (v) => formData.fromVersion && v >= formData.fromVersion
   )
 
@@ -338,7 +352,7 @@ export function PatchCreateForm({
               <SelectValue placeholder="시작 버전" />
             </SelectTrigger>
             <SelectContent>
-              {versions.map((v) => (
+              {sortedVersions.map((v) => (
                 <SelectItem key={v} value={v}>
                   {v}
                 </SelectItem>
