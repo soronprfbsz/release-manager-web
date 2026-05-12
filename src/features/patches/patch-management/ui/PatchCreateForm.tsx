@@ -139,7 +139,10 @@ export function PatchCreateForm({
       toVersionId: newToId,
       buildSelection: { enabled: true, web: null, engines: [] },
     }))
-  }, [selectedCustomer?.customerId, nextRange])
+    // versions.length 도 dep 에 포함 — tree fetch 가 nextRange 보다 늦게 도착하면
+    // Select 옵션이 비어있는 상태에서 value 만 set 되어 placeholder 표시되던 문제 회피.
+    // 옵션 도착 시점에 set 을 한 번 더 호출해 Radix Select 가 value 와 매칭하도록.
+  }, [selectedCustomer?.customerId, nextRange, versions.length])
 
   const handleFromVersionChange = (value: string) => {
     onFormDataChange((prev) => {
