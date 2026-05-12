@@ -39,14 +39,14 @@
   }
 
   .white {
-    /* Fresh Mint Light Mode */
+    /* Fresh Mint Light Mode — primary 톤을 handoff 디자인의 #2f9a73 으로 강화 */
     --background: 0 0% 100%;
     --foreground: 180 12% 16%;
     --card: 0 0% 100%;
     --card-foreground: 180 12% 16%;
     --popover: 0 0% 100%;
     --popover-foreground: 180 12% 16%;
-    --primary: 155 32% 48%;
+    --primary: 155 53% 39%;
     --primary-foreground: 0 0% 100%;
     --secondary: 160 15% 96%;
     --secondary-foreground: 180 12% 16%;
@@ -58,14 +58,14 @@
     --destructive-foreground: 0 0% 100%;
     --border: 160 15% 90%;
     --input: 160 15% 90%;
-    --ring: 155 32% 48%;
+    --ring: 155 53% 39%;
     --radius: 0.375rem;
-    --chart-1: 155 32% 48%;
+    --chart-1: 155 53% 39%;
     --chart-2: 45 65% 55%;
     --chart-3: 200 45% 52%;
     --chart-4: 30 60% 58%;
     --chart-5: 280 35% 60%;
-    --theme-color-1: 155 32% 48%;
+    --theme-color-1: 155 53% 39%;
     --theme-color-2: 45 65% 55%;
     --theme-color-3: 200 45% 52%;
     --theme-color-4: 30 60% 58%;
