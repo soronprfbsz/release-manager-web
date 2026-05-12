@@ -22,10 +22,7 @@ import {
 /** 핫픽스 배지 */
 function HotfixBadge() {
   return (
-    <Badge
-      variant="destructive"
-      className="text-[10px] px-1 py-0 h-4 leading-none"
-    >
+    <Badge variant="destructive" size="sm">
       HOTFIX
     </Badge>
   )
@@ -217,7 +214,7 @@ export function ReleaseTree({
                                   <Badge
                                     key={category}
                                     variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                    className="text-[10px] px-1 py-0 h-4 leading-none"
+                                    size="sm"
                                   >
                                     {getCategoryShortName(category)}
                                   </Badge>
@@ -289,7 +286,7 @@ export function ReleaseTree({
                                         <Badge
                                           key={category}
                                           variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                          className="text-[10px] px-1 py-0 h-4 leading-none"
+                                          size="sm"
                                         >
                                           {getCategoryShortName(category)}
                                         </Badge>
@@ -345,7 +342,7 @@ export function ReleaseTree({
                                         <Badge
                                           key={category}
                                           variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                                          className="text-[10px] px-1 py-0 h-4 leading-none"
+                                          size="sm"
                                         >
                                           {getCategoryShortName(category)}
                                         </Badge>

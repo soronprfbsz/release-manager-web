@@ -715,15 +715,9 @@ function VersionHeaderCard() {
           )}
           {!isBuild && (
             version.isApproved ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                <span className="h-[5px] w-[5px] rounded-full bg-primary" />
-                승인됨
-              </span>
+              <Badge variant="success" size="pill" dot>승인됨</Badge>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-yellow-700 dark:text-yellow-500">
-                <span className="h-[5px] w-[5px] rounded-full bg-yellow-500" />
-                미승인
-              </span>
+              <Badge variant="warning" size="pill" dot>미승인</Badge>
             )
           )}
           {version.fileCategories && version.fileCategories.length > 0 && (
@@ -732,7 +726,7 @@ function VersionHeaderCard() {
                 <Badge
                   key={category}
                   variant={category.toLowerCase() as 'database' | 'web' | 'engine' | 'etc'}
-                  className="text-[10px] px-1 py-0 h-4 leading-none"
+                  size="sm"
                 >
                   {getCategoryShortName(category)}
                 </Badge>

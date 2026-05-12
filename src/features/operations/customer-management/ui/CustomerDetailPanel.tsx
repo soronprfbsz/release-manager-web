@@ -15,6 +15,7 @@ import { useCustomerSiteVersions } from '@/entities/operations/customer-site-ver
 import type { Customer } from '@/entities/operations/customer'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { Badge } from '@/shared/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
@@ -83,15 +84,9 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
         {/* 우측: 활성/비활성 pill + 마지막 수정일 */}
         <div className="flex flex-col items-end gap-2.5">
           {customer.isActive ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              <span className="h-[5px] w-[5px] rounded-full bg-primary" />
-              활성
-            </span>
+            <Badge variant="success" size="pill" dot>활성</Badge>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-              <span className="h-[5px] w-[5px] rounded-full bg-muted-foreground" />
-              비활성
-            </span>
+            <Badge variant="neutral" size="pill" dot>비활성</Badge>
           )}
           <Tooltip>
             <TooltipTrigger asChild>

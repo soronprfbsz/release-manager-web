@@ -267,14 +267,15 @@ export function PatchTable({
                         <Badge
                           key={trimmed}
                           variant={variant}
-                          className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm shrink-0"
+                          size="sm"
+                          className="shrink-0"
                         >
                           {trimmed}
                         </Badge>
                       )
                     })}
                   {patch.isBuildOnly && (
-                    <Badge variant="secondary" className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm shrink-0">
+                    <Badge variant="secondary" size="sm" className="shrink-0">
                       Build-only
                     </Badge>
                   )}
@@ -294,11 +295,11 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                <div className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 font-mono text-xs whitespace-nowrap">
+                <Badge variant="outline" size="pill" className="font-mono whitespace-nowrap gap-0.5">
                   <span>{patch.fromVersion}</span>
                   <span className="text-primary mx-0.5">→</span>
                   <span className="font-medium">{patch.toVersion}</span>
-                </div>
+                </Badge>
               </TableCell>
               <TableCell>
                 {patch.customerName ? (

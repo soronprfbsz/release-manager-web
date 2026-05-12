@@ -13,6 +13,7 @@ import type { Account } from '@/entities/operations/account'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { Badge } from '@/shared/ui/badge'
 import { DataTable } from '@/shared/ui/data-table'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { EmptyState } from '@/shared/ui/empty-state'
@@ -173,9 +174,7 @@ export function AccountTable({
                 {account.email}
               </TableCell>
               <TableCell className="text-center">
-                <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
-                  {account.role}
-                </span>
+                <Badge variant="success">{account.role}</Badge>
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 {account.lastLoginAt ? (

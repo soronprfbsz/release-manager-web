@@ -1,6 +1,9 @@
 /**
  * Status Badge Component
  * 상태 표시용 배지 컴포넌트
+ *
+ * @deprecated 신규 코드에서는 Badge variant="success|warning|info|neutral" 를 직접 사용하세요.
+ *             이 컴포넌트는 하위 호환성을 위해 유지됩니다.
  */
 
 import { cn } from '@/shared/lib/utils'
