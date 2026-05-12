@@ -15,7 +15,6 @@ import { useCustomerSiteVersions } from '@/entities/operations/customer-site-ver
 import type { Customer } from '@/entities/operations/customer'
 
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { StatusBadge } from '@/shared/ui/status-badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
@@ -45,14 +44,9 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
         {/* 좌측: 고객사 정체성 */}
         <div className="flex flex-col gap-1.5 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
-              Customer
-            </span>
-            <code className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
-              {customer.customerCode}
-            </code>
-          </div>
+          <code className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">
+            {customer.customerCode}
+          </code>
           {customer.description ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -69,11 +63,6 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
               {customer.customerName}
             </h2>
           )}
-          <div className="mt-1">
-            <StatusBadge variant={customer.isActive ? 'active' : 'inactive'}>
-              {customer.isActive ? '활성' : '비활성'}
-            </StatusBadge>
-          </div>
         </div>
 
         {/* 가운데: 적용 버전 + 빌드 정보 (좌측 vertical line) */}
@@ -91,8 +80,19 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
           )}
         </div>
 
-        {/* 우측: 마지막 수정일 */}
-        <div className="flex flex-col items-end gap-2">
+        {/* 우측: 활성/비활성 pill + 마지막 수정일 */}
+        <div className="flex flex-col items-end gap-2.5">
+          {customer.isActive ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+              <span className="h-[5px] w-[5px] rounded-full bg-primary" />
+              활성
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              <span className="h-[5px] w-[5px] rounded-full bg-muted-foreground" />
+              비활성
+            </span>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground cursor-default">
