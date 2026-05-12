@@ -6,12 +6,11 @@
 import { useState } from 'react'
 
 import {
-  ArrowRight,
   CheckCircle2,
   Download,
-  FolderArchive,
   Info,
   Loader2,
+  Package,
   Tag,
   Trash2,
   type LucideIcon,
@@ -22,7 +21,7 @@ import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useAuthStore } from '@/shared/store'
 import { cn } from '@/shared/lib/utils'
-import { formatDateTime } from '@/shared/lib/utils/date'
+import { formatDateShort } from '@/shared/lib/utils/date'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -102,6 +101,14 @@ export function PatchTable({
   const completeMutation = useCompletePatch()
   const { isUser } = usePermission()
   const currentEmail = useAuthStore((s) => s.user?.email)
+
+  /** ISO 날짜 문자열에서 HH:mm 부분만 추출 */
+  const formatTimeShort = (dateStr: string | null | undefined): string => {
+    if (!dateStr) return ''
+    const d = new Date(dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z')
+    if (isNaN(d.getTime())) return ''
+    return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
+  }
 
   /**
    * 패치 완료 / 삭제 권한 — 본인 생성 분기
@@ -242,37 +249,49 @@ export function PatchTable({
                   </div>
                 </TableCell>
               )}
-              <TableCell className="text-right text-muted-foreground">
-                {patch.rowNumber}
+              <TableCell className="text-right">
+                <span className="font-mono text-xs text-muted-foreground">
+                  {patch.rowNumber}
+                </span>
               </TableCell>
               <TableCell>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <FolderArchive className="h-4 w-4 text-muted-foreground" />
-                    <TypographyInlineCode className="bg-transparent font-normal">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <Package className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <TypographyInlineCode className="bg-transparent font-mono text-sm font-normal leading-none">
                       {patch.patchName}
                     </TypographyInlineCode>
                   </div>
-                  {patch.isBuildIncluded && patch.includedBuildsSummary && (
-                    <div className="flex gap-1 ml-1 items-center">
-                      {patch.includedBuildsSummary.split(',').map((token) => {
-                        const trimmed = token.trim()
-                        if (!trimmed) return null
-                        return (
-                          <Badge
-                            key={trimmed}
-                            variant={trimmed.toLowerCase() as 'web' | 'engine'}
-                            className="text-[10px] px-1 py-0 h-4 leading-none"
-                          >
-                            {trimmed}
-                          </Badge>
-                        )
-                      })}
+                  {(patch.isBuildIncluded && patch.includedBuildsSummary) || patch.isBuildOnly ? (
+                    <div className="flex flex-wrap gap-1 pl-5">
+                      {patch.isBuildIncluded && patch.includedBuildsSummary &&
+                        patch.includedBuildsSummary.split(',').map((token) => {
+                          const trimmed = token.trim().toUpperCase()
+                          if (!trimmed) return null
+                          const variantMap: Record<string, 'web' | 'engine' | 'database' | 'etc'> = {
+                            WEB: 'web',
+                            ENGINE: 'engine',
+                            DB: 'database',
+                            DATABASE: 'database',
+                          }
+                          const variant = variantMap[trimmed] ?? 'etc'
+                          return (
+                            <Badge
+                              key={trimmed}
+                              variant={variant}
+                              className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm"
+                            >
+                              {trimmed}
+                            </Badge>
+                          )
+                        })}
+                      {patch.isBuildOnly && (
+                        <Badge variant="secondary" className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm">
+                          Build-only
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                  {patch.isBuildOnly && (
-                    <Badge variant="secondary" className="ml-1">Build-only</Badge>
-                  )}
+                  ) : null}
                 </div>
               </TableCell>
               <TableCell>
@@ -280,35 +299,31 @@ export function PatchTable({
                   <TruncatedCell
                     tooltipText={patch.description}
                     maxLines={2}
-                    className="text-muted-foreground"
+                    className="text-sm text-muted-foreground"
                   >
                     {patch.description}
                   </TruncatedCell>
                 ) : (
-                  <TypographyMuted>-</TypographyMuted>
+                  <TypographyMuted className="text-sm">—</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <TypographyInlineCode className="bg-transparent text-xs">
-                    {patch.fromVersion}
-                  </TypographyInlineCode>
-                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                  <TypographyInlineCode className="bg-transparent text-xs font-medium">
-                    {patch.toVersion}
-                  </TypographyInlineCode>
+                <div className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 font-mono text-xs whitespace-nowrap">
+                  <span>{patch.fromVersion}</span>
+                  <span className="text-primary mx-0.5">→</span>
+                  <span className="font-medium">{patch.toVersion}</span>
                 </div>
               </TableCell>
               <TableCell>
                 {patch.customerName ? (
-                  <div>
-                    <div>{patch.customerName}</div>
-                    <TypographyMuted className="text-sm">
-                      ({patch.customerCode})
+                  <div className="space-y-0.5">
+                    <div className="text-sm">{patch.customerName}</div>
+                    <TypographyMuted className="text-xs">
+                      {patch.customerCode}
                     </TypographyMuted>
                   </div>
                 ) : (
-                  <TypographyMuted>-</TypographyMuted>
+                  <TypographyMuted className="text-sm">—</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
@@ -333,7 +348,7 @@ export function PatchTable({
                     </TooltipContent>
                   </Tooltip>
                 ) : (
-                  <TypographyMuted>-</TypographyMuted>
+                  <TypographyMuted className="text-sm">—</TypographyMuted>
                 )}
               </TableCell>
               <TableCell>
@@ -358,7 +373,10 @@ export function PatchTable({
                 </Tooltip>
               </TableCell>
               <TableCell className="whitespace-nowrap">
-                <TypographyMuted>{formatDateTime(patch.createdAt)}</TypographyMuted>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-mono text-xs">{formatDateShort(patch.createdAt)}</span>
+                  <span className="font-mono text-xs text-muted-foreground/70">{formatTimeShort(patch.createdAt)}</span>
+                </div>
               </TableCell>
               <TableCell>
                 <TableActionMenu>
