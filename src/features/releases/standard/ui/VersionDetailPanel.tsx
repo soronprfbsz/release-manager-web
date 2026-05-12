@@ -747,9 +747,9 @@ function VersionHeaderCard() {
         <div className="-mx-8 border-t px-8 pt-5 pb-5">
           {/* 라벨 + 편집 버튼 한 줄 — 박스는 그 아래 전체 폭 */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <FileText className="h-3.5 w-3.5" />
-              <span>코멘트</span>
+            <div className="flex items-center gap-1.5 text-sm text-foreground">
+              <FileText className="h-4 w-4" />
+              <span className="font-semibold">코멘트</span>
             </div>
             {!isEditingComment && canAddVersion && (
               <Tooltip>
@@ -855,9 +855,9 @@ function VersionDetailContent() {
       {fileStructure && (
         <div className="border-t border-border/50 pt-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <FolderTree className="h-3.5 w-3.5" />
-              <span>파일</span>
+            <div className="flex items-center gap-1.5 text-sm text-foreground">
+              <FolderTree className="h-4 w-4" />
+              <span className="font-semibold">파일</span>
             </div>
             {hasFiles && canDownloadVersion && (
               <Tooltip>

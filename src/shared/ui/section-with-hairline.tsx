@@ -51,18 +51,18 @@ export function SectionWithHairline({
         <button
           type="button"
           onClick={() => setIsExpanded((v) => !v)}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors min-w-0"
+          className="flex items-center gap-1.5 text-sm text-foreground transition-colors min-w-0"
         >
           {isExpanded ? (
-            <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
+            <ChevronDown className="h-4 w-4 flex-shrink-0" />
           ) : (
-            <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
+            <ChevronRight className="h-4 w-4 flex-shrink-0" />
           )}
-          {Icon && <Icon className="h-3.5 w-3.5 flex-shrink-0" />}
+          {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
           {iconElement && <span className="flex-shrink-0">{iconElement}</span>}
-          <span className="font-medium truncate">{title}</span>
+          <span className="font-semibold truncate">{title}</span>
           {typeof count === 'number' && count > 0 && (
-            <span className="text-muted-foreground/70 font-normal flex-shrink-0">
+            <span className="text-xs text-muted-foreground font-normal flex-shrink-0">
               {countPrefix}
               {count}
               {countSuffix}
