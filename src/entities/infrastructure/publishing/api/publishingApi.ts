@@ -59,6 +59,12 @@ export const publishingApi = {
     if (data.customerId) {
       formData.append('customerId', String(data.customerId))
     }
+    if (data.glyphText !== undefined) {
+      formData.append('glyphText', data.glyphText)
+    }
+    if (data.glyphBackgroundColor !== undefined) {
+      formData.append('glyphBackgroundColor', data.glyphBackgroundColor)
+    }
 
     const response = await apiClient.upload<PublishingDetail>(ENDPOINTS.upload, formData, {
       onUploadProgress: onProgress,
@@ -68,7 +74,7 @@ export const publishingApi = {
 
   /** 퍼블리싱 수정 */
   update: async (id: number, data: PublishingUpdateRequest): Promise<PublishingDetail> => {
-    const response = await apiClient.put<PublishingDetail>(ENDPOINTS.update(id), data)
+    const response = await apiClient.patch<PublishingDetail>(ENDPOINTS.update(id), data)
     return response
   },
 

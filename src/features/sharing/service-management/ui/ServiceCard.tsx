@@ -39,7 +39,7 @@ export function ServiceCard({
         <button
           type="button"
           className={cn(
-            'absolute -left-3 -top-2 z-10',
+            'absolute -left-4 -top-2 z-10',
             'flex items-center justify-center w-5 h-16',
             'cursor-grab active:cursor-grabbing',
             'text-muted-foreground hover:text-foreground',

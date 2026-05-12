@@ -37,6 +37,8 @@ const INITIAL_FORM_DATA: PublishingUploadFormData = {
   subCategory: '',
   description: '',
   customerId: null,
+  glyphText: '',
+  glyphBackgroundColor: '',
 }
 
 export interface PublishingTabHandle {
@@ -168,6 +170,8 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
         subCategory: formData.subCategory || undefined,
         description: formData.description.trim() || undefined,
         customerId: formData.customerId || undefined,
+        glyphText: formData.glyphText || undefined,
+        glyphBackgroundColor: formData.glyphBackgroundColor || undefined,
         onProgress: (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)

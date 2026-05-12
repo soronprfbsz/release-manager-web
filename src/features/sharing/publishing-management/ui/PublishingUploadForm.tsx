@@ -1,8 +1,7 @@
 /**
  * Publishing Upload Form Component
- * 퍼블리싱 업로드 폼 컴포넌트
+ * 퍼블리싱 업로드 폼 컴포넌트 (글리프 배지 설정 포함)
  */
-
 
 import { useQuery } from '@tanstack/react-query'
 import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
@@ -10,7 +9,9 @@ import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import { customerApi } from '@/entities/operations'
 
+import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { getDomainIcon } from '@/shared/config/domain-icons'
+import { cn } from '@/shared/lib/utils'
 import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -46,10 +47,8 @@ export function PublishingUploadForm({
   onSubmit,
   onClose,
 }: PublishingUploadFormProps) {
-  // Fetch Categories from API
   const { data: categoryList = [] } = useCodesByType(CODE_TYPE.PUBLISHING_CATEGORY)
 
-  // Fetch Customers
   const { data: customersData } = useQuery({
     queryKey: ['customers-active'],
     queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
@@ -57,7 +56,6 @@ export function PublishingUploadForm({
   })
   const customers = customersData?.content || []
 
-  // Get subcategory code type based on selected category
   const getSubCategoryCodeType = (category: string) => {
     switch (category) {
       case 'INFRAEYE1':
@@ -80,11 +78,19 @@ export function PublishingUploadForm({
     onFormDataChange({
       ...formData,
       publishingCategory: value,
-      subCategory: '', // Reset subcategory when category changes
+      subCategory: '',
     })
   }
 
-  // Info Box
+  // 글리프 라이브 프리뷰
+  const previewName = formData.publishingName || '?'
+  const { text: previewText, glyphClass: previewGlyphClass } = resolveGlyph({
+    name: previewName,
+    glyphText: formData.glyphText || null,
+    glyphBackgroundColor: formData.glyphBackgroundColor || null,
+  })
+  const previewFontSize = getGlyphFontSizeClass(previewText)
+
   const headerContent = (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/40 border border-accent mb-5">
       <AlertTriangle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
@@ -199,6 +205,86 @@ export function PublishingUploadForm({
           placeholder="퍼블리싱에 대한 상세 설명을 입력하세요"
           rows={3}
         />
+      </div>
+
+      {/* 글리프 배지 설정 */}
+      <div className="space-y-3 rounded-lg border p-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">글리프 배지</Label>
+          {/* 라이브 프리뷰 */}
+          <div
+            className={cn(
+              'h-10 w-10 rounded-md flex items-center justify-center',
+              'font-mono font-semibold select-none',
+              previewFontSize,
+              previewGlyphClass
+            )}
+          >
+            {previewText}
+          </div>
+        </div>
+
+        {/* 글리프 텍스트 입력 */}
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">
+            표시 텍스트 (최대 3자, 비워두면 퍼블리싱명 첫 글자 사용)
+          </Label>
+          <Input
+            value={formData.glyphText}
+            onChange={(e) =>
+              onFormDataChange({ ...formData, glyphText: e.target.value.slice(0, 3) })
+            }
+            placeholder="예: WEB"
+            maxLength={3}
+            className="font-mono"
+          />
+        </div>
+
+        {/* 색상 swatch 그리드 */}
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">
+            배경 색상 (비워두면 퍼블리싱명 기반 자동 선택)
+          </Label>
+          <div className="grid grid-cols-5 gap-2">
+            {GLYPH_COLORS.map((color) => {
+              const isSelected = formData.glyphBackgroundColor === color.key
+              return (
+                <button
+                  key={color.key}
+                  type="button"
+                  title={color.label}
+                  onClick={() =>
+                    onFormDataChange({
+                      ...formData,
+                      glyphBackgroundColor: isSelected ? '' : color.key,
+                    })
+                  }
+                  className={cn(
+                    'h-7 w-full rounded-md transition-all',
+                    color.swatchClass,
+                    isSelected
+                      ? 'ring-2 ring-offset-1 ring-foreground/60 scale-105'
+                      : 'hover:scale-105 hover:ring-1 hover:ring-offset-1 hover:ring-foreground/30'
+                  )}
+                />
+              )
+            })}
+          </div>
+          {formData.glyphBackgroundColor && (
+            <p className="text-xs text-muted-foreground flex items-center justify-between">
+              <span>
+                {GLYPH_COLORS.find((c) => c.key === formData.glyphBackgroundColor)?.label ?? formData.glyphBackgroundColor}
+              </span>
+              <button
+                type="button"
+                onClick={() => onFormDataChange({ ...formData, glyphBackgroundColor: '' })}
+                className="text-xs underline underline-offset-2 hover:text-foreground"
+              >
+                초기화
+              </button>
+            </p>
+          )}
+        </div>
       </div>
 
       {/* File Select with Drag & Drop */}

@@ -31,6 +31,8 @@ export interface PublishingListItem {
   fileCount: number
   createdAt: string
   htmlFiles: PublishingHtmlFile[]  // HTML 파일 목록 (열기용)
+  glyphText: string | null
+  glyphBackgroundColor: string | null
 }
 
 /** 퍼블리싱 상세 */
@@ -51,6 +53,8 @@ export interface PublishingDetail {
   updatedBy: string | null
   createdAt: string
   updatedAt: string
+  glyphText: string | null
+  glyphBackgroundColor: string | null
 }
 
 /** 퍼블리싱 업로드 요청 */
@@ -61,6 +65,8 @@ export interface PublishingUploadRequest {
   subCategory?: string
   description?: string
   customerId?: number
+  glyphText?: string
+  glyphBackgroundColor?: string
 }
 
 /** 퍼블리싱 수정 요청 */
@@ -70,6 +76,10 @@ export interface PublishingUpdateRequest {
   subCategory?: string
   description?: string
   customerId?: number | null
+  /** 글리프 텍스트 (최대 3자). 빈 문자열("") 전송 시 NULL 처리 */
+  glyphText?: string
+  /** 글리프 배경 색상 키 (팔레트). 빈 문자열("") 전송 시 NULL 처리 */
+  glyphBackgroundColor?: string
 }
 
 /** 퍼블리싱 조회 필터 */

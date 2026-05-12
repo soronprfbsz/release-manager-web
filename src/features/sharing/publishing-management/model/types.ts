@@ -11,6 +11,8 @@ export interface PublishingUploadFormData {
   subCategory: string           // DASHBOARD, REPORT, MONITORING 등
   description: string
   customerId: number | null     // 고객사 ID (커스터마이징용)
+  glyphText: string
+  glyphBackgroundColor: string
 }
 
 /** 퍼블리싱 필터 상태 */

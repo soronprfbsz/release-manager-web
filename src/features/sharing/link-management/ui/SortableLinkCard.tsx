@@ -30,7 +30,7 @@ export function SortableLinkCard({ resource, onDelete, onEdit }: SortableLinkCar
 
   const baseTransform = CSS.Transform.toString(transform)
   const scaleTransform = isDragging ? 'scale(1.02)' : ''
-  
+
   const style: React.CSSProperties = {
     transform: baseTransform ? `${baseTransform} ${scaleTransform}`.trim() : scaleTransform,
     transition: transition ?? 'transform 250ms cubic-bezier(0.25, 1, 0.5, 1)',
@@ -39,14 +39,13 @@ export function SortableLinkCard({ resource, onDelete, onEdit }: SortableLinkCar
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`h-full ${isDragging ? 'shadow-xl' : ''}`}>
+    <div ref={setNodeRef} style={style} {...attributes} className={`h-full ${isDragging ? 'shadow-xl' : ''}`}>
       <LinkCard
         resource={resource}
         onDelete={onDelete}
         onEdit={onEdit}
-        dragHandleProps={{ ...attributes, ...listeners }}
+        dragHandleProps={listeners}
       />
     </div>
   )
 }
-

@@ -35,7 +35,7 @@ export {
   getComponentDisplayInfo,
 } from './lib/serviceHelpers'
 
-// Glyph
+// Glyph (Service 전용 어댑터 + 공용 팔레트)
 export {
   GLYPH_COLORS,
   resolveGlyph,

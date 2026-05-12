@@ -1,6 +1,6 @@
 /**
  * Publishing Edit Form Component
- * 퍼블리싱 수정 폼 컴포넌트
+ * 퍼블리싱 수정 폼 컴포넌트 (글리프 배지 설정 포함)
  */
 
 import { useEffect, useState, useRef } from 'react'
@@ -11,12 +11,13 @@ import { Save } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import type { PublishingListItem, PublishingUpdateRequest } from '@/entities/infrastructure/publishing'
 import { customerApi } from '@/entities/operations'
 
+import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { getFormIcon } from '@/shared/config/domain-icons'
+import { cn } from '@/shared/lib/utils'
 import { Combobox } from '@/shared/ui/combobox'
 import {
   Form,
@@ -28,6 +29,7 @@ import {
 } from '@/shared/ui/form'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import {
   Select,
   SelectContent,
@@ -63,14 +65,15 @@ export function PublishingEditForm({
 }: PublishingEditFormProps) {
   // 고객사 ID 상태 (zod 외부에서 관리)
   const [customerId, setCustomerId] = useState<number | null>(null)
-  
+  // 글리프 상태 (zod 외부에서 관리)
+  const [glyphText, setGlyphText] = useState('')
+  const [glyphBackgroundColor, setGlyphBackgroundColor] = useState('')
+
   // 이미 초기화된 publishing ID를 추적하여 중복 초기화 방지
   const initializedIdRef = useRef<number | null>(null)
 
-  // Fetch Categories from API (Dynamic)
   const { data: categoryList = [] } = useCodesByType(CODE_TYPE.PUBLISHING_CATEGORY)
 
-  // Fetch Customers
   const { data: customersData } = useQuery({
     queryKey: ['customers-active'],
     queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
@@ -90,28 +93,27 @@ export function PublishingEditForm({
     defaultValues,
   })
 
-  // Helper to find matching category code (case-insensitive)
   const getNormalizedCategory = (value: string, list: { value: string; name: string }[]) => {
     if (!value) return ''
     const code = list.find(c => c.value.toLowerCase() === value.toLowerCase())
     return code ? code.value : value
   }
 
-  // Reset form with publishing data when both publishing AND categoryList are available
   useEffect(() => {
     if (isOpen && publishing && categoryList.length > 0 && initializedIdRef.current !== publishing.publishingId) {
       initializedIdRef.current = publishing.publishingId
-      
+
       form.reset({
         publishingName: publishing.publishingName,
         publishingCategory: getNormalizedCategory(publishing.publishingCategory, categoryList),
         subCategory: publishing.subCategory || '',
         description: publishing.description || '',
       })
+      setGlyphText(publishing.glyphText || '')
+      setGlyphBackgroundColor(publishing.glyphBackgroundColor || '')
     }
   }, [isOpen, publishing, categoryList])
 
-  // 고객사 ID 설정 (별도 useEffect)
   useEffect(() => {
     if (isOpen && publishing && customers.length > 0) {
       if (publishing.customerName) {
@@ -123,7 +125,6 @@ export function PublishingEditForm({
     }
   }, [isOpen, publishing, customers])
 
-  // Get subcategory code type based on selected category
   const getSubCategoryCodeType = (category: string) => {
     switch (category) {
       case 'INFRAEYE1':
@@ -143,14 +144,24 @@ export function PublishingEditForm({
     enabled: !!subCategoryCodeType,
   })
 
-  // Reset form when closed to clear state
   useEffect(() => {
     if (!isOpen) {
       form.reset(defaultValues)
       setCustomerId(null)
+      setGlyphText('')
+      setGlyphBackgroundColor('')
       initializedIdRef.current = null
     }
   }, [isOpen])
+
+  // 라이브 프리뷰
+  const previewName = form.watch('publishingName') || '?'
+  const { text: previewText, glyphClass: previewGlyphClass } = resolveGlyph({
+    name: previewName,
+    glyphText: glyphText || null,
+    glyphBackgroundColor: glyphBackgroundColor || null,
+  })
+  const previewFontSize = getGlyphFontSizeClass(previewText)
 
   const handleSubmit = (values: FormValues) => {
     onSubmit({
@@ -159,6 +170,8 @@ export function PublishingEditForm({
       subCategory: values.subCategory || undefined,
       description: values.description || undefined,
       customerId: customerId,
+      glyphText: glyphText,
+      glyphBackgroundColor: glyphBackgroundColor,
     })
   }
 
@@ -279,6 +292,82 @@ export function PublishingEditForm({
             </FormItem>
           )}
         />
+
+        {/* 글리프 배지 설정 */}
+        <div className="space-y-3 rounded-lg border p-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">글리프 배지</Label>
+            {/* 라이브 프리뷰 */}
+            <div
+              className={cn(
+                'h-10 w-10 rounded-md flex items-center justify-center',
+                'font-mono font-semibold select-none',
+                previewFontSize,
+                previewGlyphClass
+              )}
+            >
+              {previewText}
+            </div>
+          </div>
+
+          {/* 글리프 텍스트 입력 */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">
+              표시 텍스트 (최대 3자, 비워두면 퍼블리싱명 첫 글자 사용)
+            </Label>
+            <Input
+              value={glyphText}
+              onChange={(e) => setGlyphText(e.target.value.slice(0, 3))}
+              placeholder="예: WEB"
+              maxLength={3}
+              className="font-mono"
+            />
+          </div>
+
+          {/* 색상 swatch 그리드 */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">
+              배경 색상 (비워두면 퍼블리싱명 기반 자동 선택)
+            </Label>
+            <div className="grid grid-cols-5 gap-2">
+              {GLYPH_COLORS.map((color) => {
+                const isSelected = glyphBackgroundColor === color.key
+                return (
+                  <button
+                    key={color.key}
+                    type="button"
+                    title={color.label}
+                    onClick={() =>
+                      setGlyphBackgroundColor(isSelected ? '' : color.key)
+                    }
+                    className={cn(
+                      'h-7 w-full rounded-md transition-all',
+                      color.swatchClass,
+                      isSelected
+                        ? 'ring-2 ring-offset-1 ring-foreground/60 scale-105'
+                        : 'hover:scale-105 hover:ring-1 hover:ring-offset-1 hover:ring-foreground/30'
+                    )}
+                  />
+                )
+              })}
+            </div>
+            {/* 선택된 색상 표시 / 초기화 */}
+            {glyphBackgroundColor && (
+              <p className="text-xs text-muted-foreground flex items-center justify-between">
+                <span>
+                  {GLYPH_COLORS.find((c) => c.key === glyphBackgroundColor)?.label ?? glyphBackgroundColor}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setGlyphBackgroundColor('')}
+                  className="text-xs underline underline-offset-2 hover:text-foreground"
+                >
+                  초기화
+                </button>
+              </p>
+            )}
+          </div>
+        </div>
       </Form>
     </FormSheet>
   )
