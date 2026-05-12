@@ -18,11 +18,11 @@ export function CustomerDetailPanel({
   customer,
 }: CustomerDetailPanelProps) {
   return (
-    <div className="pt-2">
+    <div className="pt-4">
       {/* 버전 정보 — 고객사 속성 (사이트 현재 버전 / 빌드 요약) */}
       <CustomerVersionInfo customer={customer} />
 
-      <div className="space-y-16 pt-8">
+      <div className="space-y-10 pt-8">
         {/* 특이사항 */}
         <CustomerNotesCard customerId={customer.customerId} />
 

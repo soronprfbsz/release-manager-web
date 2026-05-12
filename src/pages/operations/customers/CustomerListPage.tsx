@@ -240,11 +240,12 @@ export function CustomerListPage() {
           emptyMessage="고객사를 선택해주세요."
           header={
             selectedCustomer && (
-              <div className="flex items-center gap-2 min-w-0 w-full">
+              <div className="flex items-center gap-3 min-w-0 w-full">
+                {/* 회사명 */}
                 {selectedCustomer.description ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <h2 className="text-base font-semibold truncate cursor-default">
+                      <h2 className="text-lg font-semibold truncate cursor-default leading-tight">
                         {selectedCustomer.customerName}
                       </h2>
                     </TooltipTrigger>
@@ -253,23 +254,31 @@ export function CustomerListPage() {
                     </TooltipContent>
                   </Tooltip>
                 ) : (
-                  <h2 className="text-base font-semibold truncate">
+                  <h2 className="text-lg font-semibold truncate leading-tight">
                     {selectedCustomer.customerName}
                   </h2>
                 )}
-                <span className="text-muted-foreground text-sm">
-                  [{selectedCustomer.customerCode}]
-                </span>
+
+                {/* 고객사 코드 (모노) */}
+                <code className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
+                  {selectedCustomer.customerCode}
+                </code>
+
+                {/* 활성 상태 pill */}
                 <StatusBadge
                   variant={selectedCustomer.isActive ? 'active' : 'inactive'}
+                  className="flex-shrink-0"
                 >
                   {selectedCustomer.isActive ? '활성' : '비활성'}
                 </StatusBadge>
+
                 <span className="flex-1" />
+
+                {/* 마지막 패치 일시 (캘린더 아이콘 + 모노) */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground cursor-default flex-shrink-0">
-                      <Calendar className="h-3 w-3" />
+                    <span className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground cursor-default flex-shrink-0">
+                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
                       {formatDateTime(selectedCustomer.updatedAt || selectedCustomer.createdAt)}
                     </span>
                   </TooltipTrigger>

@@ -2,10 +2,10 @@
  * Customer Version Info — 고객사 현재 버전 / 빌드 버전 요약 (속성 메타 박스)
  *
  * <p>customer_site_version 테이블에서 컴포넌트별 최신 버전을 직접 조회해 표시.
- *  - BASE   → "Version" 행
- *  - WEB    → "Build Version (WEB)" 행
- *  - ENGINE → "Build Version (ENGINE)" 행
- *  - 응답 빈 배열 → "Version  패치 미적용" 한 줄 fallback
+ *  - BASE   → "VERSION" 행 (크게)
+ *  - WEB    → "BUILD · WEB" 행 (모노 풀버전)
+ *  - ENGINE → "BUILD · ENGINE" 행 (없으면 생략)
+ *  - 응답 빈 배열 → "패치 미적용" fallback
  */
 
 import { useCustomerSiteVersions } from '@/entities/operations/customer-site-version'
@@ -27,7 +27,7 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
   if (isLoading) {
     return (
       <VersionInfoBox>
-        <Row label="Version" value="확인 중..." mono={false} />
+        <AttributeRow label="VERSION" value="확인 중..." dim />
       </VersionInfoBox>
     )
   }
@@ -36,7 +36,7 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
   if (!projectId || siteVersions.length === 0) {
     return (
       <VersionInfoBox>
-        <Row label="Version" value="패치 미적용" mono={false} />
+        <AttributeRow label="VERSION" value="패치 미적용" dim />
       </VersionInfoBox>
     )
   }
@@ -48,19 +48,19 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
 
   return (
     <VersionInfoBox>
-      {/* BASE 컴포넌트: 기본 버전 */}
+      {/* BASE 컴포넌트: 기본 버전 (크게) */}
       {byComponent.BASE && (
-        <Row label="Version" value={byComponent.BASE} />
+        <AttributeRow label="VERSION" value={byComponent.BASE} large />
       )}
 
       {/* WEB 빌드 버전 */}
       {byComponent.WEB && (
-        <Row label="Build Version (WEB)" value={byComponent.WEB} />
+        <AttributeRow label="BUILD · WEB" value={byComponent.WEB} />
       )}
 
       {/* ENGINE 빌드 버전 */}
       {byComponent.ENGINE && (
-        <Row label="Build Version (ENGINE)" value={byComponent.ENGINE} />
+        <AttributeRow label="BUILD · ENGINE" value={byComponent.ENGINE} />
       )}
     </VersionInfoBox>
   )
@@ -70,29 +70,39 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
 
 function VersionInfoBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-border bg-muted/30 px-4 py-3">
-      <dl className="grid grid-cols-[160px_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm">
-        {children}
-      </dl>
+    <div className="space-y-2">
+      {children}
     </div>
   )
 }
 
-function Row({
+function AttributeRow({
   label,
   value,
-  mono = true,
+  large = false,
+  dim = false,
 }: {
   label: string
   value: string
-  mono?: boolean
+  large?: boolean
+  dim?: boolean
 }) {
   return (
-    <>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className={mono ? 'font-mono text-foreground break-all' : 'text-foreground'}>
+    <div className="flex items-baseline gap-3">
+      <span className="text-[10px] font-medium tracking-widest text-muted-foreground/70 uppercase flex-shrink-0 w-28">
+        {label}
+      </span>
+      <span
+        className={
+          dim
+            ? 'text-muted-foreground text-sm'
+            : large
+              ? 'font-mono text-xl font-semibold text-foreground'
+              : 'font-mono text-sm text-foreground'
+        }
+      >
         {value}
-      </dd>
-    </>
+      </span>
+    </div>
   )
 }

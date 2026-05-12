@@ -153,6 +153,7 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
       <CollapsibleSection
         icon={StickyNote}
         title="특이사항"
+        subtitle={notes.length > 0 ? `${notes.length}건` : undefined}
         actions={
           <Tooltip>
             <TooltipTrigger asChild>
