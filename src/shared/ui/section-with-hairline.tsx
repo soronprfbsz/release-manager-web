@@ -46,7 +46,7 @@ export function SectionWithHairline({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
   return (
-    <div className="-mx-8 px-8 border-t border-border pt-5">
+    <div className="pt-5">
       <div className="flex items-center justify-between mb-3">
         <button
           type="button"
