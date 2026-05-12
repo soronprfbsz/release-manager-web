@@ -21,7 +21,7 @@ import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useAuthStore } from '@/shared/store'
 import { cn } from '@/shared/lib/utils'
-import { formatDateShort } from '@/shared/lib/utils/date'
+import { formatDateTime } from '@/shared/lib/utils/date'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -101,14 +101,6 @@ export function PatchTable({
   const completeMutation = useCompletePatch()
   const { isUser } = usePermission()
   const currentEmail = useAuthStore((s) => s.user?.email)
-
-  /** ISO 날짜 문자열에서 HH:mm 부분만 추출 */
-  const formatTimeShort = (dateStr: string | null | undefined): string => {
-    if (!dateStr) return ''
-    const d = new Date(dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : dateStr + 'Z')
-    if (isNaN(d.getTime())) return ''
-    return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
-  }
 
   /**
    * 패치 완료 / 삭제 권한 — 본인 생성 분기
@@ -373,10 +365,7 @@ export function PatchTable({
                 </Tooltip>
               </TableCell>
               <TableCell className="whitespace-nowrap">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-mono text-xs">{formatDateShort(patch.createdAt)}</span>
-                  <span className="font-mono text-xs text-muted-foreground/70">{formatTimeShort(patch.createdAt)}</span>
-                </div>
+                <span className="font-mono text-xs">{formatDateTime(patch.createdAt)}</span>
               </TableCell>
               <TableCell>
                 <TableActionMenu>

@@ -32,7 +32,7 @@ export function formatDate(dateStr: string | null | undefined): string {
 }
 
 /**
- * Format date string to Korean locale datetime
+ * Format date string to "YYYY-MM-DD HH:mm" (24h, local time)
  * @param dateStr - ISO date string
  * @returns Formatted datetime string or '-' if invalid
  */
@@ -41,13 +41,13 @@ export function formatDateTime(dateStr: string | null | undefined): string {
   const date = parseUTC(dateStr)
   if (isNaN(date.getTime())) return '-'
 
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const y = date.getFullYear()
+  const m = pad(date.getMonth() + 1)
+  const d = pad(date.getDate())
+  const h = pad(date.getHours())
+  const mi = pad(date.getMinutes())
+  return `${y}-${m}-${d} ${h}:${mi}`
 }
 
 /**
@@ -71,22 +71,14 @@ export function formatDateShort(dateStr: string | null | undefined): string {
 }
 
 /**
- * Format date string to Korean locale datetime with long month
+ * Format date string to "YYYY-MM-DD HH:mm" (formatDateTime 의 별칭)
+ *
+ * 기존 한국어 long 형식(`2026년 5월 11일 오전 09:00`)을 일관된 ISO + 24h 형식으로 통일.
  * @param dateStr - ISO date string
  * @returns Formatted datetime string or '-' if invalid
  */
 export function formatDateTimeLong(dateStr: string | null | undefined): string {
-  if (!dateStr) return '-'
-  const date = parseUTC(dateStr)
-  if (isNaN(date.getTime())) return '-'
-
-  return date.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return formatDateTime(dateStr)
 }
 
 /**

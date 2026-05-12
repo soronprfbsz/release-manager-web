@@ -41,6 +41,7 @@ import {
 
 import { useCodesByType, CODE_TYPE } from '@/entities/_shared/code'
 
+import { formatDateTime } from '@/shared/lib/utils/date'
 import { Button } from '@/shared/ui/button'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { TabbedContentCard } from '@/shared/ui/content-layout'
@@ -644,13 +645,7 @@ export function FileSyncPage() {
                                         </TypographyMuted>
                                     </TableCell>
                                     <TableCell className="text-center text-muted-foreground text-sm">
-                                        {new Date(item.createdAt).toLocaleDateString('ko-KR', {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
+                                        {formatDateTime(item.createdAt)}
                                     </TableCell>
                                     <TableCell>
                                         <TableActionMenu>
