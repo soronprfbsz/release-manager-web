@@ -40,8 +40,8 @@ import {
   AlertDialogTitle,
 } from '@/shared/ui/alert-dialog'
 import { Button } from '@/shared/ui/button'
-import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
+import { SectionWithHairline } from '@/shared/ui/section-with-hairline'
 import {
   Select,
   SelectContent,
@@ -126,10 +126,11 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
 
   return (
     <>
-      <CollapsibleSection
+      <SectionWithHairline
         icon={Package}
         title="패치 이력"
-        subtitle={`총 ${totalElements}건`}
+        count={totalElements}
+        countPrefix="총 "
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
@@ -324,7 +325,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
             </div>
           </>
         )}
-      </CollapsibleSection>
+      </SectionWithHairline>
 
       {/* 삭제 확인 다이얼로그 */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>

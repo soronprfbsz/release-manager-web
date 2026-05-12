@@ -11,7 +11,8 @@ import {
   Pencil,
   Trash2,
   FileQuestion,
- Loader2 } from 'lucide-react'
+  Loader2,
+} from 'lucide-react'
 
 import {
   useCustomerNotes,
@@ -25,8 +26,8 @@ import { useToast } from '@/shared/lib/hooks/use-toast'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { useAuthStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
+import { SectionWithHairline } from '@/shared/ui/section-with-hairline'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 
@@ -150,11 +151,11 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
 
   return (
     <>
-      <CollapsibleSection
+      <SectionWithHairline
         icon={StickyNote}
         title="특이사항"
-        subtitle={notes.length > 0 ? `${notes.length}건` : undefined}
-        actions={
+        count={notes.length}
+        action={
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon-xs" onClick={handleCreate}>
@@ -247,7 +248,7 @@ export function CustomerNotesCard({ customerId }: CustomerNotesCardProps) {
             ))}
           </div>
         )}
-      </CollapsibleSection>
+      </SectionWithHairline>
 
       {/* Note Form */}
       <CustomerNoteForm
