@@ -39,8 +39,8 @@ export function ServiceCard({
         <button
           type="button"
           className={cn(
-            'absolute -left-6 -top-2 z-10',
-            'flex items-center justify-center w-6 h-16',
+            'absolute -left-3 -top-2 z-10',
+            'flex items-center justify-center w-5 h-16',
             'cursor-grab active:cursor-grabbing',
             'text-muted-foreground hover:text-foreground',
             'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
@@ -48,7 +48,7 @@ export function ServiceCard({
           aria-label="카드 이동"
           {...dragHandleProps}
         >
-          <GripVertical className="h-6 w-6" />
+          <GripVertical className="h-5 w-5" />
         </button>
       )}
 
