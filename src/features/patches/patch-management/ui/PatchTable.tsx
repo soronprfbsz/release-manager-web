@@ -247,43 +247,37 @@ export function PatchTable({
                 </span>
               </TableCell>
               <TableCell>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <Package className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    <TypographyInlineCode className="bg-transparent font-mono text-sm font-normal leading-none">
-                      {patch.patchName}
-                    </TypographyInlineCode>
-                  </div>
-                  {(patch.isBuildIncluded && patch.includedBuildsSummary) || patch.isBuildOnly ? (
-                    <div className="flex flex-wrap gap-1 pl-5">
-                      {patch.isBuildIncluded && patch.includedBuildsSummary &&
-                        patch.includedBuildsSummary.split(',').map((token) => {
-                          const trimmed = token.trim().toUpperCase()
-                          if (!trimmed) return null
-                          const variantMap: Record<string, 'web' | 'engine' | 'database' | 'etc'> = {
-                            WEB: 'web',
-                            ENGINE: 'engine',
-                            DB: 'database',
-                            DATABASE: 'database',
-                          }
-                          const variant = variantMap[trimmed] ?? 'etc'
-                          return (
-                            <Badge
-                              key={trimmed}
-                              variant={variant}
-                              className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm"
-                            >
-                              {trimmed}
-                            </Badge>
-                          )
-                        })}
-                      {patch.isBuildOnly && (
-                        <Badge variant="secondary" className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm">
-                          Build-only
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Package className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <TypographyInlineCode className="bg-transparent font-mono text-sm font-normal leading-none truncate">
+                    {patch.patchName}
+                  </TypographyInlineCode>
+                  {patch.isBuildIncluded && patch.includedBuildsSummary &&
+                    patch.includedBuildsSummary.split(',').map((token) => {
+                      const trimmed = token.trim().toUpperCase()
+                      if (!trimmed) return null
+                      const variantMap: Record<string, 'web' | 'engine' | 'database' | 'etc'> = {
+                        WEB: 'web',
+                        ENGINE: 'engine',
+                        DB: 'database',
+                        DATABASE: 'database',
+                      }
+                      const variant = variantMap[trimmed] ?? 'etc'
+                      return (
+                        <Badge
+                          key={trimmed}
+                          variant={variant}
+                          className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm shrink-0"
+                        >
+                          {trimmed}
                         </Badge>
-                      )}
-                    </div>
-                  ) : null}
+                      )
+                    })}
+                  {patch.isBuildOnly && (
+                    <Badge variant="secondary" className="h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm shrink-0">
+                      Build-only
+                    </Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
