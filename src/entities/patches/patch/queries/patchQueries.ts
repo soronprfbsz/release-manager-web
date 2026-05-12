@@ -34,6 +34,9 @@ export const patchKeys = {
   customCustomers: (projectId: string) => [...patchKeys.all, 'custom-customers', projectId] as const,
   customVersions: (customerId: number, projectId: string) =>
     [...patchKeys.all, 'custom-versions', customerId, projectId] as const,
+  /** 자동 패치명 미리보기 — customer 별 + KST 일자별 캐시 */
+  previewName: (customerCode: string | undefined) =>
+    [...patchKeys.all, 'preview-name', customerCode ?? '__undefined__'] as const,
 }
 
 // Query Hooks
@@ -191,3 +194,17 @@ export const useBulkDeletePatches = () => {
     },
   })
 }
+
+/**
+ * 자동 패치명 미리보기 — 실제 확정될 이름 (충돌 시 -N suffix 포함).
+ * customerCode 가 `''` / undefined 이면 "undefined" prefix 로 backend 가 처리.
+ * enabled 가 truthy 일 때만 fetch.
+ */
+export const usePatchNamePreview = (customerCode: string | undefined, enabled: boolean) =>
+  useQuery({
+    queryKey: patchKeys.previewName(customerCode),
+    queryFn: () => patchApi.previewName(customerCode),
+    enabled,
+    // 짧게 사용되는 미리보기 — 같은 customer 로 다시 열 때마다 fresh 값
+    staleTime: 0,
+  })

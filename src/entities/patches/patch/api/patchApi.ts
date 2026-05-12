@@ -32,6 +32,7 @@ const ENDPOINTS = {
   files: (id: number) => `/api/patches/${id}/files`,
   delete: (id: number) => `/api/patches/${id}`,
   bulkDelete: (ids: number[]) => `/api/patches?ids=${ids.join(',')}`,
+  previewName: '/api/patches/preview-name',
 } as const
 
 export const patchApi = {
@@ -145,5 +146,15 @@ export const patchApi = {
   /** 패치 일괄 삭제 */
   bulkDelete: async (ids: number[]): Promise<void> => {
     await apiClient.delete(ENDPOINTS.bulkDelete(ids))
+  },
+
+  /**
+   * 자동 생성될 패치명 미리보기 — 백엔드의 충돌 검사까지 적용된 실 확정 이름 반환
+   * @param customerCode 빈 값이면 "undefined" prefix
+   */
+  previewName: async (customerCode?: string): Promise<string> => {
+    const query = customerCode ? `?customerCode=${encodeURIComponent(customerCode)}` : ''
+    const response = await apiClient.get<{ patchName: string }>(`${ENDPOINTS.previewName}${query}`)
+    return response.patchName
   },
 }

@@ -41,4 +41,5 @@ export {
   useDeletePatch,
   useDeletePatchHistory,
   useBulkDeletePatches,
+  usePatchNamePreview,
 } from './queries/patchQueries'

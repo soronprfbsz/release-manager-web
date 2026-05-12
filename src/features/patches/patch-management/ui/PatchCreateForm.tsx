@@ -12,7 +12,7 @@ import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
 import { useBuildsInRange } from '@/entities/releases/release'
 import type { Customer } from '@/entities/operations'
-import type { BuildSelection } from '@/entities/patches/patch'
+import { usePatchNamePreview, type BuildSelection } from '@/entities/patches/patch'
 import { useNextPatchRange } from '@/entities/operations/customer-site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
@@ -217,18 +217,16 @@ export function PatchCreateForm({
     !customerChosen ||
     (sameBase && pickerEmpty)
 
-  /** 자동 생성될 패치명 미리보기 — 백엔드 resolvePatchName 와 동일한 prefix_yyMMdd 규칙 */
-  const computedPatchName = (() => {
-    if (!customerChosen) return null
-    const prefix = formData.customerCode === '__undefined__' ? 'undefined' : formData.customerCode
-    const now = new Date()
-    // KST 기준 yyMMdd
-    const kst = new Date(now.getTime() + (9 * 60 - now.getTimezoneOffset()) * 60 * 1000)
-    const yy = String(kst.getUTCFullYear() % 100).padStart(2, '0')
-    const MM = String(kst.getUTCMonth() + 1).padStart(2, '0')
-    const dd = String(kst.getUTCDate()).padStart(2, '0')
-    return `${prefix}_${yy}${MM}${dd}`
-  })()
+  // 자동 패치명 미리보기 — backend 호출로 충돌 검사까지 적용된 실 확정 이름
+  // ("__undefined__" 는 backend 에 빈 값으로 전달되어 "undefined" prefix 로 처리)
+  const previewCustomerCode = customerChosen
+    ? (formData.customerCode === '__undefined__' ? '' : formData.customerCode)
+    : undefined
+  const { data: previewedName } = usePatchNamePreview(
+    isOpen ? previewCustomerCode : undefined,
+    isOpen && customerChosen,
+  )
+  const computedPatchName = customerChosen ? (previewedName ?? null) : null
 
   /** 추천 범위 상태 안내 메시지 */
   const rangeHint = (() => {
@@ -425,7 +423,6 @@ export function PatchCreateForm({
             <p className="text-xs text-muted-foreground">
               패치명:{' '}
               <span className="font-mono text-foreground">{computedPatchName}</span>
-              <span className="ml-1">(같은 이름이 이미 있으면 -2, -3 자동 부여)</span>
             </p>
           )}
         </div>
