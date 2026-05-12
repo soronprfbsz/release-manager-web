@@ -6,7 +6,7 @@
  * 고객사 선택 시 next-patch-range API 호출 → from/to 자동 채움
  */
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
@@ -80,6 +80,13 @@ export function PatchCreateForm({
   icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
 
+  // 항상 최신 formData / onFormDataChange 를 가리키는 ref — useEffect 의 stale closure 회피
+  // (dep 가 다른 비동기 응답일 때 effect 내부 spread 가 옛 formData 를 덮어쓰는 문제 방지)
+  const formDataRef = useRef(formData)
+  formDataRef.current = formData
+  const onFormDataChangeRef = useRef(onFormDataChange)
+  onFormDataChangeRef.current = onFormDataChange
+
   // 현재 선택된 고객사 객체 — customerCode로 역참조
   const selectedCustomer =
     formData.customerCode && formData.customerCode !== '__undefined__'
@@ -104,8 +111,8 @@ export function PatchCreateForm({
 
     if (!selectedCustomer) {
       // "없음" 또는 미선택: from/to 초기화
-      onFormDataChange({
-        ...formData,
+      onFormDataChangeRef.current({
+        ...formDataRef.current,
         fromVersion: '',
         fromVersionId: null,
         toVersion: '',
@@ -123,16 +130,14 @@ export function PatchCreateForm({
     const newTo = nextRange.suggestedToVersion ?? ''
     const newToId = nextRange.suggestedToVersionId ?? null
 
-    onFormDataChange({
-      ...formData,
+    onFormDataChangeRef.current({
+      ...formDataRef.current,
       fromVersion: newFrom,
       fromVersionId: newFromId,
       toVersion: newTo,
       toVersionId: newToId,
       buildSelection: { enabled: true, web: null, engines: [] },
     })
-    // selectedCustomer.customerId, nextRange 변경 시에만 자동 채움 (폼 전체 변경 추적 X)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCustomer?.customerId, nextRange])
 
   const handleFromVersionChange = (value: string) => {
@@ -176,6 +181,8 @@ export function PatchCreateForm({
   )
 
   // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
+  // formDataRef 로 최신 formData 를 참조 — 자동 채움 useEffect 와의 race 에서 옛 from/to
+  // 가 spread 되어 reset 되는 문제 회피.
   useEffect(() => {
     if (!buildsQuery.data) return
     const data = buildsQuery.data
@@ -183,9 +190,7 @@ export function PatchCreateForm({
     const selection: BuildSelection = hasBuilds
       ? computeAutoPreselect(data)
       : { enabled: false, web: null, engines: [] }
-    onFormDataChange({ ...formData, buildSelection: selection })
-    // formData / onFormDataChange 는 의도적으로 제외 — buildsQuery.data 변경 시 1회만 자동 preselect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    onFormDataChangeRef.current({ ...formDataRef.current, buildSelection: selection })
   }, [buildsQuery.data])
 
   // 클라이언트 검증 — 같은 base 면 빌드라도 포함되어야 의미 있음
