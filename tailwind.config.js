@@ -19,6 +19,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+      },
       animation: {
         'spin-slow': 'spin 1.5s linear infinite',
       },

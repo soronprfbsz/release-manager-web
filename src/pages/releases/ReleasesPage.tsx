@@ -548,7 +548,7 @@ export function ReleasesPage() {
               isBuild={standardSelected?.isBuild}
               onDelete={handleDeleteSuccess}
             >
-              <ContentSplit.Detail header={<VersionDetail.Header />}>
+              <ContentSplit.Detail>
                 <VersionDetail.Content />
               </ContentSplit.Detail>
               <VersionDetail.Dialogs />
@@ -565,7 +565,7 @@ export function ReleasesPage() {
               onDelete={handleDeleteSuccess}
               baseVersion={customSelected?.customBaseVersion}
             >
-              <ContentSplit.Detail header={<VersionDetail.Header />}>
+              <ContentSplit.Detail>
                 <VersionDetail.Content />
               </ContentSplit.Detail>
               <VersionDetail.Dialogs />

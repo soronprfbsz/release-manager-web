@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, Info, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
 
 
 import {
@@ -35,13 +35,12 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { CollapsibleSection } from '@/shared/ui/collapsible-section'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileViewer } from '@/shared/ui/file-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Textarea } from '@/shared/ui/textarea'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
-import { TypographyMuted, TypographySmall } from '@/shared/ui/typography'
+import { TypographyMuted } from '@/shared/ui/typography'
 import { UserAvatar } from '@/shared/ui/user-avatar'
 
 import { HotfixCreateForm } from './HotfixCreateForm'
@@ -178,11 +177,9 @@ function buildReleaseFlatRows(
 interface VirtualReleaseFileTreeProps {
   rootChildren: ReleaseFileNode[]
   onFileClick: (node: ReleaseFileNode) => void
-  onDownload: (node: ReleaseFileNode) => void
-  canDownload: boolean
 }
 
-function VirtualReleaseFileTree({ rootChildren, onFileClick, onDownload, canDownload }: VirtualReleaseFileTreeProps) {
+function VirtualReleaseFileTree({ rootChildren, onFileClick }: VirtualReleaseFileTreeProps) {
   // 기본 expanded: 루트 직계 children 중 디렉터리만 펼침 (depth=1)
   const defaultExpanded = useMemo(() => {
     const paths: string[] = []
@@ -310,16 +307,6 @@ function VirtualReleaseFileTree({ rootChildren, onFileClick, onDownload, canDown
                       <TypographyMuted className="text-xs">
                         {formatFileSize(node.size)}
                       </TypographyMuted>
-                    )}
-                    {node.releaseFileId && canDownload && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => onDownload(node)}
-                      >
-                        <Download className="h-3 w-3" />
-                      </Button>
                     )}
                   </div>
                 </div>
@@ -576,11 +563,14 @@ function VersionDetailHeader() {
   )
 }
 
-// Comment Section with inline editing
-function CommentSection() {
+// 버전 헤더 카드 — 큰 VERSION 좌측 · 메타 가운데 · 액션/상태/카테고리 우측 + 하단 코멘트 통합
+function VersionHeaderCard() {
   const ctx = useVersionDetailContext()
   const {
     version,
+    isHotfix,
+    isBuild,
+    baseVersion,
     isEditingComment,
     setIsEditingComment,
     editedComment,
@@ -588,84 +578,249 @@ function CommentSection() {
     handleSaveComment,
     handleCancelEditComment,
     commentMutation,
+    handleApprove,
+    approveMutation,
+    canApproveVersion,
     canAddVersion,
   } = ctx
 
-  // 코멘트가 없고 편집 모드도 아니면 섹션을 표시하지 않음
-  if (!version.comment && !isEditingComment) {
-    return null
+  const getCategoryShortName = (category: string) => {
+    switch (category) {
+      case 'DATABASE':
+        return 'DB'
+      case 'ENGINE':
+        return 'ENGINE'
+      case 'WEB':
+        return 'WEB'
+      default:
+        return category
+    }
   }
 
+  const hasCommentArea = Boolean(version.comment) || isEditingComment
+
   return (
-    <CollapsibleSection
-      icon={FileText}
-      title="코멘트"
-      actions={
-        !isEditingComment && canAddVersion && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon-xs"
-                onClick={() => {
-                  setEditedComment(version.comment || '')
-                  setIsEditingComment(true)
-                }}
-              >
-                <Pencil />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>코멘트 수정</TooltipContent>
-          </Tooltip>
-        )
-      }
-    >
-      {isEditingComment ? (
-        <div className="space-y-3">
-          <Textarea
-            value={editedComment}
-            onChange={(e) => setEditedComment(e.target.value)}
-            placeholder="코멘트를 입력하세요..."
-            className="min-h-[120px] resize-none"
-            autoFocus
-          />
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCancelEditComment}
-              disabled={commentMutation.isPending}
-            >
-              <X className="h-4 w-4 mr-1" />
-              취소
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSaveComment}
-              disabled={commentMutation.isPending}
-            >
-              {commentMutation.isPending ? (
-                <>
-                  <div className="h-4 w-4 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  저장 중...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-1" />
-                  저장
-                </>
-              )}
-            </Button>
+    <div>
+      {/* Hero + Meta Rail — 좌측 VERSION 큰 모노 / 가운데 vertical-rail 메타 / 우측 status pill + tags */}
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
+        {/* 좌측 VERSION 블록 */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+              {isBuild ? 'Build Version' : 'Version'}
+            </span>
+            {isBuild && version.buildBaseVersion && (
+              <span className="inline-flex items-center gap-1 font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+                <Tag className="h-3 w-3" />
+                base {version.buildBaseVersion}
+              </span>
+            )}
           </div>
+          <span className="font-mono text-[34px] font-semibold tracking-[-0.8px] leading-none text-foreground">
+            {version.version}
+          </span>
+          {(isHotfix || baseVersion) && (
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              {isHotfix && (
+                <Badge variant="destructive" className="h-5 text-[10px]">HOTFIX</Badge>
+              )}
+              {baseVersion && (
+                <span className="flex items-center gap-1 text-muted-foreground text-[11px]">
+                  <Tag className="h-3 w-3" />
+                  기준 {baseVersion}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="p-4 rounded-lg bg-accent/40">
-          <p className="whitespace-pre-wrap text-sm">
-            {version.comment}
-          </p>
+
+        {/* 가운데 메타 — 좌측 vertical rail (좌측 VERSION 블록 높이만큼 확장) */}
+        <div className="self-stretch min-w-0 pl-6 border-l border-border flex flex-col justify-center gap-2.5">
+          <div className="flex items-center gap-2.5 text-xs min-w-0">
+            <span className="text-muted-foreground w-[42px] flex-shrink-0">생성</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1.5 cursor-default min-w-0">
+                  <UserAvatar
+                    email={version.createdByEmail}
+                    avatarStyle={version.createdByAvatarStyle}
+                    avatarSeed={version.createdByAvatarSeed}
+                    isDeleted={version.isDeletedCreator}
+                    size={22}
+                  />
+                  <span className={`truncate ${version.isDeletedCreator ? 'text-muted-foreground' : 'text-foreground'}`}>
+                    {version.createdByName || version.createdByEmail || '-'}
+                  </span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>{version.isDeletedCreator ? '삭제된 사용자' : version.createdByEmail}</TooltipContent>
+            </Tooltip>
+            <span className="font-mono text-[11px] text-muted-foreground whitespace-nowrap">
+              · {formatDateTime(version.createdAt)}
+            </span>
+          </div>
+          {!isBuild && (
+            version.isApproved && version.approvedBy ? (
+              <div className="flex items-center gap-2.5 text-xs min-w-0">
+                <span className="text-muted-foreground w-[42px] flex-shrink-0">승인</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex items-center gap-1.5 cursor-default min-w-0">
+                      <UserAvatar
+                        email={version.approvedBy}
+                        avatarStyle={version.approvedByAvatarStyle}
+                        avatarSeed={version.approvedByAvatarSeed}
+                        isDeleted={version.isDeletedApprover}
+                        size={22}
+                      />
+                      <span className={`truncate ${version.isDeletedApprover ? 'text-muted-foreground' : 'text-foreground'}`}>
+                        {version.approvedByName || version.approvedBy}
+                      </span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>{version.isDeletedApprover ? '삭제된 사용자' : version.approvedBy}</TooltipContent>
+                </Tooltip>
+                {version.approvedAt && (
+                  <span className="font-mono text-[11px] text-muted-foreground whitespace-nowrap">
+                    · {formatDateTime(version.approvedAt)}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5 text-xs">
+                <span className="text-muted-foreground w-[42px] flex-shrink-0">승인</span>
+                <span className="text-muted-foreground/70">미승인</span>
+              </div>
+            )
+          )}
+        </div>
+
+        {/* 우측 액션 + status pill + tags */}
+        <div className="flex flex-col items-end gap-2.5">
+          {(isBuild || (canApproveVersion && !version.isApproved)) && (
+            <div className="flex items-center gap-1">
+              <BuildZipReplaceAction />
+              {canApproveVersion && !version.isApproved && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon-xs"
+                      onClick={handleApprove}
+                      disabled={approveMutation.isPending}
+                    >
+                      <CheckCircle2 />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>승인하기</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          )}
+          {!isBuild && (
+            version.isApproved ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                <span className="h-[5px] w-[5px] rounded-full bg-primary" />
+                승인됨
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-yellow-700 dark:text-yellow-500">
+                <span className="h-[5px] w-[5px] rounded-full bg-yellow-500" />
+                미승인
+              </span>
+            )
+          )}
+          {version.fileCategories && version.fileCategories.length > 0 && (
+            <div className="flex items-center gap-1">
+              {version.fileCategories.map((category) => (
+                <Badge
+                  key={category}
+                  variant={category.toLowerCase() as 'database' | 'web' | 'engine' | 'etc'}
+                  className="h-[18px] text-[10px] tracking-[0.02em]"
+                >
+                  {getCategoryShortName(category)}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 하단 코멘트 영역 — 구분선은 컨텐츠 영역 좌우 전체 폭으로 확장 */}
+      {hasCommentArea && (
+        <div className="-mx-8 border-t px-8 pt-5 pb-5">
+          {/* 라벨 + 편집 버튼 한 줄 — 박스는 그 아래 전체 폭 */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" />
+              <span>코멘트</span>
+            </div>
+            {!isEditingComment && canAddVersion && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon-xs"
+                    onClick={() => {
+                      setEditedComment(version.comment || '')
+                      setIsEditingComment(true)
+                    }}
+                  >
+                    <Pencil />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>코멘트 수정</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          {isEditingComment ? (
+            <div className="space-y-2">
+              <Textarea
+                value={editedComment}
+                onChange={(e) => setEditedComment(e.target.value)}
+                placeholder="코멘트를 입력하세요..."
+                className="min-h-[120px] resize-none"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelEditComment}
+                  disabled={commentMutation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  취소
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveComment}
+                  disabled={commentMutation.isPending}
+                >
+                  {commentMutation.isPending ? (
+                    <>
+                      <div className="h-4 w-4 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      저장 중...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      저장
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-border/40 bg-muted/40 px-4 py-3.5">
+              <p className="whitespace-pre-wrap text-[13px] leading-[1.65] text-foreground">
+                {version.comment}
+              </p>
+            </div>
+          )}
         </div>
       )}
-    </CollapsibleSection>
+    </div>
   )
 }
 
@@ -767,7 +922,7 @@ function BuildZipReplaceAction() {
 // Content component
 function VersionDetailContent() {
   const ctx = useVersionDetailContext()
-  const { version, isLoading, error, fileStructure, handleApprove, handleDownloadAll, handleViewFile, handleDownload, canApproveVersion, canDownloadVersion, approveMutation } = ctx
+  const { isLoading, error, fileStructure, handleDownloadAll, handleViewFile, canDownloadVersion } = ctx
 
   if (isLoading) {
     return (
@@ -791,107 +946,19 @@ function VersionDetailContent() {
   const hasFiles = fileStructure?.files?.children && fileStructure.files.children.length > 0
 
   return (
-    <div className="space-y-16 pt-2">
-      {/* 기본 정보 */}
-      <CollapsibleSection
-        icon={Info}
-        title="기본 정보"
-        subtitle={
-          version.isApproved ? (
-            <Badge variant="default" className="h-5 text-xs">승인됨</Badge>
-          ) : (
-            <Badge variant="outline" className="h-5 text-xs border-yellow-500 text-yellow-600">미승인</Badge>
-          )
-        }
-        actions={
-          <div className="flex items-center gap-1">
-            <BuildZipReplaceAction />
-            {canApproveVersion && !version.isApproved && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon-xs"
-                    onClick={handleApprove}
-                    disabled={approveMutation.isPending}
-                  >
-                    <CheckCircle2 />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>승인하기</TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        }
-      >
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <TypographyMuted className="text-sm">생성자</TypographyMuted>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 cursor-default">
-                  <UserAvatar
-                    email={version.createdByEmail}
-                    avatarStyle={version.createdByAvatarStyle}
-                    avatarSeed={version.createdByAvatarSeed}
-                    isDeleted={version.isDeletedCreator}
-                    size={20}
-                  />
-                  <TypographySmall className={version.isDeletedCreator ? 'text-muted-foreground' : ''}>
-                    {version.createdByName || version.createdByEmail || '-'}
-                  </TypographySmall>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>{version.isDeletedCreator ? '삭제된 사용자' : version.createdByEmail}</TooltipContent>
-            </Tooltip>
-          </div>
-          <div className="flex items-center gap-2">
-            <TypographyMuted className="text-sm">생성일시</TypographyMuted>
-            <TypographySmall>{formatDateTime(version.createdAt)}</TypographySmall>
-          </div>
-          {version.isApproved && version.approvedBy && (
-            <>
-              <div className="flex items-center gap-2">
-                <TypographyMuted className="text-sm">승인자</TypographyMuted>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 cursor-default">
-                      <UserAvatar
-                        email={version.approvedBy}
-                        avatarStyle={version.approvedByAvatarStyle}
-                        avatarSeed={version.approvedByAvatarSeed}
-                        isDeleted={version.isDeletedApprover}
-                        size={20}
-                      />
-                      <TypographySmall className={version.isDeletedApprover ? 'text-muted-foreground' : ''}>
-                        {version.approvedByName || version.approvedBy}
-                      </TypographySmall>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>{version.isDeletedApprover ? '삭제된 사용자' : version.approvedBy}</TooltipContent>
-                </Tooltip>
-              </div>
-              {version.approvedAt && (
-                <div className="flex items-center gap-2">
-                  <TypographyMuted className="text-sm">승인일시</TypographyMuted>
-                  <TypographySmall>{formatDateTime(version.approvedAt)}</TypographySmall>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </CollapsibleSection>
+    <div className="pt-6">
+      {/* 버전 헤더 카드 — 큰 VERSION 좌측, 메타 가운데, 상태/카테고리 우측 + 코멘트 통합 */}
+      <VersionHeaderCard />
 
-      {/* 코멘트 */}
-      <CommentSection />
-
-      {/* 파일 */}
+      {/* 파일 — 코멘트↔파일은 안쪽 soft hairline */}
       {fileStructure && (
-        <CollapsibleSection
-          icon={FolderTree}
-          title="파일"
-          actions={
-            hasFiles && canDownloadVersion && (
+        <div className="border-t border-border/50 pt-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <FolderTree className="h-3.5 w-3.5" />
+              <span>파일</span>
+            </div>
+            {hasFiles && canDownloadVersion && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -904,9 +971,8 @@ function VersionDetailContent() {
                 </TooltipTrigger>
                 <TooltipContent>전체 다운로드</TooltipContent>
               </Tooltip>
-            )
-          }
-        >
+            )}
+          </div>
           {!hasFiles ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <File className="h-10 w-10 mb-2 opacity-50" />
@@ -917,12 +983,10 @@ function VersionDetailContent() {
               <VirtualReleaseFileTree
                 rootChildren={fileStructure.files.children!}
                 onFileClick={handleViewFile}
-                onDownload={handleDownload}
-                canDownload={canDownloadVersion}
               />
             </div>
           )}
-        </CollapsibleSection>
+        </div>
       )}
     </div>
   )
@@ -1017,12 +1081,7 @@ export function VersionDetailPanel({ version, isHotfix = false, isBuild = false,
   return (
     <VersionDetailProvider version={version} isHotfix={isHotfix} isBuild={isBuild} onDelete={onDelete} baseVersion={baseVersion}>
       <div className="h-full flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 flex-shrink-0">
-          <VersionDetailHeader />
-        </div>
-
-        {/* Content */}
+        {/* Content — 별도 상단 헤더 없음. 컨텐츠 카드 안에서 VERSION 표제가 헤더 역할 */}
         <div className="flex-1 overflow-hidden p-0">
           <ScrollArea className="h-full">
             <div className="px-8 pb-8 pt-6">
