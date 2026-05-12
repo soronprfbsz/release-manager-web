@@ -6,7 +6,7 @@
  * 고객사 선택 시 next-patch-range API 호출 → from/to 자동 채움
  */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 
 import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
@@ -58,7 +58,8 @@ interface PatchCreateFormProps {
   isSubmitting: boolean
   /** 진행도 polling 결과 — isSubmitting 일 때만 의미 있음. null/undefined 면 메시지 비표시 */
   progress?: ProgressResponse | null
-  onFormDataChange: (data: PatchCreateFormData) => void
+  /** React.Dispatch<SetStateAction> — functional setter 사용 (stale closure 회피). */
+  onFormDataChange: Dispatch<SetStateAction<PatchCreateFormData>>
   onSubmit: () => void
   onClose: () => void
   /** 페이지 헤더와 동일한 아이콘 */
@@ -110,15 +111,15 @@ export function PatchCreateForm({
     if (!isOpen) return
 
     if (!selectedCustomer) {
-      // "없음" 또는 미선택: from/to 초기화
-      onFormDataChangeRef.current({
-        ...formDataRef.current,
+      // "없음" 또는 미선택: from/to 초기화 — functional setter 로 stale 회피
+      onFormDataChangeRef.current((prev) => ({
+        ...prev,
         fromVersion: '',
         fromVersionId: null,
         toVersion: '',
         toVersionId: null,
         buildSelection: { enabled: true, web: null, engines: [] },
-      })
+      }))
       return
     }
 
@@ -130,42 +131,41 @@ export function PatchCreateForm({
     const newTo = nextRange.suggestedToVersion ?? ''
     const newToId = nextRange.suggestedToVersionId ?? null
 
-    onFormDataChangeRef.current({
-      ...formDataRef.current,
+    onFormDataChangeRef.current((prev) => ({
+      ...prev,
       fromVersion: newFrom,
       fromVersionId: newFromId,
       toVersion: newTo,
       toVersionId: newToId,
       buildSelection: { enabled: true, web: null, engines: [] },
-    })
+    }))
   }, [selectedCustomer?.customerId, nextRange])
 
   const handleFromVersionChange = (value: string) => {
-    const fromVersionId = getVersionIdFromOption(versionOptions, value)
-    const toVersionCleared =
-      formData.toVersion && value >= formData.toVersion ? '' : formData.toVersion
-    onFormDataChange({
-      ...formData,
-      fromVersion: value,
-      fromVersionId,
-      toVersion: toVersionCleared,
-      toVersionId: toVersionCleared
-        ? getVersionIdFromOption(versionOptions, toVersionCleared)
-        : null,
-      // from/to 변경 시 picker 선택은 비우되 토글 ON 은 유지 — default ON 정책
-      buildSelection: { enabled: true, web: null, engines: [] },
+    onFormDataChange((prev) => {
+      const fromVersionId = getVersionIdFromOption(versionOptions, value)
+      const toVersionCleared =
+        prev.toVersion && value >= prev.toVersion ? '' : prev.toVersion
+      return {
+        ...prev,
+        fromVersion: value,
+        fromVersionId,
+        toVersion: toVersionCleared,
+        toVersionId: toVersionCleared
+          ? getVersionIdFromOption(versionOptions, toVersionCleared)
+          : null,
+        buildSelection: { enabled: true, web: null, engines: [] },
+      }
     })
   }
 
   const handleToVersionChange = (value: string) => {
-    const toVersionId = getVersionIdFromOption(versionOptions, value)
-    onFormDataChange({
-      ...formData,
+    onFormDataChange((prev) => ({
+      ...prev,
       toVersion: value,
-      toVersionId,
-      // from/to 변경 시 picker 선택은 비우되 토글 ON 은 유지 — default ON 정책
+      toVersionId: getVersionIdFromOption(versionOptions, value),
       buildSelection: { enabled: true, web: null, engines: [] },
-    })
+    }))
   }
 
   const filteredToVersions = versions.filter(
@@ -181,8 +181,7 @@ export function PatchCreateForm({
   )
 
   // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
-  // formDataRef 로 최신 formData 를 참조 — 자동 채움 useEffect 와의 race 에서 옛 from/to
-  // 가 spread 되어 reset 되는 문제 회피.
+  // functional setter 로 호출하여 stale formData 가 from/to 를 덮어쓰는 race 회피.
   useEffect(() => {
     if (!buildsQuery.data) return
     const data = buildsQuery.data
@@ -190,7 +189,7 @@ export function PatchCreateForm({
     const selection: BuildSelection = hasBuilds
       ? computeAutoPreselect(data)
       : { enabled: false, web: null, engines: [] }
-    onFormDataChangeRef.current({ ...formDataRef.current, buildSelection: selection })
+    onFormDataChangeRef.current((prev) => ({ ...prev, buildSelection: selection }))
   }, [buildsQuery.data])
 
   // 클라이언트 검증 — 같은 base 면 빌드라도 포함되어야 의미 있음
@@ -285,15 +284,15 @@ export function PatchCreateForm({
           ]}
           value={formData.customerCode || ''}
           onValueChange={(value) =>
-            onFormDataChange({
-              ...formData,
+            onFormDataChange((prev) => ({
+              ...prev,
               customerCode: value,
               // 고객사 변경 시 customerId 동기화
               customerId:
                 value === '__undefined__'
                   ? null
                   : (customers.find((c) => c.customerCode === value)?.customerId ?? null),
-            })
+            }))
           }
           placeholder="고객사 선택..."
           searchPlaceholder="고객사 검색..."
@@ -378,7 +377,7 @@ export function PatchCreateForm({
         <Textarea
           value={formData.description}
           onChange={(e) =>
-            onFormDataChange({ ...formData, description: e.target.value })
+            onFormDataChange((prev) => ({ ...prev, description: e.target.value }))
           }
           placeholder="패치에 대한 설명"
           className="min-h-[80px]"
