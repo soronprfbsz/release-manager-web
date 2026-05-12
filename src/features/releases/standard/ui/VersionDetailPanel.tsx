@@ -736,7 +736,7 @@ function VersionHeaderCard() {
                 <Badge
                   key={category}
                   variant={category.toLowerCase() as 'database' | 'web' | 'engine' | 'etc'}
-                  className="h-[18px] text-[10px] tracking-[0.02em]"
+                  className="text-[10px] px-1 py-0 h-4 leading-none"
                 >
                   {getCategoryShortName(category)}
                 </Badge>
