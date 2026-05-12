@@ -17,10 +17,9 @@ import {
 import type { PostFormMode } from '@/features/board'
 
 import { Button } from '@/shared/ui/button'
-import { ContentCard } from '@/shared/ui/content-layout'
+import { TabbedContentCard } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import {
   Tooltip,
   TooltipContent,
@@ -85,51 +84,48 @@ export function CoworkPage() {
         </div>
       }
     >
-      <ContentCard noPadding>
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          <div className="flex items-center justify-between px-8 pt-2">
-            <TabsList variant="line" className="border-0">
-              {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-                const config = TAB_CONFIG[tabKey]
-                const Icon = config.icon
-                return (
-                  <TabsTrigger key={tabKey} value={tabKey} variant="line">
-                    <Icon className="w-4 h-4 mr-2" />
-                    {config.label}
-                  </TabsTrigger>
-                )
-              })}
-            </TabsList>
-
-            {/* 검색 */}
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="검색..."
-                className="pl-8 h-8 w-[200px] text-sm"
+      <TabbedContentCard
+        value={currentTab}
+        onValueChange={handleTabChange}
+        tabs={[
+          {
+            value: 'announcements',
+            label: TAB_CONFIG.announcements.label,
+            icon: TAB_CONFIG.announcements.icon,
+            content: (
+              <AnnouncementTab
+                formMode={formMode}
+                onFormClose={handleCloseForm}
+                keyword={keyword}
               />
-            </div>
+            ),
+          },
+          {
+            value: 'qna',
+            label: TAB_CONFIG.qna.label,
+            icon: TAB_CONFIG.qna.icon,
+            content: (
+              <QnaTab
+                formMode={formMode}
+                onFormClose={handleCloseForm}
+                keyword={keyword}
+              />
+            ),
+          },
+        ]}
+        headerRight={
+          /* 검색 — TabsBar 우측 슬롯 */
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="검색..."
+              className="pl-8 h-8 w-[200px] text-sm"
+            />
           </div>
-
-          <TabsContent value="announcements" className="px-8 pb-8">
-            <AnnouncementTab
-              formMode={formMode}
-              onFormClose={handleCloseForm}
-              keyword={keyword}
-            />
-          </TabsContent>
-
-          <TabsContent value="qna" className="px-8 pb-8">
-            <QnaTab
-              formMode={formMode}
-              onFormClose={handleCloseForm}
-              keyword={keyword}
-            />
-          </TabsContent>
-        </Tabs>
-      </ContentCard>
+        }
+      />
     </PageLayout>
   )
 }

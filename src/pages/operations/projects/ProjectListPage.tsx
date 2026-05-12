@@ -76,7 +76,7 @@ import { sortFileTree, FILE_SORT_OPTIONS, type FileSortBy, type FileSortDirectio
 import { formatFileSize } from '@/shared/lib/utils/format'
 import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { ContentCard } from '@/shared/ui/content-layout'
+import { TabbedContentCard } from '@/shared/ui/content-layout'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,7 +95,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'management' | 'onboarding' | 'install'
@@ -756,272 +755,270 @@ export function ProjectListPage() {
         ) : null
       }
     >
-      <ContentCard noPadding>
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          {/* Tab Header */}
-          <div className="flex items-center justify-between px-8 pt-2">
-            <TabsList variant="line" className="border-0">
-              {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-                const config = TAB_CONFIG[tabKey]
-                const Icon = config.icon
-                return (
-                  <TabsTrigger key={tabKey} value={tabKey} variant="line">
-                    <Icon className="w-4 h-4 mr-2" />
-                    {config.label}
-                  </TabsTrigger>
-                )
-              })}
-            </TabsList>
-
-            {/* 정렬 및 검색 - 온보딩/인스톨 탭에서만 표시 */}
-            {(currentTab === 'onboarding' || currentTab === 'install') && (
-              <div className="flex items-center gap-2">
-                {/* Sort Select */}
-                <Select
-                  value={`${currentTab === 'onboarding' ? onboardingSortBy : installSortBy}-${currentTab === 'onboarding' ? onboardingSortDirection : installSortDirection}`}
-                  onValueChange={(value) => {
-                    const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
-                    if (option) {
-                      if (currentTab === 'onboarding') {
-                        setOnboardingSortBy(option.sortBy)
-                        setOnboardingSortDirection(option.direction)
-                      } else {
-                        setInstallSortBy(option.sortBy)
-                        setInstallSortDirection(option.direction)
-                      }
-                    }
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
-                    <ArrowUpDown className="h-3 w-3 mr-1.5" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FILE_SORT_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Search Input */}
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                  <Input
-                    value={currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword}
-                    onChange={(e) => currentTab === 'onboarding'
-                      ? setOnboardingSearchKeyword(e.target.value)
-                      : setInstallSearchKeyword(e.target.value)
-                    }
-                    placeholder="검색..."
-                    className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+      <TabbedContentCard
+        value={currentTab}
+        onValueChange={handleTabChange}
+        tabs={[
+          {
+            value: 'management',
+            label: TAB_CONFIG.management.label,
+            icon: TAB_CONFIG.management.icon,
+            contentClassName: 'mt-0 pt-0',
+            content: (
+              <div className="px-8 pb-6 pt-4">
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-48">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </div>
+                ) : (
+                  <ProjectList
+                    projects={projects}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    showEdit={canEditProject}
+                    showDelete={canDeleteProject}
                   />
-                  {(currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword) && (
-                    <button
-                      type="button"
-                      onClick={() => currentTab === 'onboarding'
-                        ? setOnboardingSearchKeyword('')
-                        : setInstallSearchKeyword('')
-                      }
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
-                    >
-                      <X className="h-3 w-3 text-muted-foreground" />
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
-            )}
-          </div>
+            ),
+          },
+          {
+            value: 'onboarding',
+            label: TAB_CONFIG.onboarding.label,
+            icon: TAB_CONFIG.onboarding.icon,
+            contentClassName: 'mt-0 pt-0',
+            content: (
+              <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
+                {!projectId ? (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
+                    <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
+                  </div>
+                ) : isLoadingOnboarding ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </div>
+                ) : !onboardingData?.hasFiles ? (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
+                    <p className="text-sm">온보딩 파일이 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full">
+                    {/* 파일 정보 헤더 — 탭 content 안에 그대로 유지 */}
+                    <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
+                      <div className="flex items-center gap-2">
+                        <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <span>{onboardingData.totalFileCount}개 파일</span>
+                          <span>•</span>
+                          <span>{formatFileSize(onboardingData.totalSize)}</span>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon-xs"
+                              onClick={handleDownloadAllOnboardingFiles}
+                            >
+                              <Download />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>전체 다운로드</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
 
-          {/* 관리 탭 */}
-          <TabsContent value="management" className="mt-0 pt-0">
-            <div className="px-8 pb-6 pt-4">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-48">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                </div>
-              ) : (
-                <ProjectList
-                  projects={projects}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  showEdit={canEditProject}
-                  showDelete={canDeleteProject}
+                    {/* 파일 트리 - 내부 스크롤 */}
+                    <ScrollArea className="flex-1">
+                      {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
+                        <FileTree
+                          data={filteredOnboardingFiles as FileTreeNode}
+                          onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                          onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
+                          onUpload={handleUploadClick}
+                          onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
+                          onCreateDirectory={handleCreateDirectoryClick}
+                          canManage={canManageProjectFiles}
+                          showModifiedDate
+                          defaultExpanded={false}
+                        />
+                      ) : onboardingSearchKeyword.trim() ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                          <Search className="h-8 w-8 mb-2 opacity-50" />
+                          <p className="text-sm">검색 결과가 없습니다.</p>
+                        </div>
+                      ) : (
+                        <FileTree
+                          data={onboardingData.files as FileTreeNode}
+                          onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                          onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
+                          onUpload={handleUploadClick}
+                          onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
+                          onCreateDirectory={handleCreateDirectoryClick}
+                          canManage={canManageProjectFiles}
+                          showModifiedDate
+                          defaultExpanded={false}
+                        />
+                      )}
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+            ),
+          },
+          {
+            value: 'install',
+            label: TAB_CONFIG.install.label,
+            icon: TAB_CONFIG.install.icon,
+            contentClassName: 'mt-0 pt-0',
+            content: (
+              <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
+                {!projectId ? (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
+                    <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
+                  </div>
+                ) : isLoadingInstall ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  </div>
+                ) : !installData?.hasFiles ? (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
+                    <p className="text-sm">인스톨 파일이 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full">
+                    {/* 파일 정보 헤더 — 탭 content 안에 그대로 유지 */}
+                    <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
+                      <div className="flex items-center gap-2">
+                        <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <span>{installData.totalFileCount}개 파일</span>
+                          <span>•</span>
+                          <span>{formatFileSize(installData.totalSize)}</span>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon-xs"
+                              onClick={handleDownloadAllInstallFiles}
+                            >
+                              <Download />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>전체 다운로드</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+
+                    {/* 파일 트리 - 내부 스크롤 */}
+                    <ScrollArea className="flex-1">
+                      {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
+                        <FileTree
+                          data={filteredInstallFiles as FileTreeNode}
+                          onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                          onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
+                          onUpload={handleInstallUploadClick}
+                          onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
+                          onCreateDirectory={handleInstallCreateDirectoryClick}
+                          canManage={canManageProjectFiles}
+                          showModifiedDate
+                          defaultExpanded={false}
+                        />
+                      ) : installSearchKeyword.trim() ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                          <Search className="h-8 w-8 mb-2 opacity-50" />
+                          <p className="text-sm">검색 결과가 없습니다.</p>
+                        </div>
+                      ) : (
+                        <FileTree
+                          data={installData.files as FileTreeNode}
+                          onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                          onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
+                          onUpload={handleInstallUploadClick}
+                          onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
+                          onCreateDirectory={handleInstallCreateDirectoryClick}
+                          canManage={canManageProjectFiles}
+                          showModifiedDate
+                          defaultExpanded={false}
+                        />
+                      )}
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+            ),
+          },
+        ]}
+        headerRight={
+          /* 정렬·검색 — 온보딩/인스톨 탭에서만 표시 */
+          (currentTab === 'onboarding' || currentTab === 'install') ? (
+            <div className="flex items-center gap-2">
+              <Select
+                value={`${currentTab === 'onboarding' ? onboardingSortBy : installSortBy}-${currentTab === 'onboarding' ? onboardingSortDirection : installSortDirection}`}
+                onValueChange={(value) => {
+                  const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
+                  if (option) {
+                    if (currentTab === 'onboarding') {
+                      setOnboardingSortBy(option.sortBy)
+                      setOnboardingSortDirection(option.direction)
+                    } else {
+                      setInstallSortBy(option.sortBy)
+                      setInstallSortDirection(option.direction)
+                    }
+                  }
+                }}
+              >
+                <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
+                  <ArrowUpDown className="h-3 w-3 mr-1.5" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FILE_SORT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword}
+                  onChange={(e) => currentTab === 'onboarding'
+                    ? setOnboardingSearchKeyword(e.target.value)
+                    : setInstallSearchKeyword(e.target.value)
+                  }
+                  placeholder="검색..."
+                  className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
                 />
-              )}
+                {(currentTab === 'onboarding' ? onboardingSearchKeyword : installSearchKeyword) && (
+                  <button
+                    type="button"
+                    onClick={() => currentTab === 'onboarding'
+                      ? setOnboardingSearchKeyword('')
+                      : setInstallSearchKeyword('')
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
+                  >
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
             </div>
-          </TabsContent>
-
-          {/* 온보딩 탭 */}
-          <TabsContent value="onboarding" className="mt-0 pt-0">
-            <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
-              {!projectId ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
-                </div>
-              ) : isLoadingOnboarding ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                </div>
-              ) : !onboardingData?.hasFiles ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">온보딩 파일이 없습니다.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col h-full">
-                  {/* 파일 정보 헤더 */}
-                  <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <span>{onboardingData.totalFileCount}개 파일</span>
-                        <span>•</span>
-                        <span>{formatFileSize(onboardingData.totalSize)}</span>
-                      </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            onClick={handleDownloadAllOnboardingFiles}
-                          >
-                            <Download />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>전체 다운로드</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-
-                  {/* 파일 트리 - 내부 스크롤 */}
-                  <ScrollArea className="flex-1">
-                    {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
-                      <FileTree
-                        data={filteredOnboardingFiles as FileTreeNode}
-                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
-                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
-                        onUpload={handleUploadClick}
-                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
-                        onCreateDirectory={handleCreateDirectoryClick}
-                        canManage={canManageProjectFiles}
-                        showModifiedDate
-                        defaultExpanded={false}
-                      />
-                    ) : onboardingSearchKeyword.trim() ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                        <Search className="h-8 w-8 mb-2 opacity-50" />
-                        <p className="text-sm">검색 결과가 없습니다.</p>
-                      </div>
-                    ) : (
-                      <FileTree
-                        data={onboardingData.files as FileTreeNode}
-                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
-                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
-                        onUpload={handleUploadClick}
-                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
-                        onCreateDirectory={handleCreateDirectoryClick}
-                        canManage={canManageProjectFiles}
-                        showModifiedDate
-                        defaultExpanded={false}
-                      />
-                    )}
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          {/* 인스톨 탭 */}
-          <TabsContent value="install" className="mt-0 pt-0">
-            <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
-              {!projectId ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
-                </div>
-              ) : isLoadingInstall ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                </div>
-              ) : !installData?.hasFiles ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-sm">인스톨 파일이 없습니다.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col h-full">
-                  {/* 파일 정보 헤더 */}
-                  <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <span>{installData.totalFileCount}개 파일</span>
-                        <span>•</span>
-                        <span>{formatFileSize(installData.totalSize)}</span>
-                      </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            onClick={handleDownloadAllInstallFiles}
-                          >
-                            <Download />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>전체 다운로드</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-
-                  {/* 파일 트리 - 내부 스크롤 */}
-                  <ScrollArea className="flex-1">
-                    {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
-                      <FileTree
-                        data={filteredInstallFiles as FileTreeNode}
-                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
-                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
-                        onUpload={handleInstallUploadClick}
-                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
-                        onCreateDirectory={handleInstallCreateDirectoryClick}
-                        canManage={canManageProjectFiles}
-                        showModifiedDate
-                        defaultExpanded={false}
-                      />
-                    ) : installSearchKeyword.trim() ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                        <Search className="h-8 w-8 mb-2 opacity-50" />
-                        <p className="text-sm">검색 결과가 없습니다.</p>
-                      </div>
-                    ) : (
-                      <FileTree
-                        data={installData.files as FileTreeNode}
-                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
-                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
-                        onUpload={handleInstallUploadClick}
-                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
-                        onCreateDirectory={handleInstallCreateDirectoryClick}
-                        canManage={canManageProjectFiles}
-                        showModifiedDate
-                        defaultExpanded={false}
-                      />
-                    )}
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </ContentCard>
+          ) : null
+        }
+      />
 
       {/* 프로젝트 생성/수정 폼 */}
       <ProjectForm

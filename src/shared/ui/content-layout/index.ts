@@ -5,4 +5,5 @@
 
 export { ContentCard } from './ContentCard'
 export { ContentSplit } from './ContentSplit'
+export { TabbedContentCard, type TabbedTab } from './TabbedContentCard'
 export { CONTENT_SPACING } from './constants'

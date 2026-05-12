@@ -3,7 +3,7 @@
  * 리소스 관리 페이지 - 서비스, 링크, 파일 등 탭 조합
  */
 
-import { useRef, useState, useMemo } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
 
 import { Plus, Search, FolderPlus, X, ArrowUpDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
@@ -33,7 +33,7 @@ import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { FILE_SORT_OPTIONS } from '@/shared/lib/utils/file-sort'
 import { Button } from '@/shared/ui/button'
-import { ContentCard } from '@/shared/ui/content-layout'
+import { TabbedContentCard, type TabbedTab } from '@/shared/ui/content-layout'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +49,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'services' | 'links' | 'files' | 'publishing'
@@ -224,154 +223,138 @@ export function ResourcePage() {
         ) : null
       }
     >
-      {/* Tabs */}
-      <ContentCard noPadding>
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          {/* Tab Header with integrated filters */}
-          <div className="flex items-center justify-between px-8 pt-2">
-            <TabsList variant="line" className="border-0">
-              {visibleTabs.map((tabKey) => {
-                const config = TAB_CONFIG[tabKey]
-                const Icon = config.icon
-                return (
-                  <TabsTrigger key={tabKey} value={tabKey} variant="line">
-                    <Icon className="w-4 h-4 mr-2" />
-                    {config.label}
-                  </TabsTrigger>
-                )
-              })}
-            </TabsList>
-
-            {/* Integrated Filters */}
-            <div className="flex items-center gap-2">
-              {/* Category Select - only for services and publishing */}
-              {currentTab === 'services' && (
-                <Select
-                  value={serviceFilters.serviceType}
-                  onValueChange={(value) =>
-                    setServiceFilters((prev) => ({
-                      ...prev,
-                      serviceType: value as ServiceFiltersState['serviceType'],
-                    }))
-                  }
-                >
-                  <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
-                    <SelectValue placeholder="서비스 타입" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">전체</SelectItem>
-                    {serviceTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              {currentTab === 'publishing' && (
-                <Select
-                  value={publishingFilters.publishingCategory || 'all'}
-                  onValueChange={(value) =>
-                    setPublishingFilters((prev) => ({
-                      ...prev,
-                      publishingCategory: value === 'all' ? '' : value,
-                    }))
-                  }
-                >
-                  <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
-                    <SelectValue placeholder="전체" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">전체</SelectItem>
-                    {PUBLISHING_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              {/* Sort Select - only for files tab */}
-              {currentTab === 'files' && (
-                <Select
-                  value={`${fileFilters.sortBy}-${fileFilters.sortDirection}`}
-                  onValueChange={(value) => {
-                    const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
-                    if (option) {
-                      setFileFilters((prev) => ({
-                        ...prev,
-                        sortBy: option.sortBy,
-                        sortDirection: option.direction,
-                      }))
-                    }
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
-                    <ArrowUpDown className="h-3 w-3 mr-1.5" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FILE_SORT_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              {/* Search Input */}
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  value={getCurrentKeyword()}
-                  onChange={(e) => setCurrentKeyword(e.target.value)}
-                  placeholder="검색..."
-                  className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+      {/* 탭 통합 필터 — TabsBar 우측 슬롯 */}
+      <TabbedContentCard
+        value={currentTab}
+        onValueChange={handleTabChange}
+        tabs={
+          (visibleTabs.map((tabKey) => {
+            const config = TAB_CONFIG[tabKey]
+            const tabContentMap: Record<TabType, React.ReactNode> = {
+              services: <ServiceTab ref={serviceTabRef} filters={serviceFilters} />,
+              links: <LinkResourceTab ref={linkTabRef} filters={linkFilters} />,
+              files: <FileResourceTab ref={fileTabRef} filters={fileFilters} />,
+              publishing: (
+                <PublishingTab
+                  ref={publishingTabRef}
+                  filters={publishingFilters}
+                  canEdit={canEditPublishing}
+                  canDelete={canDeletePublishing}
                 />
-                {getCurrentKeyword() && (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentKeyword('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
-                  >
-                    <X className="h-3 w-3 text-muted-foreground" />
-                  </button>
-                )}
-              </div>
+              ),
+            }
+            return {
+              value: tabKey,
+              label: config.label,
+              icon: config.icon,
+              content: tabContentMap[tabKey],
+            } satisfies TabbedTab
+          }) as TabbedTab[])
+        }
+        headerRight={
+          /* 탭별 필터 + 검색 */
+          <div className="flex items-center gap-2">
+            {/* 서비스 탭: 서비스 타입 Select */}
+            {currentTab === 'services' && (
+              <Select
+                value={serviceFilters.serviceType}
+                onValueChange={(value) =>
+                  setServiceFilters((prev) => ({
+                    ...prev,
+                    serviceType: value as ServiceFiltersState['serviceType'],
+                  }))
+                }
+              >
+                <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
+                  <SelectValue placeholder="서비스 타입" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  {serviceTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* 퍼블리싱 탭: 카테고리 Select */}
+            {currentTab === 'publishing' && (
+              <Select
+                value={publishingFilters.publishingCategory || 'all'}
+                onValueChange={(value) =>
+                  setPublishingFilters((prev) => ({
+                    ...prev,
+                    publishingCategory: value === 'all' ? '' : value,
+                  }))
+                }
+              >
+                <SelectTrigger className="h-8 w-[120px] text-xs bg-muted/50 border-0">
+                  <SelectValue placeholder="전체" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">전체</SelectItem>
+                  {PUBLISHING_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* 파일 탭: 정렬 Select */}
+            {currentTab === 'files' && (
+              <Select
+                value={`${fileFilters.sortBy}-${fileFilters.sortDirection}`}
+                onValueChange={(value) => {
+                  const option = FILE_SORT_OPTIONS.find((opt) => opt.value === value)
+                  if (option) {
+                    setFileFilters((prev) => ({
+                      ...prev,
+                      sortBy: option.sortBy,
+                      sortDirection: option.direction,
+                    }))
+                  }
+                }}
+              >
+                <SelectTrigger className="h-8 w-[140px] text-xs bg-muted/50 border-0">
+                  <ArrowUpDown className="h-3 w-3 mr-1.5" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FILE_SORT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* 검색 Input */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={getCurrentKeyword()}
+                onChange={(e) => setCurrentKeyword(e.target.value)}
+                placeholder="검색..."
+                className="pl-8 pr-8 h-8 w-[200px] text-xs bg-muted/50 border-0"
+              />
+              {getCurrentKeyword() && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentKeyword('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-muted-foreground/20 hover:bg-muted-foreground/40 flex items-center justify-center transition-colors"
+                >
+                  <X className="h-3 w-3 text-muted-foreground" />
+                </button>
+              )}
             </div>
           </div>
-
-          {canManageService && (
-            <TabsContent value="services" className="px-8 pb-8">
-              <ServiceTab ref={serviceTabRef} filters={serviceFilters} />
-            </TabsContent>
-          )}
-
-          {canManageLink && (
-            <TabsContent value="links" className="px-8 pb-8">
-              <LinkResourceTab ref={linkTabRef} filters={linkFilters} />
-            </TabsContent>
-          )}
-
-          {canManageFile && (
-            <TabsContent value="files" className="px-8 pb-8">
-              <FileResourceTab ref={fileTabRef} filters={fileFilters} />
-            </TabsContent>
-          )}
-
-          <TabsContent value="publishing" className="px-8 pb-8">
-            <PublishingTab
-              ref={publishingTabRef}
-              filters={publishingFilters}
-              canEdit={canEditPublishing}
-              canDelete={canDeletePublishing}
-            />
-          </TabsContent>
-        </Tabs>
-      </ContentCard>
+        }
+      />
     </PageLayout>
   )
 }

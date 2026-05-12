@@ -54,11 +54,10 @@ import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useAuthStore, useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { ContentCard } from '@/shared/ui/content-layout'
+import { TabbedContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'standard' | 'custom'
@@ -499,29 +498,16 @@ export function PatchesPage() {
         </div>
       }
     >
-      <ContentCard noPadding>
-        <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          {/* Tab Header — 카드 좌우 가장자리에 밀착 + 하단 구분선 (버전관리 트리 탭과 동일 스타일) */}
-          <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
-            {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-              const config = TAB_CONFIG[tabKey]
-              const Icon = config.icon
-              return (
-                <TabsTrigger
-                  key={tabKey}
-                  value={tabKey}
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
-                >
-                  <Icon className="w-4 h-4 mr-1.5" />
-                  {config.label}
-                </TabsTrigger>
-              )
-            })}
-          </TabsList>
-
-          {/* Standard Tab */}
-          <TabsContent value="standard" className="px-8 pb-8">
-            {isStandardLoading ? (
+      <TabbedContentCard
+        value={currentTab}
+        onValueChange={handleTabChange}
+        tabs={[
+          {
+            value: 'standard',
+            label: TAB_CONFIG.standard.label,
+            icon: TAB_CONFIG.standard.icon,
+            contentClassName: 'pt-2 pb-8',
+            content: isStandardLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
@@ -558,12 +544,14 @@ export function PatchesPage() {
                   </div>
                 )}
               </>
-            )}
-          </TabsContent>
-
-          {/* Custom Tab */}
-          <TabsContent value="custom" className="px-8 pb-8">
-            {isCustomLoading ? (
+            ),
+          },
+          {
+            value: 'custom',
+            label: TAB_CONFIG.custom.label,
+            icon: TAB_CONFIG.custom.icon,
+            contentClassName: 'pt-2 pb-8',
+            content: isCustomLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
@@ -600,10 +588,10 @@ export function PatchesPage() {
                   </div>
                 )}
               </>
-            )}
-          </TabsContent>
-        </Tabs>
-      </ContentCard>
+            ),
+          },
+        ]}
+      />
 
       {/* Standard Patch Create Form */}
       <PatchCreateForm
