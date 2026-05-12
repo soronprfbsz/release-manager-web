@@ -13,7 +13,6 @@ import type {
   ReleaseTreeResponse,
   ReleaseVersionDetail,
   StandardVersionSimple,
-  UploadBuildZipResponse,
 } from '../model/types'
 
 // Query Keys Factory
@@ -245,14 +244,6 @@ export const useDeleteBuild = () => {
   })
 }
 
-interface ReplaceBuildZipParams {
-  buildVersionId: number
-  /** 캐시 invalidate 용 base 버전 ID (생략 시 트리만 새로고침) */
-  baseVersionId?: number
-  file: File
-  onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
-}
-
 export const useBuildsInRange = (
   projectId: string | null,
   fromVersionId: number | null,
@@ -266,18 +257,3 @@ export const useBuildsInRange = (
     enabled: !!projectId && !!fromVersionId && !!toVersionId,
   })
 
-export const useReplaceBuildZip = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation<UploadBuildZipResponse, Error, ReplaceBuildZipParams>({
-    mutationFn: (params) =>
-      releaseApi.replaceBuildZip(params.buildVersionId, params.file, params.onUploadProgress),
-    onSuccess: (_, params) => {
-      if (params.baseVersionId !== undefined) {
-        queryClient.invalidateQueries({ queryKey: releaseKeys.builds(params.baseVersionId) })
-      }
-      queryClient.invalidateQueries({ queryKey: releaseKeys.version(params.buildVersionId) })
-      queryClient.invalidateQueries({ queryKey: releaseKeys.trees() })
-    },
-  })
-}

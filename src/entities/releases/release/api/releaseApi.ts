@@ -11,7 +11,6 @@ import type {
   ReleaseTreeResponse,
   ReleaseVersionDetail,
   StandardVersionSimple,
-  UploadBuildZipResponse,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -33,7 +32,6 @@ const ENDPOINTS = {
   createBuild: (id: number) => `/api/releases/versions/${id}/builds`,
   getBuilds: (id: number) => `/api/releases/versions/${id}/builds`,
   deleteBuild: (id: number) => `/api/releases/builds/${id}`,
-  replaceBuildZip: (id: number) => `/api/releases/builds/${id}/zip`,
   // 코멘트 수정 엔드포인트
   updateComment: (id: number) => `/api/releases/versions/${id}/comment`,
   // 빌드 범위 조회
@@ -259,27 +257,4 @@ export const releaseApi = {
     return response
   },
 
-  /**
-   * 빌드 ZIP 재업로드 (교체 시맨틱 — 기존 파일 삭제 후 새 ZIP 으로 교체)
-   * @param buildVersionId 빌드 버전 ID
-   * @param file           새 ZIP 파일 (필수, web/engine 루트만 허용)
-   */
-  replaceBuildZip: async (
-    buildVersionId: number,
-    file: File,
-    onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
-  ): Promise<UploadBuildZipResponse> => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const response = await apiClient.upload<UploadBuildZipResponse>(
-      ENDPOINTS.replaceBuildZip(buildVersionId),
-      formData,
-      {
-        onUploadProgress,
-        timeout: API_TIMEOUT.FILE_OPERATION,
-      }
-    )
-    return response
-  },
 }

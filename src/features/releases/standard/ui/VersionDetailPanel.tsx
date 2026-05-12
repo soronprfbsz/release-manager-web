@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, FolderTree, Pencil, Upload, X, Check } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, FolderTree, Pencil, X, Check } from 'lucide-react'
 
 
 import {
@@ -11,7 +11,6 @@ import {
   useDeleteVersion,
   useApproveVersion,
   useUpdateVersionComment,
-  useReplaceBuildZip,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
 
@@ -697,24 +696,21 @@ function VersionHeaderCard() {
 
         {/* 우측 액션 + status pill + tags */}
         <div className="flex flex-col items-end gap-2.5">
-          {(isBuild || (canApproveVersion && !version.isApproved)) && (
+          {canApproveVersion && !version.isApproved && (
             <div className="flex items-center gap-1">
-              <BuildZipReplaceAction />
-              {canApproveVersion && !version.isApproved && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon-xs"
-                      onClick={handleApprove}
-                      disabled={approveMutation.isPending}
-                    >
-                      <CheckCircle2 />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>승인하기</TooltipContent>
-                </Tooltip>
-              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon-xs"
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                  >
+                    <CheckCircle2 />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>승인하기</TooltipContent>
+              </Tooltip>
             </div>
           )}
           {!isBuild && (
@@ -821,101 +817,6 @@ function VersionHeaderCard() {
         </div>
       )}
     </div>
-  )
-}
-
-// 빌드 ZIP 재업로드 액션 (빌드 노드에서만 표시)
-function BuildZipReplaceAction() {
-  const ctx = useVersionDetailContext()
-  const { version, isBuild, canAddVersion } = ctx
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [pendingFile, setPendingFile] = useState<File | null>(null)
-  const replaceMutation = useReplaceBuildZip()
-  const { toast } = useToast()
-
-  if (!isBuild || !canAddVersion) return null
-
-  const handleSelectFile = () => fileInputRef.current?.click()
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) setPendingFile(file)
-    e.target.value = ''
-  }
-
-  const handleConfirm = () => {
-    if (!pendingFile) return
-    replaceMutation.mutate(
-      { buildVersionId: version.versionId, file: pendingFile },
-      {
-        onSuccess: (data) => {
-          toast({
-            title: 'ZIP 재업로드 완료',
-            description: `${data.uploadedFileCount}개 파일이 교체되었습니다.`,
-          })
-          setPendingFile(null)
-        },
-        onError: (err) => {
-          toast({
-            title: 'ZIP 재업로드 실패',
-            description: err instanceof Error ? err.message : '업로드 중 오류가 발생했습니다.',
-            variant: 'destructive',
-          })
-        },
-      }
-    )
-  }
-
-  return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".zip"
-        hidden
-        onChange={handleFileChange}
-      />
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={handleSelectFile}
-            disabled={replaceMutation.isPending}
-          >
-            <Upload />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>ZIP 재업로드</TooltipContent>
-      </Tooltip>
-      <AlertDialog
-        open={pendingFile !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingFile(null)
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>빌드 ZIP 교체</AlertDialogTitle>
-            <AlertDialogDescription>
-              빌드 <strong>{version.version}</strong> 의 기존 파일이 모두 삭제되고 새 ZIP 으로 교체됩니다.
-              <br />
-              파일: <code>{pendingFile?.name}</code>
-              {pendingFile ? ` (${Math.round(pendingFile.size / 1024)} KB)` : ''}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={replaceMutation.isPending}>취소</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirm}
-              disabled={replaceMutation.isPending}
-            >
-              {replaceMutation.isPending ? '업로드 중...' : '교체'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   )
 }
 

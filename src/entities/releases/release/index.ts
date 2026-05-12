@@ -47,5 +47,4 @@ export {
   useBuildsInRange,
   useCreateBuild,
   useDeleteBuild,
-  useReplaceBuildZip,
 } from './queries/releaseQueries'

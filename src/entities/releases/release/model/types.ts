@@ -41,13 +41,6 @@ export interface CreateBuildResponse {
   uploadedFileCount: number
 }
 
-/** 빌드 ZIP 재업로드 응답 (백엔드 UploadBuildZipResponse 대응) */
-export interface UploadBuildZipResponse {
-  buildVersionId: number
-  fullVersion: string
-  uploadedFileCount: number
-}
-
 /** 빌드 노드 (트리 응답용 - 트리에서 base 버전 하위에 표시) */
 export interface BuildTreeNode {
   versionId: number
