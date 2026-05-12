@@ -501,21 +501,23 @@ export function PatchesPage() {
     >
       <ContentCard noPadding>
         <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-          {/* Tab Header */}
-          <div className="px-8 pt-2">
-            <TabsList variant="line" className="border-0">
-              {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-                const config = TAB_CONFIG[tabKey]
-                const Icon = config.icon
-                return (
-                  <TabsTrigger key={tabKey} value={tabKey} variant="line">
-                    <Icon className="w-4 h-4 mr-2" />
-                    {config.label}
-                  </TabsTrigger>
-                )
-              })}
-            </TabsList>
-          </div>
+          {/* Tab Header — 카드 좌우 가장자리에 밀착 + 하단 구분선 (버전관리 트리 탭과 동일 스타일) */}
+          <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
+            {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+              const config = TAB_CONFIG[tabKey]
+              const Icon = config.icon
+              return (
+                <TabsTrigger
+                  key={tabKey}
+                  value={tabKey}
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
+                >
+                  <Icon className="w-4 h-4 mr-1.5" />
+                  {config.label}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
 
           {/* Standard Tab */}
           <TabsContent value="standard" className="px-8 pb-8">
