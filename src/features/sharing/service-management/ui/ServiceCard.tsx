@@ -1,15 +1,17 @@
 /**
  * Service Card
- * 서비스 카드 컴포넌트
+ * 서비스 카드 컴포넌트 (리뉴얼)
  */
 
-import { Pencil, Trash2, Settings, GripVertical } from 'lucide-react'
+import { GripVertical, Pencil, Plus, Settings, Trash2 } from 'lucide-react'
 
 import type { Service } from '@/entities/infrastructure/service'
 
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 
+import { resolveGlyph, getGlyphFontSizeClass } from '../lib/glyph'
 import { ComponentList } from './ComponentList'
 
 interface ServiceCardProps {
@@ -17,8 +19,7 @@ interface ServiceCardProps {
   onEdit: (service: Service) => void
   onDelete: (service: Service) => void
   onManageComponents: (service: Service) => void
-  dragHandleProps?: any
-  categoryIndex?: number // 순서 기반 카테고리 인덱스
+  dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>
 }
 
 export function ServiceCard({
@@ -27,71 +28,125 @@ export function ServiceCard({
   onDelete,
   onManageComponents,
   dragHandleProps,
-}: Omit<ServiceCardProps, 'categoryIndex'>) {
+}: ServiceCardProps) {
+  const { text: glyphText, glyphClass } = resolveGlyph(service)
+  const fontSizeClass = getGlyphFontSizeClass(glyphText)
 
   return (
     <Card
-      className="group relative overflow-hidden transition-all duration-200 hover:shadow-md h-full flex flex-col bg-accent/40 border-border hover:border-primary/50"
+      className={cn(
+        'group relative overflow-hidden transition-all duration-200',
+        'h-full flex flex-col',
+        'bg-card border hover:border-foreground/20'
+      )}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* 드래그 핸들 */}
+      <CardHeader className="pb-3 pt-4 px-4">
+        {/* 상단 행: 글리프 + 서비스명 + 호버 액션 */}
+        <div className="flex items-start justify-between gap-2">
+          {/* 좌측: 드래그 핸들 (호버 시만 표시) + 글리프 */}
+          <div className="flex items-start gap-2 flex-1 min-w-0">
+            {/* 드래그 핸들 — 호버 시 fade in */}
             {dragHandleProps && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 cursor-grab active:cursor-grabbing flex-shrink-0"
+                className={cn(
+                  'h-7 w-7 cursor-grab active:cursor-grabbing flex-shrink-0 mt-0.5',
+                  'opacity-0 group-hover:opacity-100 transition-opacity duration-150',
+                  'text-muted-foreground hover:text-foreground hover:bg-accent'
+                )}
                 {...dragHandleProps}
               >
                 <GripVertical className="h-4 w-4" />
               </Button>
             )}
 
-            {/* 서비스명 */}
-            <h3 className="font-semibold text-lg truncate flex-1 min-w-0">{service.serviceName}</h3>
+            {/* 글리프 배지 */}
+            <div
+              className={cn(
+                'flex-shrink-0 h-10 w-10 rounded-md flex items-center justify-center',
+                'font-mono font-semibold select-none',
+                fontSizeClass,
+                glyphClass
+              )}
+            >
+              {glyphText}
+            </div>
+
+            {/* 서비스명 + 설명 */}
+            <div className="flex-1 min-w-0 pt-0.5">
+              <h3 className="font-semibold text-base leading-tight truncate">
+                {service.serviceName}
+              </h3>
+              {service.description && (
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                  {service.description}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* 액션 버튼 - 우측 상단 */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* 우상단 액션 버튼 — 호버 시만 표시 */}
+          <div
+            className={cn(
+              'flex items-center gap-0.5 flex-shrink-0',
+              'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
+            )}
+          >
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onEdit(service)}
-              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+              className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
             >
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onManageComponents(service)}
-              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+              className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onDelete(service)}
-              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
+              className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
-
-        {service.description && (
-          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-            {service.description}
-          </p>
-        )}
       </CardHeader>
 
-      <CardContent className="pt-0 min-h-[140px]">
+      <CardContent className="pt-0 px-4 pb-3 flex-1 min-h-[120px]">
         {/* 컴포넌트 미리보기 */}
-        <ComponentList components={service.components} maxDisplay={2} />
+        <ComponentList components={service.components} maxDisplay={3} />
       </CardContent>
+
+      {/* 푸터: "+ 링크 추가" — 호버 시만 표시 */}
+      <div
+        className={cn(
+          'px-4 pb-3 pt-0',
+          'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => onManageComponents(service)}
+          className={cn(
+            'w-full flex items-center justify-center gap-1.5',
+            'text-xs text-muted-foreground hover:text-primary',
+            'border border-dashed rounded-md py-1.5',
+            'hover:border-primary/50 hover:bg-primary/5 transition-colors'
+          )}
+        >
+          <Plus className="h-3 w-3" />
+          <span>링크 추가</span>
+        </button>
+      </div>
     </Card>
   )
 }

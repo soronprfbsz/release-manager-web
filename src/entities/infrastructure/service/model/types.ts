@@ -32,6 +32,8 @@ export interface Service {
   serviceType: ServiceType
   serviceTypeName: string
   description: string | null
+  glyphText: string | null
+  glyphBackgroundColor: string | null
   components: ServiceComponent[]
   createdAt: string
   createdByEmail: string
@@ -64,6 +66,8 @@ export interface ServiceCreateRequest {
   serviceName: string
   serviceType: ServiceType
   description?: string
+  glyphText?: string
+  glyphBackgroundColor?: string
   components?: ComponentRequest[]
 }
 
@@ -74,4 +78,6 @@ export interface ServiceUpdateRequest {
   serviceName?: string
   serviceType?: ServiceType
   description?: string
+  glyphText?: string
+  glyphBackgroundColor?: string
 }

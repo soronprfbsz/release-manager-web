@@ -71,7 +71,7 @@ export const serviceApi = {
    * @returns 수정된 서비스
    */
   update: async (id: number, request: ServiceUpdateRequest): Promise<Service> => {
-    return await apiClient.patch<Service>(ENDPOINTS.byId(id), request)
+    return await apiClient.put<Service>(ENDPOINTS.byId(id), request)
   },
 
   /**

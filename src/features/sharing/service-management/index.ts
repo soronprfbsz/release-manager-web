@@ -34,3 +34,12 @@ export {
   getComponentTypeIcon,
   getComponentDisplayInfo,
 } from './lib/serviceHelpers'
+
+// Glyph
+export {
+  GLYPH_COLORS,
+  resolveGlyph,
+  getGlyphColorEntry,
+  getGlyphFontSizeClass,
+} from './lib/glyph'
+export type { GlyphColorEntry } from './lib/glyph'

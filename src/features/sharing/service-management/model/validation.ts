@@ -24,6 +24,16 @@ export function validateServiceForm(data: ServiceFormData): ValidationResult {
     errors.serviceType = '서비스 타입은 필수입니다.'
   }
 
+  // glyphText: 빈 문자열(삭제 의도) 또는 1~3자
+  if (data.glyphText && data.glyphText.length > 3) {
+    errors.glyphText = '글리프 텍스트는 최대 3자입니다.'
+  }
+
+  // glyphBackgroundColor: 최대 30자
+  if (data.glyphBackgroundColor && data.glyphBackgroundColor.length > 30) {
+    errors.glyphBackgroundColor = '색상 키는 최대 30자입니다.'
+  }
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors,

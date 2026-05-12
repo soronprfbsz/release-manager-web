@@ -39,6 +39,8 @@ const INITIAL_SERVICE_FORM: ServiceFormData = {
   serviceName: '',
   serviceType: '',
   description: '',
+  glyphText: '',
+  glyphBackgroundColor: '',
 }
 
 export interface ServiceTabHandle {
@@ -107,6 +109,8 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
       serviceName: service.serviceName,
       serviceType: service.serviceType,
       description: service.description || '',
+      glyphText: service.glyphText || '',
+      glyphBackgroundColor: service.glyphBackgroundColor || '',
     })
     setEditingService(service)
     setServiceFormMode('edit')
@@ -125,6 +129,8 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
         serviceName: serviceFormData.serviceName,
         serviceType: serviceFormData.serviceType as ServiceCreateRequest['serviceType'],
         description: serviceFormData.description || undefined,
+        glyphText: serviceFormData.glyphText || undefined,
+        glyphBackgroundColor: serviceFormData.glyphBackgroundColor || undefined,
       }
 
       createServiceMutation.mutate(request, {
@@ -142,6 +148,9 @@ export const ServiceTab = forwardRef<ServiceTabHandle, ServiceTabProps>(function
         serviceName: serviceFormData.serviceName,
         serviceType: serviceFormData.serviceType as ServiceUpdateRequest['serviceType'],
         description: serviceFormData.description || undefined,
+        // 빈 문자열 그대로 전송 → 백엔드에서 NULL 로 처리 (글리프 제거)
+        glyphText: serviceFormData.glyphText,
+        glyphBackgroundColor: serviceFormData.glyphBackgroundColor,
       }
 
       updateServiceMutation.mutate(

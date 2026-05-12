@@ -13,6 +13,8 @@ export interface ServiceFormData {
   serviceName: string
   serviceType: ServiceType | ''
   description: string
+  glyphText: string
+  glyphBackgroundColor: string
 }
 
 /**
