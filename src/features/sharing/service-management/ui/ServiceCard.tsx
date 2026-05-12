@@ -34,13 +34,13 @@ export function ServiceCard({
 
   return (
     <div className="group relative h-full">
-      {/* 드래그 핸들 — 카드 외부 좌측, 호버 시만 fade in */}
+      {/* 드래그 핸들 — 카드 좌측 테두리에 딱 붙어 fade in (호버 시) */}
       {dragHandleProps && (
         <button
           type="button"
           className={cn(
-            'absolute -left-5 top-1/2 -translate-y-1/2 z-10',
-            'flex items-center justify-center w-4 h-6',
+            'absolute -left-3 top-1/2 -translate-y-1/2 z-10',
+            'flex items-center justify-center w-3 h-6',
             'cursor-grab active:cursor-grabbing',
             'text-muted-foreground/50 hover:text-foreground',
             'opacity-0 group-hover:opacity-100 transition-opacity duration-150'

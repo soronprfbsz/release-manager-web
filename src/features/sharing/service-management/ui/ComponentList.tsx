@@ -45,7 +45,7 @@ export function ComponentList({ components, maxDisplay = 3 }: ComponentListProps
           >
             <Icon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
             <Badge
-              variant="outline"
+              variant={component.componentType.toLowerCase() as 'database' | 'web' | 'engine' | 'etc'}
               className="h-[18px] px-1.5 py-0 text-[10px] font-semibold tracking-wide leading-none"
             >
               {component.componentType}
