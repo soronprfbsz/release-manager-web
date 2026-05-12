@@ -7,6 +7,8 @@ export interface ProjectFormData {
   projectId: string
   projectName: string
   description: string
+  glyphText: string
+  glyphBackgroundColor: string
 }
 
 export type ProjectFormMode = 'create' | 'edit' | null

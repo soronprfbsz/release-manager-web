@@ -8,6 +8,8 @@ export interface Project {
   projectName: string
   description: string | null
   isEnabled: boolean
+  glyphText?: string | null
+  glyphBackgroundColor?: string | null
   createdByEmail?: string
   createdByAvatarStyle?: string
   createdByAvatarSeed?: string
@@ -20,12 +22,16 @@ export interface ProjectCreateRequest {
   projectName: string
   description?: string
   isEnabled?: boolean
+  glyphText?: string
+  glyphBackgroundColor?: string
 }
 
 export interface ProjectUpdateRequest {
   projectName?: string
   description?: string
   isEnabled?: boolean
+  glyphText?: string
+  glyphBackgroundColor?: string
 }
 
 /** 기본 프로젝트 ID */

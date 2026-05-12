@@ -6,6 +6,8 @@
 import { Save } from 'lucide-react'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
+import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
+import { cn } from '@/shared/lib/utils'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -42,6 +44,15 @@ export function ProjectForm({
   const handleChange = (field: keyof ProjectFormData, value: string) => {
     onFormDataChange({ ...formData, [field]: value })
   }
+
+  // 라이브 프리뷰용
+  const previewProject = {
+    name: formData.projectName || '?',
+    glyphText: formData.glyphText || null,
+    glyphBackgroundColor: formData.glyphBackgroundColor || null,
+  }
+  const { text: previewText, glyphClass: previewGlyphClass } = resolveGlyph(previewProject)
+  const previewFontSize = getGlyphFontSizeClass(previewText)
 
   return (
     <FormSheet
@@ -106,6 +117,92 @@ export function ProjectForm({
           onChange={(e) => handleChange('description', e.target.value)}
           rows={3}
         />
+      </div>
+
+      {/* 글리프 배지 설정 */}
+      <div className="space-y-3 rounded-lg border p-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">글리프 배지</Label>
+          {/* 라이브 프리뷰 */}
+          <div
+            className={cn(
+              'h-10 w-10 rounded-md flex items-center justify-center',
+              'font-mono font-semibold select-none',
+              previewFontSize,
+              previewGlyphClass
+            )}
+          >
+            {previewText}
+          </div>
+        </div>
+
+        {/* 글리프 텍스트 입력 */}
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">
+            표시 텍스트 (최대 3자, 비워두면 프로젝트명 첫 글자 사용)
+          </Label>
+          <Input
+            value={formData.glyphText}
+            onChange={(e) => {
+              const val = e.target.value.slice(0, 3)
+              handleChange('glyphText', val)
+            }}
+            placeholder="예: DEV"
+            maxLength={3}
+            className={cn('font-mono', errors.glyphText ? 'border-destructive' : '')}
+          />
+          {errors.glyphText && (
+            <p className="text-xs text-destructive">{errors.glyphText}</p>
+          )}
+        </div>
+
+        {/* 색상 swatch 그리드 */}
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">
+            배경 색상 (비워두면 프로젝트명 기반 자동 선택)
+          </Label>
+          <div className="grid grid-cols-5 gap-2">
+            {GLYPH_COLORS.map((color) => {
+              const isSelected = formData.glyphBackgroundColor === color.key
+              return (
+                <button
+                  key={color.key}
+                  type="button"
+                  title={color.label}
+                  onClick={() =>
+                    handleChange(
+                      'glyphBackgroundColor',
+                      isSelected ? '' : color.key
+                    )
+                  }
+                  className={cn(
+                    'h-7 w-full rounded-md transition-all',
+                    color.swatchClass,
+                    isSelected
+                      ? 'ring-2 ring-offset-1 ring-foreground/60 scale-105'
+                      : 'hover:scale-105 hover:ring-1 hover:ring-offset-1 hover:ring-foreground/30'
+                  )}
+                />
+              )
+            })}
+          </div>
+          {/* 선택된 색상 표시 / 초기화 */}
+          {formData.glyphBackgroundColor && (
+            <p className="text-xs text-muted-foreground flex items-center justify-between">
+              <span>
+                {GLYPH_COLORS.find((c) => c.key === formData.glyphBackgroundColor)?.label ??
+                  formData.glyphBackgroundColor}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleChange('glyphBackgroundColor', '')}
+                className="text-xs underline underline-offset-2 hover:text-foreground"
+              >
+                초기화
+              </button>
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 활성 상태 */}

@@ -121,6 +121,8 @@ const INITIAL_FORM_DATA: ProjectFormData = {
   projectId: '',
   projectName: '',
   description: '',
+  glyphText: '',
+  glyphBackgroundColor: '',
 }
 
 export function ProjectListPage() {
@@ -319,6 +321,8 @@ export function ProjectListPage() {
       projectId: project.projectId,
       projectName: project.projectName,
       description: project.description || '',
+      glyphText: project.glyphText || '',
+      glyphBackgroundColor: project.glyphBackgroundColor || '',
     })
     setFormErrors({})
     setEditingProject(project)
@@ -350,6 +354,8 @@ export function ProjectListPage() {
         projectName: formData.projectName.trim(),
         description: formData.description.trim() || undefined,
         isEnabled,
+        glyphText: formData.glyphText.trim() || undefined,
+        glyphBackgroundColor: formData.glyphBackgroundColor.trim() || undefined,
       }
 
       createMutation.mutate(request, {
@@ -370,6 +376,8 @@ export function ProjectListPage() {
         projectName: formData.projectName.trim(),
         description: formData.description.trim() || undefined,
         isEnabled,
+        glyphText: formData.glyphText.trim(),
+        glyphBackgroundColor: formData.glyphBackgroundColor.trim(),
       }
 
       updateMutation.mutate(

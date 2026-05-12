@@ -22,6 +22,16 @@ export function validateProjectForm(data: ProjectFormData, mode: 'create' | 'edi
     errors.projectName = '프로젝트명은 필수입니다.'
   }
 
+  // 글리프 텍스트 검증 (선택, 최대 3자)
+  if (data.glyphText && data.glyphText.length > 3) {
+    errors.glyphText = '글리프 텍스트는 최대 3자까지 입력 가능합니다.'
+  }
+
+  // 글리프 배경색 검증 (선택, 최대 30자)
+  if (data.glyphBackgroundColor && data.glyphBackgroundColor.length > 30) {
+    errors.glyphBackgroundColor = '글리프 배경색 값이 너무 깁니다.'
+  }
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
