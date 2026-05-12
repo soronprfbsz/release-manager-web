@@ -145,6 +145,11 @@ export function PatchCreateForm({
   }, [selectedCustomer?.customerId, nextRange, versions.length])
 
   const handleFromVersionChange = (value: string) => {
+    // Radix Select 알려진 버그 우회: 비동기로 옵션이 늦게 mount 되어 controlled
+    // value 가 옵션에 없을 때 Radix 가 onValueChange("") 를 자체 호출하여 value 를
+    // 빈 문자열로 reset 한다. 자동 채움 값이 즉시 사라지는 race 의 원인.
+    // 사용자 의도와 무관한 spurious 빈값은 무시.
+    if (!value) return
     onFormDataChange((prev) => {
       const fromVersionId = getVersionIdFromOption(versionOptions, value)
       const toVersionCleared =
@@ -163,6 +168,8 @@ export function PatchCreateForm({
   }
 
   const handleToVersionChange = (value: string) => {
+    // Radix Select 알려진 버그 우회 — handleFromVersionChange 의 주석 참고
+    if (!value) return
     onFormDataChange((prev) => ({
       ...prev,
       toVersion: value,
