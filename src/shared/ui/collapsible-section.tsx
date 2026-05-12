@@ -8,6 +8,7 @@ import { useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronRight, type LucideIcon } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/button'
 
 interface CollapsibleSectionProps {
   /** 섹션 아이콘 (LucideIcon 컴포넌트) */
@@ -72,10 +73,10 @@ export function CollapsibleSection({
   if (variant === 'boxed-icon') {
     return (
       <div className={cn('', className)}>
-        {/* Header */}
+        {/* Header — 하단 border 가 컨텐츠 카드 좌우 테두리에 닿도록 -mx-8 / px-8 로 확장 */}
         <div
           className={cn(
-            'flex items-center gap-3 w-full pb-3 border-b border-border',
+            '-mx-8 px-8 flex items-center gap-3 w-full pb-3 border-b border-border',
             headerClassName
           )}
         >
@@ -111,18 +112,15 @@ export function CollapsibleSection({
             </div>
           )}
 
-          {/* Chevron Toggle */}
-          <button
-            type="button"
+          {/* Chevron Toggle — 옆 + 추가 버튼과 동일한 square outline icon-xs 스타일 */}
+          <Button
+            variant="outline"
+            size="icon-xs"
             onClick={toggleExpanded}
-            className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+            aria-label={isExpanded ? '접기' : '펼치기'}
           >
-            {isExpanded ? (
-              <ChevronDown className="h-5 w-5" />
-            ) : (
-              <ChevronRight className="h-5 w-5" />
-            )}
-          </button>
+            {isExpanded ? <ChevronDown /> : <ChevronRight />}
+          </Button>
         </div>
 
         {/* Content */}
