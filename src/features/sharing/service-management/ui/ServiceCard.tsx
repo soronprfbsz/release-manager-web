@@ -34,21 +34,21 @@ export function ServiceCard({
 
   return (
     <div className="group relative h-full">
-      {/* 드래그 핸들 — 카드 좌상단(글리프 높이와 정렬) 에 길쭉하게 표시 (호버 시 fade in) */}
+      {/* 드래그 핸들 — 카드 좌상단에 더 길쭉하게 표시 (호버 시 fade in) */}
       {dragHandleProps && (
         <button
           type="button"
           className={cn(
-            'absolute -left-3 top-4 z-10',
-            'flex items-center justify-center w-3 h-10',
+            'absolute -left-4 top-2 z-10',
+            'flex items-center justify-center w-4 h-16',
             'cursor-grab active:cursor-grabbing',
-            'text-muted-foreground/60 hover:text-foreground',
+            'text-muted-foreground hover:text-foreground',
             'opacity-0 group-hover:opacity-100 transition-opacity duration-150'
           )}
           aria-label="카드 이동"
           {...dragHandleProps}
         >
-          <GripVertical className="h-5 w-5" />
+          <GripVertical className="h-7 w-7" />
         </button>
       )}
 
