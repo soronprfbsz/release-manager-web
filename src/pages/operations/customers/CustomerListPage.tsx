@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 
-import { Plus, Network, Search, X, Calendar } from 'lucide-react'
+import { Plus, Network, Search, X } from 'lucide-react'
 
 import {
   CustomerForm,
@@ -27,14 +27,12 @@ import {
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { formatDateTime } from '@/shared/lib/utils/date'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import { ContentSplit } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { StatusBadge } from '@/shared/ui/status-badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 const INITIAL_FORM_DATA: CustomerFormData = {
@@ -234,59 +232,10 @@ export function CustomerListPage() {
           />
         </ContentSplit.Tree>
 
-        {/* Right Panel - Customer Detail */}
+        {/* Right Panel - Customer Detail (헤더는 패널 내부에서 Hero+Meta Rail 형태로) */}
         <ContentSplit.Detail
           isEmpty={!selectedCustomer}
           emptyMessage="고객사를 선택해주세요."
-          header={
-            selectedCustomer && (
-              <div className="flex items-center gap-3 min-w-0 w-full">
-                {/* 회사명 */}
-                {selectedCustomer.description ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <h2 className="text-lg font-semibold truncate cursor-default leading-tight">
-                        {selectedCustomer.customerName}
-                      </h2>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-[300px]">{selectedCustomer.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <h2 className="text-lg font-semibold truncate leading-tight">
-                    {selectedCustomer.customerName}
-                  </h2>
-                )}
-
-                {/* 고객사 코드 (모노) */}
-                <code className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
-                  {selectedCustomer.customerCode}
-                </code>
-
-                {/* 활성 상태 pill */}
-                <StatusBadge
-                  variant={selectedCustomer.isActive ? 'active' : 'inactive'}
-                  className="flex-shrink-0"
-                >
-                  {selectedCustomer.isActive ? '활성' : '비활성'}
-                </StatusBadge>
-
-                <span className="flex-1" />
-
-                {/* 마지막 패치 일시 (캘린더 아이콘 + 모노) */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground cursor-default flex-shrink-0">
-                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-                      {formatDateTime(selectedCustomer.updatedAt || selectedCustomer.createdAt)}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>최종 수정일</TooltipContent>
-                </Tooltip>
-              </div>
-            )
-          }
         >
           {selectedCustomer && (
             <CustomerDetailPanel customer={selectedCustomer} />
