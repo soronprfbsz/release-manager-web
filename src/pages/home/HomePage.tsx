@@ -29,6 +29,23 @@ import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
+/**
+ * 버전 문자열을 semver 숫자 segment 로 분해해 내림차순 비교.
+ * 표준 (1.1.0) / 빌드 (1.1.0.260511-1) / 커스텀 (1.1.0-customerA.1.0.1) 모두 처리.
+ */
+function compareVersionDesc(a: string, b: string): number {
+  const parts = (v: string) => v.split(/[.\-]/).map((s) => parseInt(s, 10) || 0)
+  const aParts = parts(a)
+  const bParts = parts(b)
+  const len = Math.max(aParts.length, bParts.length)
+  for (let i = 0; i < len; i++) {
+    const ai = aParts[i] ?? 0
+    const bi = bParts[i] ?? 0
+    if (ai !== bi) return bi - ai
+  }
+  return 0
+}
+
 export function HomePage() {
   const projectId = useProjectStore((state) => state.projectId)
 
@@ -38,7 +55,7 @@ export function HomePage() {
   // 커스텀본 최신 릴리즈
   const { data: customData, isLoading: isLoadingCustom } = useDashboardRecentCustom(projectId)
 
-  // 최근 생성 패치
+  // 최근 적용 패치
   const { data: patchData, isLoading: isLoadingPatch } = useDashboardRecentPatch(projectId)
 
   // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
@@ -46,9 +63,13 @@ export function HomePage() {
 
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId)
 
-  // 데이터 추출
-  const standardVersions = standardData?.versions || []
-  const customVersions = customData?.versions || []
+  // 데이터 추출 — 화면 노출용으로 semver 내림차순 정렬 (큰 버전 위)
+  const standardVersions = [...(standardData?.versions || [])].sort((a, b) =>
+    compareVersionDesc(a.version, b.version)
+  )
+  const customVersions = [...(customData?.versions || [])].sort((a, b) =>
+    compareVersionDesc(a.version, b.version)
+  )
   const recentPatches = patchData?.patches || []
 
   // 통계 데이터 추출
@@ -215,12 +236,12 @@ export function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 최근 생성 패치 */}
+          {/* 최근 적용 패치 */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Package className="h-4 w-4 text-green-500" />
-                최근 생성 패치
+                최근 적용 패치
               </CardTitle>
             </CardHeader>
             <CardContent>
