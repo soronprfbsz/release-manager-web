@@ -742,9 +742,9 @@ function VersionHeaderCard() {
         </div>
       </div>
 
-      {/* 하단 코멘트 영역 — 구분선은 컨텐츠 영역 좌우 전체 폭으로 확장 */}
+      {/* 하단 코멘트 영역 — 마진만으로 영역 분리 */}
       {hasCommentArea && (
-        <div className="-mx-8 border-t px-8 pt-5 pb-5">
+        <div className="pt-5 pb-5">
           {/* 라벨 + 편집 버튼 한 줄 — 박스는 그 아래 전체 폭 */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-sm text-foreground">
