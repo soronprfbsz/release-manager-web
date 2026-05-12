@@ -72,12 +72,14 @@ export function CollapsibleSection({
   // boxed-icon variant (리소스 관리 스타일)
   if (variant === 'boxed-icon') {
     return (
-      <div className={cn('', className)}>
-        {/* Header — 외곽 border + rounded 가 있는 단독 박스 형태 (컨텐츠 영역 폭과 일치) */}
+      <div className={cn('mb-4', className)}>
+        {/* 그룹 헤더 상단 line — 컨텐츠 영역 좌우 끝까지 닿음 */}
+        <div className="-mx-8 border-t border-border" />
+
+        {/* Header — 위아래 line 만 있는 띠 영역 (외곽 박스 아님) */}
         <div
           className={cn(
-            'flex items-center gap-3 w-full',
-            'border border-border rounded-lg bg-card px-4 py-3 mb-4',
+            'flex items-center gap-3 w-full py-3',
             headerClassName
           )}
         >
@@ -124,9 +126,12 @@ export function CollapsibleSection({
           </Button>
         </div>
 
+        {/* 그룹 헤더 하단 line — 컨텐츠 영역 좌우 끝까지 닿음 */}
+        <div className="-mx-8 border-b border-border" />
+
         {/* Content */}
         {isExpanded && (
-          <div className={cn('', contentClassName)}>
+          <div className={cn('pt-4', contentClassName)}>
             {children}
           </div>
         )}
