@@ -166,7 +166,7 @@ export function PatchTable({
 
   return (
     <>
-    <DataTable viewportHeight={viewportHeight}>
+    <DataTable viewportHeight={viewportHeight} autoHeight={!viewportHeight}>
       <Table>
         <TableHeader>
           <TableRow>
