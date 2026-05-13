@@ -58,10 +58,14 @@ export function ContentCard({
         <CardHeader className={cn(CONTENT_SPACING.HEADER_PADDING, 'flex-row items-center justify-between space-y-0')}>
           {header || (
             <>
-              <CardTitle className="flex items-center gap-2 text-sm min-h-7">
-                {!hideIcon && <TableOfContents className="h-5 w-5" />}
-                {title}
-              </CardTitle>
+              {title ? (
+                <CardTitle className="flex items-center gap-2 text-sm min-h-7">
+                  {!hideIcon && <TableOfContents className="h-5 w-5" />}
+                  {title}
+                </CardTitle>
+              ) : (
+                <span />
+              )}
               {actions && <div className="flex items-center gap-2">{actions}</div>}
             </>
           )}
