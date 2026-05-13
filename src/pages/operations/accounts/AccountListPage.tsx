@@ -26,7 +26,6 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
-import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageLayout } from '@/shared/ui/page-layout'
 
@@ -130,41 +129,38 @@ export function AccountListPage() {
 
   return (
     <PageLayout>
-      {/* Account List Card */}
-      <ContentCard
-        title="계정 목록"
-        actions={<AccountFilters filters={filters} onFiltersChange={setFilters} />}
-      >
-        {isLoading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      {isLoading ? (
+        <div className="flex items-center justify-center h-48">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-end pb-4">
+            <AccountFilters filters={filters} onFiltersChange={setFilters} />
           </div>
-        ) : (
-          <>
-            <AccountTable
-              accounts={accountList}
-              sort={sort}
-              onSort={handleSort}
-              onEdit={openEditModal}
-              onDelete={(id) => {
-                const account = accountList.find((a) => a.accountId === id)
-                if (account) setDeleteConfirmAccount(account)
-              }}
-              viewportHeight="calc(100vh - 28rem)"
-            />
-            {accountList.length > 0 && (
-              <div className="pt-6">
-                <DataTablePagination
-                  pageIndex={pagination.pageIndex}
-                  pageSize={pagination.pageSize}
-                  totalElements={accountData?.totalElements || 0}
-                  onPaginationChange={setPagination}
-                />
-              </div>
-            )}
-          </>
-        )}
-      </ContentCard>
+          <AccountTable
+            accounts={accountList}
+            sort={sort}
+            onSort={handleSort}
+            onEdit={openEditModal}
+            onDelete={(id) => {
+              const account = accountList.find((a) => a.accountId === id)
+              if (account) setDeleteConfirmAccount(account)
+            }}
+            viewportHeight="calc(100vh - 28rem)"
+          />
+          {accountList.length > 0 && (
+            <div className="pt-6">
+              <DataTablePagination
+                pageIndex={pagination.pageIndex}
+                pageSize={pagination.pageSize}
+                totalElements={accountData?.totalElements || 0}
+                onPaginationChange={setPagination}
+              />
+            </div>
+          )}
+        </>
+      )}
 
       {/* Form Sheet */}
       {editingAccount && (

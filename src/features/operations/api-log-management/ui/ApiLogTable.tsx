@@ -111,7 +111,7 @@ export function ApiLogTable({
               id="responseStatus"
               currentSort={sort}
               onSort={onSort}
-              className="w-24 text-center"
+              className="w-32 text-center"
             >
               상태코드
             </SortableTableHead>
