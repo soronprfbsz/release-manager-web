@@ -16,6 +16,7 @@ import {
 
 import { useApiLogs, type ApiLogListItem } from '@/entities/operations/api-log'
 
+import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageLayout } from '@/shared/ui/page-layout'
 
@@ -84,34 +85,33 @@ export function ApiLogPage() {
 
   return (
     <PageLayout>
-      {isLoading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-end pb-4">
-            <ApiLogFilters filters={filters} onFiltersChange={setFilters} />
+      <ContentCard actions={<ApiLogFilters filters={filters} onFiltersChange={setFilters} />}>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
-          <ApiLogTable
-            logs={logList}
-            sort={sort}
-            onSort={handleSort}
-            onViewDetail={handleViewDetail}
-            viewportHeight="calc(100vh - 28rem)"
-          />
-          {logList.length > 0 && (
-            <div className="pt-6">
-              <DataTablePagination
-                pageIndex={pagination.pageIndex}
-                pageSize={pagination.pageSize}
-                totalElements={logData?.totalElements || 0}
-                onPaginationChange={setPagination}
-              />
-            </div>
-          )}
-        </>
-      )}
+        ) : (
+          <>
+            <ApiLogTable
+              logs={logList}
+              sort={sort}
+              onSort={handleSort}
+              onViewDetail={handleViewDetail}
+              viewportHeight="calc(100vh - 28rem)"
+            />
+            {logList.length > 0 && (
+              <div className="pt-6">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={logData?.totalElements || 0}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </ContentCard>
 
       {/* Detail Dialog */}
       <ApiLogDetailDialog

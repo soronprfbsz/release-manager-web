@@ -30,6 +30,7 @@ import {
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
+import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileContentViewerModal } from '@/shared/ui/file-content-viewer'
@@ -218,40 +219,42 @@ export function MariaDBPage() {
         </>
       }
     >
-      {isLoading ? (
-        <div className="flex items-center justify-center h-48">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      ) : error ? (
-        <ErrorDisplay
-          title="백업 파일 목록을 불러오는 중 오류가 발생했습니다."
-          error={error as Error}
-          onRetry={refetch}
-        />
-      ) : (
-        <>
-          <BackupFileTable
-            files={sortedBackupList}
-            sort={sort}
-            isDeleting={deleteMutation.isPending}
-            onSort={handleSort}
-            onFileClick={handleFileClick}
-            onLogsClick={handleLogsClick}
-            onDownload={handleDownload}
-            onDelete={handleDeleteClick}
+      <ContentCard>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : error ? (
+          <ErrorDisplay
+            title="백업 파일 목록을 불러오는 중 오류가 발생했습니다."
+            error={error as Error}
+            onRetry={refetch}
           />
-          {sortedBackupList.length > 0 && (
-            <div className="pt-6">
-              <DataTablePagination
-                pageIndex={pagination.pageIndex}
-                pageSize={pagination.pageSize}
-                totalElements={totalElements}
-                onPaginationChange={setPagination}
-              />
-            </div>
-          )}
-        </>
-      )}
+        ) : (
+          <>
+            <BackupFileTable
+              files={sortedBackupList}
+              sort={sort}
+              isDeleting={deleteMutation.isPending}
+              onSort={handleSort}
+              onFileClick={handleFileClick}
+              onLogsClick={handleLogsClick}
+              onDownload={handleDownload}
+              onDelete={handleDeleteClick}
+            />
+            {sortedBackupList.length > 0 && (
+              <div className="pt-6">
+                <DataTablePagination
+                  pageIndex={pagination.pageIndex}
+                  pageSize={pagination.pageSize}
+                  totalElements={totalElements}
+                  onPaginationChange={setPagination}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </ContentCard>
 
       {/* Backup Form */}
       <BackupForm
