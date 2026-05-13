@@ -88,9 +88,7 @@ local.properties
 .playwright-mcp
 
 ### AI ###
-.claude
 /claudedocs/
-CLAUDE.md
 
 
 ### Windows Reserved Names (prevent git errors) ###
