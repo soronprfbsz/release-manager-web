@@ -89,6 +89,7 @@ local.properties
 
 ### AI ###
 /claudedocs/
+CLAUDE.local.md
 
 
 ### Windows Reserved Names (prevent git errors) ###
