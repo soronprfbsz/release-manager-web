@@ -528,7 +528,6 @@ export function PatchesPage() {
                   onViewFiles={(patch) => handleViewFiles(patch, 'standard')}
                   onDownload={handleDownload}
                   onDelete={handleDeleteClick}
-                  viewportHeight="calc(100vh - 30rem)"
                   selectable={canDeletePatch}
                   selectedIds={standardSelectedIds}
                   onSelectionChange={setStandardSelectedIds}
@@ -572,7 +571,6 @@ export function PatchesPage() {
                   onViewFiles={(patch) => handleViewFiles(patch, 'custom')}
                   onDownload={handleDownload}
                   onDelete={handleDeleteClick}
-                  viewportHeight="calc(100vh - 30rem)"
                   selectable={canDeletePatch}
                   selectedIds={customSelectedIds}
                   onSelectionChange={setCustomSelectedIds}
