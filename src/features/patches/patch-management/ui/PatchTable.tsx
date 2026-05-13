@@ -295,11 +295,7 @@ export function PatchTable({
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="outline" size="pill" className="font-mono whitespace-nowrap gap-0.5">
-                  <span>{patch.fromVersion}</span>
-                  <span className="text-primary mx-0.5">→</span>
-                  <span className="font-medium">{patch.toVersion}</span>
-                </Badge>
+                {patch.fromVersion} → {patch.toVersion}
               </TableCell>
               <TableCell>
                 {patch.customerName ? (
