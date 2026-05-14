@@ -91,6 +91,13 @@ local.properties
 /claudedocs/
 CLAUDE.local.md
 
+### Design handoff bundles (not part of source) ###
+/rm-backstage-design/
+/_RM_ Wireframe-UI/
+/_RM_ Wireframe-UI.zip
+/[[]RM[]] Backstage Design-handoff/
+/[[]RM[]] Backstage Design-handoff.zip
+
 
 ### Windows Reserved Names (prevent git errors) ###
 nul
