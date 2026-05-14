@@ -19,19 +19,7 @@ import { cn } from '@/shared/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
-export function isPathActive(currentPath: string, targetPath?: string): boolean {
-  if (!targetPath) return false
-  if (targetPath === '/') return currentPath === '/'
-  return currentPath === targetPath || currentPath.startsWith(targetPath + '/')
-}
-
-export function hasActiveDescendant(item: MenuItem, currentPath: string): boolean {
-  if (isPathActive(currentPath, item.path)) return true
-  if (item.children) {
-    return item.children.some((c) => hasActiveDescendant(c, currentPath))
-  }
-  return false
-}
+import { isPathActive, hasActiveDescendant } from '../lib/menu-active'
 
 export type SidebarMenuItemVariant = 'inline' | 'collapsed-popout'
 
@@ -257,8 +245,6 @@ function HoverPopover({ label, iconButtonClass, iconStyle, iconNode, children }:
           aria-label={label}
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setOpen(false)}
         >
           {iconNode}
         </button>
