@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Building2, Flame, Hammer, Star, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, Tag, Building2, Zap, Wrench, Star, Trash2 } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -258,7 +258,7 @@ export function CustomReleaseTree({
                                     <div className="w-4" />
                                   )}
                                   <div className="flex items-center gap-2 flex-1 text-left text-sm">
-                                    <FileCode className={cn(
+                                    <Tag className={cn(
                                       "h-4 w-4 shrink-0",
                                       version.isApproved ? "text-blue-500" : "text-muted-foreground"
                                     )} />
@@ -291,13 +291,13 @@ export function CustomReleaseTree({
                                     <TreeActionMenu>
                                       {canAddVersion && (
                                         <TreeActionMenuItem onClick={() => onHotfix?.(version.versionId, version.version, customer.customerCode)}>
-                                          <Flame className="h-4 w-4 mr-2 text-orange-500" />
+                                          <Zap className="h-4 w-4 mr-2 text-amber-500" />
                                           핫픽스 생성
                                         </TreeActionMenuItem>
                                       )}
                                       {canAddVersion && (
                                         <TreeActionMenuItem onClick={() => onBuild?.(version.versionId, version.version, customer.customerCode)}>
-                                          <Hammer className="h-4 w-4 mr-2 text-blue-500" />
+                                          <Wrench className="h-4 w-4 mr-2 text-sky-400" />
                                           빌드 생성
                                         </TreeActionMenuItem>
                                       )}
@@ -337,7 +337,7 @@ export function CustomReleaseTree({
                                         })}
                                       >
                                         <div className="flex items-center gap-2 flex-1 text-left text-sm">
-                                          <Flame className="h-4 w-4 shrink-0 text-orange-500" />
+                                          <Zap className="h-4 w-4 shrink-0 text-amber-500" />
                                           <span className={cn(
                                             "flex-shrink-0",
                                             hotfix.isApproved === false && "text-muted-foreground italic opacity-60"
@@ -399,7 +399,7 @@ export function CustomReleaseTree({
                                         })}
                                       >
                                         <div className="flex items-center gap-2 flex-1 text-left text-sm">
-                                          <Hammer className="h-4 w-4 shrink-0 text-blue-500" />
+                                          <Wrench className="h-4 w-4 shrink-0 text-sky-400" />
                                           <span className="flex-shrink-0">
                                             {build.fullVersion}
                                           </span>
