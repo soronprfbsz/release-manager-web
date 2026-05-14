@@ -401,7 +401,6 @@ export function DepartmentPage() {
 
   return (
     <PageLayout
-      fullHeight
       actions={
         canCreateDepartment ? (
           <Tooltip>

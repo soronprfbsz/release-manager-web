@@ -3,13 +3,16 @@
  * 좌/우 분할 레이아웃 컴포넌트
  * - 버전관리, 고객사, 부서 관리 등 트리+상세 구조용
  * - treeWidth prop으로 좌측 패널 너비 조정 (기본 40%)
+ *
+ *  ⟡ 자연 흐름 정책 — 두 패널 모두 콘텐츠 자체 높이로 렌더링.
+ *    grid items-start 라 한 쪽이 짧아도 다른 쪽이 강제로 늘어나지 않음.
+ *    페이지가 길면 main 이 자연 스크롤. 빈 공간 낭비 없음.
  */
 
 import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { Card } from '@/shared/ui/card'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 
 import { CONTENT_SPACING } from './constants'
 
@@ -30,7 +33,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
       className={cn(
         'grid grid-cols-1 lg:grid-cols-[var(--tree-width)_1fr]',
         CONTENT_SPACING.SPLIT_GAP,
-        CONTENT_SPACING.SPLIT_HEIGHT,
+        'items-start',
         className
       )}
       style={{ '--tree-width': `${treeWidth}%` } as React.CSSProperties}
@@ -65,8 +68,8 @@ function ContentSplitTree({
   className,
 }: ContentSplitTreeProps) {
   return (
-    <Card className={cn('flex flex-col overflow-hidden', className)}>
-      <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+    <Card className={cn('flex flex-col', className)}>
+      <div className="px-8 py-6 flex items-center justify-between min-h-[76px] border-b border-border">
         {header || (
           <>
             <h3 className="text-base font-semibold">{title}</h3>
@@ -74,12 +77,8 @@ function ContentSplitTree({
           </>
         )}
       </div>
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="px-6 pb-6">
-            {children}
-          </div>
-        </ScrollArea>
+      <div className="px-6 pb-6 pt-4">
+        {children}
       </div>
     </Card>
   )
@@ -110,23 +109,19 @@ function ContentSplitDetail({
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
   return (
-    <Card className={cn('flex flex-col overflow-hidden', className)}>
+    <Card className={cn('flex flex-col', className)}>
       {header && (
-        <div className="px-8 py-6 flex-shrink-0 flex items-center justify-between min-h-[76px]">
+        <div className="px-8 py-6 flex items-center justify-between min-h-[76px] border-b border-border">
           {header}
         </div>
       )}
-      <div className="flex-1 overflow-hidden">
+      <div className="px-8 pb-6 pt-4">
         {isEmpty ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
+          <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <div className="px-8 pb-6">
-              {children}
-            </div>
-          </ScrollArea>
+          children
         )}
       </div>
     </Card>

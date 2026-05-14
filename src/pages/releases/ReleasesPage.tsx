@@ -447,7 +447,6 @@ export function ReleasesPage() {
 
   return (
     <PageLayout
-      fullHeight
       actions={
         canAddVersion && (
           <Tooltip>

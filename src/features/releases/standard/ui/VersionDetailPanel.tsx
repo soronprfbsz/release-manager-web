@@ -1,6 +1,5 @@
-import { useState, useRef, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
+import { useState, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
-import { useVirtualizer } from '@tanstack/react-virtual'
 import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, FolderTree, Pencil, X, Check } from 'lucide-react'
 
 
@@ -215,105 +214,62 @@ function VirtualReleaseFileTree({ rootChildren, onFileClick }: VirtualReleaseFil
     return rows
   }, [rootChildren, expanded])
 
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  const virtualizer = useVirtualizer({
-    count: flatRows.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => 32,
-    overscan: 10,
-  })
-
-  const virtualItems = virtualizer.getVirtualItems()
-  const totalSize = virtualizer.getTotalSize()
-
   return (
-    <div className="flex flex-col" style={{ height: '100%' }}>
-      {/* 가상 스크롤 컨테이너 */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-auto"
-      >
-        <div style={{ height: `${totalSize}px`, width: '100%', position: 'relative' }}>
-          {virtualItems.map((virtualItem) => {
-            const row = flatRows[virtualItem.index]
-            const { node, depth, key } = row
+    <div className="flex flex-col">
+      {flatRows.map((row) => {
+        const { node, depth, key } = row
 
-            if (node.type === 'directory') {
-              const isNodeExpanded = expanded.has(key)
-              return (
-                <div
-                  key={key}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualItem.size}px`,
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                >
-                  <div
-                    className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer h-full"
-                    style={{ paddingLeft: `${depth * 16 + 8}px` }}
-                    onClick={() => toggleExpanded(key)}
-                  >
-                    {isNodeExpanded ? (
-                      <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                    )}
-                    {isNodeExpanded ? (
-                      <FolderOpen className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                    ) : (
-                      <Folder className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                    )}
-                    <span className="text-sm font-medium truncate">{node.name}</span>
-                  </div>
-                </div>
-              )
-            }
+        if (node.type === 'directory') {
+          const isNodeExpanded = expanded.has(key)
+          return (
+            <div
+              key={key}
+              className="flex items-center gap-2 py-1.5 px-2 hover:bg-accent rounded cursor-pointer"
+              style={{ paddingLeft: `${depth * 16 + 8}px` }}
+              onClick={() => toggleExpanded(key)}
+            >
+              {isNodeExpanded ? (
+                <ChevronDown className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              )}
+              {isNodeExpanded ? (
+                <FolderOpen className="h-4 w-4 flex-shrink-0 text-blue-500" />
+              ) : (
+                <Folder className="h-4 w-4 flex-shrink-0 text-blue-500" />
+              )}
+              <span className="text-sm font-medium truncate">{node.name}</span>
+            </div>
+          )
+        }
 
-            // 파일 노드
-            const viewable = isViewableFile(node.name)
-            const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
+        // 파일 노드
+        const viewable = isViewableFile(node.name)
+        const { icon: FileIcon, color: iconColor } = getFileIcon(node.name)
 
-            return (
-              <div
-                key={key}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start}px)`,
-                }}
-              >
-                <div
-                  className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded h-full"
-                  style={{ paddingLeft: `${depth * 16 + 24}px` }}
-                >
-                  <div
-                    className={`flex items-center gap-2 flex-1 min-w-0 ${viewable ? 'cursor-pointer' : ''}`}
-                    onClick={() => viewable && onFileClick(node)}
-                  >
-                    <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
-                    <span className="text-sm truncate">{node.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {node.size !== null && (
-                      <TypographyMuted className="text-xs">
-                        {formatFileSize(node.size)}
-                      </TypographyMuted>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+        return (
+          <div
+            key={key}
+            className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-accent rounded"
+            style={{ paddingLeft: `${depth * 16 + 24}px` }}
+          >
+            <div
+              className={`flex items-center gap-2 flex-1 min-w-0 ${viewable ? 'cursor-pointer' : ''}`}
+              onClick={() => viewable && onFileClick(node)}
+            >
+              <FileIcon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
+              <span className="text-sm truncate font-mono">{node.name}</span>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {node.size !== null && (
+                <TypographyMuted className="text-xs">
+                  {formatFileSize(node.size)}
+                </TypographyMuted>
+              )}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -16,12 +16,4 @@ export const CONTENT_SPACING = {
 
   // Split 레이아웃
   SPLIT_GAP: 'gap-6',
-  /**
-   * Split 패널 높이.
-   *  ⟡ Backstage 셸 (flex chain) 에서는 부모 (PageLayout 의 flex-1 min-h-0) 가
-   *    높이를 공급하므로 `h-full` 만으로 viewport-남은-공간을 채움.
-   *  ⟡ 옛 NavigationBar 기반의 `calc(100vh-18rem)` 매직 넘버는 폐기.
-   *  ⟡ 최소 높이는 400px 로 안전망 — PageLayout 외부에서 쓰여도 깨지지 않도록.
-   */
-  SPLIT_HEIGHT: 'h-full min-h-[400px]',
 } as const
