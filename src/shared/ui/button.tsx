@@ -5,27 +5,34 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/shared/lib/utils"
 
+/**
+ * Backstage-style button.
+ *  - Radius: rounded-md (8px, --radius)
+ *  - Primary: brand teal + subtle inset highlight (Untitled-UI signature)
+ *  - Outline: gray bordered surface (neutral), not brand-tinted
+ *  - Sizes: h-9 default, h-8 sm, h-10 lg + icon variants
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:brightness-125  transition-all",
+          "bg-primary text-primary-foreground shadow-[inset_0_0_0_1px_rgba(0,0,0,0.20),0_1px_2px_0_rgba(10,13,18,0.05)] hover:bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-[inset_0_0_0_1px_rgba(0,0,0,0.20),0_1px_2px_0_rgba(10,13,18,0.05)] hover:bg-destructive/90",
         outline:
-          "border border-input bg-background hover:bg-primary hover:text-primary-foreground hover:border-primary",
+          "border border-input bg-card text-foreground hover:bg-muted hover:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        "ghost-icon": "hover:text-primary",
+          "bg-secondary text-secondary-foreground border border-border hover:bg-muted",
+        ghost: "hover:bg-muted hover:text-foreground",
+        "ghost-icon": "text-muted-foreground hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
+        default: "h-9 px-3.5 py-2",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-10 px-5",
         icon: "h-10 w-10 [&_svg]:size-5",
         "icon-sm": "h-9 w-9",
         "icon-xs": "h-8 w-8 [&_svg]:size-3.5",

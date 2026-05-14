@@ -4,30 +4,41 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/shared/lib/utils"
 
+/**
+ * Backstage-style badge.
+ *  - Default radius: rounded (4px). Pill 변형은 size="pill"
+ *  - Category badges (database/web/engine/etc): mono uppercase, slight border tint
+ *    (Backstage rm-cat 와 동등). Untitled-UI 의 soft semantic 색상 사용.
+ *  - Status badges (success/warning/info/destructive 등) 은 기존 패턴 유지
+ */
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-primary bg-primary text-primary-foreground shadow",
+          "border-primary bg-primary text-primary-foreground",
         secondary:
-          "border-secondary bg-secondary text-secondary-foreground",
+          "border-border bg-secondary text-secondary-foreground",
         destructive:
-          "border-destructive bg-destructive text-destructive-foreground shadow",
-        outline: "border-foreground text-foreground",
+          "border-destructive/40 bg-destructive/10 text-destructive",
+        outline: "border-border text-foreground bg-transparent",
+        /** DB — Backstage blue */
         database:
-          "border-blue-600 text-blue-600 bg-blue-100 dark:border-blue-400 dark:text-blue-400 dark:bg-blue-950/90",
+          "border-blue-500/40 text-blue-700 bg-blue-50 font-mono uppercase tracking-wider dark:border-blue-400/40 dark:text-blue-300 dark:bg-blue-950/40",
+        /** WEB — Backstage success green */
         web:
-          "border-emerald-600 text-emerald-600 bg-emerald-100 dark:border-emerald-400 dark:text-emerald-400 dark:bg-emerald-950/90",
+          "border-emerald-500/40 text-emerald-700 bg-emerald-50 font-mono uppercase tracking-wider dark:border-emerald-400/40 dark:text-emerald-300 dark:bg-emerald-950/40",
+        /** ENG — Backstage violet */
         engine:
-          "border-violet-600 text-violet-600 bg-violet-100 dark:border-violet-400 dark:text-violet-400 dark:bg-violet-950/90",
+          "border-violet-500/40 text-violet-700 bg-violet-50 font-mono uppercase tracking-wider dark:border-violet-400/40 dark:text-violet-300 dark:bg-violet-950/40",
+        /** ETC — Backstage gray */
         etc:
-          "border-slate-600 text-slate-600 bg-slate-100 dark:border-slate-400 dark:text-slate-400 dark:bg-slate-950/90",
+          "border-border text-foreground/70 bg-muted font-mono uppercase tracking-wider",
         latest:
-          "border-amber-500 text-amber-700 bg-amber-100 dark:border-amber-400 dark:text-amber-300 dark:bg-amber-950/90",
+          "border-amber-500/40 text-amber-700 bg-amber-50 dark:border-amber-400/40 dark:text-amber-300 dark:bg-amber-950/40",
         install:
-          "border-rose-500 text-rose-700 bg-rose-100 dark:border-rose-400 dark:text-rose-300 dark:bg-rose-950/90",
+          "border-rose-500/40 text-rose-700 bg-rose-50 dark:border-rose-400/40 dark:text-rose-300 dark:bg-rose-950/40",
         /** 성공/활성/승인됨 — primary 톤 */
         success:
           "border-transparent bg-primary/10 text-primary",
@@ -42,10 +53,10 @@ const badgeVariants = cva(
           "border-transparent bg-muted text-muted-foreground",
       },
       size: {
-        /** 기본 크기 — 일반 카테고리/상태 라벨 */
-        default: "px-2.5 py-0.5 text-xs",
-        /** 컴팩트 — 테이블 셀 카테고리 pill, 트리 노드 뱃지 */
-        sm: "h-[18px] text-[10px] px-1.5 py-0 leading-none rounded-sm",
+        /** 기본 — 일반 카테고리/상태 라벨 (Backstage rm-cat 18px height) */
+        default: "h-[18px] px-1.5 text-[10px] leading-none",
+        /** 컴팩트 — 트리 노드 뱃지 */
+        sm: "h-[16px] text-[10px] px-1 leading-none",
         /** 둥근 캡슐 — status pill 류 */
         pill: "h-[22px] rounded-full px-2.5 py-0.5 text-[11px]",
       },

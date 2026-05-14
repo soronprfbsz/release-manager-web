@@ -7,9 +7,9 @@ import { cn } from "@/shared/lib/utils"
 const Tabs = TabsPrimitive.Root
 
 /**
- * TabsList variants:
- * - default: 기본 pill 스타일 (bg-muted, rounded)
- * - line: 언더라인 스타일 (border-b, transparent bg)
+ * TabsList — Backstage 언더라인 스타일 (rm-tabs).
+ *  - default: 자체 border-b 포함
+ *  - line: TabsBar wrapper 가 border-b 책임 — 중복 방지
  */
 interface TabsListProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> {
     variant?: 'default' | 'line'
@@ -22,10 +22,8 @@ const TabsList = React.forwardRef<
     <TabsPrimitive.List
         ref={ref}
         className={cn(
-            "inline-flex items-center text-muted-foreground",
-            variant === 'default' && "h-10 justify-center rounded-md bg-muted p-1",
-            // line variant 는 자체 width / border 안 가짐 — TabsBar wrapper 가 책임
-            variant === 'line' && "justify-start rounded-none bg-transparent h-auto p-0",
+            "inline-flex h-10 items-center justify-start gap-2 text-muted-foreground",
+            variant === 'default' && "border-b border-border",
             className
         )}
         {...props}
@@ -34,9 +32,9 @@ const TabsList = React.forwardRef<
 TabsList.displayName = TabsPrimitive.List.displayName
 
 /**
- * TabsTrigger variants:
- * - default: 기본 pill 스타일
- * - line: 언더라인 스타일 (border-b-2, 탭 활성 시 primary 색상)
+ * TabsTrigger — Backstage 언더라인 active state.
+ *   active: border-primary, text-foreground, font-semibold
+ *   inactive: border-transparent, muted-foreground
  */
 interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
     variant?: 'default' | 'line'
@@ -49,11 +47,10 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
         ref={ref}
         className={cn(
-            "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-            // active 시 텍스트 색상 / 볼드는 두 variant 공통 — 페이지별 중복 정의 제거 목적
-            "data-[state=active]:text-primary data-[state=active]:font-bold",
-            variant === 'default' && "rounded-sm px-3 py-1.5 border-b-2 border-transparent hover:border-primary/60 data-[state=active]:bg-background data-[state=active]:shadow data-[state=active]:border-primary",
-            variant === 'line' && "rounded-none px-5 py-4 border-b-2 border-transparent hover:border-primary/60 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none",
+            "inline-flex h-full items-center justify-center gap-1.5 whitespace-nowrap border-b-2 border-transparent -mb-px text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+            "hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground data-[state=active]:font-semibold",
+            variant === 'default' && "px-3",
+            variant === 'line' && "px-5 py-4",
             className
         )}
         {...props}
@@ -77,16 +74,10 @@ const TabsContent = React.forwardRef<
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
 /**
- * TabsBar — `variant="line"` 탭을 감싸는 표준 헤더 바.
+ * TabsBar — `variant="line"` 탭을 감싸는 헤더 바.
  *  - 카드 전체 너비 border-b 구분선
  *  - 좌측 미세 padding (pl-2) + 우측 padding (pr-8)
- *  - 우측에 검색·필터 컴포넌트 함께 배치 가능 (flex justify-between)
- *
- * 사용 예:
- *   <TabsBar>
- *     <TabsList variant="line">...</TabsList>
- *     <Filters />
- *   </TabsBar>
+ *  - 우측에 검색·필터 함께 배치 가능 (flex justify-between)
  */
 const TabsBar = React.forwardRef<
     HTMLDivElement,
@@ -95,7 +86,7 @@ const TabsBar = React.forwardRef<
     <div
         ref={ref}
         className={cn(
-            "flex items-center justify-between gap-4 w-full border-b border-border/50 pl-2 pr-8",
+            "flex items-center justify-between gap-4 w-full border-b border-border pl-2 pr-8",
             className
         )}
         {...props}
