@@ -2,17 +2,19 @@
  * Content Split Layout Component
  * 좌/우 분할 레이아웃 컴포넌트
  * - 버전관리, 고객사, 부서 관리 등 트리+상세 구조용
- * - treeWidth prop으로 좌측 패널 너비 조정 (기본 40%)
+ * - treeWidth prop 으로 좌측 패널 너비 조정 (기본 40%)
  *
- *  ⟡ 자연 흐름 정책 — 두 패널 모두 콘텐츠 자체 높이로 렌더링.
- *    grid items-start 라 한 쪽이 짧아도 다른 쪽이 강제로 늘어나지 않음.
- *    페이지가 길면 main 이 자연 스크롤. 빈 공간 낭비 없음.
+ *  ⟡ Viewport-bound 정책 — 트리+상세 페이지는 두 패널이 항상 동일 높이.
+ *    각 패널은 자체 내부 ScrollArea 로 콘텐츠 오버플로우 처리.
+ *    부모(PageLayout fullHeight) 가 잔여 viewport 높이 공급 → 양쪽 패널이 그 안에서
+ *    grid stretch 로 동일 높이를 차지함. 페이지 하단 padding (py-7) 은 그대로 노출.
  */
 
 import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { Card } from '@/shared/ui/card'
+import { ScrollArea } from '@/shared/ui/scroll-area'
 
 import { CONTENT_SPACING } from './constants'
 
@@ -33,7 +35,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
       className={cn(
         'grid grid-cols-1 lg:grid-cols-[var(--tree-width)_1fr]',
         CONTENT_SPACING.SPLIT_GAP,
-        'items-start',
+        'h-full min-h-0',
         className
       )}
       style={{ '--tree-width': `${treeWidth}%` } as React.CSSProperties}
@@ -68,8 +70,8 @@ function ContentSplitTree({
   className,
 }: ContentSplitTreeProps) {
   return (
-    <Card className={cn('flex flex-col', className)}>
-      <div className="px-8 py-6 flex items-center justify-between min-h-[76px] border-b border-border">
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
+      <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
         {header || (
           <>
             <h3 className="text-base font-semibold">{title}</h3>
@@ -77,8 +79,12 @@ function ContentSplitTree({
           </>
         )}
       </div>
-      <div className="px-6 pb-6 pt-4">
-        {children}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="px-6 pb-6 pt-4">
+            {children}
+          </div>
+        </ScrollArea>
       </div>
     </Card>
   )
@@ -109,19 +115,23 @@ function ContentSplitDetail({
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
   return (
-    <Card className={cn('flex flex-col', className)}>
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
       {header && (
-        <div className="px-8 py-6 flex items-center justify-between min-h-[76px] border-b border-border">
+        <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
           {header}
         </div>
       )}
-      <div className="px-8 pb-6 pt-4">
+      <div className="flex-1 min-h-0 overflow-hidden">
         {isEmpty ? (
-          <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
+          <div className="flex items-center justify-center h-full text-muted-foreground">
             {emptyMessage}
           </div>
         ) : (
-          children
+          <ScrollArea className="h-full">
+            <div className="px-8 pb-6 pt-4">
+              {children}
+            </div>
+          </ScrollArea>
         )}
       </div>
     </Card>

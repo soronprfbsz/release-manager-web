@@ -174,6 +174,7 @@ export function CustomerListPage() {
 
   return (
     <PageLayout
+      fullHeight
       actions={
         canCreateCustomer ? (
           <Tooltip>
