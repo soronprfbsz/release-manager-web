@@ -14,12 +14,16 @@ interface MainLayoutProps {
  * Backstage redesign — sidebar shell layout.
  *  ┌────────────┬──────────────────────────────────────┐
  *  │  Sidebar   │  Topbar  [breadcrumb] [project/theme]│
- *  │            ├──────────────────────────────────────┤
- *  │            │  Main content                        │
+ *  │ flex-none  ├──────────────────────────────────────┤
+ *  │            │  <main> flex-1 min-h-0 overflow-auto │
+ *  │            │    └─ PageLayout (min-h-full)        │
  *  └────────────┴──────────────────────────────────────┘
  *
- *  Breadcrumb 은 Topbar 좌측에 자동 렌더 (useMenuPath 기반).
- *  Project/Theme 토글은 Topbar 우측.
+ *  ⟡ Flex chain: html/body/#root → h-full / AppShell → h-screen flex /
+ *    right-column → flex-1 flex flex-col min-h-0 / main → flex-1 min-h-0 overflow-auto.
+ *  ⟡ <main> 가 유일한 스크롤 컨테이너. 페이지 내부에서 calc(100vh-Nrem) 같은
+ *    뷰포트 매직 넘버를 쓰지 말고 부모로부터 h-full 을 받아 사용한다.
+ *  ⟡ 페이지 좌우 패딩은 PageLayout 이 책임 (px-10) — main 은 chrome 만 담당.
  */
 export function MainLayout({ children }: MainLayoutProps) {
   return (
@@ -34,7 +38,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="h-5 w-px bg-border mx-1" />
           <ThemeToggle />
         </header>
-        <main className="flex-1 min-h-0 overflow-auto px-8 py-6">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           {children}
         </main>
       </div>

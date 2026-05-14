@@ -141,6 +141,12 @@
     @apply border-border;
   }
 
+  /* 앱 셸 flex chain — html/body/#root 가 모두 뷰포트 높이 공급.
+     덕분에 자식 컴포넌트가 h-full 로 자연스럽게 채움. */
+  html, body, #root {
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: "Inter", "DM Sans", "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
