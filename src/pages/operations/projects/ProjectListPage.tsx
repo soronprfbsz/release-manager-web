@@ -87,7 +87,6 @@ import { FileTree, type FileTreeNode } from '@/shared/ui/file-tree'
 import { FileViewer } from '@/shared/ui/file-viewer'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -796,25 +795,25 @@ export function ProjectListPage() {
             icon: TAB_CONFIG.onboarding.icon,
             contentClassName: 'mt-0 pt-0',
             content: (
-              <div className="px-8 pb-6 pt-4 h-[640px]">
+              <div className="px-8 pb-6 pt-4">
                 {!projectId ? (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
                     <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
                     <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
                   </div>
                 ) : isLoadingOnboarding ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center min-h-[300px]">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                   </div>
                 ) : !onboardingData?.hasFiles ? (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
                     <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
                     <p className="text-sm">온보딩 파일이 없습니다.</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col h-full">
-                    {/* 파일 정보 헤더 — 탭 content 안에 그대로 유지 */}
-                    <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
+                  <div>
+                    {/* 파일 정보 헤더 */}
+                    <div className="flex items-center justify-between text-sm pb-4">
                       <div className="flex items-center gap-2">
                         <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
@@ -840,39 +839,37 @@ export function ProjectListPage() {
                       </div>
                     </div>
 
-                    {/* 파일 트리 - 내부 스크롤 */}
-                    <ScrollArea className="flex-1">
-                      {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
-                        <FileTree
-                          data={filteredOnboardingFiles as FileTreeNode}
-                          onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
-                          onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
-                          onUpload={handleUploadClick}
-                          onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
-                          onCreateDirectory={handleCreateDirectoryClick}
-                          canManage={canManageProjectFiles}
-                          showModifiedDate
-                          defaultExpanded={false}
-                        />
-                      ) : onboardingSearchKeyword.trim() ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                          <Search className="h-8 w-8 mb-2 opacity-50" />
-                          <p className="text-sm">검색 결과가 없습니다.</p>
-                        </div>
-                      ) : (
-                        <FileTree
-                          data={onboardingData.files as FileTreeNode}
-                          onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
-                          onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
-                          onUpload={handleUploadClick}
-                          onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
-                          onCreateDirectory={handleCreateDirectoryClick}
-                          canManage={canManageProjectFiles}
-                          showModifiedDate
-                          defaultExpanded={false}
-                        />
-                      )}
-                    </ScrollArea>
+                    {/* 파일 트리 — 자연 흐름, 페이지가 길어지면 main 이 스크롤 */}
+                    {filteredOnboardingFiles?.children && filteredOnboardingFiles.children.length > 0 ? (
+                      <FileTree
+                        data={filteredOnboardingFiles as FileTreeNode}
+                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
+                        onUpload={handleUploadClick}
+                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
+                        onCreateDirectory={handleCreateDirectoryClick}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
+                      />
+                    ) : onboardingSearchKeyword.trim() ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <Search className="h-8 w-8 mb-2 opacity-50" />
+                        <p className="text-sm">검색 결과가 없습니다.</p>
+                      </div>
+                    ) : (
+                      <FileTree
+                        data={onboardingData.files as FileTreeNode}
+                        onFileClick={(node) => handleFileClick(node as OnboardingFileNode)}
+                        onDownload={(node) => handleFileDownload(node as OnboardingFileNode)}
+                        onUpload={handleUploadClick}
+                        onDelete={(node) => handleOnboardingDeleteClick(node as OnboardingFileNode)}
+                        onCreateDirectory={handleCreateDirectoryClick}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -884,25 +881,25 @@ export function ProjectListPage() {
             icon: TAB_CONFIG.install.icon,
             contentClassName: 'mt-0 pt-0',
             content: (
-              <div className="px-8 pb-6 pt-4 h-[640px]">
+              <div className="px-8 pb-6 pt-4">
                 {!projectId ? (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
                     <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
                     <p className="text-sm">상단에서 프로젝트를 선택해주세요.</p>
                   </div>
                 ) : isLoadingInstall ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center min-h-[300px]">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                   </div>
                 ) : !installData?.hasFiles ? (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
                     <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />
                     <p className="text-sm">인스톨 파일이 없습니다.</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col h-full">
-                    {/* 파일 정보 헤더 — 탭 content 안에 그대로 유지 */}
-                    <div className="flex items-center justify-between text-sm pb-4 flex-shrink-0">
+                  <div>
+                    {/* 파일 정보 헤더 */}
+                    <div className="flex items-center justify-between text-sm pb-4">
                       <div className="flex items-center gap-2">
                         <DOMAIN_ICONS.project className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium text-foreground">{selectedProject?.projectName}</span>
@@ -928,39 +925,37 @@ export function ProjectListPage() {
                       </div>
                     </div>
 
-                    {/* 파일 트리 - 내부 스크롤 */}
-                    <ScrollArea className="flex-1">
-                      {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
-                        <FileTree
-                          data={filteredInstallFiles as FileTreeNode}
-                          onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
-                          onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
-                          onUpload={handleInstallUploadClick}
-                          onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
-                          onCreateDirectory={handleInstallCreateDirectoryClick}
-                          canManage={canManageProjectFiles}
-                          showModifiedDate
-                          defaultExpanded={false}
-                        />
-                      ) : installSearchKeyword.trim() ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                          <Search className="h-8 w-8 mb-2 opacity-50" />
-                          <p className="text-sm">검색 결과가 없습니다.</p>
-                        </div>
-                      ) : (
-                        <FileTree
-                          data={installData.files as FileTreeNode}
-                          onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
-                          onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
-                          onUpload={handleInstallUploadClick}
-                          onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
-                          onCreateDirectory={handleInstallCreateDirectoryClick}
-                          canManage={canManageProjectFiles}
-                          showModifiedDate
-                          defaultExpanded={false}
-                        />
-                      )}
-                    </ScrollArea>
+                    {/* 파일 트리 — 자연 흐름, 페이지가 길어지면 main 이 스크롤 */}
+                    {filteredInstallFiles?.children && filteredInstallFiles.children.length > 0 ? (
+                      <FileTree
+                        data={filteredInstallFiles as FileTreeNode}
+                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
+                        onUpload={handleInstallUploadClick}
+                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
+                        onCreateDirectory={handleInstallCreateDirectoryClick}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
+                      />
+                    ) : installSearchKeyword.trim() ? (
+                      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                        <Search className="h-8 w-8 mb-2 opacity-50" />
+                        <p className="text-sm">검색 결과가 없습니다.</p>
+                      </div>
+                    ) : (
+                      <FileTree
+                        data={installData.files as FileTreeNode}
+                        onFileClick={(node) => handleInstallFileClick(node as InstallFileNode)}
+                        onDownload={(node) => handleInstallFileDownload(node as InstallFileNode)}
+                        onUpload={handleInstallUploadClick}
+                        onDelete={(node) => handleInstallDeleteClick(node as InstallFileNode)}
+                        onCreateDirectory={handleInstallCreateDirectoryClick}
+                        canManage={canManageProjectFiles}
+                        showModifiedDate
+                        defaultExpanded={false}
+                      />
+                    )}
                   </div>
                 )}
               </div>
