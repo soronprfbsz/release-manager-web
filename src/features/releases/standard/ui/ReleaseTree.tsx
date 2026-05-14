@@ -125,7 +125,7 @@ export function ReleaseTree({
 
   if (majorMinorGroups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-26rem)] text-muted-foreground">
+      <div className="flex flex-col items-center justify-center h-full min-h-[240px] text-muted-foreground">
         <p className="text-sm">릴리즈 버전이 없습니다.</p>
       </div>
     )

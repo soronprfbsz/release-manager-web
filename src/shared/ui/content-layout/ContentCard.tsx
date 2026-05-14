@@ -31,6 +31,13 @@ interface ContentCardProps {
   noPadding?: boolean
   /** 아이콘 숨김 (기본: false) */
   hideIcon?: boolean
+  /**
+   * 부모(PageLayout content area) 의 남은 높이를 채우는 fill 모드.
+   *  - Card = flex-1 + flex flex-col + overflow-hidden
+   *  - CardContent 가 단일 스크롤 컨테이너 (overflow-auto)
+   *  - 내부 DataTable 은 `autoHeight` 로 두면 됨 (자체 스크롤 불필요)
+   */
+  fullHeight?: boolean
 }
 
 export function ContentCard({
@@ -42,6 +49,7 @@ export function ContentCard({
   contentClassName,
   noPadding = false,
   hideIcon = false,
+  fullHeight = false,
 }: ContentCardProps) {
   const hasHeader = title || actions || header
 
@@ -53,9 +61,20 @@ export function ContentCard({
       : CONTENT_SPACING.CARD_PADDING
 
   return (
-    <Card className={cn('', className)}>
+    <Card
+      className={cn(
+        fullHeight && 'flex-1 min-h-0 flex flex-col overflow-hidden',
+        className,
+      )}
+    >
       {hasHeader && (
-        <CardHeader className={cn(CONTENT_SPACING.HEADER_PADDING, 'flex-row items-center justify-between space-y-0')}>
+        <CardHeader
+          className={cn(
+            CONTENT_SPACING.HEADER_PADDING,
+            'flex-row items-center justify-between space-y-0',
+            fullHeight && 'flex-none',
+          )}
+        >
           {header || (
             <>
               {title ? (
@@ -71,7 +90,13 @@ export function ContentCard({
           )}
         </CardHeader>
       )}
-      <CardContent className={cn(contentPadding, contentClassName)}>
+      <CardContent
+        className={cn(
+          contentPadding,
+          fullHeight && 'flex-1 min-h-0 overflow-auto',
+          contentClassName,
+        )}
+      >
         {children}
       </CardContent>
     </Card>

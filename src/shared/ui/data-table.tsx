@@ -13,15 +13,22 @@ import { ScrollArea } from "./scroll-area"
  * - 테이블 영역의 고정 높이를 설정하고, 내용이 넘치면 스크롤 표시
  * - 무한 스크롤 또는 고전적 페이징 지원
  *
- * 사용 예 (고전적 페이징):
+ * 사용 패턴 (Backstage 셸):
+ *   <PageLayout>
+ *     <ContentCard fullHeight>          // viewport 잔여 높이 채움 + 스크롤 책임
+ *       <DataTable autoHeight>          // 자체 스크롤 X — 부모가 처리
+ *         <Table>…</Table>
+ *       </DataTable>
+ *     </ContentCard>
+ *   </PageLayout>
+ *
+ * 사용 예 (고전적 페이징, 고정 visibleRows):
  * <DataTable visibleRows={10}>
  *   <Table>...</Table>
  * </DataTable>
  *
- * 뷰포트 기반 동적 높이 사용 예:
- * <DataTable viewportHeight="calc(100vh - 20rem)">
- *   <Table>...</Table>
- * </DataTable>
+ * @deprecated viewportHeight — `calc(100vh - Nrem)` 매직 넘버 패턴.
+ * 신규 코드는 `ContentCard fullHeight` + `DataTable autoHeight` 조합을 사용.
  *
  * 무한 스크롤 사용 예:
  * <DataTable
@@ -49,7 +56,10 @@ interface DataTableBaseProps extends React.HTMLAttributes<HTMLDivElement> {
   headerHeight?: number
   /** 스크롤 없이 전체 표시 (높이 제한 없음) */
   autoHeight?: boolean
-  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") - 설정 시 visibleRows 무시 */
+  /**
+   * 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") - 설정 시 visibleRows 무시
+   * @deprecated 신규 코드는 `<ContentCard fullHeight>` + `<DataTable autoHeight>` 사용
+   */
   viewportHeight?: string
   /** 테두리 표시 여부 (기본: false) - Card 외부에서 독립적으로 사용할 때 true */
   bordered?: boolean

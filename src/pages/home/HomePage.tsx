@@ -181,7 +181,7 @@ export function HomePage() {
   )
 
   return (
-    <div className="flex flex-col h-[calc(100vh-9rem)] gap-4">
+    <div className="flex flex-col h-full min-h-0 gap-4">
       {/* Latest Info Cards */}
       <div className="flex-shrink-0">
         <TypographyLarge className="mb-3">Recent</TypographyLarge>

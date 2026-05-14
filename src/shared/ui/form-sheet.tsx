@@ -61,7 +61,11 @@ interface FormSheetProps {
   width?: string
   /** 취소 버튼 숨김 여부 */
   hideCancel?: boolean
-  /** 스크롤 영역 높이 */
+  /**
+   * 스크롤 영역 높이.
+   * @deprecated 비워두면 SheetContent flex chain 으로 자동 채움 — 매직 넘버 불필요.
+   *  특수한 경우 (예: 헤더 외 추가 fixed 요소가 있을 때) 만 사용.
+   */
   scrollHeight?: string
 }
 
@@ -89,7 +93,7 @@ export function FormSheet({
   headerContent,
   width = 'w-[400px] sm:max-w-[400px]',
   hideCancel = false,
-  scrollHeight = 'h-[calc(100vh-180px)]',
+  scrollHeight,
 }: FormSheetProps) {
   // open prop 우선, 없으면 mode로 판단
   const isOpen = open !== undefined ? open : mode !== null
@@ -113,7 +117,7 @@ export function FormSheet({
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent
-        className={width}
+        className={`${width} flex flex-col`}
         // isSubmitting 중 외부 클릭 / ESC 차단을 Radix 차원에서도 보강
         onPointerDownOutside={(e) => {
           if (isSubmitting) e.preventDefault()
@@ -125,7 +129,7 @@ export function FormSheet({
           if (isSubmitting) e.preventDefault()
         }}
       >
-        <SheetHeader>
+        <SheetHeader className="flex-none">
           <SheetTitle className="flex items-center gap-2">
             <Icon className={`h-5 w-5 ${iconClassName ?? ''}`} />
             {getValue(title, currentMode)}
@@ -135,7 +139,7 @@ export function FormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className={`${scrollHeight} mt-6 pr-4`}>
+        <ScrollArea className={scrollHeight ?? 'flex-1 min-h-0 mt-6 pr-4'}>
           {headerContent}
           <form onSubmit={handleFormSubmit}>
             <div className="space-y-5">

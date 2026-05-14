@@ -41,8 +41,8 @@ export function BackupLogsForm({
 }: BackupLogsFormProps) {
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-[600px] sm:max-w-[600px]">
-        <SheetHeader>
+      <SheetContent className="w-[600px] sm:max-w-[600px] flex flex-col">
+        <SheetHeader className="flex-none">
           <SheetTitle className="flex items-center gap-2">
             <ScrollText className="h-5 w-5" />
             로그 목록
@@ -50,7 +50,7 @@ export function BackupLogsForm({
           <SheetDescription>{fileName}의 백업/복원 로그</SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-140px)] mt-6 pr-4">
+        <ScrollArea className="flex-1 min-h-0 mt-6 pr-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />

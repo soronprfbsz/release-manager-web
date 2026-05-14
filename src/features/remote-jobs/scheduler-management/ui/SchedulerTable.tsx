@@ -42,7 +42,6 @@ interface SchedulerTableProps {
   onToggle: (job: ScheduleJob) => void
   onExecute: (job: ScheduleJob) => void
   onViewHistory: (job: ScheduleJob) => void
-  viewportHeight?: string
 }
 
 export function SchedulerTable({
@@ -53,7 +52,6 @@ export function SchedulerTable({
   onToggle,
   onExecute,
   onViewHistory,
-  viewportHeight,
 }: SchedulerTableProps) {
   if (!isLoading && jobs.length === 0) {
     return (
@@ -66,7 +64,7 @@ export function SchedulerTable({
   }
 
   return (
-    <DataTable viewportHeight={viewportHeight}>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>

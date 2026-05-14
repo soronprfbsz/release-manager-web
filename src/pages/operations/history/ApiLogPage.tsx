@@ -85,7 +85,7 @@ export function ApiLogPage() {
 
   return (
     <PageLayout>
-      <ContentCard actions={<ApiLogFilters filters={filters} onFiltersChange={setFilters} />}>
+      <ContentCard fullHeight actions={<ApiLogFilters filters={filters} onFiltersChange={setFilters} />}>
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -97,7 +97,6 @@ export function ApiLogPage() {
               sort={sort}
               onSort={handleSort}
               onViewDetail={handleViewDetail}
-              viewportHeight="calc(100vh - 28rem)"
             />
             {logList.length > 0 && (
               <div className="pt-6">

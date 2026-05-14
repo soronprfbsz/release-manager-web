@@ -113,8 +113,8 @@ export function ComponentForm({
   return (
     <>
       <Sheet open={!!service} onOpenChange={(open) => !open && onClose()}>
-        <SheetContent className="w-[480px] sm:max-w-[480px]">
-          <SheetHeader>
+        <SheetContent className="w-[480px] sm:max-w-[480px] flex flex-col">
+          <SheetHeader className="flex-none">
             <SheetTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
               컴포넌트 관리
@@ -124,7 +124,7 @@ export function ComponentForm({
             </SheetDescription>
           </SheetHeader>
 
-          <ScrollArea className="h-[calc(100vh-140px)] mt-6 pr-4">
+          <ScrollArea className="flex-1 min-h-0 mt-6 pr-4">
             <div className="pb-4">
               {/* 컴포넌트 목록 - Sortable */}
               <SortableList

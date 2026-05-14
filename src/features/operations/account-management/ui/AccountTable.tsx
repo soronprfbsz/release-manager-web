@@ -45,8 +45,6 @@ interface AccountTableProps {
   onSort: (key: string) => void
   onEdit: (account: Account) => void
   onDelete: (accountId: number) => void
-  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 28rem)") */
-  viewportHeight?: string
 }
 
 export function AccountTable({
@@ -55,7 +53,6 @@ export function AccountTable({
   onSort,
   onEdit,
   onDelete,
-  viewportHeight,
 }: AccountTableProps) {
   const { canEditAccount, canDeleteAccount } = usePermission()
   const canManageAccount = canEditAccount || canDeleteAccount
@@ -71,7 +68,7 @@ export function AccountTable({
   }
 
   return (
-    <DataTable viewportHeight={viewportHeight}>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>

@@ -764,6 +764,7 @@ export function ProjectListPage() {
       }
     >
       <TabbedContentCard
+        fullHeight
         value={currentTab}
         onValueChange={handleTabChange}
         tabs={[
@@ -796,7 +797,7 @@ export function ProjectListPage() {
             icon: TAB_CONFIG.onboarding.icon,
             contentClassName: 'mt-0 pt-0',
             content: (
-              <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
+              <div className="px-8 pb-6 pt-4 h-full">
                 {!projectId ? (
                   <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                     <DOMAIN_ICONS.onboarding className="h-12 w-12 mb-4 opacity-50" />
@@ -884,7 +885,7 @@ export function ProjectListPage() {
             icon: TAB_CONFIG.install.icon,
             contentClassName: 'mt-0 pt-0',
             content: (
-              <div className="px-8 pb-6 pt-4" style={{ height: 'calc(100vh - 22.5rem)' }}>
+              <div className="px-8 pb-6 pt-4 h-full">
                 {!projectId ? (
                   <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                     <DOMAIN_ICONS.install className="h-12 w-12 mb-4 opacity-50" />

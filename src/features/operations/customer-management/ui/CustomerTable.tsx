@@ -44,8 +44,6 @@ interface CustomerTableProps {
   onSort: (key: string) => void
   onEdit: (customer: Customer) => void
   onDelete: (customerId: number) => void
-  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 20rem)") */
-  viewportHeight?: string
 }
 
 export function CustomerTable({
@@ -54,7 +52,6 @@ export function CustomerTable({
   onSort,
   onEdit,
   onDelete,
-  viewportHeight,
 }: CustomerTableProps) {
   if (customers.length === 0) {
     return (
@@ -67,7 +64,7 @@ export function CustomerTable({
   }
 
   return (
-    <DataTable viewportHeight={viewportHeight}>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>

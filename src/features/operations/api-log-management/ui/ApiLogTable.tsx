@@ -35,7 +35,6 @@ interface ApiLogTableProps {
   sort: SortConfig | null
   onSort: (key: string) => void
   onViewDetail: (log: ApiLogListItem) => void
-  viewportHeight?: string
 }
 
 function getStatusVariant(status: number): 'success' | 'error' | 'warning' | 'info' {
@@ -66,7 +65,6 @@ export function ApiLogTable({
   sort,
   onSort,
   onViewDetail,
-  viewportHeight,
 }: ApiLogTableProps) {
   if (logs.length === 0) {
     return (
@@ -79,7 +77,7 @@ export function ApiLogTable({
   }
 
   return (
-    <DataTable viewportHeight={viewportHeight}>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>

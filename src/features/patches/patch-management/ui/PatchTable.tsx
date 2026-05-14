@@ -67,8 +67,6 @@ interface PatchTableProps {
   onViewFiles: (patch: CumulativePatch) => void
   onDownload: (patch: CumulativePatch) => void
   onDelete: (patch: CumulativePatch) => void
-  /** 뷰포트 기반 동적 높이 (e.g. "calc(100vh - 28rem)") */
-  viewportHeight?: string
   /** EmptyState에 사용할 아이콘 */
   emptyIcon?: LucideIcon
   /** 선택 모드 활성화 여부 */
@@ -88,7 +86,6 @@ export function PatchTable({
   onViewFiles,
   onDownload,
   onDelete,
-  viewportHeight,
   emptyIcon: EmptyIcon = Tag,
   selectable = false,
   selectedIds = [],
@@ -166,7 +163,7 @@ export function PatchTable({
 
   return (
     <>
-    <DataTable viewportHeight={viewportHeight} autoHeight={!viewportHeight}>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>

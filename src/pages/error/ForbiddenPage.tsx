@@ -13,7 +13,7 @@ export function ForbiddenPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="bg-background flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 8rem)' }}>
+    <div className="bg-background flex items-center justify-center p-4 h-full min-h-[480px]">
       <div className="max-w-md w-full text-center">
         {/* 403 숫자 */}
         <div className="relative mb-8">

@@ -251,15 +251,16 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       return () => clearTimeout(timer)
     }, [isConnected])
 
-    // 터미널 높이 계산: 100vh - (NavigationBar 4rem + main py 3rem + Breadcrumb/PageHeader/spacing 약 9rem)
-    const terminalHeight = 'calc(100vh - 18.5rem)'
+    // 높이는 부모 chain (PageLayout content area) 가 공급. 전체화면일 때만 100vh.
+    // 최소 높이 안전망 — 부모가 chain 을 깨거나 짧을 때 사용성 보장.
+    const terminalMinHeight = '24rem'
 
     // 연결되지 않은 경우
     if (!sessionId) {
       return (
         <div
-          className="flex items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/40 transition-colors"
-          style={{ height: terminalHeight }}
+          className="flex flex-1 min-h-0 items-center justify-center rounded-lg border border-dashed bg-card cursor-pointer hover:bg-accent/40 transition-colors"
+          style={{ minHeight: terminalMinHeight }}
           onClick={onConnect}
         >
           <div className="text-center text-muted-foreground">
@@ -273,9 +274,10 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
     return (
       <div
         ref={containerRef}
-        className="flex flex-col rounded-lg border overflow-hidden"
+        className="flex flex-col flex-1 min-h-0 rounded-lg border overflow-hidden"
         style={{
-          height: isFullscreen ? '100vh' : terminalHeight,
+          height: isFullscreen ? '100vh' : undefined,
+          minHeight: isFullscreen ? undefined : terminalMinHeight,
           backgroundColor: activeTheme.background,
           borderColor: activeTheme.selectionBackground || activeTheme.brightBlack,
         }}

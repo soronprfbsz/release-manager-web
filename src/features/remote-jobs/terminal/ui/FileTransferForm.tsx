@@ -220,8 +220,8 @@ export function FileTransferForm({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[500px] sm:max-w-[500px]">
-        <SheetHeader>
+      <SheetContent className="w-[500px] sm:max-w-[500px] flex flex-col">
+        <SheetHeader className="flex-none">
           <SheetTitle className="flex items-center gap-2">
             <FileUp className="h-5 w-5" />
             파일 전송
@@ -229,7 +229,7 @@ export function FileTransferForm({
           <SheetDescription>원격 서버로 패치 또는 파일을 전송합니다.</SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="patch" className="mt-6">
+        <Tabs defaultValue="patch" className="mt-6 flex-1 min-h-0 flex flex-col">
           <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
             <TabsTrigger
               value="patch"
@@ -248,8 +248,8 @@ export function FileTransferForm({
           </TabsList>
 
           {/* 패치 배포 탭 */}
-          <TabsContent value="patch" className="mt-6">
-            <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+          <TabsContent value="patch" className="mt-6 flex-1 min-h-0 data-[state=inactive]:hidden">
+            <ScrollArea className="h-full pr-4">
               <form onSubmit={handlePatchDeploySubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="patchSelect" required>
@@ -324,8 +324,8 @@ export function FileTransferForm({
           </TabsContent>
 
           {/* 파일 업로드 탭 */}
-          <TabsContent value="file" className="mt-6">
-            <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+          <TabsContent value="file" className="mt-6 flex-1 min-h-0 data-[state=inactive]:hidden">
+            <ScrollArea className="h-full pr-4">
               <form onSubmit={handleFileUploadSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <Label required>파일 선택</Label>

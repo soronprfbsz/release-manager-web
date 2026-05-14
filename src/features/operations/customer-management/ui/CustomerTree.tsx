@@ -243,7 +243,7 @@ export function CustomerTree({
 
   if (customers.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-400px)] text-muted-foreground">
+      <div className="flex items-center justify-center h-full min-h-[240px] text-muted-foreground">
         <p className="text-sm">등록된 고객사가 없습니다.</p>
       </div>
     )

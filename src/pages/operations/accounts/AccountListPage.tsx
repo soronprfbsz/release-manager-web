@@ -130,7 +130,7 @@ export function AccountListPage() {
 
   return (
     <PageLayout>
-      <ContentCard actions={<AccountFilters filters={filters} onFiltersChange={setFilters} />}>
+      <ContentCard fullHeight actions={<AccountFilters filters={filters} onFiltersChange={setFilters} />}>
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -146,7 +146,6 @@ export function AccountListPage() {
                 const account = accountList.find((a) => a.accountId === id)
                 if (account) setDeleteConfirmAccount(account)
               }}
-              viewportHeight="calc(100vh - 28rem)"
             />
             {accountList.length > 0 && (
               <div className="pt-6">

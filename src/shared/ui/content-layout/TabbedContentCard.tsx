@@ -51,6 +51,13 @@ interface TabbedContentCardProps {
   className?: string
   /** 모든 탭 컨텐츠 영역의 기본 className (개별 tab 의 contentClassName 이 우선) */
   defaultContentClassName?: string
+  /**
+   * 부모(PageLayout content area) 의 잔여 높이를 채우는 fill 모드.
+   *  - Card → flex-1 + flex flex-col + overflow-hidden
+   *  - Tabs → flex flex-col flex-1
+   *  - 활성 TabsContent → flex-1 min-h-0 overflow-auto (단일 스크롤 컨테이너)
+   */
+  fullHeight?: boolean
 }
 
 const DEFAULT_CONTENT_CLASS = 'px-8 pb-8 pt-10'
@@ -62,10 +69,15 @@ export function TabbedContentCard({
   headerRight,
   className,
   defaultContentClassName = DEFAULT_CONTENT_CLASS,
+  fullHeight = false,
 }: TabbedContentCardProps) {
   return (
-    <ContentCard noPadding className={className}>
-      <Tabs value={value} onValueChange={onValueChange} className="w-full">
+    <ContentCard noPadding fullHeight={fullHeight} className={className}>
+      <Tabs
+        value={value}
+        onValueChange={onValueChange}
+        className={cn('w-full', fullHeight && 'flex flex-col flex-1 min-h-0')}
+      >
         <TabsBar>
           <TabsList variant="line">
             {tabs.map((tab) => {
@@ -84,7 +96,10 @@ export function TabbedContentCard({
           <TabsContent
             key={tab.value}
             value={tab.value}
-            className={cn(tab.contentClassName ?? defaultContentClassName)}
+            className={cn(
+              tab.contentClassName ?? defaultContentClassName,
+              fullHeight && 'flex-1 min-h-0 overflow-auto data-[state=inactive]:hidden',
+            )}
           >
             {tab.content}
           </TabsContent>

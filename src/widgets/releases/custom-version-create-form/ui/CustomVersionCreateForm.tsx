@@ -384,7 +384,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       onSubmit={handleSubmit}
       onClose={handleClose}
       width="w-[500px] sm:max-w-[500px]"
-      scrollHeight="h-[calc(100vh-120px)]"
       headerContent={isProcessing ? undefined : headerContent}
     >
       {isProcessing ? (

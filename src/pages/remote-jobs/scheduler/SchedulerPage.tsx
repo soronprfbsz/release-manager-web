@@ -222,7 +222,7 @@ export function SchedulerPage() {
         </div>
       }
     >
-      <ContentCard noPadding>
+      <ContentCard fullHeight noPadding>
         <div className="px-8 py-6">
           <SchedulerTable
             jobs={jobs}
@@ -232,7 +232,6 @@ export function SchedulerPage() {
             onToggle={handleToggle}
             onExecute={handleExecute}
             onViewHistory={handleViewHistory}
-            viewportHeight="calc(100vh - 22rem)"
           />
         </div>
       </ContentCard>

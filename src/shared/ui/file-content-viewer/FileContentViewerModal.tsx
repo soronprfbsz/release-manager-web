@@ -371,7 +371,7 @@ export function FileContentViewerModal({
         <div className="relative flex-1 min-h-0">
           {/* PDF 뷰어 */}
           {isPdf && (
-            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden h-full`}>
               <PdfViewer
                 file={pdfBlob}
                 isLoading={isPdfLoading}
@@ -382,7 +382,7 @@ export function FileContentViewerModal({
 
           {/* 이미지 뷰어 */}
           {isImage && (
-            <div className={`w-full rounded-md border overflow-hidden bg-muted/30 flex items-center justify-center ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden bg-muted/30 flex items-center justify-center h-full`}>
               {isImageLoading && (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="h-6 w-6 animate-spin" />
@@ -439,7 +439,7 @@ export function FileContentViewerModal({
 
           {/* 엑셀 뷰어 */}
           {isExcel && (
-            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden h-full`}>
               <ExcelViewer
                 file={excelBlob}
                 isLoading={isExcelLoading}
@@ -450,7 +450,7 @@ export function FileContentViewerModal({
 
           {/* Word 문서 뷰어 */}
           {isDocx && (
-            <div className={`w-full rounded-md border overflow-hidden ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+            <div className={`w-full rounded-md border overflow-hidden h-full`}>
               <DocxViewer
                 file={docxBlob}
                 isLoading={isDocxLoading}
@@ -462,7 +462,7 @@ export function FileContentViewerModal({
           {/* 텍스트 파일 뷰어 */}
           {!isPdf && !isImage && !isExcel && !isDocx && (
             <>
-              <ScrollArea className={`w-full rounded-md ${isFullscreen ? 'h-[calc(100vh-7rem)]' : 'h-[70vh]'}`}>
+              <ScrollArea className={`w-full rounded-md h-full`}>
                 <div className="min-w-max">
                   {isLoading && (
                     <div className="flex items-center justify-center p-8 gap-2">
