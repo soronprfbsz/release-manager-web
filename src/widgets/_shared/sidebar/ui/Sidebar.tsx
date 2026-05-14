@@ -3,7 +3,7 @@
  * 좌측 다크 사이드바. 브랜드 마크 + 메뉴 (useMenus API) + 사용자 영역.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { ChevronRight, LogOut, User } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -69,7 +69,7 @@ export function Sidebar() {
   const [opens, setOpens] = useState<Record<string, boolean>>(initialOpens)
 
   // 새 라우트로 이동 시 그 분기는 자동 열기 (사용자가 닫은 분기는 유지)
-  useMemo(() => {
+  useEffect(() => {
     setOpens((s) => ({ ...s, ...initialOpens }))
   }, [initialOpens])
 
