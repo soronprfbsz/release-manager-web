@@ -17,30 +17,39 @@ interface PageLayoutProps {
   children: ReactNode
   /** 콘텐츠 영역에 추가 className */
   contentClassName?: string
+  /**
+   * Viewport-fill 모드.
+   *  - **default (false)** = **자연 흐름**: 콘텐츠 자체 높이로 렌더, 페이지가 길어지면 main 이 스크롤
+   *    카드 그리드 / 폼 / 테이블 / 대시보드 등 대부분의 페이지가 이쪽
+   *  - **true** = viewport-fill: 콘텐츠 영역이 잔여 높이 차지, 자식이 h-full 로 채울 수 있음
+   *    Tree+Detail 분할 (ContentSplit) / 터미널 / 큰 차트 보드 등 화면-바운드 페이지만
+   *
+   * 모던 SaaS 대시보드 (Vercel / GitHub / Stripe / Notion) 가 따르는 패턴:
+   *   기본 자연 흐름 + 분할 화면 같은 특수 케이스만 viewport-fill 옵트인.
+   */
+  fullHeight?: boolean
 }
 
 /**
- * Backstage redesign 페이지 레이아웃.
+ * Backstage 리디자인 페이지 레이아웃.
  *
- *  ⟡ Flex chain — `min-h-full flex flex-col`. 부모(`<main>`) 가 overflow-auto 이고
- *    이 컴포넌트가 최소 뷰포트 높이를 차지하므로:
- *      - 콘텐츠가 짧으면 → 페이지가 viewport 하단까지 자연스럽게 채워짐
- *      - 콘텐츠가 길면  → main 이 스크롤
- *  ⟡ children 은 `flex-1 min-h-0` 영역 안에 렌더 → 내부 컴포넌트에 `h-full` 만 주면
- *    자동으로 viewport-남은-공간 만큼 채워짐 (ContentSplit, DataTable 등).
- *  ⟡ 좌우 padding `px-10` (40px) — Backstage 시안의 res-content 와 동등.
- *
- *  사용 패턴:
+ *  ⟡ 기본 (자연 흐름) — 콘텐츠 카드가 자체 높이로 렌더링되고 페이지가 자연 스크롤:
  *  ```tsx
- *  <PageLayout title="버전 관리" actions={<Buttons />}>
- *    <ContentSplit className="h-full">…</ContentSplit>   // viewport 채움
- *  </PageLayout>
- *
- *  // 또는 자연 흐름 (대시보드 등):
- *  <PageLayout title="홈">
- *    <div className="grid grid-cols-3 gap-4">…</div>      // 자연 높이
+ *  <PageLayout title="계정 관리" actions={<Filters />}>
+ *    <ContentCard>
+ *      <Table>…</Table>
+ *    </ContentCard>
  *  </PageLayout>
  *  ```
+ *
+ *  ⟡ fullHeight — Tree+Detail 분할 / 터미널 등 viewport-바운드:
+ *  ```tsx
+ *  <PageLayout fullHeight title="버전 관리">
+ *    <ContentSplit>…</ContentSplit>     // h-full 로 잔여 채움
+ *  </PageLayout>
+ *  ```
+ *
+ *  좌우 padding `px-12` (48px) — 모든 페이지 일관.
  */
 export function PageLayout({
   icon: iconProp,
@@ -49,6 +58,7 @@ export function PageLayout({
   actions,
   children,
   contentClassName,
+  fullHeight = false,
 }: PageLayoutProps) {
   const { icon: menuIcon, title: menuTitle, description: menuDescription } = usePageIcon()
 
@@ -57,16 +67,27 @@ export function PageLayout({
   const description = descriptionProp ?? menuDescription
 
   return (
-    <div className="min-h-full flex flex-col gap-6 px-12 py-7">
+    <div
+      className={cn(
+        'flex flex-col gap-6 px-12 py-7',
+        fullHeight && 'min-h-full',
+      )}
+    >
       <PageHeader
         icon={icon}
         title={title}
         description={description}
         actions={actions}
       />
-      <div className={cn('flex-1 min-h-0 flex flex-col', contentClassName)}>
-        {children}
-      </div>
+      {fullHeight ? (
+        <div className={cn('flex-1 min-h-0 flex flex-col', contentClassName)}>
+          {children}
+        </div>
+      ) : contentClassName ? (
+        <div className={contentClassName}>{children}</div>
+      ) : (
+        children
+      )}
     </div>
   )
 }

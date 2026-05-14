@@ -672,7 +672,6 @@ export function FileSyncPage() {
             actions={currentTab === 'analysis' ? getAnalysisHeaderActions() : getIgnoredHeaderActions()}
         >
             <TabbedContentCard
-                fullHeight
                 value={currentTab}
                 onValueChange={handleTabChange}
                 tabs={[

@@ -59,6 +59,7 @@ export function TerminalPage() {
 
   return (
     <PageLayout
+      fullHeight
       actions={
         <>
           {session ? (

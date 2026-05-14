@@ -222,7 +222,7 @@ export function SchedulerPage() {
         </div>
       }
     >
-      <ContentCard fullHeight noPadding>
+      <ContentCard noPadding>
         <div className="px-8 py-6">
           <SchedulerTable
             jobs={jobs}

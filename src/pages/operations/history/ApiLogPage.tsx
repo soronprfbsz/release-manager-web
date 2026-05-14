@@ -85,7 +85,7 @@ export function ApiLogPage() {
 
   return (
     <PageLayout>
-      <ContentCard fullHeight actions={<ApiLogFilters filters={filters} onFiltersChange={setFilters} />}>
+      <ContentCard actions={<ApiLogFilters filters={filters} onFiltersChange={setFilters} />}>
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
