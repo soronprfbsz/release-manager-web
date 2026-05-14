@@ -12,73 +12,10 @@
    ================================================================= */
 
 @layer base {
-  /* ---------- LIGHT ------------------------------------------------ */
-  .light {
-    --background:             0 0% 100%;       /* #FFFFFF white */
-    --foreground:             0 0% 13%;        /* #202020 gray-900 */
-    --card:                   0 0% 100%;
-    --card-foreground:        0 0% 13%;
-    --popover:                0 0% 100%;
-    --popover-foreground:     0 0% 13%;
-
-    --primary:                173 83% 31%;     /* #0e9384 brand-600 teal */
-    --primary-foreground:     0 0% 100%;
-
-    --secondary:              0 0% 98%;        /* #fafafa gray-50 */
-    --secondary-foreground:   0 0% 13%;
-
-    --muted:                  0 0% 96%;        /* #f5f5f5 gray-100 */
-    --muted-foreground:       0 0% 44%;        /* #707070 gray-500 */
-
-    --accent:                 173 76% 96%;     /* brand-50 #f0fdf9 — soft brand tint */
-    --accent-foreground:      173 76% 25%;     /* #107569 brand-700 */
-
-    --destructive:            4 75% 49%;       /* #d92d20 error-600 */
-    --destructive-foreground: 0 0% 100%;
-
-    --border:                 0 0% 92%;        /* #eaeaea gray-200 */
-    --input:                  0 0% 92%;
-    --ring:                   173 83% 31%;     /* brand-600 */
-
-    --radius:                 0.5rem;          /* 8px — Backstage button radius */
-
-    /* Charts — Backstage signature palette */
-    --chart-1:                173 83% 31%;     /* brand teal */
-    --chart-2:                211 95% 58%;     /* blue */
-    --chart-3:                248 92% 67%;     /* violet */
-    --chart-4:                35 95% 50%;      /* warning amber */
-    --chart-5:                154 91% 30%;     /* success green */
-
-    /* Category badge tints — kept colored (DB/WEB/ENG/ETC) */
-    --cat-database:           211 95% 58%;
-    --cat-web:                154 91% 30%;
-    --cat-engine:             248 92% 67%;
-    --cat-etc:                0 0% 44%;
-
-    /* Theme-color scale (legacy safelist) */
-    --theme-color-1:          173 83% 31%;     /* brand teal */
-    --theme-color-2:          35 95% 50%;      /* warning amber */
-    --theme-color-3:          211 95% 58%;     /* blue */
-    --theme-color-4:          154 91% 30%;     /* success green */
-    --theme-color-5:          248 92% 67%;     /* violet */
-
-    --header-bg:              0 0% 100%;
-
-    /* Sidebar (dark even in light mode for Backstage look) — opt-in via .rm-side
-       Default we override below for light variant. */
-    --sidebar-bg:             0 0% 99%;        /* #FAFBFC */
-    --sidebar-fg:             0 0% 29%;        /* gray-700 */
-    --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
-    --sidebar-border:         0 0% 92%;        /* gray-200 */
-    --sidebar-hover:          0 0% 96%;        /* gray-100 */
-    --sidebar-active-bg:      173 76% 96%;     /* brand-50 */
-    --sidebar-active-fg:      173 76% 25%;     /* brand-700 */
-    --sidebar-active-border:  173 76% 70% / 0.30;
-  }
-
   /* ---------- DARK (default) -------------------------------------- */
+  /* :root 가 디폴트로 dark 토큰을 갖는다. <html> 에 클래스 없을 때 / .dark 일 때 모두 적용. */
   :root,
-  .dark {
+  :root.dark {
     --background:             0 0% 9%;         /* #171717 night-900 */
     --foreground:             0 0% 97%;        /* #f7f7f7 night-fg */
     --card:                   0 0% 6%;         /* #0f0f0f night-1000 */
@@ -105,6 +42,8 @@
     --input:                  0 0% 16%;
     --ring:                   170 75% 64%;     /* brand-300 — visible on dark */
 
+    --radius:                 0.5rem;          /* 8px — Backstage button radius */
+
     --chart-1:                170 75% 64%;     /* brand-300 light teal */
     --chart-2:                211 100% 76%;    /* #84caff blue-300 */
     --chart-3:                253 89% 76%;     /* #a48afb violet-300 */
@@ -124,7 +63,7 @@
 
     --header-bg:              0 0% 9%;
 
-    /* Sidebar — always dark in dark theme, matches main */
+    /* Sidebar — dark theme */
     --sidebar-bg:             0 0% 6%;         /* night-1000 */
     --sidebar-fg:             0 0% 97%;
     --sidebar-fg-muted:       0 0% 60%;
@@ -133,6 +72,68 @@
     --sidebar-active-bg:      173 70% 18%;
     --sidebar-active-fg:      170 75% 64%;
     --sidebar-active-border:  173 70% 35% / 0.40;
+  }
+
+  /* ---------- LIGHT ------------------------------------------------ */
+  /* :root.light 로 specificity (0,2,0) > :root (0,1,0) — 명시적으로 우선순위 보장. */
+  :root.light {
+    --background:             0 0% 100%;       /* #FFFFFF white */
+    --foreground:             0 0% 13%;        /* #202020 gray-900 */
+    --card:                   0 0% 100%;
+    --card-foreground:        0 0% 13%;
+    --popover:                0 0% 100%;
+    --popover-foreground:     0 0% 13%;
+
+    --primary:                173 83% 31%;     /* #0e9384 brand-600 teal */
+    --primary-foreground:     0 0% 100%;
+
+    --secondary:              0 0% 98%;        /* #fafafa gray-50 */
+    --secondary-foreground:   0 0% 13%;
+
+    --muted:                  0 0% 96%;        /* #f5f5f5 gray-100 */
+    --muted-foreground:       0 0% 44%;        /* #707070 gray-500 */
+
+    --accent:                 173 76% 96%;     /* brand-50 #f0fdf9 — soft brand tint */
+    --accent-foreground:      173 76% 25%;     /* #107569 brand-700 */
+
+    --destructive:            4 75% 49%;       /* #d92d20 error-600 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border:                 0 0% 92%;        /* #eaeaea gray-200 */
+    --input:                  0 0% 92%;
+    --ring:                   173 83% 31%;     /* brand-600 */
+
+    /* Charts — Backstage signature palette */
+    --chart-1:                173 83% 31%;     /* brand teal */
+    --chart-2:                211 95% 58%;     /* blue */
+    --chart-3:                248 92% 67%;     /* violet */
+    --chart-4:                35 95% 50%;      /* warning amber */
+    --chart-5:                154 91% 30%;     /* success green */
+
+    /* Category badge tints — light theme — slightly darker for contrast on white */
+    --cat-database:           211 95% 45%;
+    --cat-web:                154 91% 30%;
+    --cat-engine:             248 92% 55%;
+    --cat-etc:                0 0% 44%;
+
+    /* Theme-color scale (legacy safelist) */
+    --theme-color-1:          173 83% 31%;     /* brand teal */
+    --theme-color-2:          35 95% 50%;      /* warning amber */
+    --theme-color-3:          211 95% 58%;     /* blue */
+    --theme-color-4:          154 91% 30%;     /* success green */
+    --theme-color-5:          248 92% 67%;     /* violet */
+
+    --header-bg:              0 0% 100%;
+
+    /* Sidebar — light theme: 밝은 회색 surface + 어두운 텍스트 */
+    --sidebar-bg:             220 14% 96%;     /* #f3f4f6 slate-100 */
+    --sidebar-fg:             0 0% 13%;        /* gray-900 */
+    --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
+    --sidebar-border:         0 0% 92%;        /* gray-200 */
+    --sidebar-hover:          0 0% 92%;        /* gray-200 */
+    --sidebar-active-bg:      173 76% 96%;     /* brand-50 */
+    --sidebar-active-fg:      173 76% 25%;     /* brand-700 */
+    --sidebar-active-border:  173 76% 70% / 0.30;
   }
 }
 
