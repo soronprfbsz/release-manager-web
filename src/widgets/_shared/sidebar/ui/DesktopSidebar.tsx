@@ -28,9 +28,9 @@ import {
 } from '@/shared/ui/dropdown-menu'
 import { TooltipProvider } from '@/shared/ui/tooltip'
 
+import { SidebarMenuItem } from './SidebarMenuItem'
 import { hasActiveDescendant } from '../lib/menu-active'
 
-import { SidebarMenuItem } from './SidebarMenuItem'
 
 export function DesktopSidebar() {
   const location = useLocation()
