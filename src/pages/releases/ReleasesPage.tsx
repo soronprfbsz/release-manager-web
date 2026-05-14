@@ -448,6 +448,7 @@ export function ReleasesPage() {
   return (
     <PageLayout
       fullHeight
+      description="표준 및 커스텀 릴리즈 트리. 버전을 선택해 상세, 파일 그리고 핫픽스를 확인하세요."
       actions={
         canAddVersion && (
           <Tooltip>
@@ -463,43 +464,36 @@ export function ReleasesPage() {
         )
       }
     >
-      <ContentSplit treeWidth={25}>
+      {/* 페이지 레벨 탭 — 카드 밖, PageHeader 와 ContentSplit 사이 */}
+      <Tabs value={currentTab} onValueChange={handleTabChange} className="flex-none">
+        <TabsList>
+          {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+            const config = TAB_CONFIG[tabKey]
+            const Icon = config.icon
+            return (
+              <TabsTrigger key={tabKey} value={tabKey}>
+                <Icon className="w-4 h-4 mr-1.5" />
+                {config.label}
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
+      </Tabs>
+
+      <ContentSplit treeWidth={25} className="flex-1 min-h-0">
         {/* Tree Panel */}
         <ContentSplit.Tree
           header={
-            <div className="flex flex-col w-full">
-              {/* 탭은 카드 상단 / 좌우 가장자리에 붙도록 width 를 ContentSplit.Tree
-                  의 px-8 padding 만큼 양쪽 확장 (+4rem) + negative margin 으로 위치 보정 */}
-              <Tabs value={currentTab} onValueChange={handleTabChange} className="w-[calc(100%+4rem)] -mx-8 -mt-6">
-                <TabsList className="w-full grid grid-cols-2 rounded-none border-b bg-transparent h-auto p-0">
-                  {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
-                    const config = TAB_CONFIG[tabKey]
-                    const Icon = config.icon
-                    return (
-                      <TabsTrigger
-                        key={tabKey}
-                        value={tabKey}
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-3"
-                      >
-                        <Icon className="w-4 h-4 mr-1.5" />
-                        {config.label}
-                      </TabsTrigger>
-                    )
-                  })}
-                </TabsList>
-              </Tabs>
-              {/* Title row — 탭 직후 4px gap 으로 자연스럽게 분리 */}
-              <div className="flex items-center justify-between pt-6">
-                <div className="flex items-center gap-2 text-base font-semibold">
-                  <Network className="h-4 w-4" />
-                  버전 트리
-                </div>
-                {versionCount > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    {versionCount}개 버전
-                  </span>
-                )}
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 text-base font-semibold">
+                <Network className="h-4 w-4" />
+                버전 트리
               </div>
+              {versionCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {versionCount}개 버전
+                </span>
+              )}
             </div>
           }
         >

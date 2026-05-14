@@ -54,7 +54,8 @@ import { useToast } from '@/shared/lib/hooks/use-toast'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useAuthStore, useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import { TabbedContentCard } from '@/shared/ui/content-layout'
+import { ContentCard } from '@/shared/ui/content-layout'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -464,6 +465,7 @@ export function PatchesPage() {
 
   return (
     <PageLayout
+      description="릴리즈 범위로 누적 패치를 생성하고 고객사별로 배포하세요."
       actions={
         <div className="flex items-center gap-2">
           {canDeletePatch && currentSelectedCount > 0 && (
@@ -498,16 +500,24 @@ export function PatchesPage() {
         </div>
       }
     >
-      <TabbedContentCard
-        value={currentTab}
-        onValueChange={handleTabChange}
-        tabs={[
-          {
-            value: 'standard',
-            label: TAB_CONFIG.standard.label,
-            icon: TAB_CONFIG.standard.icon,
-            contentClassName: 'px-8 pt-8 pb-8',
-            content: isStandardLoading ? (
+      {/* 페이지 레벨 탭 + ContentCard 로 분리 (기존 TabbedContentCard 구조 해체) */}
+      <Tabs value={currentTab} onValueChange={handleTabChange}>
+        <TabsList>
+          {(Object.keys(TAB_CONFIG) as TabType[]).map((tabKey) => {
+            const config = TAB_CONFIG[tabKey]
+            const Icon = config.icon
+            return (
+              <TabsTrigger key={tabKey} value={tabKey}>
+                <Icon className="w-4 h-4 mr-1.5" />
+                {config.label}
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
+
+        <TabsContent value="standard">
+          <ContentCard>
+            {isStandardLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
@@ -543,14 +553,13 @@ export function PatchesPage() {
                   </div>
                 )}
               </>
-            ),
-          },
-          {
-            value: 'custom',
-            label: TAB_CONFIG.custom.label,
-            icon: TAB_CONFIG.custom.icon,
-            contentClassName: 'px-8 pt-8 pb-8',
-            content: isCustomLoading ? (
+            )}
+          </ContentCard>
+        </TabsContent>
+
+        <TabsContent value="custom">
+          <ContentCard>
+            {isCustomLoading ? (
               <div className="flex items-center justify-center h-48">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
               </div>
@@ -586,10 +595,10 @@ export function PatchesPage() {
                   </div>
                 )}
               </>
-            ),
-          },
-        ]}
-      />
+            )}
+          </ContentCard>
+        </TabsContent>
+      </Tabs>
 
       {/* Standard Patch Create Form */}
       <PatchCreateForm
