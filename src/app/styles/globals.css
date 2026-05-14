@@ -75,11 +75,14 @@
   }
 
   /* ---------- LIGHT ------------------------------------------------ */
-  /* :root.light 로 specificity (0,2,0) > :root (0,1,0) — 명시적으로 우선순위 보장. */
+  /* :root.light 로 specificity (0,2,0) > :root (0,1,0) — 명시적으로 우선순위 보장.
+     모던 SaaS 라이트 테마 (GitHub / Stripe / Linear) 의 3단 visual hierarchy:
+       Sidebar (slate-100, 가장 짙은 회색)  >  Page (slate-50, 옅은 회색)  >  Card (흰색, 가장 밝음)
+     덕분에 카드가 페이지 위에 살짝 떠있는 elevation 감을 보이며 트리 / 디테일 영역이 한눈에 구분됨. */
   :root.light {
-    --background:             0 0% 100%;       /* #FFFFFF white */
+    --background:             210 20% 98%;     /* #f8fafc slate-50 — 페이지 옅은 회색 */
     --foreground:             0 0% 13%;        /* #202020 gray-900 */
-    --card:                   0 0% 100%;
+    --card:                   0 0% 100%;       /* #FFFFFF white — 카드는 흰색으로 떠보임 */
     --card-foreground:        0 0% 13%;
     --popover:                0 0% 100%;
     --popover-foreground:     0 0% 13%;
@@ -125,12 +128,12 @@
 
     --header-bg:              0 0% 100%;
 
-    /* Sidebar — light theme: 밝은 회색 surface + 어두운 텍스트 */
-    --sidebar-bg:             220 14% 96%;     /* #f3f4f6 slate-100 */
+    /* Sidebar — light theme: 페이지(slate-50) 보다 한 단계 더 짙은 slate-100 */
+    --sidebar-bg:             220 14% 94%;     /* #ebedf2 — slate-100 보다 살짝 더 짙어서 page 와 명확 구분 */
     --sidebar-fg:             0 0% 13%;        /* gray-900 */
     --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
-    --sidebar-border:         0 0% 92%;        /* gray-200 */
-    --sidebar-hover:          0 0% 92%;        /* gray-200 */
+    --sidebar-border:         220 14% 88%;     /* sidebar 와 page 경계 보강 */
+    --sidebar-hover:          0 0% 100%;       /* hover 시 white — 카드와 동일 surface */
     --sidebar-active-bg:      173 76% 96%;     /* brand-50 */
     --sidebar-active-fg:      173 76% 25%;     /* brand-700 */
     --sidebar-active-border:  173 76% 70% / 0.30;
