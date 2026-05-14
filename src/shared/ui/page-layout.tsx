@@ -70,7 +70,11 @@ export function PageLayout({
     <div
       className={cn(
         'flex flex-col gap-6 px-12 py-7',
-        fullHeight && 'min-h-full',
+        // fullHeight: 정확히 viewport-bound — main 높이 = PageLayout 높이.
+        // overflow-hidden 으로 PageLayout 이 main 을 넘어 자라지 못하도록 차단.
+        // 결과: 내부 컨텐츠 (ContentSplit) 가 잔여 높이를 모두 차지하고 패널마다
+        //       내부 스크롤로 오버플로우 처리. main 자체는 스크롤 안 함.
+        fullHeight && 'h-full overflow-hidden',
       )}
     >
       <PageHeader

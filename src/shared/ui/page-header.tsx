@@ -28,7 +28,7 @@ export function PageHeader({
   const displayDescription = description || menuDescription
 
   return (
-    <div className={cn('flex items-end justify-between gap-6', className)}>
+    <div className={cn('flex items-end justify-between gap-6 px-3', className)}>
       <div className="min-w-0">
         <h1 className="text-[26px] leading-[32px] font-semibold tracking-[-0.01em] text-foreground">
           {title}
