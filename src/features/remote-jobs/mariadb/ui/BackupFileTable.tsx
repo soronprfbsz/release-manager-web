@@ -72,7 +72,7 @@ export function BackupFileTable({
   }
 
   return (
-    <DataTable>
+    <DataTable autoHeight>
       <Table>
         <TableHeader>
           <TableRow>
