@@ -27,7 +27,7 @@ interface MainLayoutProps {
  */
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex h-screen w-screen bg-background overflow-hidden">
+    <div className="flex h-full w-full bg-background overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         <header className="flex items-center gap-3 px-6 h-16 border-b border-border bg-background flex-none">
@@ -38,7 +38,11 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="h-5 w-px bg-border mx-1" />
           <ThemeToggle />
         </header>
-        <main className="flex-1 min-h-0 overflow-y-auto">
+        {/* 페이지 콘텐츠 영역 — 세로 스크롤 단독.
+            가로 스크롤은 main 에 절대 발생시키지 않음 (overflow-x-hidden) — 컬럼 넓은
+            테이블은 DataTable 내부의 overflow-x-auto 가 자체 처리하므로 page header /
+            pagination 이 가로 흐름과 분리됨. */}
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>

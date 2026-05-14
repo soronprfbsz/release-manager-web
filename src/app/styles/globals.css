@@ -142,9 +142,14 @@
   }
 
   /* 앱 셸 flex chain — html/body/#root 가 모두 뷰포트 높이 공급.
-     덕분에 자식 컴포넌트가 h-full 로 자연스럽게 채움. */
+     덕분에 자식 컴포넌트가 h-full 로 자연스럽게 채움.
+     body overflow: hidden — native 브라우저 스크롤 leak 차단.
+     세로 스크롤은 <main> 이 단독 책임. */
   html, body, #root {
     height: 100%;
+  }
+  body {
+    overflow: hidden;
   }
 
   body {

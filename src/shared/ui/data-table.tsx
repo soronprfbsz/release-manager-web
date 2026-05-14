@@ -141,9 +141,11 @@ export function DataTable({
   }
 
   // 기존 고전적 페이징 모드
+  // autoHeight: 자체 세로 스크롤 X. 단, 컬럼 합계가 컨테이너보다 넓을 때
+  // overflow-x-auto 가 테이블 영역 안에서 가로 스크롤을 처리해 main 으로 새지 않게 함.
   if (autoHeight) {
     return (
-      <div className={cn("w-full", borderClass, className)}>
+      <div className={cn("w-full overflow-x-auto", borderClass, className)}>
         {children}
       </div>
     )
