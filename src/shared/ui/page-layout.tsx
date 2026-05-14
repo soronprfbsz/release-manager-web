@@ -84,7 +84,7 @@ export function PageLayout({
         actions={actions}
       />
       {fullHeight ? (
-        <div className={cn('flex-1 min-h-0 flex flex-col', contentClassName)}>
+        <div className={cn('flex-1 min-h-0 flex flex-col gap-6', contentClassName)}>
           {children}
         </div>
       ) : contentClassName ? (
