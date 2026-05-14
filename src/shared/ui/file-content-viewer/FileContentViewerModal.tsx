@@ -223,7 +223,7 @@ export function FileContentViewerModal({
   const language = getLanguageFromFileName(fileName)
   const containerRef = useRef<HTMLDivElement>(null)
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef)
-  const theme = useThemeStore((state) => state.theme)
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme)
   const isPdf = isPdfFile(fileName)
   const isImage = isImageFile(fileName)
   const isExcel = isExcelFile(fileName)
@@ -238,7 +238,7 @@ export function FileContentViewerModal({
   }, [imageBlob])
 
   // 테마에 따른 syntax highlighter 스타일 선택
-  const syntaxStyle = theme === 'white' ? vs : vscDarkPlus
+  const syntaxStyle = resolvedTheme === 'light' ? vs : vscDarkPlus
 
   // 콘텐츠 크기 계산 및 미리보기 처리
   const { displayContent, isTruncated, totalLines, displayedLines, contentSize, truncateReason } = useMemo(() => {

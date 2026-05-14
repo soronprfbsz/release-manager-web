@@ -15,7 +15,6 @@ import '@xterm/xterm/css/xterm.css'
 
 import { useFullscreen } from '@/shared/lib/hooks/use-fullscreen'
 import { useSshSessionStore } from '@/shared/store/useSshSessionStore'
-import type { Theme } from '@/shared/store/useThemeStore'
 import { useThemeStore } from '@/shared/store/useThemeStore'
 import { Button } from '@/shared/ui/button'
 
@@ -81,52 +80,32 @@ export const XtermTerminal = forwardRef<XtermTerminalHandle, XtermTerminalProps>
       },
     }), [sessionId, appendOutput])
 
-    // Theme 관리
-    const theme = useThemeStore((state) => state.theme)
+    // Theme 관리 — useThemeStore.resolvedTheme 은 항상 'light' | 'dark'
+    const resolvedTheme = useThemeStore((state) => state.resolvedTheme)
 
     // 테마 적용 함수
-    const getTerminalTheme = useCallback((currentTheme: Theme) => {
-      if (currentTheme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        return isDark ? XTERM_THEMES.black : XTERM_THEMES.white
-      }
-      return XTERM_THEMES[currentTheme] || XTERM_THEMES.black
+    const getTerminalTheme = useCallback((mode: 'light' | 'dark') => {
+      return XTERM_THEMES[mode]
     }, [])
 
-    // 현재 제마 상태 관리
-    const [activeTheme, setActiveTheme] = useState<ITheme>(() => getTerminalTheme(theme))
+    // 현재 테마 상태 관리
+    const [activeTheme, setActiveTheme] = useState<ITheme>(() => getTerminalTheme(resolvedTheme))
 
     // 테마 변경 감지 및 적용
     useEffect(() => {
       if (!xtermRef.current) return
 
-      const newTheme = getTerminalTheme(theme)
+      const newTheme = getTerminalTheme(resolvedTheme)
       xtermRef.current.options.theme = newTheme
       setActiveTheme(newTheme)
-    }, [theme, getTerminalTheme])
-
-    // 시스템 테마 변경 감지
-    useEffect(() => {
-      if (theme !== 'system') return
-
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () => {
-        if (!xtermRef.current) return
-        const newTheme = getTerminalTheme('system')
-        xtermRef.current.options.theme = newTheme
-        setActiveTheme(newTheme)
-      }
-
-      mediaQuery.addEventListener('change', handleChange)
-      return () => mediaQuery.removeEventListener('change', handleChange)
-    }, [theme, getTerminalTheme])
+    }, [resolvedTheme, getTerminalTheme])
 
     // xterm 인스턴스 초기화 (마운트 시 한 번만)
     useEffect(() => {
       if (!terminalRef.current) return
 
       // 초기 테마
-      const initialTheme = getTerminalTheme(theme)
+      const initialTheme = getTerminalTheme(resolvedTheme)
       setActiveTheme(initialTheme)
 
       // Terminal 인스턴스 생성

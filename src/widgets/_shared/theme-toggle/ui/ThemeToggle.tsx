@@ -1,84 +1,32 @@
-import { useState, useRef, useCallback } from 'react'
-
-import { Moon, Sun, Check } from 'lucide-react'
+import { Moon, Sun } from 'lucide-react'
 
 import { useThemeStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
 
+/**
+ * Theme toggle — Backstage redesign
+ * Light / Dark 2-state, 단일 클릭 토글. 현재 모드의 반대 아이콘을 표시.
+ */
 export function ThemeToggle() {
   const theme = useThemeStore((state) => state.theme)
   const setTheme = useThemeStore((state) => state.setTheme)
-  const [open, setOpen] = useState(false)
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const clearCloseTimeout = useCallback(() => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current)
-      closeTimeoutRef.current = null
-    }
-  }, [])
-
-  const handleMouseEnter = useCallback(() => {
-    clearCloseTimeout()
-    setOpen(true)
-  }, [clearCloseTimeout])
-
-  const handleMouseLeave = useCallback(() => {
-    clearCloseTimeout()
-    closeTimeoutRef.current = setTimeout(() => {
-      setOpen(false)
-    }, 150)
-  }, [clearCloseTimeout])
+  const isDark = theme === 'dark'
+  const next: 'light' | 'dark' = isDark ? 'light' : 'dark'
 
   return (
-    <DropdownMenu open={open} modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost-icon"
-          size="icon"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onClick={(e) => e.preventDefault()}
-        >
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">테마 전환</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onCloseAutoFocus={(e) => e.preventDefault()}
-      >
-        <DropdownMenuItem onClick={() => { setTheme('white'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#f0f9f6', border: '2px solid #539c85' }} />
-            <span className="flex-1">White</span>
-            {theme === 'white' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('black'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700" />
-            <span className="flex-1">Black</span>
-            {theme === 'black' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { setTheme('gruvbox'); setOpen(false) }}>
-          <div className="flex items-center gap-2 w-full">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#282828', borderWidth: '2px', borderColor: '#fabd2f' }} />
-            <span className="flex-1">Gruvbox</span>
-            {theme === 'gruvbox' && <Check className="h-4 w-4" />}
-          </div>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost-icon"
+      size="icon-sm"
+      onClick={() => setTheme(next)}
+      title={isDark ? 'Light 테마로 전환' : 'Dark 테마로 전환'}
+    >
+      {isDark ? (
+        <Sun className="h-[1.1rem] w-[1.1rem]" />
+      ) : (
+        <Moon className="h-[1.1rem] w-[1.1rem]" />
+      )}
+      <span className="sr-only">테마 전환</span>
+    </Button>
   )
 }

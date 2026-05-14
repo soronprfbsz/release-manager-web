@@ -1,81 +1,58 @@
 import type { ITheme } from '@xterm/xterm'
 
-type ThemeType =
-    | 'black'
-    | 'white'
-    | 'gruvbox'
+type ThemeType = 'light' | 'dark'
 
+/**
+ * Xterm.js terminal themes — Backstage redesign.
+ * Background / foreground / cursor 는 globals.css 와 동기화.
+ */
 export const XTERM_THEMES: Record<ThemeType, ITheme> = {
-    // Fresh Mint Dark Mode (Default dark theme)
-    black: {
-        background: '#181d1c', // Fresh Mint dark card (160 12% 11%)
-        foreground: '#ebf2f0', // Fresh Mint dark foreground (160 8% 95%)
-        cursor: '#7ebfab', // Fresh Mint dark primary (155 32% 58%)
-        cursorAccent: '#181d1c',
-        selectionBackground: '#26342f', // Fresh Mint dark accent
-        black: '#181d1c',
-        red: '#e64b5a', // Soft red (--destructive)
-        green: '#7ebfab', // Fresh sage (--primary dark)
-        yellow: '#d4a544',
-        blue: '#5baec7',
-        magenta: '#b39ddb',
-        cyan: '#48d1cc',
-        white: '#a9bfba',
-        brightBlack: '#9eb5b0', // Muted foreground
-        brightRed: '#f07178',
-        brightGreen: '#8ccab7',
-        brightYellow: '#f0c674',
-        brightBlue: '#79c0ff',
-        brightMagenta: '#d2a8ff',
-        brightCyan: '#56d4dd',
-        brightWhite: '#ebf2f0',
+    // Light — Backstage white surface, teal cursor
+    light: {
+        background: '#FFFFFF',
+        foreground: '#202020',           // gray-900
+        cursor: '#0e9384',               // brand-600 teal
+        cursorAccent: '#FFFFFF',
+        selectionBackground: '#f0fdf9',  // brand-50
+        black: '#202020',
+        red: '#d92d20',                  // error-600
+        green: '#079455',                // success-600
+        yellow: '#dc6803',               // warning-600
+        blue: '#1570ef',                 // blue-600
+        magenta: '#6938ef',              // violet-600
+        cyan: '#0e9384',                 // brand-600
+        white: '#d7d7d7',                // gray-300
+        brightBlack: '#707070',          // gray-500
+        brightRed: '#f04438',
+        brightGreen: '#17b26a',
+        brightYellow: '#f79009',
+        brightBlue: '#2e90fa',
+        brightMagenta: '#7a5af8',
+        brightCyan: '#2ed3b7',
+        brightWhite: '#fafafa',
     },
-    // Fresh Mint Light Mode (Default light theme)
-    white: {
-        background: '#ffffff', // White cards (Fresh Mint light)
-        foreground: '#252d2e', // Deep teal-gray text (--foreground)
-        cursor: '#539c85', // Fresh sage green (--primary)
-        cursorAccent: '#ffffff',
-        selectionBackground: '#d9ede6', // Light sage accent (--accent)
-        black: '#252d2e',
-        red: '#e64b5a', // Soft red (--destructive)
-        green: '#539c85', // Fresh sage green (--primary)
-        yellow: '#d4a017',
-        blue: '#4a90a4',
-        magenta: '#9370db',
-        cyan: '#20b2aa',
-        white: '#d5e6e0',
-        brightBlack: '#697172', // Muted teal-gray (--muted-foreground)
-        brightRed: '#f07178',
-        brightGreen: '#6db39a',
-        brightYellow: '#f0c674',
-        brightBlue: '#5baec7',
-        brightMagenta: '#b39ddb',
-        brightCyan: '#48d1cc',
-        brightWhite: '#f0f9f6', // Soft mint background
-    },
-    // Gruvbox (Matches card background in gruvbox theme)
-    gruvbox: {
-        background: '#333333', // Same as --card in gruvbox theme (0 0% 20%)
-        foreground: '#ebdbb2',
-        cursor: '#ebdbb2',
-        cursorAccent: '#333333',
-        selectionBackground: '#3c3836',
-        black: '#333333',
-        red: '#cc241d',
-        green: '#98971a',
-        yellow: '#d79921',
-        blue: '#458588',
-        magenta: '#b16286',
-        cyan: '#689d6a',
-        white: '#a89984',
-        brightBlack: '#928374',
-        brightRed: '#fb4934',
-        brightGreen: '#b8bb26',
-        brightYellow: '#fabd2f',
-        brightBlue: '#83a598',
-        brightMagenta: '#d3869b',
-        brightCyan: '#8ec07c',
-        brightWhite: '#ebdbb2',
+    // Dark — Backstage night-1000 surface, brand-300 cursor
+    dark: {
+        background: '#0f0f0f',           // night-1000
+        foreground: '#f7f7f7',           // night-fg
+        cursor: '#5fe9d0',               // brand-300
+        cursorAccent: '#0f0f0f',
+        selectionBackground: '#292929',  // night-700
+        black: '#0f0f0f',
+        red: '#f04438',
+        green: '#6ce9a6',
+        yellow: '#fec84b',
+        blue: '#84caff',
+        magenta: '#a48afb',
+        cyan: '#5fe9d0',
+        white: '#494949',                // gray-700 (mid-gray on dark)
+        brightBlack: '#989898',          // night-fg-2
+        brightRed: '#fda29b',
+        brightGreen: '#a6e1c4',
+        brightYellow: '#fee98a',
+        brightBlue: '#b2ddff',
+        brightMagenta: '#c4b8fd',
+        brightCyan: '#99f6e0',
+        brightWhite: '#f7f7f7',
     },
 }
