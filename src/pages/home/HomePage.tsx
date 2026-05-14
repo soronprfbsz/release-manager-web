@@ -26,6 +26,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
+import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
@@ -181,9 +182,12 @@ export function HomePage() {
   )
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-4">
+    <PageLayout
+      title="홈"
+      description="릴리즈 · 패치 · 활동을 한눈에 확인하세요."
+    >
       {/* Latest Info Cards */}
-      <div className="flex-shrink-0">
+      <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
         <div className="grid grid-cols-3 gap-4">
           {/* 표준본 최신 릴리즈 */}
@@ -347,13 +351,13 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Statistics - 남은 공간을 채움 */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        <TypographyLarge className="mb-3 flex-shrink-0">Statistics</TypographyLarge>
-        <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+      {/* Statistics — 카드 자체는 고정 높이 (320px), 차트 영역은 카드 헤더 제외분 차지 */}
+      <div>
+        <TypographyLarge className="mb-3">Statistics</TypographyLarge>
+        <div className="grid grid-cols-2 gap-4">
           {/* 고객사별 패치 통계 (Bar Chart) */}
-          <Card className="flex flex-col min-h-0">
-            <CardHeader className="pb-2 flex-shrink-0">
+          <Card className="flex flex-col h-80">
+            <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
                 고객사별 패치 현황
@@ -382,8 +386,8 @@ export function HomePage() {
           </Card>
 
           {/* 월별 패치 생성 현황 (Line Chart) */}
-          <Card className="flex flex-col min-h-0">
-            <CardHeader className="pb-2 flex-shrink-0">
+          <Card className="flex flex-col h-80">
+            <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
                 월별 패치 생성 현황
@@ -415,7 +419,7 @@ export function HomePage() {
       </div>
 
       {/* Quick Guide */}
-      <div className="flex-shrink-0">
+      <div>
         <TypographyLarge className="mb-3">Quick Guide</TypographyLarge>
         <Card>
           <CardContent className="p-5">
@@ -431,6 +435,6 @@ export function HomePage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }
