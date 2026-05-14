@@ -1,7 +1,8 @@
 import { ReactNode } from 'react'
 
 import { ProjectSelector } from '@/widgets/_shared/project-selector'
-import { Sidebar } from '@/widgets/_shared/sidebar'
+import { Sidebar, SidebarTrigger } from '@/widgets/_shared/sidebar'
+import { useSidebarShortcut } from '@/widgets/_shared/sidebar/ui/useSidebarShortcut'
 import { ThemeToggle } from '@/widgets/_shared/theme-toggle'
 
 import { DynamicBreadcrumb } from '@/shared/ui/dynamic-breadcrumb'
@@ -13,10 +14,9 @@ interface MainLayoutProps {
 /**
  * Backstage redesign — sidebar shell layout.
  *  ┌────────────┬──────────────────────────────────────┐
- *  │  Sidebar   │  Topbar  [breadcrumb] [project/theme]│
- *  │ flex-none  ├──────────────────────────────────────┤
- *  │            │  <main> flex-1 min-h-0 overflow-auto │
- *  │            │    └─ PageLayout (min-h-full)        │
+ *  │  Sidebar   │  Topbar  [trigger][breadcrumb] […]   │
+ *  │ (or Sheet) ├──────────────────────────────────────┤
+ *  │  on mobile │  <main> flex-1 min-h-0 overflow-auto │
  *  └────────────┴──────────────────────────────────────┘
  *
  *  ⟡ Flex chain: html/body/#root → h-full / AppShell → h-screen flex /
@@ -26,11 +26,14 @@ interface MainLayoutProps {
  *  ⟡ 페이지 좌우 패딩은 PageLayout 이 책임 (px-10) — main 은 chrome 만 담당.
  */
 export function MainLayout({ children }: MainLayoutProps) {
+  useSidebarShortcut()
+
   return (
     <div className="flex h-full w-full bg-background overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         <header className="flex items-center gap-3 px-6 h-16 border-b border-border bg-background flex-none">
+          <SidebarTrigger />
           <div className="flex-1 min-w-0 overflow-hidden">
             <DynamicBreadcrumb />
           </div>
@@ -38,10 +41,6 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="h-5 w-px bg-border mx-1" />
           <ThemeToggle />
         </header>
-        {/* 페이지 콘텐츠 영역 — 세로 스크롤 단독.
-            가로 스크롤은 main 에 절대 발생시키지 않음 (overflow-x-hidden) — 컬럼 넓은
-            테이블은 DataTable 내부의 overflow-x-auto 가 자체 처리하므로 page header /
-            pagination 이 가로 흐름과 분리됨. */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
