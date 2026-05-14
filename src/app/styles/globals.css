@@ -2,143 +2,137 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =================================================================
+   Release Manager — Backstage redesign
+   Two themes: light + dark. Default = dark.
+   Palette: Backstage Design System (Untitled-UI style)
+     - Neutral: pure gray ramp + deep "night" surfaces
+     - Brand: teal (#0e9384, brand-600)
+   shadcn HSL token form is preserved so all existing UI inherits.
+   ================================================================= */
+
 @layer base {
-  :root {
-    /* Fresh Mint Dark Mode - Default */
-    --background: 160 15% 8%;
-    --foreground: 160 8% 95%;
-    --card: 160 15% 8%;
-    --card-foreground: 160 8% 95%;
-    --popover: 160 15% 8%;
-    --popover-foreground: 160 8% 95%;
-    --primary: 155 32% 58%;
-    --primary-foreground: 180 12% 16%;
-    --secondary: 160 12% 13%;
-    --secondary-foreground: 160 8% 95%;
-    --muted: 160 12% 13%;
-    --muted-foreground: 160 8% 66%;
-    --accent: 155 28% 20%;
-    --accent-foreground: 160 8% 95%;
-    --destructive: 355 72% 56%;
-    --destructive-foreground: 160 8% 95%;
-    --border: 160 8% 18%;
-    --input: 160 8% 18%;
-    --ring: 155 32% 58%;
-    --radius: 0.375rem;
-    --chart-1: 155 32% 58%;
-    --chart-2: 45 65% 55%;
-    --chart-3: 200 45% 52%;
-    --chart-4: 30 60% 58%;
-    --chart-5: 280 35% 60%;
-    --theme-color-1: 155 32% 58%;
-    --theme-color-2: 45 65% 55%;
-    --theme-color-3: 200 45% 52%;
-    --theme-color-4: 30 60% 58%;
-    --theme-color-5: 280 35% 60%;
-    --header-bg: 160 15% 8%;
-  }
+  /* ---------- LIGHT ------------------------------------------------ */
+  .light {
+    --background:             0 0% 100%;       /* #FFFFFF white */
+    --foreground:             0 0% 13%;        /* #202020 gray-900 */
+    --card:                   0 0% 100%;
+    --card-foreground:        0 0% 13%;
+    --popover:                0 0% 100%;
+    --popover-foreground:     0 0% 13%;
 
-  .white {
-    /* Fresh Mint Light Mode — primary 톤을 handoff 디자인의 #2f9a73 으로 강화 */
-    --background: 0 0% 100%;
-    --foreground: 180 12% 16%;
-    --card: 0 0% 100%;
-    --card-foreground: 180 12% 16%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 180 12% 16%;
-    --primary: 155 53% 39%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 160 15% 96%;
-    --secondary-foreground: 180 12% 16%;
-    --muted: 160 15% 96%;
-    --muted-foreground: 180 10% 44%;
-    --accent: 180 30% 93%;
-    --accent-foreground: 180 12% 16%;
-    --destructive: 355 72% 56%;
+    --primary:                173 83% 31%;     /* #0e9384 brand-600 teal */
+    --primary-foreground:     0 0% 100%;
+
+    --secondary:              0 0% 98%;        /* #fafafa gray-50 */
+    --secondary-foreground:   0 0% 13%;
+
+    --muted:                  0 0% 96%;        /* #f5f5f5 gray-100 */
+    --muted-foreground:       0 0% 44%;        /* #707070 gray-500 */
+
+    --accent:                 173 76% 96%;     /* brand-50 #f0fdf9 — soft brand tint */
+    --accent-foreground:      173 76% 25%;     /* #107569 brand-700 */
+
+    --destructive:            4 75% 49%;       /* #d92d20 error-600 */
     --destructive-foreground: 0 0% 100%;
-    --border: 160 15% 90%;
-    --input: 160 15% 90%;
-    --ring: 155 53% 39%;
-    --radius: 0.375rem;
-    --chart-1: 155 53% 39%;
-    --chart-2: 45 65% 55%;
-    --chart-3: 200 45% 52%;
-    --chart-4: 30 60% 58%;
-    --chart-5: 280 35% 60%;
-    --theme-color-1: 155 53% 39%;
-    --theme-color-2: 45 65% 55%;
-    --theme-color-3: 200 45% 52%;
-    --theme-color-4: 30 60% 58%;
-    --theme-color-5: 280 35% 60%;
-    --header-bg: 0 0% 100%;
+
+    --border:                 0 0% 92%;        /* #eaeaea gray-200 */
+    --input:                  0 0% 92%;
+    --ring:                   173 83% 31%;     /* brand-600 */
+
+    --radius:                 0.5rem;          /* 8px — Backstage button radius */
+
+    /* Charts — Backstage signature palette */
+    --chart-1:                173 83% 31%;     /* brand teal */
+    --chart-2:                211 95% 58%;     /* blue */
+    --chart-3:                248 92% 67%;     /* violet */
+    --chart-4:                35 95% 50%;      /* warning amber */
+    --chart-5:                154 91% 30%;     /* success green */
+
+    /* Category badge tints — kept colored (DB/WEB/ENG/ETC) */
+    --cat-database:           211 95% 58%;
+    --cat-web:                154 91% 30%;
+    --cat-engine:             248 92% 67%;
+    --cat-etc:                0 0% 44%;
+
+    /* Theme-color scale (legacy safelist) */
+    --theme-color-1:          173 83% 31%;     /* brand teal */
+    --theme-color-2:          35 95% 50%;      /* warning amber */
+    --theme-color-3:          211 95% 58%;     /* blue */
+    --theme-color-4:          154 91% 30%;     /* success green */
+    --theme-color-5:          248 92% 67%;     /* violet */
+
+    --header-bg:              0 0% 100%;
+
+    /* Sidebar (dark even in light mode for Backstage look) — opt-in via .rm-side
+       Default we override below for light variant. */
+    --sidebar-bg:             0 0% 99%;        /* #FAFBFC */
+    --sidebar-fg:             0 0% 29%;        /* gray-700 */
+    --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
+    --sidebar-border:         0 0% 92%;        /* gray-200 */
+    --sidebar-hover:          0 0% 96%;        /* gray-100 */
+    --sidebar-active-bg:      173 76% 96%;     /* brand-50 */
+    --sidebar-active-fg:      173 76% 25%;     /* brand-700 */
+    --sidebar-active-border:  173 76% 70% / 0.30;
   }
 
-  .black {
-    /* Black Theme */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 92%;
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 92%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 92%;
-    --primary: 177 32% 65%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 92%;
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 177 25% 18%;
-    --accent-foreground: 0 0% 92%;
-    --destructive: 0 55% 45%;
-    --destructive-foreground: 0 0% 92%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 177 32% 65%;
-    --chart-1: 177 32% 65%;
-    --chart-2: 41 70% 55%;
-    --chart-3: 345 25% 60%;
-    --chart-4: 14 45% 50%;
-    --chart-5: 195 30% 55%;
-    --theme-color-1: 177 55% 50%;
-    --theme-color-2: 41 65% 55%;
-    --theme-color-3: 345 45% 60%;
-    --theme-color-4: 200 50% 55%;
-    --theme-color-5: 14 55% 55%;
-    --header-bg: 0 0% 0%;
-  }
+  /* ---------- DARK (default) -------------------------------------- */
+  :root,
+  .dark {
+    --background:             0 0% 9%;         /* #171717 night-900 */
+    --foreground:             0 0% 97%;        /* #f7f7f7 night-fg */
+    --card:                   0 0% 6%;         /* #0f0f0f night-1000 */
+    --card-foreground:        0 0% 97%;
+    --popover:                0 0% 6%;
+    --popover-foreground:     0 0% 97%;
 
-  .gruvbox {
-    /* Gruvbox Theme */
-    --background: 0 0% 16%;
-    --foreground: 46 22% 86%;
-    --card: 0 0% 16%;
-    --card-foreground: 46 22% 86%;
-    --popover: 0 0% 16%;
-    --popover-foreground: 46 22% 86%;
-    --primary: 45 93% 58%;
-    --primary-foreground: 0 0% 16%;
-    --secondary: 0 0% 22%;
-    --secondary-foreground: 46 22% 86%;
-    --muted: 0 0% 22%;
-    --muted-foreground: 0 0% 66%;
-    --accent: 45 40% 20%;
-    --accent-foreground: 46 22% 86%;
-    --destructive: 0 65% 51%;
-    --destructive-foreground: 46 22% 86%;
-    --border: 0 0% 28%;
-    --input: 0 0% 28%;
-    --ring: 45 93% 58%;
-    --chart-1: 45 93% 58%;
-    --chart-2: 142 61% 44%;
-    --chart-3: 208 60% 55%;
-    --chart-4: 16 70% 55%;
-    --chart-5: 315 40% 60%;
-    --theme-color-1: 45 93% 58%;
-    --theme-color-2: 142 61% 44%;
-    --theme-color-3: 208 60% 55%;
-    --theme-color-4: 16 70% 55%;
-    --theme-color-5: 315 40% 60%;
-    --header-bg: 0 0% 16%;
+    --primary:                173 83% 31%;     /* brand-600 teal */
+    --primary-foreground:     0 0% 100%;
+
+    --secondary:              0 0% 6%;         /* night-1000 */
+    --secondary-foreground:   0 0% 97%;
+
+    --muted:                  0 0% 16%;        /* #292929 night-700 */
+    --muted-foreground:       0 0% 60%;        /* #989898 night-fg-2 */
+
+    --accent:                 173 70% 18%;     /* deep teal tint for active states */
+    --accent-foreground:      170 75% 64%;     /* brand-300 #5fe9d0 */
+
+    --destructive:            4 75% 49%;
+    --destructive-foreground: 0 0% 97%;
+
+    --border:                 0 0% 16%;        /* night-700 */
+    --input:                  0 0% 16%;
+    --ring:                   170 75% 64%;     /* brand-300 — visible on dark */
+
+    --chart-1:                170 75% 64%;     /* brand-300 light teal */
+    --chart-2:                211 100% 76%;    /* #84caff blue-300 */
+    --chart-3:                253 89% 76%;     /* #a48afb violet-300 */
+    --chart-4:                39 99% 64%;      /* #fec84b warning-300 */
+    --chart-5:                146 67% 67%;     /* #6ce9a6 success-300 */
+
+    --cat-database:           211 100% 76%;
+    --cat-web:                146 67% 67%;
+    --cat-engine:             253 89% 76%;
+    --cat-etc:                0 0% 60%;
+
+    --theme-color-1:          170 75% 64%;
+    --theme-color-2:          39 99% 64%;
+    --theme-color-3:          211 100% 76%;
+    --theme-color-4:          146 67% 67%;
+    --theme-color-5:          253 89% 76%;
+
+    --header-bg:              0 0% 9%;
+
+    /* Sidebar — always dark in dark theme, matches main */
+    --sidebar-bg:             0 0% 6%;         /* night-1000 */
+    --sidebar-fg:             0 0% 97%;
+    --sidebar-fg-muted:       0 0% 60%;
+    --sidebar-border:         0 0% 16%;
+    --sidebar-hover:          0 0% 12%;        /* night-800 */
+    --sidebar-active-bg:      173 70% 18%;
+    --sidebar-active-fg:      170 75% 64%;
+    --sidebar-active-border:  173 70% 35% / 0.40;
   }
 }
 
@@ -149,108 +143,56 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", "DM Sans", "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss03";
   }
 
-  /* Global Browser Scrollbar Style */
+  /* Backstage signature negative tracking on display text */
+  h1, h2, h3 { letter-spacing: -0.01em; }
+
+  /* Browser scrollbar style (unchanged) */
   html {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
   }
-
-  html::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  html::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  html::-webkit-scrollbar { width: 10px; height: 10px; }
+  html::-webkit-scrollbar-track { background: transparent; }
   html::-webkit-scrollbar-thumb {
     background-color: hsl(var(--border));
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
-
   html::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground) / 0.5);
   }
 
-  /* Textarea Scrollbar Style (same as Radix ScrollArea) */
-  textarea {
+  textarea,
+  [cmdk-list],
+  .terminal-scroll,
+  .xterm .xterm-viewport {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
   }
-
-  textarea::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  textarea::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  textarea::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--border));
-    border-radius: 9999px;
-    border: 1px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* CommandList Scrollbar Style (same as Radix ScrollArea) */
-  [cmdk-list] {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
-  }
-
-  [cmdk-list]::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  [cmdk-list]::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  [cmdk-list]::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--border));
-    border-radius: 9999px;
-    border: 1px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Terminal Scrollbar Style */
-  .terminal-scroll::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .terminal-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .terminal-scroll::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--border));
-    border-radius: 9999px;
-    border: 1px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Xterm.js Scrollbar Style */
-  .xterm .xterm-viewport::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .xterm .xterm-viewport::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  textarea::-webkit-scrollbar,
+  [cmdk-list]::-webkit-scrollbar,
+  .terminal-scroll::-webkit-scrollbar,
+  .xterm .xterm-viewport::-webkit-scrollbar { width: 10px; }
+  textarea::-webkit-scrollbar-track,
+  [cmdk-list]::-webkit-scrollbar-track,
+  .terminal-scroll::-webkit-scrollbar-track,
+  .xterm .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
+  textarea::-webkit-scrollbar-thumb,
+  [cmdk-list]::-webkit-scrollbar-thumb,
+  .terminal-scroll::-webkit-scrollbar-thumb,
   .xterm .xterm-viewport::-webkit-scrollbar-thumb {
     background-color: hsl(var(--border));
     border-radius: 9999px;
     border: 1px solid transparent;
     background-clip: padding-box;
   }
-
   .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground) / 0.5);
   }
