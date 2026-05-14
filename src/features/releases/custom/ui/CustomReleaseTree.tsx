@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, Tag, Building2, Zap, Wrench, Star, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, Tag, Building2, Zap, Wrench, Star, Trash2 } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -88,15 +88,6 @@ export function CustomReleaseTree({
   const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(() => {
     return new Set(customers.map(c => c.customerCode))
   })
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    const allGroups = new Set<string>()
-    customers.forEach(customer => {
-      customer.majorMinorGroups.forEach(group => {
-        allGroups.add(`${customer.customerCode}-${group.majorMinor}`)
-      })
-    })
-    return allGroups
-  })
   // 핫픽스가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
@@ -106,13 +97,6 @@ export function CustomReleaseTree({
   useEffect(() => {
     if (customers.length > 0) {
       setExpandedCustomers(new Set(customers.map(c => c.customerCode)))
-      const allGroups = new Set<string>()
-      customers.forEach(customer => {
-        customer.majorMinorGroups.forEach(group => {
-          allGroups.add(`${customer.customerCode}-${group.majorMinor}`)
-        })
-      })
-      setExpandedGroups(allGroups)
     }
   }, [customers])
 
@@ -123,18 +107,6 @@ export function CustomReleaseTree({
         next.delete(customerCode)
       } else {
         next.add(customerCode)
-      }
-      return next
-    })
-  }
-
-  const toggleGroup = (key: string) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) {
-        next.delete(key)
-      } else {
-        next.add(key)
       }
       return next
     })
@@ -189,36 +161,18 @@ export function CustomReleaseTree({
             </button>
 
             {isCustomerExpanded && (
-              <div className="ml-4 pl-2 border-l border-border">
+              <div className="ml-4 pl-2 border-l border-border space-y-4 mt-1">
                 {customer.majorMinorGroups.map((group) => {
                   const groupKey = `${customer.customerCode}-${group.majorMinor}`
-                  const isGroupExpanded = expandedGroups.has(groupKey)
 
                   return (
                     <div key={groupKey}>
-                      {/* Major.Minor Level */}
-                      <button
-                        onClick={() => toggleGroup(groupKey)}
-                        className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-accent text-left"
-                      >
-                        {isGroupExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                        )}
-                        {isGroupExpanded ? (
-                          <FolderOpen className="h-4 w-4 text-yellow-500 shrink-0" />
-                        ) : (
-                          <Folder className="h-4 w-4 text-yellow-500 shrink-0" />
-                        )}
-                        <span className="font-medium">{group.majorMinor}</span>
-                        <span className="text-xs text-muted-foreground ml-auto">
-                          ({group.versions.length})
-                        </span>
-                      </button>
+                      {/* Major.Minor 그룹 헤더 — 표준 탭과 동일한 uppercase 평문 라벨 */}
+                      <div className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {group.majorMinor.toUpperCase()}
+                      </div>
 
-                      {isGroupExpanded && (
-                        <div className="ml-4 pl-2 border-l border-border">
+                      <div className="space-y-0.5">
                           {group.versions.map((version) => {
                             const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
                             const hasBuilds = version.builds && version.builds.length > 0
@@ -439,8 +393,7 @@ export function CustomReleaseTree({
                               </div>
                             )
                           })}
-                        </div>
-                      )}
+                      </div>
                     </div>
                   )
                 })}
