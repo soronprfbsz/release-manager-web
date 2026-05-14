@@ -13,10 +13,16 @@ import {
 
 
 /**
- * 메뉴 데이터를 기반으로 자동으로 Breadcrumb을 생성하는 컴포넌트
+ * 메뉴 데이터를 기반으로 자동으로 Breadcrumb을 생성하는 컴포넌트.
+ * 홈 페이지 등 추가 경로가 없을 땐 단독 '홈' 표시를 피하기 위해 렌더하지 않음.
  */
 export function DynamicBreadcrumb() {
   const menuPath = useMenuPath()
+
+  // 메뉴 경로가 비어있는 페이지 (예: 홈) 에선 breadcrumb 미렌더 — '홈' 단독 표시 방지
+  if (menuPath.length === 0) {
+    return null
+  }
 
   return (
     <Breadcrumb>
