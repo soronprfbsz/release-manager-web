@@ -229,9 +229,10 @@ export function CustomReleaseTree({
                               <div key={version.versionId}>
                                 <div
                                   className={cn(
-                                    'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                                    'hover:bg-accent',
-                                    selectedVersionId === version.versionId && 'bg-accent'
+                                    'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                                    selectedVersionId === version.versionId
+                                      ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                      : 'hover:bg-accent'
                                   )}
                                   onClick={() => onSelectVersion({
                                     versionId: version.versionId,
@@ -322,9 +323,10 @@ export function CustomReleaseTree({
                                       <div
                                         key={`hotfix-${hotfix.versionId}`}
                                         className={cn(
-                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                                          'hover:bg-accent',
-                                          selectedVersionId === hotfix.versionId && 'bg-accent'
+                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                                          selectedVersionId === hotfix.versionId
+                                            ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                            : 'hover:bg-accent'
                                         )}
                                         onClick={() => onSelectVersion({
                                           versionId: hotfix.versionId,
@@ -381,9 +383,10 @@ export function CustomReleaseTree({
                                       <div
                                         key={`build-${build.versionId}`}
                                         className={cn(
-                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                                          'hover:bg-accent',
-                                          selectedVersionId === build.versionId && 'bg-accent'
+                                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                                          selectedVersionId === build.versionId
+                                            ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                            : 'hover:bg-accent'
                                         )}
                                         onClick={() => onSelectVersion({
                                           versionId: build.versionId,

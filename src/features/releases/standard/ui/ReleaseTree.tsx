@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
-import { ChevronRight, ChevronDown, Folder, FolderOpen, FileCode, Flame, Hammer, Star, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, FileCode, Flame, Hammer, Star, Trash2 } from 'lucide-react'
 
 import type { MajorMinorNode } from '@/entities/releases/release'
 
@@ -80,35 +80,12 @@ export function ReleaseTree({
   canDeleteVersion = false,
 }: ReleaseTreeProps) {
   const showActions = canAddVersion || canDeleteVersion
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // 모든 그룹 기본 펼침
-    return new Set(majorMinorGroups.map(g => g.majorMinor))
-  })
-  
+
   // 핫픽스가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
   // 최신 버전 ID 계산
   const latestVersionId = findLatestVersionId(majorMinorGroups)
-
-  // 데이터가 비동기로 로드될 때 모든 그룹 펼침
-  useEffect(() => {
-    if (majorMinorGroups.length > 0) {
-      setExpandedGroups(new Set(majorMinorGroups.map(g => g.majorMinor)))
-    }
-  }, [majorMinorGroups])
-
-  const toggleGroup = (majorMinor: string) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev)
-      if (next.has(majorMinor)) {
-        next.delete(majorMinor)
-      } else {
-        next.add(majorMinor)
-      }
-      return next
-    })
-  }
 
   const toggleVersion = (versionId: number, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -132,35 +109,17 @@ export function ReleaseTree({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-4">
       {majorMinorGroups.map((group) => {
-        const isExpanded = expandedGroups.has(group.majorMinor)
-
         return (
           <div key={group.majorMinor}>
-            <button
-              onClick={() => toggleGroup(group.majorMinor)}
-              className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-accent text-left"
-            >
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              )}
-              {isExpanded ? (
-                <FolderOpen className="h-4 w-4 text-yellow-500 shrink-0" />
-              ) : (
-                <Folder className="h-4 w-4 text-yellow-500 shrink-0" />
-              )}
-              <span className="font-medium">{group.majorMinor}</span>
-              <span className="text-xs text-muted-foreground ml-auto">
-                ({group.versions.length})
-              </span>
-            </button>
+            {/* 그룹 헤더 — 평문 uppercase 라벨 (Backstage 시안의 1.5.X / 1.4.X 패턴) */}
+            <div className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {group.majorMinor.toUpperCase()}
+            </div>
 
-            {isExpanded && (
-              <div className="ml-4 pl-2 border-l border-border">
-                {group.versions.map((version) => {
+            <div className="space-y-0.5">
+              {group.versions.map((version) => {
                   const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
                   const hasBuilds = version.builds && version.builds.length > 0
                   const hasChildren = hasHotfixes || hasBuilds
@@ -170,9 +129,10 @@ export function ReleaseTree({
                     <div key={version.versionId}>
                       <div
                         className={cn(
-                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                          'hover:bg-accent',
-                          selectedVersionId === version.versionId && 'bg-accent'
+                          'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                          selectedVersionId === version.versionId
+                            ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                            : 'hover:bg-accent'
                         )}
                         onClick={() => onSelectVersion({
                           versionId: version.versionId,
@@ -261,9 +221,10 @@ export function ReleaseTree({
                             <div
                               key={`hotfix-${hotfix.versionId}`}
                               className={cn(
-                                'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                                'hover:bg-accent',
-                                selectedVersionId === hotfix.versionId && 'bg-accent'
+                                'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                                selectedVersionId === hotfix.versionId
+                                  ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                  : 'hover:bg-accent'
                               )}
                               onClick={() => onSelectVersion({
                                 versionId: hotfix.versionId,
@@ -318,9 +279,10 @@ export function ReleaseTree({
                             <div
                               key={`build-${build.versionId}`}
                               className={cn(
-                                'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer',
-                                'hover:bg-accent',
-                                selectedVersionId === build.versionId && 'bg-accent'
+                                'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
+                                selectedVersionId === build.versionId
+                                  ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                  : 'hover:bg-accent'
                               )}
                               onClick={() => onSelectVersion({
                                 versionId: build.versionId,
@@ -372,7 +334,6 @@ export function ReleaseTree({
                   )
                 })}
               </div>
-            )}
           </div>
         )
       })}
