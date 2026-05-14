@@ -26,7 +26,6 @@ import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
-import { PageLayout } from '@/shared/ui/page-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
@@ -182,10 +181,7 @@ export function HomePage() {
   )
 
   return (
-    <PageLayout
-      title="홈"
-      description="릴리즈 · 패치 · 활동을 한눈에 확인하세요."
-    >
+    <div className="flex flex-col gap-6 px-12 py-7">
       {/* Latest Info Cards */}
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
@@ -435,6 +431,6 @@ export function HomePage() {
           </CardContent>
         </Card>
       </div>
-    </PageLayout>
+    </div>
   )
 }

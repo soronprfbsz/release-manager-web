@@ -57,7 +57,7 @@ export function PageLayout({
   const description = descriptionProp ?? menuDescription
 
   return (
-    <div className="min-h-full flex flex-col gap-6 px-10 py-7">
+    <div className="min-h-full flex flex-col gap-6 px-12 py-7">
       <PageHeader
         icon={icon}
         title={title}

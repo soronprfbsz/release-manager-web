@@ -92,11 +92,11 @@ export function Sidebar() {
         className="flex flex-col w-[256px] flex-none bg-card border-r border-border overflow-y-auto"
         style={{ backgroundColor: 'hsl(var(--sidebar-bg))' }}
       >
-        {/* 브랜드 영역 */}
+        {/* 브랜드 영역 — Topbar 와 동일한 h-16 으로 우측 경계선 정렬 */}
         <a
           href={ROUTES.HOME}
           onClick={handleLogoClick}
-          className="flex items-center gap-2.5 px-4 py-4 border-b border-border cursor-pointer hover:bg-muted/30 transition-colors"
+          className="flex items-center gap-2.5 h-16 px-4 border-b border-border cursor-pointer hover:bg-muted/30 transition-colors flex-none"
         >
           <span className="inline-grid place-items-center w-[30px] h-[30px] rounded-md text-white text-[13px] font-extrabold tracking-[0.5px]"
             style={{
