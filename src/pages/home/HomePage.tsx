@@ -181,7 +181,7 @@ export function HomePage() {
   )
 
   return (
-    <div className="flex flex-col gap-6 px-12 py-7">
+    <div className="flex flex-col gap-6 px-6 py-7">
       {/* Latest Info Cards */}
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
