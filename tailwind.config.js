@@ -20,6 +20,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['"Inter"', '"DM Sans"', '"Pretendard"', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       animation: {
