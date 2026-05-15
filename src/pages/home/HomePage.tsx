@@ -125,10 +125,10 @@ export function HomePage() {
     </Link>
   )
 
-  // 버전 항목 렌더링 헬퍼 (빌드)
+  // 버전 항목 렌더링 헬퍼 (빌드) — 표준 빌드는 표준 릴리즈와 동일한 구조,
+  // 커스텀 빌드는 좌측에 고객사명만 truncate 로 표시
   const renderBuildVersion = (version: RecentBuildVersion) => {
-    const isCustom = version.releaseType === 'CUSTOM'
-    const href = isCustom ? `${ROUTES.RELEASES}?tab=custom` : ROUTES.RELEASES
+    const href = version.releaseType === 'CUSTOM' ? `${ROUTES.RELEASES}?tab=custom` : ROUTES.RELEASES
     return (
       <Link
         key={version.releaseVersionId}
@@ -136,22 +136,19 @@ export function HomePage() {
         state={{ selectedVersionId: version.releaseVersionId }}
         className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
       >
-        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-          {isCustom ? (
-            <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          ) : (
-            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {version.customerName && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
+                  {version.customerName}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{version.customerName}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-                {version.customerName || ''}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{version.customerName || '표준'}</p>
-            </TooltipContent>
-          </Tooltip>
           <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal truncate">{version.version}</TypographyInlineCode>
           {version.fileCategories && version.fileCategories.length > 0 && (
             <div className="flex gap-1 flex-shrink-0">
@@ -202,7 +199,7 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[6.5rem]">
+              <div className="h-[8rem]">
                 {isLoadingStandard ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
@@ -227,7 +224,7 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[6.5rem]">
+              <div className="h-[8rem]">
                 {isLoadingBuild ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
@@ -252,7 +249,7 @@ export function HomePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[6.5rem]">
+              <div className="h-[8rem]">
                 {isLoadingPatch ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
@@ -333,7 +330,6 @@ export function HomePage() {
                 <Building2 className="h-4 w-4 text-purple-500" />
                 버전별 고객사 현황
               </CardTitle>
-              <CardDescription>각 고객사의 최근 적용 버전 기준 · hover 로 고객사 확인</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingVersionCustomers ? (
