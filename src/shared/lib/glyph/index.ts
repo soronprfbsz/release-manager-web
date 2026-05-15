@@ -16,8 +16,8 @@ export interface GlyphColorEntry {
 }
 
 /**
- * 10가지 파스텔 톤 글리프 색상 팔레트
- * light/dark 테마 모두 자연스럽게 보이도록 설계
+ * 글리프 색상 팔레트 (10가지) — 명확히 구분되는 색상만 채택.
+ * light/dark 테마 모두 자연스럽게 보이도록 100/700, 950/300 으로 짝지음.
  */
 export const GLYPH_COLORS: GlyphColorEntry[] = [
   {
@@ -28,18 +28,11 @@ export const GLYPH_COLORS: GlyphColorEntry[] = [
       'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
   },
   {
-    key: 'lavender',
-    label: '라벤더',
-    swatchClass: 'bg-violet-200 dark:bg-violet-800',
+    key: 'teal',
+    label: '틸',
+    swatchClass: 'bg-teal-200 dark:bg-teal-800',
     glyphClass:
-      'bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
-  },
-  {
-    key: 'peach',
-    label: '피치',
-    swatchClass: 'bg-orange-200 dark:bg-orange-800',
-    glyphClass:
-      'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
+      'bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300',
   },
   {
     key: 'sky',
@@ -49,11 +42,25 @@ export const GLYPH_COLORS: GlyphColorEntry[] = [
       'bg-sky-100 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
   },
   {
-    key: 'lemon',
-    label: '레몬',
-    swatchClass: 'bg-yellow-200 dark:bg-yellow-800',
+    key: 'indigo',
+    label: '인디고',
+    swatchClass: 'bg-indigo-200 dark:bg-indigo-800',
     glyphClass:
-      'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300',
+      'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
+  },
+  {
+    key: 'lavender',
+    label: '라벤더',
+    swatchClass: 'bg-violet-200 dark:bg-violet-800',
+    glyphClass:
+      'bg-violet-100 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
+  },
+  {
+    key: 'fuchsia',
+    label: '푸시아',
+    swatchClass: 'bg-fuchsia-200 dark:bg-fuchsia-800',
+    glyphClass:
+      'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950/60 dark:text-fuchsia-300',
   },
   {
     key: 'rose',
@@ -63,25 +70,18 @@ export const GLYPH_COLORS: GlyphColorEntry[] = [
       'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
   },
   {
-    key: 'coral',
-    label: '코랄',
-    swatchClass: 'bg-red-200 dark:bg-red-800',
+    key: 'peach',
+    label: '피치',
+    swatchClass: 'bg-orange-200 dark:bg-orange-800',
     glyphClass:
-      'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300',
+      'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
   },
   {
-    key: 'sage',
-    label: '세이지',
-    swatchClass: 'bg-green-200 dark:bg-green-800',
+    key: 'lemon',
+    label: '레몬',
+    swatchClass: 'bg-yellow-200 dark:bg-yellow-800',
     glyphClass:
-      'bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-300',
-  },
-  {
-    key: 'lilac',
-    label: '라일락',
-    swatchClass: 'bg-purple-200 dark:bg-purple-800',
-    glyphClass:
-      'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300',
+      'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300',
   },
   {
     key: 'slate',
@@ -93,10 +93,23 @@ export const GLYPH_COLORS: GlyphColorEntry[] = [
 ]
 
 /**
- * 색상 키로 팔레트 항목 조회
+ * 이전 색상 키 → 새 키 alias (기존 DB 저장 데이터 호환)
+ *  - sage (green)  → teal       (mint 와 너무 비슷해 교체)
+ *  - lilac (purple) → indigo    (lavender 와 너무 비슷해 교체)
+ *  - coral (red)   → fuchsia    (rose 와 너무 비슷해 교체)
+ */
+const COLOR_ALIASES: Record<string, string> = {
+  sage: 'teal',
+  lilac: 'indigo',
+  coral: 'fuchsia',
+}
+
+/**
+ * 색상 키로 팔레트 항목 조회 (alias 자동 변환)
  */
 export function getGlyphColorEntry(key: string): GlyphColorEntry | undefined {
-  return GLYPH_COLORS.find((c) => c.key === key)
+  const resolvedKey = COLOR_ALIASES[key] ?? key
+  return GLYPH_COLORS.find((c) => c.key === resolvedKey)
 }
 
 /**

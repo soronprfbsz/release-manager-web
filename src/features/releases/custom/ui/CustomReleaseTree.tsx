@@ -100,6 +100,29 @@ export function CustomReleaseTree({
     }
   }, [customers])
 
+  // selectedVersionId 가 빌드/핫픽스 노드인 경우 부모(표준 버전) 자동 expand
+  useEffect(() => {
+    if (selectedVersionId == null) return
+    for (const customer of customers) {
+      for (const group of customer.majorMinorGroups) {
+        for (const version of group.versions) {
+          const hasChildMatch =
+            version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
+            version.builds?.some((b) => b.versionId === selectedVersionId)
+          if (hasChildMatch) {
+            setExpandedVersions((prev) => {
+              if (prev.has(version.versionId)) return prev
+              const next = new Set(prev)
+              next.add(version.versionId)
+              return next
+            })
+            return
+          }
+        }
+      }
+    }
+  }, [selectedVersionId, customers])
+
   const toggleCustomer = (customerCode: string) => {
     setExpandedCustomers((prev) => {
       const next = new Set(prev)

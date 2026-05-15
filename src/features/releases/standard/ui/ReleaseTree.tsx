@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ChevronRight, ChevronDown, Tag, Zap, Wrench, Star, Trash2 } from 'lucide-react'
 
@@ -81,11 +81,32 @@ export function ReleaseTree({
 }: ReleaseTreeProps) {
   const showActions = canAddVersion || canDeleteVersion
 
-  // 핫픽스가 있는 버전들의 확장 상태
+  // 핫픽스/빌드가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
   // 최신 버전 ID 계산
   const latestVersionId = findLatestVersionId(majorMinorGroups)
+
+  // selectedVersionId 가 빌드/핫픽스 노드인 경우 부모(표준 버전) 자동 expand
+  useEffect(() => {
+    if (selectedVersionId == null) return
+    for (const group of majorMinorGroups) {
+      for (const version of group.versions) {
+        const hasChildMatch =
+          version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
+          version.builds?.some((b) => b.versionId === selectedVersionId)
+        if (hasChildMatch) {
+          setExpandedVersions((prev) => {
+            if (prev.has(version.versionId)) return prev
+            const next = new Set(prev)
+            next.add(version.versionId)
+            return next
+          })
+          return
+        }
+      }
+    }
+  }, [selectedVersionId, majorMinorGroups])
 
   const toggleVersion = (versionId: number, e: React.MouseEvent) => {
     e.stopPropagation()

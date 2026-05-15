@@ -32,6 +32,8 @@ interface StackedBarChartProps {
   tooltipLabelFormatter?: (label: string) => string
   /** 범례 표시 여부 (기본: true) */
   showLegend?: boolean
+  /** 스택(고객사 등) 클릭 콜백 — 범례/막대 segment 클릭 시 stackKey 전달 */
+  onStackClick?: (stackKey: string) => void
 }
 
 /**
@@ -46,6 +48,7 @@ export function StackedBarChart({
   tooltipValueFormatter = (value) => `${value}건`,
   tooltipLabelFormatter,
   showLegend = true,
+  onStackClick,
 }: StackedBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -83,9 +86,16 @@ export function StackedBarChart({
         />
         {showLegend && (
           <Legend
-            wrapperStyle={{ fontSize: '12px' }}
+            wrapperStyle={{ fontSize: '12px', cursor: onStackClick ? 'pointer' : undefined }}
             iconType="rect"
             iconSize={10}
+            onClick={
+              onStackClick
+                ? (entry: { value?: string | number }) => {
+                    if (typeof entry.value === 'string') onStackClick(entry.value)
+                  }
+                : undefined
+            }
           />
         )}
         {stackKeys.map((key, index) => (
@@ -95,6 +105,8 @@ export function StackedBarChart({
             stackId="stack"
             fill={CHART_COLORS[index % CHART_COLORS.length]}
             radius={index === stackKeys.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+            cursor={onStackClick ? 'pointer' : undefined}
+            onClick={onStackClick ? () => onStackClick(key) : undefined}
           />
         ))}
       </BarChart>

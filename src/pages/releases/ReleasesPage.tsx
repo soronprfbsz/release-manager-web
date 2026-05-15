@@ -158,38 +158,88 @@ export function ReleasesPage() {
     refetch: refetchCustomTree,
   } = useAllCustomReleaseTree(projectId)
 
-  // 홈페이지에서 전달된 버전 선택 (Standard)
+  // 홈페이지에서 전달된 버전 선택 (Standard) — 표준 버전 / 빌드 / 핫픽스 모두 매칭
   useEffect(() => {
     const state = location.state as { selectedVersionId?: number } | null
-    if (state?.selectedVersionId && standardTreeData?.majorMinorGroups && !standardSelected && currentTab === 'standard') {
-      for (const group of standardTreeData.majorMinorGroups) {
-        const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
-        if (foundVersion) {
+    if (!(state?.selectedVersionId && standardTreeData?.majorMinorGroups && !standardSelected && currentTab === 'standard')) return
+
+    for (const group of standardTreeData.majorMinorGroups) {
+      // 1) 표준 버전
+      const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
+      if (foundVersion) {
+        setStandardSelected({
+          versionId: foundVersion.versionId,
+          version: foundVersion.version,
+          isHotfix: false,
+        })
+        return
+      }
+      // 2) 빌드/핫픽스 (부모 표준 버전 아래에 nest)
+      for (const version of group.versions) {
+        const foundBuild = version.builds?.find(b => b.versionId === state.selectedVersionId)
+        if (foundBuild) {
           setStandardSelected({
-            versionId: foundVersion.versionId,
-            version: foundVersion.version,
-            isHotfix: false
+            versionId: foundBuild.versionId,
+            version: foundBuild.fullVersion,
+            isHotfix: false,
+            isBuild: true,
+            buildBaseVersion: version.version,
           })
-          break
+          return
+        }
+        const foundHotfix = version.hotfixes?.find(h => h.versionId === state.selectedVersionId)
+        if (foundHotfix) {
+          setStandardSelected({
+            versionId: foundHotfix.versionId,
+            version: foundHotfix.fullVersion,
+            isHotfix: true,
+          })
+          return
         }
       }
     }
   }, [location.state, standardTreeData, standardSelected, currentTab])
 
-  // 홈페이지에서 전달된 버전 선택 (Custom)
+  // 홈페이지에서 전달된 버전 선택 (Custom) — 표준 버전 / 빌드 / 핫픽스 모두 매칭
   useEffect(() => {
     const state = location.state as { selectedVersionId?: number } | null
-    if (state?.selectedVersionId && customTreeData?.customers && !customSelected && currentTab === 'custom') {
-      for (const customer of customTreeData.customers) {
-        for (const group of customer.majorMinorGroups) {
-          const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
-          if (foundVersion) {
+    if (!(state?.selectedVersionId && customTreeData?.customers && !customSelected && currentTab === 'custom')) return
+
+    for (const customer of customTreeData.customers) {
+      for (const group of customer.majorMinorGroups) {
+        const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
+        if (foundVersion) {
+          setCustomSelected({
+            versionId: foundVersion.versionId,
+            version: foundVersion.version,
+            isHotfix: false,
+            customerCode: customer.customerCode,
+            customBaseVersion: customer.customBaseVersion,
+          })
+          return
+        }
+        for (const version of group.versions) {
+          const foundBuild = version.builds?.find(b => b.versionId === state.selectedVersionId)
+          if (foundBuild) {
             setCustomSelected({
-              versionId: foundVersion.versionId,
-              version: foundVersion.version,
+              versionId: foundBuild.versionId,
+              version: foundBuild.fullVersion,
               isHotfix: false,
+              isBuild: true,
+              buildBaseVersion: version.version,
               customerCode: customer.customerCode,
-              customBaseVersion: customer.customBaseVersion
+              customBaseVersion: customer.customBaseVersion,
+            })
+            return
+          }
+          const foundHotfix = version.hotfixes?.find(h => h.versionId === state.selectedVersionId)
+          if (foundHotfix) {
+            setCustomSelected({
+              versionId: foundHotfix.versionId,
+              version: foundHotfix.fullVersion,
+              isHotfix: true,
+              customerCode: customer.customerCode,
+              customBaseVersion: customer.customBaseVersion,
             })
             return
           }

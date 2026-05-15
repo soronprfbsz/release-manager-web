@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { Plus, Network, Search, X } from 'lucide-react'
 
@@ -44,6 +45,7 @@ const INITIAL_FORM_DATA: CustomerFormData = {
 }
 
 export function CustomerListPage() {
+  const location = useLocation()
   const { toast } = useToast()
   const { canCreateCustomer, canEditCustomer, canDeleteCustomer } = usePermission()
   const { projectId } = useProjectStore()
@@ -72,6 +74,16 @@ export function CustomerListPage() {
     size: 10000,
     projectId: projectId || undefined,
   })
+
+  // 다른 페이지(대시보드 차트 등)에서 전달된 고객사 선택
+  useEffect(() => {
+    const state = location.state as { selectedCustomerId?: number } | null
+    if (!state?.selectedCustomerId) return
+    const list = customersData?.content
+    if (!list) return
+    const found = list.some((c) => c.customerId === state.selectedCustomerId)
+    if (found) setSelectedCustomerId(state.selectedCustomerId)
+  }, [location.state, customersData])
 
   // Mutations
   const createMutation = useCreateCustomer()

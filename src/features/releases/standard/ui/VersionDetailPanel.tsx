@@ -598,6 +598,7 @@ function VersionHeaderCard() {
                 <span className="inline-flex items-center gap-1.5 cursor-default min-w-0">
                   <UserAvatar
                     email={version.createdByEmail}
+                    accountName={version.createdByName}
                     avatarStyle={version.createdByAvatarStyle}
                     avatarSeed={version.createdByAvatarSeed}
                     isDeleted={version.isDeletedCreator}
@@ -623,6 +624,7 @@ function VersionHeaderCard() {
                     <span className="inline-flex items-center gap-1.5 cursor-default min-w-0">
                       <UserAvatar
                         email={version.approvedBy}
+                        accountName={version.approvedByName}
                         avatarStyle={version.approvedByAvatarStyle}
                         avatarSeed={version.approvedByAvatarSeed}
                         isDeleted={version.isDeletedApprover}

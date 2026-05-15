@@ -6,8 +6,10 @@ import {
   Tag,
   GitBranch,
   Hammer,
+  Sparkles,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import {
   useDashboardRecentStandard,
@@ -18,12 +20,13 @@ import {
   type RecentStandardVersion,
   type RecentBuildVersion,
 } from '@/entities/_shared/dashboard'
+import { useCustomers } from '@/entities/operations'
 
 import { ROUTES } from '@/shared/config/constants'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { StackedBarChart, VersionCustomerChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -48,6 +51,21 @@ function compareVersionDesc(a: string, b: string): number {
 
 export function HomePage() {
   const projectId = useProjectStore((state) => state.projectId)
+  const navigate = useNavigate()
+
+  // 고객사 customerName → customerId 매핑 (월별 차트 클릭 시 ID 로 navigate 하기 위함)
+  const { data: customersData } = useCustomers({ size: 10000, projectId: projectId || undefined })
+  const customerNameToId = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const c of customersData?.content ?? []) {
+      map.set(c.customerName, c.customerId)
+    }
+    return map
+  }, [customersData])
+
+  const goToCustomer = (customerId: number) => {
+    navigate(ROUTES.OPERATIONS.CUSTOMERS, { state: { selectedCustomerId: customerId } })
+  }
 
   // 표준본 최신 릴리즈
   const { data: standardData, isLoading: isLoadingStandard } = useDashboardRecentStandard(projectId)
@@ -189,13 +207,46 @@ export function HomePage() {
       {/* Latest Info Cards */}
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
+          {/* 마지막 생성 버전 — 큰 디스플레이 */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-yellow-500" />
+                최신 버전
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[8rem] flex flex-col gap-2">
+                {isLoadingStandard ? (
+                  <div className="animate-pulse space-y-2">
+                    <div className="h-10 w-24 bg-muted rounded" />
+                    <div className="h-4 w-full bg-muted rounded" />
+                  </div>
+                ) : standardData?.versions && standardData.versions.length > 0 ? (
+                  <>
+                    <div className="font-mono text-5xl font-bold tracking-tight leading-none">
+                      {standardData.versions[0].version}
+                    </div>
+                    {standardData.versions[0].comment && (
+                      <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line">
+                        {standardData.versions[0].comment}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* 표준본 최신 릴리즈 */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Tag className="h-4 w-4 text-blue-500" />
-                최신 표준 릴리즈
+                최근 생성 버전
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -220,7 +271,7 @@ export function HomePage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Hammer className="h-4 w-4 text-purple-500" />
-                최신 빌드 버전
+                최근 생성 빌드 버전
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -328,14 +379,17 @@ export function HomePage() {
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
-                버전별 고객사 현황
+                버전별 고객사 수
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingVersionCustomers ? (
                 <div className="animate-pulse h-full bg-muted rounded" />
               ) : (
-                <VersionCustomerChart data={versionCustomerGroups} />
+                <VersionCustomerChart
+                  data={versionCustomerGroups}
+                  onCustomerClick={(c) => goToCustomer(c.customerId)}
+                />
               )}
             </CardContent>
           </Card>
@@ -345,9 +399,8 @@ export function HomePage() {
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
-                월별 패치 생성 현황
+                월별 패치 수
               </CardTitle>
-              <CardDescription>최근 {monthlyPatchesData?.months || 12}개월</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingMonthly ? (
@@ -361,6 +414,10 @@ export function HomePage() {
                     height="100%"
                     tooltipValueFormatter={(value) => `${value}건`}
                     tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
+                    onStackClick={(customerName) => {
+                      const id = customerNameToId.get(customerName)
+                      if (id != null) goToCustomer(id)
+                    }}
                   />
                 </div>
               ) : (

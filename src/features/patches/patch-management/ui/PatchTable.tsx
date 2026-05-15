@@ -313,6 +313,7 @@ export function PatchTable({
                       <div className="flex items-center gap-2 cursor-default">
                         <UserAvatar
                           email={patch.assigneeEmail}
+                          accountName={patch.assigneeName}
                           avatarStyle={patch.assigneeAvatarStyle}
                           avatarSeed={patch.assigneeAvatarSeed}
                           isDeleted={patch.isDeletedAssignee}
@@ -337,6 +338,7 @@ export function PatchTable({
                     <div className="flex items-center gap-2 cursor-default">
                       <UserAvatar
                         email={patch.createdByEmail}
+                        accountName={patch.createdByName}
                         avatarStyle={patch.createdByAvatarStyle}
                         avatarSeed={patch.createdByAvatarSeed}
                         isDeleted={patch.isDeletedCreator}

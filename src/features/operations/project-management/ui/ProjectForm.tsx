@@ -139,7 +139,7 @@ export function ProjectForm({
         {/* 글리프 텍스트 입력 */}
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">
-            표시 텍스트 (최대 3자, 비워두면 프로젝트명 첫 글자 사용)
+            표시 텍스트 (최대 3자, 미입력 시 이름 첫글자 사용)
           </Label>
           <Input
             value={formData.glyphText}
@@ -159,7 +159,7 @@ export function ProjectForm({
         {/* 색상 swatch 그리드 */}
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">
-            배경 색상 (비워두면 프로젝트명 기반 자동 선택)
+            배경 색상
           </Label>
           <div className="grid grid-cols-5 gap-2">
             {GLYPH_COLORS.map((color) => {
