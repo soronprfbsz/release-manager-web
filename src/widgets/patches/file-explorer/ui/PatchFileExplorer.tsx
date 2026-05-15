@@ -92,7 +92,7 @@ function PatchMetaBox({ patch }: PatchMetaBoxProps) {
       {hasBuilds ? (
         <div className="space-y-1">
           <div className="text-muted-foreground">포함된 빌드</div>
-          <div className="flex flex-col gap-0.5 pl-3">
+          <div className="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 pl-3">
             {patch.includedBuilds?.web && (
               <BuildRow label="WEB" fullVersion={patch.includedBuilds.web.fullVersion}
                         deleted={patch.includedBuilds.web.buildVersionId == null} />
@@ -114,13 +114,15 @@ function PatchMetaBox({ patch }: PatchMetaBoxProps) {
 }
 
 function BuildRow({ label, fullVersion, deleted }: { label: string; fullVersion: string; deleted: boolean }) {
+  // 부모 grid (PatchMetaBox 의 "포함된 빌드" 컨테이너) 에 라벨 / 값 셀을 직접 기여한다.
+  // 라벨 열 폭은 부모 grid 가 max-content 로 가장 긴 엔진 이름 기준 자동 결정.
   return (
-    <div className="grid grid-cols-[100px_minmax(0,1fr)] items-center gap-x-3">
+    <>
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="font-mono text-xs break-all">
         {fullVersion}
         {deleted && <span className="ml-2 text-xs text-muted-foreground">(삭제됨)</span>}
       </span>
-    </div>
+    </>
   )
 }
