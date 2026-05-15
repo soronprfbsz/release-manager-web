@@ -32,8 +32,6 @@ interface VersionCustomerChartProps {
   showLegend?: boolean
   /** X축 최소 도메인 (기본 5) — 데이터 max 가 5 미만이어도 5 로 잡아 막대가 가로로 꽉차지 않게 */
   minDomain?: number
-  /** segment/범례 클릭 시 호출 — 고객사로 navigate 하는 용도 */
-  onCustomerClick?: (customer: CustomerInfo) => void
 }
 
 /**
@@ -44,7 +42,6 @@ export function VersionCustomerChart({
   data,
   showLegend = true,
   minDomain = 5,
-  onCustomerClick,
 }: VersionCustomerChartProps) {
   if (data.length === 0) {
     return (
@@ -85,16 +82,17 @@ export function VersionCustomerChart({
                     <Tooltip key={c.customerId}>
                       <TooltipTrigger asChild>
                         <div
-                          role={onCustomerClick ? 'button' : undefined}
                           className={cn(
-                            'flex-1 cursor-pointer transition hover:brightness-125',
+                            'flex-1 transition hover:brightness-125',
                             idx > 0 && 'border-l border-background',
                           )}
                           style={{ backgroundColor: color }}
-                          onClick={() => onCustomerClick?.(c)}
                         />
                       </TooltipTrigger>
-                      <TooltipContent side="top">
+                      <TooltipContent
+                        side="top"
+                        className="bg-popover text-popover-foreground border border-border [&>svg]:fill-popover"
+                      >
                         <div className="text-xs">
                           <div className="font-semibold mb-1">{group.version}</div>
                           <div className="flex items-center gap-1.5">
@@ -102,7 +100,10 @@ export function VersionCustomerChart({
                               className="w-2.5 h-2.5 flex-shrink-0"
                               style={{ backgroundColor: color }}
                             />
-                            <span>{c.customerName} : 1건</span>
+                            <span>
+                              {c.customerName}
+                              <span className="text-muted-foreground">({c.customerCode})</span>
+                            </span>
                           </div>
                         </div>
                       </TooltipContent>
@@ -117,30 +118,15 @@ export function VersionCustomerChart({
 
       {showLegend && (
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-4 pt-3 border-t text-[10px] text-muted-foreground flex-shrink-0">
-          {allCustomers.map((c) =>
-            onCustomerClick ? (
-              <button
-                key={c.customerId}
-                type="button"
-                onClick={() => onCustomerClick(c)}
-                className="flex items-center gap-1 transition hover:text-foreground"
-              >
-                <span
-                  className="w-2.5 h-2.5 flex-shrink-0"
-                  style={{ backgroundColor: customerColor(c) }}
-                />
-                {c.customerName}
-              </button>
-            ) : (
-              <span key={c.customerId} className="flex items-center gap-1">
-                <span
-                  className="w-2.5 h-2.5 flex-shrink-0"
-                  style={{ backgroundColor: customerColor(c) }}
-                />
-                {c.customerName}
-              </span>
-            ),
-          )}
+          {allCustomers.map((c) => (
+            <span key={c.customerId} className="flex items-center gap-1">
+              <span
+                className="w-2.5 h-2.5 flex-shrink-0"
+                style={{ backgroundColor: customerColor(c) }}
+              />
+              {c.customerName}
+            </span>
+          ))}
         </div>
       )}
     </div>

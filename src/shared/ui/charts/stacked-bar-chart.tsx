@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import {
   BarChart,
   Bar,
@@ -32,13 +34,12 @@ interface StackedBarChartProps {
   tooltipLabelFormatter?: (label: string) => string
   /** 범례 표시 여부 (기본: true) */
   showLegend?: boolean
-  /** 스택(고객사 등) 클릭 콜백 — 범례/막대 segment 클릭 시 stackKey 전달 */
-  onStackClick?: (stackKey: string) => void
 }
 
 /**
  * 누적 막대 차트 공통 컴포넌트
  * - 여러 카테고리를 색상으로 구분하여 누적 표시
+ * - 범례 클릭 시 해당 series 를 ON/OFF 토글 (차트 라이브러리 표준 동작)
  */
 export function StackedBarChart({
   data,
@@ -48,8 +49,21 @@ export function StackedBarChart({
   tooltipValueFormatter = (value) => `${value}건`,
   tooltipLabelFormatter,
   showLegend = true,
-  onStackClick,
 }: StackedBarChartProps) {
+  // 범례 클릭으로 hide 된 series 집합
+  const [hiddenKeys, setHiddenKeys] = useState<Set<string>>(new Set())
+
+  const handleLegendClick = (entry: { value?: string | number }) => {
+    if (typeof entry.value !== 'string') return
+    const key = entry.value
+    setHiddenKeys((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
@@ -86,15 +100,18 @@ export function StackedBarChart({
         />
         {showLegend && (
           <Legend
-            wrapperStyle={{ fontSize: '12px', cursor: onStackClick ? 'pointer' : undefined }}
+            wrapperStyle={{ fontSize: '12px', cursor: 'pointer' }}
             iconType="rect"
             iconSize={10}
-            onClick={
-              onStackClick
-                ? (entry: { value?: string | number }) => {
-                    if (typeof entry.value === 'string') onStackClick(entry.value)
-                  }
-                : undefined
+            onClick={handleLegendClick}
+            formatter={(value: string) =>
+              hiddenKeys.has(value) ? (
+                <span style={{ color: 'hsl(var(--muted-foreground))', textDecoration: 'line-through' }}>
+                  {value}
+                </span>
+              ) : (
+                value
+              )
             }
           />
         )}
@@ -105,8 +122,7 @@ export function StackedBarChart({
             stackId="stack"
             fill={CHART_COLORS[index % CHART_COLORS.length]}
             radius={index === stackKeys.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-            cursor={onStackClick ? 'pointer' : undefined}
-            onClick={onStackClick ? () => onStackClick(key) : undefined}
+            hide={hiddenKeys.has(key)}
           />
         ))}
       </BarChart>

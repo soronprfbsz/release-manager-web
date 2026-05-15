@@ -8,8 +8,7 @@ import {
   Hammer,
   Sparkles,
 } from 'lucide-react'
-import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import {
   useDashboardRecentStandard,
@@ -20,7 +19,6 @@ import {
   type RecentStandardVersion,
   type RecentBuildVersion,
 } from '@/entities/_shared/dashboard'
-import { useCustomers } from '@/entities/operations'
 
 import { ROUTES } from '@/shared/config/constants'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
@@ -51,21 +49,6 @@ function compareVersionDesc(a: string, b: string): number {
 
 export function HomePage() {
   const projectId = useProjectStore((state) => state.projectId)
-  const navigate = useNavigate()
-
-  // 고객사 customerName → customerId 매핑 (월별 차트 클릭 시 ID 로 navigate 하기 위함)
-  const { data: customersData } = useCustomers({ size: 10000, projectId: projectId || undefined })
-  const customerNameToId = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const c of customersData?.content ?? []) {
-      map.set(c.customerName, c.customerId)
-    }
-    return map
-  }, [customersData])
-
-  const goToCustomer = (customerId: number) => {
-    navigate(ROUTES.OPERATIONS.CUSTOMERS, { state: { selectedCustomerId: customerId } })
-  }
 
   // 표준본 최신 릴리즈
   const { data: standardData, isLoading: isLoadingStandard } = useDashboardRecentStandard(projectId)
@@ -319,45 +302,22 @@ export function HomePage() {
                           ) : (
                             <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           )}
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-                                {patch.customerName || '-'}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{patch.customerName || '-'}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
-                                  {patch.patchName}
-                                </TypographyInlineCode>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{patch.patchName}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
+                            {patch.customerName || '-'}
+                          </span>
+                          <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
+                            {patch.patchName}
+                          </TypographyInlineCode>
                         </div>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <DiceBearAvatar
-                                seed={patch.createdByAvatarSeed || patch.createdByEmail}
-                                style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                                name={patch.createdByName}
-                                size={20}
-                              />
-                              <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{patch.createdByEmail}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <DiceBearAvatar
+                            seed={patch.createdByAvatarSeed || patch.createdByEmail}
+                            style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                            name={patch.createdByName}
+                            size={20}
+                          />
+                          <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
+                        </div>
                       </Link>
                     ))}
                   </div>
@@ -386,10 +346,7 @@ export function HomePage() {
               {isLoadingVersionCustomers ? (
                 <div className="animate-pulse h-full bg-muted rounded" />
               ) : (
-                <VersionCustomerChart
-                  data={versionCustomerGroups}
-                  onCustomerClick={(c) => goToCustomer(c.customerId)}
-                />
+                <VersionCustomerChart data={versionCustomerGroups} />
               )}
             </CardContent>
           </Card>
@@ -414,10 +371,6 @@ export function HomePage() {
                     height="100%"
                     tooltipValueFormatter={(value) => `${value}건`}
                     tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}
-                    onStackClick={(customerName) => {
-                      const id = customerNameToId.get(customerName)
-                      if (id != null) goToCustomer(id)
-                    }}
                   />
                 </div>
               ) : (
