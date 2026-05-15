@@ -12,4 +12,5 @@ export {
   useDashboardRecentPatch,
   useDashboardTopCustomers,
   useDashboardMonthlyPatches,
+  useDashboardVersionCustomers,
 } from './queries/dashboardQueries'

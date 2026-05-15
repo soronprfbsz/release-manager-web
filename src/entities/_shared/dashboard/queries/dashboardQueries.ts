@@ -14,6 +14,7 @@ import type {
   TopCustomersResponse,
   MonthlyPatchesResponse,
   StatisticsParams,
+  VersionCustomerDistributionResponse,
 } from '../model/types'
 
 // ============================================================================
@@ -32,6 +33,8 @@ export const dashboardKeys = {
     [...dashboardKeys.all, 'top-customers', projectId, params] as const,
   monthlyPatches: (projectId: string, months?: number) =>
     [...dashboardKeys.all, 'monthly-patches', projectId, months] as const,
+  versionCustomers: (projectId: string) =>
+    [...dashboardKeys.all, 'version-customers', projectId] as const,
 }
 
 // ============================================================================
@@ -113,6 +116,21 @@ export function useDashboardMonthlyPatches(
   return useQuery({
     queryKey: dashboardKeys.monthlyPatches(projectId, months),
     queryFn: () => dashboardApi.getMonthlyPatches(projectId, months),
+    enabled: !!projectId,
+    ...options,
+  })
+}
+
+/**
+ * 버전별 고객사 분포 조회 훅
+ */
+export function useDashboardVersionCustomers(
+  projectId: string,
+  options?: Omit<UseQueryOptions<VersionCustomerDistributionResponse, Error>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: dashboardKeys.versionCustomers(projectId),
+    queryFn: () => dashboardApi.getVersionCustomers(projectId),
     enabled: !!projectId,
     ...options,
   })

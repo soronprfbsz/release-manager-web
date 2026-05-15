@@ -144,6 +144,29 @@ export interface StatisticsParams {
   topN?: number
 }
 
+// ============================================================================
+// 버전별 고객사 분포
+// ============================================================================
+
+/** 고객사 간단 정보 (버전별 그룹 안에 들어가는 segment) */
+export interface CustomerInfo {
+  customerId: number
+  customerCode: string
+  customerName: string
+}
+
+/** 버전별 고객사 그룹 */
+export interface VersionCustomerGroup {
+  version: string
+  count: number
+  customers: CustomerInfo[]
+}
+
+/** 버전별 고객사 분포 응답 */
+export interface VersionCustomerDistributionResponse {
+  versions: VersionCustomerGroup[]
+}
+
 /** 최근 데이터 요청 파라미터 */
 export interface RecentDataParams {
   versionLimit?: number

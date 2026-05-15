@@ -13,7 +13,7 @@ import {
   useDashboardRecentStandard,
   useDashboardRecentBuild,
   useDashboardRecentPatch,
-  useDashboardTopCustomers,
+  useDashboardVersionCustomers,
   useDashboardMonthlyPatches,
   type RecentStandardVersion,
   type RecentBuildVersion,
@@ -24,7 +24,7 @@ import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
-import { HorizontalBarChart, StackedBarChart } from '@/shared/ui/charts'
+import { StackedBarChart, VersionCustomerChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
@@ -58,10 +58,11 @@ export function HomePage() {
   // 최근 적용 패치
   const { data: patchData, isLoading: isLoadingPatch } = useDashboardRecentPatch(projectId)
 
-  // 통계 데이터 쿼리 (기본값 사용: months=6, topN=5)
-  const { data: topCustomersData, isLoading: isLoadingTopCustomers } = useDashboardTopCustomers(projectId)
+  // 버전별 고객사 분포 (좌측 통계 차트용)
+  const { data: versionCustomersData, isLoading: isLoadingVersionCustomers } = useDashboardVersionCustomers(projectId)
 
-  const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId)
+  // 월별 패치 (우측 통계 차트용) - 최근 12개월
+  const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId, 12)
 
   // 데이터 추출 — 표준 릴리즈는 semver 내림차순 정렬 (큰 버전 위)
   const standardVersions = [...(standardData?.versions || [])].sort((a, b) =>
@@ -71,10 +72,8 @@ export function HomePage() {
   const buildVersions = buildData?.versions || []
   const recentPatches = patchData?.patches || []
 
-  // 통계 데이터 추출
-  const topCustomers = topCustomersData?.customers || []
-  const statisticsMonths = topCustomersData?.months || 6
-  const topN = topCustomersData?.topN || 5
+  // 버전별 고객사 그룹
+  const versionCustomerGroups = versionCustomersData?.versions || []
 
   // 월별 데이터 - 고객사 목록과 포맷팅된 데이터
   const monthlyCustomers = monthlyPatchesData?.customers || []
@@ -327,32 +326,20 @@ export function HomePage() {
       <div>
         <TypographyLarge className="mb-3">Statistics</TypographyLarge>
         <div className="grid grid-cols-2 gap-4">
-          {/* 고객사별 패치 통계 (Bar Chart) */}
+          {/* 버전별 고객사 현황 (Stacked Horizontal Bar) */}
           <Card className="flex flex-col h-80">
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
-                고객사별 패치 현황
+                버전별 고객사 현황
               </CardTitle>
-              <CardDescription>최근 {statisticsMonths}개월 Top {topN}</CardDescription>
+              <CardDescription>각 고객사의 최근 적용 버전 기준 · hover 로 고객사 확인</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
-              {isLoadingTopCustomers ? (
+              {isLoadingVersionCustomers ? (
                 <div className="animate-pulse h-full bg-muted rounded" />
-              ) : topCustomers && topCustomers.length > 0 ? (
-                <div className="h-full">
-                  <HorizontalBarChart
-                    data={topCustomers}
-                    categoryKey="customerName"
-                    valueKey="patchCount"
-                    height="100%"
-                    tooltipFormatter={(value) => [`${value}건`, '패치 수']}
-                  />
-                </div>
               ) : (
-                <div className="h-full flex items-center justify-center">
-                  <TypographyMuted>데이터가 없습니다.</TypographyMuted>
-                </div>
+                <VersionCustomerChart data={versionCustomerGroups} />
               )}
             </CardContent>
           </Card>
@@ -364,7 +351,7 @@ export function HomePage() {
                 <TrendingUp className="h-4 w-4 text-blue-500" />
                 월별 패치 생성 현황
               </CardTitle>
-              <CardDescription>최근 {monthlyPatchesData?.months || 6}개월</CardDescription>
+              <CardDescription>최근 {monthlyPatchesData?.months || 12}개월</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
               {isLoadingMonthly ? (
