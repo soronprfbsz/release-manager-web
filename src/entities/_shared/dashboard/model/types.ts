@@ -27,36 +27,41 @@ export interface RecentStandardResponse {
 }
 
 // ============================================================================
-// 커스텀본 최신 릴리즈 (Custom)
+// 최신 빌드 버전 (Build) — 표준 + 커스텀 통합
 // ============================================================================
 
-/** 커스텀본 릴리즈 버전 아이템 */
-export interface RecentCustomVersion {
+/**
+ * 최신 빌드 버전 아이템
+ *
+ * `version` 은 빌드 라벨까지 포함된 full 버전 (예: "1.1.0.260501-1").
+ * customer* 필드는 CUSTOM 빌드인 경우에만 채워진다.
+ */
+export interface RecentBuildVersion {
   releaseVersionId: number
   version: string
   releaseType: string
   createdAt: string
   comment: string | null
   fileCategories: string[]
-  customerId: number
-  customerCode: string
-  customerName: string
+  customerId: number | null
+  customerCode: string | null
+  customerName: string | null
   createdByName: string
   createdByEmail: string
   createdByAvatarStyle: string | null
   createdByAvatarSeed: string | null
 }
 
-/** 커스텀본 최신 릴리즈 응답 */
-export interface RecentCustomResponse {
-  versions: RecentCustomVersion[]
+/** 최신 빌드 버전 응답 */
+export interface RecentBuildResponse {
+  versions: RecentBuildVersion[]
 }
 
 // ============================================================================
 // 최근 생성 패치 (Patch)
 // ============================================================================
 
-/** 최근 생성 패치 아이템 */
+/** 최근 생성 패치 아이템 (패치 완료된 항목만) */
 export interface RecentPatch {
   historyId: number
   patchName: string
@@ -65,7 +70,6 @@ export interface RecentPatch {
   releaseType: string
   createdAt: string
   description: string | null
-  fileDeleted: boolean
   customerId: number | null
   customerCode: string | null
   customerName: string | null

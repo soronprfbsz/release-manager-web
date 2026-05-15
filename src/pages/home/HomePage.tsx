@@ -5,18 +5,18 @@ import {
   Info,
   Tag,
   GitBranch,
-  X,
+  Hammer,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import {
   useDashboardRecentStandard,
-  useDashboardRecentCustom,
+  useDashboardRecentBuild,
   useDashboardRecentPatch,
   useDashboardTopCustomers,
   useDashboardMonthlyPatches,
   type RecentStandardVersion,
-  type RecentCustomVersion,
+  type RecentBuildVersion,
 } from '@/entities/_shared/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
@@ -52,8 +52,8 @@ export function HomePage() {
   // 표준본 최신 릴리즈
   const { data: standardData, isLoading: isLoadingStandard } = useDashboardRecentStandard(projectId)
 
-  // 커스텀본 최신 릴리즈
-  const { data: customData, isLoading: isLoadingCustom } = useDashboardRecentCustom(projectId)
+  // 최신 빌드 버전 (표준 + 커스텀)
+  const { data: buildData, isLoading: isLoadingBuild } = useDashboardRecentBuild(projectId)
 
   // 최근 적용 패치
   const { data: patchData, isLoading: isLoadingPatch } = useDashboardRecentPatch(projectId)
@@ -63,13 +63,12 @@ export function HomePage() {
 
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId)
 
-  // 데이터 추출 — 화면 노출용으로 semver 내림차순 정렬 (큰 버전 위)
+  // 데이터 추출 — 표준 릴리즈는 semver 내림차순 정렬 (큰 버전 위)
   const standardVersions = [...(standardData?.versions || [])].sort((a, b) =>
     compareVersionDesc(a.version, b.version)
   )
-  const customVersions = [...(customData?.versions || [])].sort((a, b) =>
-    compareVersionDesc(a.version, b.version)
-  )
+  // 빌드 버전은 백엔드가 보낸 createdAt DESC 순서를 유지 (빌드 라벨이 다른 동일 base 의 최신 순)
+  const buildVersions = buildData?.versions || []
   const recentPatches = patchData?.patches || []
 
   // 통계 데이터 추출
@@ -127,58 +126,67 @@ export function HomePage() {
     </Link>
   )
 
-  // 버전 항목 렌더링 헬퍼 (커스텀본)
-  const renderCustomVersion = (version: RecentCustomVersion) => (
-    <Link
-      key={version.releaseVersionId}
-      to={`${ROUTES.RELEASES}?tab=custom`}
-      state={{ selectedVersionId: version.releaseVersionId }}
-      className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
-    >
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+  // 버전 항목 렌더링 헬퍼 (빌드)
+  const renderBuildVersion = (version: RecentBuildVersion) => {
+    const isCustom = version.releaseType === 'CUSTOM'
+    const href = isCustom ? `${ROUTES.RELEASES}?tab=custom` : ROUTES.RELEASES
+    return (
+      <Link
+        key={version.releaseVersionId}
+        to={href}
+        state={{ selectedVersionId: version.releaseVersionId }}
+        className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
+      >
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          {isCustom ? (
+            <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          ) : (
+            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
+                {version.customerName || ''}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{version.customerName || '표준'}</p>
+            </TooltipContent>
+          </Tooltip>
+          <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal truncate">{version.version}</TypographyInlineCode>
+          {version.fileCategories && version.fileCategories.length > 0 && (
+            <div className="flex gap-1 flex-shrink-0">
+              {version.fileCategories.map((category) => (
+                <Badge
+                  key={category}
+                  variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
+                  className="text-[10px] px-1 py-0 h-4 leading-none"
+                >
+                  {getCategoryShortName(category)}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-              {version.customerName || '-'}
-            </span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <DiceBearAvatar
+                seed={version.createdByAvatarSeed || version.createdByEmail}
+                style={(version.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                name={version.createdByName}
+                size={18}
+              />
+              <span className="text-xs text-muted-foreground">{version.createdByName}</span>
+            </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{version.customerName || '-'}</p>
+            <p>{version.createdByEmail}</p>
           </TooltipContent>
         </Tooltip>
-        <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal">{version.version}</TypographyInlineCode>
-        {version.fileCategories && version.fileCategories.length > 0 && (
-          <div className="flex gap-1 flex-shrink-0">
-            {version.fileCategories.map((category) => (
-              <Badge
-                key={category}
-                variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                className="text-[10px] px-1 py-0 h-4 leading-none"
-              >
-                {getCategoryShortName(category)}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <DiceBearAvatar
-              seed={version.createdByAvatarSeed || version.createdByEmail}
-              style={(version.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-              name={version.createdByName}
-              size={18}
-            />
-            <span className="text-xs text-muted-foreground">{version.createdByName}</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{version.createdByEmail}</p>
-        </TooltipContent>
-      </Tooltip>
-    </Link>
-  )
+      </Link>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6 px-6 py-7">
@@ -211,26 +219,26 @@ export function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 커스텀본 최신 릴리즈 */}
+          {/* 최신 빌드 버전 (표준 + 커스텀) */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <GitBranch className="h-4 w-4 text-purple-500" />
-                최신 커스텀 릴리즈
+                <Hammer className="h-4 w-4 text-purple-500" />
+                최신 빌드 버전
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[6.5rem]">
-                {isLoadingCustom ? (
+                {isLoadingBuild ? (
                   <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
                     {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
                   </div>
-                ) : customVersions.length > 0 ? (
+                ) : buildVersions.length > 0 ? (
                   <div className="space-y-2">
-                    {customVersions.slice(0, 3).map(renderCustomVersion)}
+                    {buildVersions.slice(0, 3).map(renderBuildVersion)}
                   </div>
                 ) : (
-                  <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
+                  <TypographyMuted>빌드 버전이 없습니다.</TypographyMuted>
                 )}
               </div>
             </CardContent>
@@ -252,94 +260,62 @@ export function HomePage() {
                   </div>
                 ) : recentPatches.length > 0 ? (
                   <div className="space-y-2">
-                    {recentPatches.slice(0, 3).map((patch) => {
-                      const content = (
-                        <>
-                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            {patch.releaseType === 'STANDARD' ? (
-                              <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            ) : (
-                              <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            )}
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-                                  {patch.customerName || '-'}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{patch.customerName || '-'}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span>
-                                  <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
-                                    {patch.patchName}
-                                  </TypographyInlineCode>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{patch.patchName}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            {patch.fileDeleted && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="flex-shrink-0 text-destructive">
-                                    <X className="h-3.5 w-3.5" />
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>파일 삭제됨</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
+                    {recentPatches.slice(0, 3).map((patch) => (
+                      <Link
+                        key={patch.historyId}
+                        to={`${ROUTES.PATCHES}?tab=${patch.releaseType === 'STANDARD' ? 'standard' : 'custom'}`}
+                        className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
+                      >
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                          {patch.releaseType === 'STANDARD' ? (
+                            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          ) : (
+                            <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          )}
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1.5 flex-shrink-0">
-                                <DiceBearAvatar
-                                  seed={patch.createdByAvatarSeed || patch.createdByEmail}
-                                  style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                                  name={patch.createdByName}
-                                  size={20}
-                                />
-                                <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
-                              </div>
+                              <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
+                                {patch.customerName || '-'}
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{patch.createdByEmail}</p>
+                              <p>{patch.customerName || '-'}</p>
                             </TooltipContent>
                           </Tooltip>
-                        </>
-                      )
-
-                      // 삭제된 파일은 링크 없이 표시
-                      if (patch.fileDeleted) {
-                        return (
-                          <div
-                            key={patch.historyId}
-                            className="flex items-center justify-between text-sm -mx-2 px-2 py-1 rounded"
-                          >
-                            {content}
-                          </div>
-                        )
-                      }
-
-                      return (
-                        <Link
-                          key={patch.historyId}
-                          to={`${ROUTES.PATCHES}?tab=${patch.releaseType === 'STANDARD' ? 'standard' : 'custom'}`}
-                          className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
-                        >
-                          {content}
-                        </Link>
-                      )
-                    })}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
+                                  {patch.patchName}
+                                </TypographyInlineCode>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{patch.patchName}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <DiceBearAvatar
+                                seed={patch.createdByAvatarSeed || patch.createdByEmail}
+                                style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                                name={patch.createdByName}
+                                size={20}
+                              />
+                              <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{patch.createdByEmail}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </Link>
+                    ))}
                   </div>
                 ) : (
-                  <TypographyMuted>생성된 패치가 없습니다.</TypographyMuted>
+                  <TypographyMuted>완료된 패치가 없습니다.</TypographyMuted>
                 )}
               </div>
             </CardContent>

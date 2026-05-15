@@ -2,7 +2,7 @@ import { apiClient } from '@/shared/api/client'
 
 import type {
   RecentStandardResponse,
-  RecentCustomResponse,
+  RecentBuildResponse,
   RecentPatchResponse,
   TopCustomersResponse,
   MonthlyPatchesResponse,
@@ -20,7 +20,7 @@ export interface RecentPatchParams {
 
 const ENDPOINTS = {
   recentStandard: (id: string) => `/api/projects/${id}/dashboard/recent/standard`,
-  recentCustom: (id: string) => `/api/projects/${id}/dashboard/recent/custom`,
+  recentBuild: (id: string) => `/api/projects/${id}/dashboard/recent/build`,
   recentPatch: (id: string) => `/api/projects/${id}/dashboard/recent/patch`,
   topCustomers: (id: string) => `/api/projects/${id}/analytics/patches/top-customers`,
   monthlyPatches: (id: string) => `/api/projects/${id}/analytics/patches/monthly`,
@@ -35,9 +35,9 @@ export const dashboardApi = {
     return response
   },
 
-  /** 커스텀본 최신 릴리즈 버전 조회 */
-  getRecentCustom: async (projectId: string, params?: RecentVersionParams): Promise<RecentCustomResponse> => {
-    const response = await apiClient.get<RecentCustomResponse>(ENDPOINTS.recentCustom(projectId), {
+  /** 최신 빌드 버전 조회 (표준 + 커스텀 통합) */
+  getRecentBuild: async (projectId: string, params?: RecentVersionParams): Promise<RecentBuildResponse> => {
+    const response = await apiClient.get<RecentBuildResponse>(ENDPOINTS.recentBuild(projectId), {
       params: { limit: params?.limit },
     })
     return response

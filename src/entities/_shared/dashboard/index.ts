@@ -8,7 +8,7 @@ export * from './model/types'
 export {
   dashboardKeys,
   useDashboardRecentStandard,
-  useDashboardRecentCustom,
+  useDashboardRecentBuild,
   useDashboardRecentPatch,
   useDashboardTopCustomers,
   useDashboardMonthlyPatches,

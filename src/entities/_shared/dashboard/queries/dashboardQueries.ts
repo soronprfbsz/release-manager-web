@@ -9,7 +9,7 @@ import { dashboardApi, type RecentVersionParams, type RecentPatchParams } from '
 
 import type {
   RecentStandardResponse,
-  RecentCustomResponse,
+  RecentBuildResponse,
   RecentPatchResponse,
   TopCustomersResponse,
   MonthlyPatchesResponse,
@@ -24,8 +24,8 @@ export const dashboardKeys = {
   all: ['dashboard'] as const,
   recentStandard: (projectId: string, params?: RecentVersionParams) =>
     [...dashboardKeys.all, 'recent-standard', projectId, params] as const,
-  recentCustom: (projectId: string, params?: RecentVersionParams) =>
-    [...dashboardKeys.all, 'recent-custom', projectId, params] as const,
+  recentBuild: (projectId: string, params?: RecentVersionParams) =>
+    [...dashboardKeys.all, 'recent-build', projectId, params] as const,
   recentPatch: (projectId: string, params?: RecentPatchParams) =>
     [...dashboardKeys.all, 'recent-patch', projectId, params] as const,
   topCustomers: (projectId: string, params?: StatisticsParams) =>
@@ -55,16 +55,16 @@ export function useDashboardRecentStandard(
 }
 
 /**
- * 커스텀본 최신 릴리즈 버전 조회 훅
+ * 최신 빌드 버전 조회 훅 (표준 + 커스텀 통합)
  */
-export function useDashboardRecentCustom(
+export function useDashboardRecentBuild(
   projectId: string,
   params?: RecentVersionParams,
-  options?: Omit<UseQueryOptions<RecentCustomResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<RecentBuildResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: dashboardKeys.recentCustom(projectId, params),
-    queryFn: () => dashboardApi.getRecentCustom(projectId, params),
+    queryKey: dashboardKeys.recentBuild(projectId, params),
+    queryFn: () => dashboardApi.getRecentBuild(projectId, params),
     enabled: !!projectId,
     ...options,
   })
