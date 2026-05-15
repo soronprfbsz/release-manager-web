@@ -187,23 +187,15 @@ export function PatchTable({
             >
               패치명
             </SortableTableHead>
-            <TableHead className="">설명</TableHead>
-            <TableHead className="w-28">버전 범위</TableHead>
+            <TableHead className="w-56">설명</TableHead>
+            <TableHead className="w-40">버전 범위</TableHead>
             <SortableTableHead
-              className="w-40"
+              className="w-56"
               id="customerName"
               currentSort={sort}
               onSort={onSort}
             >
               고객사
-            </SortableTableHead>
-            <SortableTableHead
-              className="w-44"
-              id="assigneeName"
-              currentSort={sort}
-              onSort={onSort}
-            >
-              담당자
             </SortableTableHead>
             <SortableTableHead
               className="w-44"
@@ -302,32 +294,6 @@ export function PatchTable({
                       {patch.customerCode}
                     </TypographyMuted>
                   </div>
-                ) : (
-                  <TypographyMuted className="text-sm">—</TypographyMuted>
-                )}
-              </TableCell>
-              <TableCell>
-                {patch.assigneeEmail ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2 cursor-default">
-                        <UserAvatar
-                          email={patch.assigneeEmail}
-                          accountName={patch.assigneeName}
-                          avatarStyle={patch.assigneeAvatarStyle}
-                          avatarSeed={patch.assigneeAvatarSeed}
-                          isDeleted={patch.isDeletedAssignee}
-                          size={24}
-                        />
-                        <span className={cn('text-sm', patch.isDeletedAssignee && 'text-muted-foreground')}>
-                          {patch.assigneeName || patch.assigneeEmail}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {patch.isDeletedAssignee ? '삭제된 사용자' : patch.assigneeEmail}
-                    </TooltipContent>
-                  </Tooltip>
                 ) : (
                   <TypographyMuted className="text-sm">—</TypographyMuted>
                 )}

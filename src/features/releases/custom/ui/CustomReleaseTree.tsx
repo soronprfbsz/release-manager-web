@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 
-import { ChevronRight, ChevronDown, Tag, Building2, Zap, Wrench, Star, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, Tag, Building2, Zap, Wrench, Sparkles, Trash2 } from 'lucide-react'
 
 import type { CustomerReleaseNode } from '@/entities/releases/release'
 
@@ -24,7 +24,7 @@ function LatestIndicator() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 relative top-[1px]" />
+        <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
       </TooltipTrigger>
       <TooltipContent side="top" className="text-xs">
         최신 버전
