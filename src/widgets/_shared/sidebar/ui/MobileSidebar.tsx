@@ -100,7 +100,7 @@ export function MobileSidebar() {
                 Release Manager
               </strong>
               <small className="mt-1 text-[11px] font-medium" style={{ color: 'hsl(var(--sidebar-fg-muted))' }}>
-                Backstage
+                Tscorp
               </small>
             </div>
           </div>
