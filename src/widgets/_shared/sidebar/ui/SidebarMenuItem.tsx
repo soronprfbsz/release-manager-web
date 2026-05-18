@@ -60,7 +60,7 @@ function InlineItem({ item, depth, currentPath, opens, onToggle, onNavigate }: S
           onClick={() => onToggle(item.menuId)}
           className={cn(
             'group/sb flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-md text-[13px] font-medium text-left transition-colors',
-            'hover:bg-muted/40'
+            'hover:bg-[hsl(var(--sidebar-hover))]'
           )}
           style={{ color: parentOn ? 'hsl(var(--sidebar-fg))' : 'hsl(var(--sidebar-fg-muted))' }}
         >
@@ -111,7 +111,7 @@ function InlineItem({ item, depth, currentPath, opens, onToggle, onNavigate }: S
       onClick={onNavigate}
       className={cn(
         'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12.5px] font-medium transition-colors',
-        'hover:bg-muted/40'
+        'hover:bg-[hsl(var(--sidebar-hover))]'
       )}
       style={
         isOn
@@ -148,7 +148,7 @@ function CollapsedPopoutItem(props: SidebarMenuItemProps) {
 
   const iconButtonClass = cn(
     'flex items-center justify-center w-10 h-10 mx-auto rounded-md transition-colors',
-    'hover:bg-muted/40 [&_svg]:w-4 [&_svg]:h-4'
+    'hover:bg-[hsl(var(--sidebar-hover))] [&_svg]:w-4 [&_svg]:h-4'
   )
 
   const iconStyle = isOnAny
