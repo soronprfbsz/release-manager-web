@@ -19,3 +19,6 @@ export interface CustomerFiltersState {
 }
 
 export type CustomerFormMode = 'create' | 'edit' | null
+
+/** 고객사 리스트 필터 탭 (표준 / 커스텀) */
+export type CustomerFilter = 'standard' | 'custom'

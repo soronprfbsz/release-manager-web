@@ -10,7 +10,7 @@ export { CustomerFilters } from './ui/CustomerFilters'
 export { CustomerDeleteModal } from './ui/CustomerDeleteModal'
 
 // UI Components - Operation Tab
-export { CustomerTree } from './ui/CustomerTree'
+export { CustomerList } from './ui/CustomerList'
 export { CustomerDetailPanel } from './ui/CustomerDetailPanel'
 export { CustomerPatchHistoryCard } from './ui/CustomerPatchHistoryCard'
 export { CustomerVersionInfo } from './ui/CustomerVersionInfo'
@@ -23,6 +23,7 @@ export type {
   CustomerFormData,
   CustomerFiltersState,
   CustomerFormMode,
+  CustomerFilter,
 } from './model/types'
 
 // Validation

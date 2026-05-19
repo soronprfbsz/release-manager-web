@@ -1,19 +1,20 @@
 /**
  * Customer List Page
- * 고객사 목록 페이지 - 트리 뷰 + 상세 패널
+ * 고객사 목록 페이지 - 리스트 뷰 + 상세 패널
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import { Plus, Network, Search, X } from 'lucide-react'
 
 import {
   CustomerForm,
   CustomerDeleteModal,
-  CustomerTree,
+  CustomerList,
   CustomerDetailPanel,
   type CustomerFormData,
   type CustomerFormMode,
+  type CustomerFilter,
   validateCustomerForm,
 } from '@/features/operations/customer-management'
 
@@ -64,6 +65,9 @@ export function CustomerListPage() {
   // Search state
   const [searchTerm, setSearchTerm] = useState('')
 
+  // Filter tab state (표준 / 커스텀)
+  const [customerFilter, setCustomerFilter] = useState<CustomerFilter>('standard')
+
   // 프로젝트 변경 시 선택된 고객사 초기화
   useEffect(() => {
     setSelectedCustomerId(null)
@@ -81,8 +85,31 @@ export function CustomerListPage() {
   const deleteMutation = useDeleteCustomer()
 
   // Derived data
-  const customers = customersData?.content || []
+  const customers = useMemo(() => customersData?.content || [], [customersData])
   const selectedCustomer = customers.find((c) => c.customerId === selectedCustomerId) || null
+
+  // 이름 ASC 정렬 후 표준/커스텀 분류
+  const { standardCustomers, customCustomers } = useMemo(() => {
+    const sorted = [...customers].sort((a, b) =>
+      a.customerName.localeCompare(b.customerName)
+    )
+    return {
+      standardCustomers: sorted.filter((c) => !c.hasCustomVersion),
+      customCustomers: sorted.filter((c) => c.hasCustomVersion),
+    }
+  }, [customers])
+
+  // 현재 탭 + 검색어가 적용된 표시 목록
+  const displayedCustomers = useMemo(() => {
+    const base = customerFilter === 'standard' ? standardCustomers : customCustomers
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return base
+    return base.filter(
+      (c) =>
+        c.customerName.toLowerCase().includes(term) ||
+        c.customerCode.toLowerCase().includes(term)
+    )
+  }, [customerFilter, standardCustomers, customCustomers, searchTerm])
 
   // Handlers
   const openCreateModal = () => {
@@ -199,7 +226,7 @@ export function CustomerListPage() {
       }
     >
       <ContentSplit treeWidth={25}>
-        {/* Left Panel - Customer Tree */}
+        {/* Left Panel - Customer List */}
         <ContentSplit.Tree
           header={
             <div className="flex items-center gap-3 w-full">
@@ -207,6 +234,9 @@ export function CustomerListPage() {
                 <Network className="h-4 w-4" />
                 고객사 목록
               </div>
+              <span className="text-xs font-normal text-muted-foreground flex-shrink-0">
+                {displayedCustomers.length}/{customers.length}
+              </span>
               <span className="flex-1" />
               <div className="relative w-58">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -230,11 +260,16 @@ export function CustomerListPage() {
             </div>
           }
         >
-          <CustomerTree
-            customers={customers}
+          <CustomerList
+            customers={displayedCustomers}
+            filter={customerFilter}
+            onFilterChange={setCustomerFilter}
+            standardCount={standardCustomers.length}
+            customCount={customCustomers.length}
+            totalCount={customers.length}
+            hasSearch={Boolean(searchTerm.trim())}
             selectedId={selectedCustomerId}
             isLoading={isLoading}
-            searchTerm={searchTerm}
             onSelect={handleCustomerSelect}
             onEdit={canEditCustomer ? openEditModal : undefined}
             onDelete={canDeleteCustomer ? (customer) => setDeleteConfirmId(customer.customerId) : undefined}
