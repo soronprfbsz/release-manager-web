@@ -56,6 +56,8 @@ interface ContentSplitTreeProps {
   actions?: React.ReactNode
   /** 헤더 영역 커스텀 컨텐츠 (title/actions 대신 사용) */
   header?: React.ReactNode
+  /** header 를 밴드 스타일(패딩·하단 보더) 없이 그대로 렌더 — 헤더가 자체 보더를 가질 때 사용 */
+  rawHeader?: boolean
   /** 자식 요소 */
   children: React.ReactNode
   /** 추가 className */
@@ -66,19 +68,24 @@ function ContentSplitTree({
   title,
   actions,
   header,
+  rawHeader = false,
   children,
   className,
 }: ContentSplitTreeProps) {
   return (
     <Card className={cn('flex flex-col overflow-hidden', className)}>
-      <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
-        {header || (
-          <>
-            <h3 className="text-base font-semibold">{title}</h3>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
-          </>
-        )}
-      </div>
+      {rawHeader ? (
+        <div className="flex-none">{header}</div>
+      ) : (
+        <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
+          {header || (
+            <>
+              <h3 className="text-base font-semibold">{title}</h3>
+              {actions && <div className="flex items-center gap-2">{actions}</div>}
+            </>
+          )}
+        </div>
+      )}
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="px-6 pb-6 pt-4">

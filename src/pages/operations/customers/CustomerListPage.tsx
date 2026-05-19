@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-import { Plus, Network, Search, X } from 'lucide-react'
+import { Plus, Search, X } from 'lucide-react'
 
 import {
   CustomerForm,
@@ -34,6 +34,7 @@ import { Button } from '@/shared/ui/button'
 import { ContentSplit } from '@/shared/ui/content-layout'
 import { Input } from '@/shared/ui/input'
 import { PageLayout } from '@/shared/ui/page-layout'
+import { Tabs, TabsBar, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 const INITIAL_FORM_DATA: CustomerFormData = {
@@ -228,44 +229,56 @@ export function CustomerListPage() {
       <ContentSplit treeWidth={25}>
         {/* Left Panel - Customer List */}
         <ContentSplit.Tree
+          rawHeader
           header={
-            <div className="flex items-center gap-3 w-full">
-              <div className="flex items-center gap-2 text-base font-semibold flex-shrink-0">
-                <Network className="h-4 w-4" />
-                고객사 목록
-              </div>
-              <span className="text-xs font-normal text-muted-foreground flex-shrink-0">
-                {displayedCustomers.length}/{customers.length}
-              </span>
-              <span className="flex-1" />
-              <div className="relative w-58">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  placeholder="고객사명 또는 코드 검색..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 pr-8 h-7 text-xs"
-                />
-                {searchTerm && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0.5 top-1/2 -translate-y-1/2 h-6 w-6"
-                    onClick={() => setSearchTerm('')}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
-            </div>
+            <Tabs
+              value={customerFilter}
+              onValueChange={(value) => setCustomerFilter(value as CustomerFilter)}
+            >
+              <TabsBar className="pl-3 pr-3">
+                {/* 표준 / 커스텀 필터 탭 */}
+                <TabsList variant="line" className="w-auto">
+                  <TabsTrigger variant="line" value="standard" className="px-3">
+                    표준
+                    <span className="text-xs text-muted-foreground">
+                      {standardCustomers.length}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger variant="line" value="custom" className="px-3">
+                    커스텀
+                    <span className="text-xs text-muted-foreground">
+                      {customCustomers.length}
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* 검색 */}
+                <div className="relative w-56">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="고객사명 또는 코드 검색..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8 pr-8 h-8 text-xs"
+                  />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0.5 top-1/2 -translate-y-1/2 h-6 w-6"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              </TabsBar>
+            </Tabs>
           }
         >
           <CustomerList
             customers={displayedCustomers}
             filter={customerFilter}
-            onFilterChange={setCustomerFilter}
-            standardCount={standardCustomers.length}
-            customCount={customCustomers.length}
             totalCount={customers.length}
             hasSearch={Boolean(searchTerm.trim())}
             selectedId={selectedCustomerId}
