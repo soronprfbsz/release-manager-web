@@ -238,15 +238,15 @@ export function CustomerListPage() {
               <TabsBar className="pl-3 pr-3">
                 {/* 표준 / 커스텀 필터 탭 */}
                 <TabsList variant="line" className="w-auto">
-                  <TabsTrigger variant="line" value="standard" className="px-3">
+                  <TabsTrigger variant="line" value="standard" className="group px-3">
                     표준
-                    <span className="text-xs text-muted-foreground">
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                       {standardCustomers.length}
                     </span>
                   </TabsTrigger>
-                  <TabsTrigger variant="line" value="custom" className="px-3">
+                  <TabsTrigger variant="line" value="custom" className="group px-3">
                     커스텀
-                    <span className="text-xs text-muted-foreground">
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
                       {customCustomers.length}
                     </span>
                   </TabsTrigger>
