@@ -41,6 +41,8 @@ const INITIAL_FORM_DATA: CustomerFormData = {
   description: '',
   isActive: true,
   projectId: '',
+  glyphText: '',
+  glyphBackgroundColor: '',
 }
 
 export function CustomerListPage() {
@@ -96,6 +98,8 @@ export function CustomerListPage() {
       description: customer.description || '',
       isActive: customer.isActive,
       projectId: customer.project?.projectId || '',
+      glyphText: customer.glyphText || '',
+      glyphBackgroundColor: customer.glyphBackgroundColor || '',
     })
     setEditingCustomer(customer)
     setModalMode('edit')
@@ -123,6 +127,8 @@ export function CustomerListPage() {
           description: formData.description.trim() || undefined,
           isActive: formData.isActive,
           projectId: formData.projectId || undefined,
+          glyphText: formData.glyphText,
+          glyphBackgroundColor: formData.glyphBackgroundColor,
         },
         {
           onSuccess: () => {
@@ -140,6 +146,8 @@ export function CustomerListPage() {
             customerName: formData.customerName.trim(),
             description: formData.description.trim() || undefined,
             isActive: formData.isActive,
+            glyphText: formData.glyphText,
+            glyphBackgroundColor: formData.glyphBackgroundColor,
           },
         },
         {

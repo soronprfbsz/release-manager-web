@@ -9,6 +9,8 @@ export interface CustomerFormData {
   description: string
   isActive: boolean
   projectId: string
+  glyphText: string
+  glyphBackgroundColor: string
 }
 
 export interface CustomerFiltersState {

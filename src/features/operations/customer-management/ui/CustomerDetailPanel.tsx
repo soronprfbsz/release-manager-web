@@ -14,6 +14,8 @@ import { Calendar } from 'lucide-react'
 import { useCustomerSiteVersions } from '@/entities/operations/customer-site-version'
 import type { Customer } from '@/entities/operations/customer'
 
+import { resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
+import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { Badge } from '@/shared/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
@@ -39,31 +41,52 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
   const webVersion = byComponent.WEB
   const engineVersion = byComponent.ENGINE
 
+  // 글리프 배지
+  const { text: glyphText, glyphClass } = resolveGlyph({
+    name: customer.customerName,
+    glyphText: customer.glyphText,
+    glyphBackgroundColor: customer.glyphBackgroundColor,
+  })
+  const glyphFontSize = getGlyphFontSizeClass(glyphText)
+
   return (
     <div className="pt-6">
       {/* Hero + Meta Rail */}
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
         {/* 좌측: 고객사 정체성 */}
-        <div className="flex flex-col gap-1.5 min-w-0">
-          <code className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">
-            {customer.customerCode}
-          </code>
-          {customer.description ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate cursor-default">
-                  {customer.customerName}
-                </h2>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-[300px]">{customer.description}</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate">
-              {customer.customerName}
-            </h2>
-          )}
+        <div className="flex items-center gap-4 min-w-0">
+          {/* 글리프 배지 */}
+          <div
+            className={cn(
+              'flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center',
+              'font-mono font-semibold select-none',
+              glyphFontSize,
+              glyphClass
+            )}
+          >
+            {glyphText}
+          </div>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <code className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">
+              {customer.customerCode}
+            </code>
+            {customer.description ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate cursor-default">
+                    {customer.customerName}
+                  </h2>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-[300px]">{customer.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate">
+                {customer.customerName}
+              </h2>
+            )}
+          </div>
         </div>
 
         {/* 가운데: 적용 버전 + 빌드 정보 (좌측 vertical line) */}

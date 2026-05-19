@@ -19,6 +19,10 @@ export interface Customer {
   description: string | null
   isActive: boolean
   hasCustomVersion: boolean
+  /** 카드 글리프 텍스트 (1~3자) */
+  glyphText: string | null
+  /** 글리프 배경 색상 키 */
+  glyphBackgroundColor: string | null
   project: CustomerProject | null
   createdByEmail?: string
   createdByAvatarStyle?: string
@@ -36,12 +40,18 @@ export interface CustomerCreateRequest {
   description?: string
   isActive?: boolean
   projectId?: string
+  glyphText?: string
+  glyphBackgroundColor?: string
 }
 
 export interface CustomerUpdateRequest {
   customerName?: string
   description?: string
   isActive?: boolean
+  /** 빈 문자열("") 전송 시 NULL 처리 */
+  glyphText?: string
+  /** 빈 문자열("") 전송 시 NULL 처리 */
+  glyphBackgroundColor?: string
 }
 
 /**

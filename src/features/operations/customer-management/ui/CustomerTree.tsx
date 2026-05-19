@@ -8,7 +8,6 @@ import { useState, useMemo } from 'react'
 import {
   ChevronRight,
   ChevronDown,
-  Building2,
   Tag,
   GitBranch,
   Pencil,
@@ -19,6 +18,7 @@ import {
 
 import type { Customer } from '@/entities/operations/customer'
 
+import { resolveGlyph } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
 import {
   TreeActionMenu,
@@ -118,6 +118,12 @@ function CustomerNode({
   onEdit,
   onDelete,
 }: CustomerNodeProps) {
+  const { text: glyphText, glyphClass } = resolveGlyph({
+    name: customer.customerName,
+    glyphText: customer.glyphText,
+    glyphBackgroundColor: customer.glyphBackgroundColor,
+  })
+
   return (
     <div
       className={cn(
@@ -131,8 +137,16 @@ function CustomerNode({
     >
       {/* Spacer for hierarchy indentation */}
       <div className="w-4" />
-      {/* Customer Icon */}
-      <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+      {/* 글리프 배지 */}
+      <div
+        className={cn(
+          'flex-shrink-0 h-5 w-5 rounded flex items-center justify-center',
+          'font-mono font-semibold select-none text-[10px]',
+          glyphClass
+        )}
+      >
+        {glyphText}
+      </div>
 
       {/* Customer Name */}
       <span className="truncate text-sm">

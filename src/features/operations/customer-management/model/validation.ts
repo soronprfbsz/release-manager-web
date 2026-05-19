@@ -21,6 +21,14 @@ export function validateCustomerForm(data: CustomerFormData): ValidationResult {
     errors.customerName = '고객사명은 필수입니다.'
   }
 
+  if (data.glyphText && data.glyphText.length > 3) {
+    errors.glyphText = '글리프 텍스트는 최대 3자까지 입력 가능합니다.'
+  }
+
+  if (data.glyphBackgroundColor && data.glyphBackgroundColor.length > 30) {
+    errors.glyphBackgroundColor = '글리프 배경색 값이 너무 깁니다.'
+  }
+
   const isValid = Object.keys(errors).length === 0
 
   return { isValid, errors }
