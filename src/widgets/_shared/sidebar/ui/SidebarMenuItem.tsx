@@ -60,9 +60,11 @@ function InlineItem({ item, depth, currentPath, opens, onToggle, onNavigate }: S
           onClick={() => onToggle(item.menuId)}
           className={cn(
             'group/sb flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-md text-[13px] font-medium text-left transition-colors',
+            parentOn
+              ? 'text-[hsl(var(--sidebar-fg))]'
+              : 'text-[hsl(var(--sidebar-fg-muted))] hover:text-[hsl(var(--sidebar-fg))]',
             'hover:bg-[hsl(var(--sidebar-hover))]'
           )}
-          style={{ color: parentOn ? 'hsl(var(--sidebar-fg))' : 'hsl(var(--sidebar-fg-muted))' }}
         >
           {item.isIconVisible !== false && depth === 0 && (
             <span className="shrink-0 inline-grid place-items-center w-4 h-4 [&_svg]:w-4 [&_svg]:h-4">
@@ -111,6 +113,7 @@ function InlineItem({ item, depth, currentPath, opens, onToggle, onNavigate }: S
       onClick={onNavigate}
       className={cn(
         'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12.5px] font-medium transition-colors',
+        !isOn && 'text-[hsl(var(--sidebar-fg-muted))] hover:text-[hsl(var(--sidebar-fg))]',
         'hover:bg-[hsl(var(--sidebar-hover))]'
       )}
       style={
@@ -120,7 +123,7 @@ function InlineItem({ item, depth, currentPath, opens, onToggle, onNavigate }: S
               color: 'hsl(var(--sidebar-active-fg))',
               boxShadow: 'inset 0 0 0 1px hsl(var(--sidebar-active-border))',
             }
-          : { color: 'hsl(var(--sidebar-fg-muted))' }
+          : undefined
       }
     >
       {depth === 0 && item.isIconVisible !== false && (
@@ -148,16 +151,17 @@ function CollapsedPopoutItem(props: SidebarMenuItemProps) {
 
   const iconButtonClass = cn(
     'flex items-center justify-center w-10 h-10 mx-auto rounded-md transition-colors',
+    !isOnAny && 'text-[hsl(var(--sidebar-fg-muted))] hover:text-[hsl(var(--sidebar-fg))]',
     'hover:bg-[hsl(var(--sidebar-hover))] [&_svg]:w-4 [&_svg]:h-4'
   )
 
-  const iconStyle = isOnAny
+  const iconStyle: React.CSSProperties = isOnAny
     ? {
         background: 'hsl(var(--sidebar-active-bg))',
         color: 'hsl(var(--sidebar-active-fg))',
         boxShadow: 'inset 0 0 0 1px hsl(var(--sidebar-active-border))',
       }
-    : { color: 'hsl(var(--sidebar-fg-muted))' }
+    : {}
 
   // 자식 없는 leaf — 단순 Link + Tooltip
   if (!hasChildren) {

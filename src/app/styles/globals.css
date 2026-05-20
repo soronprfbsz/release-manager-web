@@ -69,8 +69,8 @@
     --sidebar-fg-muted:       0 0% 60%;
     --sidebar-border:         0 0% 16%;
     --sidebar-hover:          0 0% 12%;        /* night-800 */
-    --sidebar-active-bg:      173 70% 18%;
-    --sidebar-active-fg:      170 75% 64%;
+    --sidebar-active-bg:      173 70% 18%;        /* deep teal tint — brand 색 */
+    --sidebar-active-fg:      0 0% 97%;           /* sidebar-fg 유지 (배경만 brand) */
     --sidebar-active-border:  173 70% 35% / 0.40;
   }
 
@@ -134,8 +134,8 @@
     --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
     --sidebar-border:         220 14% 88%;     /* sidebar 와 page 경계 보강 */
     --sidebar-hover:          0 0% 100%;       /* hover 시 white — 카드와 동일 surface */
-    --sidebar-active-bg:      173 76% 96%;     /* brand-50 */
-    --sidebar-active-fg:      173 76% 25%;     /* brand-700 */
+    --sidebar-active-bg:      173 76% 96%;     /* brand-50 — brand 색 */
+    --sidebar-active-fg:      0 0% 13%;        /* sidebar-fg 유지 (배경만 brand) */
     --sidebar-active-border:  173 76% 70% / 0.30;
   }
 }
