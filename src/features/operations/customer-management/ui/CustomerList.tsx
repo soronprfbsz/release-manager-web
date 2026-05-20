@@ -60,10 +60,8 @@ function CustomerListItem({
   return (
     <div
       className={cn(
-        'group flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition-all select-none',
-        isSelected
-          ? 'border-primary bg-primary/5'
-          : 'border-border hover:border-foreground/20 hover:bg-accent',
+        'group flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-all select-none',
+        isSelected ? 'bg-primary/10' : 'hover:bg-accent',
         !customer.isActive && 'opacity-60'
       )}
       onClick={() => onSelect(customer)}
