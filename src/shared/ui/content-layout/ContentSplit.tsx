@@ -77,7 +77,7 @@ function ContentSplitTree({
       {rawHeader ? (
         <div className="flex-none">{header}</div>
       ) : (
-        <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
+        <div className="px-4 py-4 flex-none flex items-center justify-between border-b border-border">
           {header || (
             <>
               <h3 className="text-base font-semibold">{title}</h3>
@@ -88,7 +88,7 @@ function ContentSplitTree({
       )}
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="px-6 pb-6 pt-4">
+          <div className="px-2 py-2">
             {children}
           </div>
         </ScrollArea>
