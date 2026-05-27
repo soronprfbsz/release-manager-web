@@ -197,11 +197,15 @@ export function PatchCreateForm({
   )
 
   // builds-in-range 쿼리
+  // 표준 패치의 빌드는 customer=null(표준 빌드)이다. "고객사" 선택은 패치 태깅 / 추천 범위용일 뿐
+  // 빌드 출처가 아니므로 빌드 조회에는 customerId 를 넘기지 않는다.
+  // (넘기면 findBuildsInBaseRange 의 customerMatch 가 표준 빌드(customer null)를 전부 배제하여
+  //  web/engine 빌드가 패치에서 누락된다 — 고객사 선택 시 빌드 미포함 버그의 원인)
   const buildsQuery = useBuildsInRange(
     formData.projectId || null,
     formData.fromVersionId ?? null,
     formData.toVersionId ?? null,
-    formData.customerId ?? null,
+    null,
   )
 
   // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
