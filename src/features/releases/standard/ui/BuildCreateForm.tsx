@@ -167,6 +167,9 @@ export function BuildCreateForm({
               형태로 자동 부여됩니다. 같은 날 추가 빌드는 -2, -3 으로 회차가 증가합니다.
             </li>
             <li>
+              <strong className="text-foreground">web/ 하위는 webobjects/ 디렉터리 + 단일 .war 파일</strong>로 구성합니다 (예: web/webobjects/&#123;jsp,patch,resource&#125;/..., web/nms_solution-*.war). webobjects 를 .zip / .tar.gz 으로 압축하지 마세요 — InfraEye was patch 는 디렉터리만 인식합니다.
+            </li>
+            <li>
               <strong className="text-foreground">engine/ 하위는 엔진명 단일 실행 파일</strong>입니다 (예: engine/NC_SMS). 디렉터리로 감싸면 안 됩니다.
             </li>
             <li>
