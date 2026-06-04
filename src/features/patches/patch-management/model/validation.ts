@@ -21,8 +21,10 @@ export function validatePatchForm(data: PatchCreateFormData): ValidationResult {
     errors.toVersion = '종료 버전을 선택해주세요.'
   }
 
-  if (data.fromVersion && data.toVersion && data.fromVersion >= data.toVersion) {
-    errors.toVersion = '종료 버전은 시작 버전보다 높아야 합니다.'
+  // from == to 는 허용 (빌드 전용 패치: 같은 base 안에서 빌드 산출물만 갱신).
+  // from > to 만 거부.
+  if (data.fromVersion && data.toVersion && data.fromVersion > data.toVersion) {
+    errors.toVersion = '종료 버전은 시작 버전보다 낮을 수 없습니다.'
   }
 
   return {
