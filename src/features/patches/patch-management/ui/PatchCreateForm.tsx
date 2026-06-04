@@ -258,8 +258,10 @@ export function PatchCreateForm({
       return { type: 'info' as const, text: '패치 이력 없음 — 초기 적용입니다.' }
     }
     if (nextRange.suggestedFromVersion === null) {
-      // 이미 최신 상태
-      return { type: 'warning' as const, text: `최신 상태 (${nextRange.currentVersion}) — 적용할 패치 없음` }
+      // 사이트 버전이 등록된 최신 버전과 동일.
+      // base 간 패치는 불필요하지만 빌드 전용 패치(같은 base 내 buildSelection)는 여전히 생성 가능하므로
+      // 부정적 경고가 아닌 중립 안내로 표시한다.
+      return { type: 'info' as const, text: `최신 상태 (${nextRange.currentVersion})` }
     }
     // 정상 추천
     return {
@@ -329,14 +331,7 @@ export function PatchCreateForm({
           <TypographyMuted className="text-xs">버전 범위 확인 중...</TypographyMuted>
         )}
         {rangeHint && (
-          <div
-            className={[
-              'flex items-center gap-1.5 text-xs',
-              rangeHint.type === 'warning'
-                ? 'text-amber-600 dark:text-amber-400'
-                : 'text-muted-foreground',
-            ].join(' ')}
-          >
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="h-3.5 w-3.5 shrink-0" />
             <span>{rangeHint.text}</span>
           </div>
