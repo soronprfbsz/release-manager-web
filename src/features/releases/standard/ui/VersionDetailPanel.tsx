@@ -96,6 +96,9 @@ interface VersionDetailContextValue {
   // Dialogs
   deleteDialogOpen: boolean
   setDeleteDialogOpen: (open: boolean) => void
+  /** 패치 이력 없음을 확인했음 체크박스 상태 (체크되어야만 삭제 버튼 활성) */
+  deleteAcknowledged: boolean
+  setDeleteAcknowledged: (v: boolean) => void
   hotfixDialogOpen: boolean
   setHotfixDialogOpen: (open: boolean) => void
   // Comment editing
@@ -286,6 +289,8 @@ function VersionDetailProvider({
   const [fileViewerOpen, setFileViewerOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<{ id: number; filePath: string; name: string; size?: number } | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  // 패치 진행 이력 없음 확인 체크박스 — 체크해야만 삭제 진행 가능
+  const [deleteAcknowledged, setDeleteAcknowledged] = useState(false)
   const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
   const { canDeleteVersion, canApproveVersion, canAddVersion, canDownloadVersion } = usePermission()
@@ -426,6 +431,8 @@ function VersionDetailProvider({
     setSelectedFile,
     deleteDialogOpen,
     setDeleteDialogOpen,
+    deleteAcknowledged,
+    setDeleteAcknowledged,
     hotfixDialogOpen,
     setHotfixDialogOpen,
     isEditingComment,
@@ -851,7 +858,9 @@ function VersionDetailDialogs() {
   const {
     version, isHotfix, isBuild, projectId, onDelete,
     fileViewerOpen, setFileViewerOpen, selectedFile,
-    deleteDialogOpen, setDeleteDialogOpen, hotfixDialogOpen, setHotfixDialogOpen,
+    deleteDialogOpen, setDeleteDialogOpen,
+    deleteAcknowledged, setDeleteAcknowledged,
+    hotfixDialogOpen, setHotfixDialogOpen,
     deleteMutation, handleDeleteConfirm, handleDownloadSelectedFile, canDownloadVersion,
     useFileContentQuery,
   } = ctx
@@ -878,21 +887,50 @@ function VersionDetailDialogs() {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setDeleteAcknowledged(false)
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>버전 삭제 확인</AlertDialogTitle>
-            <AlertDialogDescription>
-              버전 <strong>{version.version}</strong>을(를) 삭제하시겠습니까?
-              <br />
-              이 작업은 되돌릴 수 없으며, 모든 관련 파일이 삭제됩니다.
+            <AlertDialogDescription asChild>
+              <div className="space-y-3">
+                <p>
+                  버전 <strong>{version.version}</strong>을(를) 삭제하시겠습니까?
+                  이 작업은 되돌릴 수 없으며, 모든 관련 파일이 함께 삭제됩니다.
+                </p>
+                <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  <p className="font-semibold">⚠ 패치 이력 확인 필요</p>
+                  <p className="mt-1 text-destructive/90 leading-relaxed">
+                    이 버전 또는 그 빌드/핫픽스가 <strong>고객사에 이미 패치된 경우</strong> 삭제 시
+                    사이트 버전 추적이 어긋나 운영 관리에 큰 혼선을 줄 수 있습니다.
+                    <br />
+                    <strong>패치가 진행된 적이 없는 버전</strong>일 때만 삭제하세요.
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={deleteAcknowledged}
+                    onChange={(e) => setDeleteAcknowledged(e.target.checked)}
+                    className="h-4 w-4 cursor-pointer"
+                  />
+                  <span>
+                    이 버전이 어떤 고객사에도 <strong>패치된 적이 없음</strong>을 확인했습니다.
+                  </span>
+                </label>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              disabled={deleteMutation.isPending}
+              disabled={deleteMutation.isPending || !deleteAcknowledged}
               className="bg-destructive hover:bg-destructive/90"
             >
               {deleteMutation.isPending ? '삭제 중...' : '삭제'}

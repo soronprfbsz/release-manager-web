@@ -22,7 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
 import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
-import { EngineBuildVersionsRow } from './EngineBuildVersionsRow'
+import { BuildVersionsRow } from './BuildVersionsRow'
 
 interface CustomerDetailPanelProps {
   customer: Customer
@@ -97,10 +97,10 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
           ) : (
             <>
               <AttributeRow label="VERSION" value={baseVersion} large />
-              {webVersion && <AttributeRow label="BUILD · WEB" value={webVersion} />}
-              {engineRows.length > 0 && (
-                <EngineBuildVersionsRow
+              {(webVersion || engineRows.length > 0) && (
+                <BuildVersionsRow
                   customerName={customer.customerName}
+                  webVersion={webVersion ?? null}
                   engines={engineRows}
                 />
               )}

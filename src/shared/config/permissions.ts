@@ -58,7 +58,9 @@ export const ACTION_PERMISSIONS = {
   // 버전 관리
   version: {
     create: ['ADMIN', 'DEVELOPER'] as readonly Role[],
-    delete: ['ADMIN'] as readonly Role[],
+    // DEVELOPER 도 삭제 가능. 단 패치 진행 이력이 없는 경우에만 안전 — 운영 관리 일관성을
+    // 위해 UI 측 강한 경고 + 사용자 확인 체크박스로 통제 (VersionDetailPanel 삭제 dialog 참조).
+    delete: ['ADMIN', 'DEVELOPER'] as readonly Role[],
     approve: ['ADMIN', 'DEVELOPER'] as readonly Role[],
     download: ['ADMIN', 'DEVELOPER'] as readonly Role[],
     createHotfix: ['ADMIN', 'DEVELOPER'] as readonly Role[],
