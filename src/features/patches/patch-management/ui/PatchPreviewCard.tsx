@@ -5,7 +5,7 @@
 
 import { Layers } from 'lucide-react'
 
-import type { Customer, Account } from '@/entities/operations'
+import type { Customer } from '@/entities/operations'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
@@ -18,7 +18,6 @@ interface PatchPreviewCardProps {
   releaseType: ReleaseType
   formData: PatchCreateFormData
   customers: Customer[]
-  accounts: Account[]
   userEmail?: string
 }
 
@@ -26,11 +25,9 @@ export function PatchPreviewCard({
   releaseType,
   formData,
   customers,
-  accounts,
   userEmail,
 }: PatchPreviewCardProps) {
   const selectedCustomer = customers.find((c) => c.customerCode === formData.customerCode)
-  const selectedAssignee = accounts.find((a) => a.accountId === formData.assigneeId)
 
   if (!formData.fromVersion || !formData.toVersion) {
     return (
@@ -79,12 +76,6 @@ export function PatchPreviewCard({
               <TypographyMuted>생성자</TypographyMuted>
               <TypographySmall>{userEmail}</TypographySmall>
             </div>
-            {selectedAssignee && (
-              <div className="flex justify-between">
-                <TypographyMuted>담당자</TypographyMuted>
-                <TypographySmall>{selectedAssignee.accountName}</TypographySmall>
-              </div>
-            )}
             {formData.description && (
               <div className="pt-2 border-t">
                 <TypographyMuted className="block mb-1">설명</TypographyMuted>

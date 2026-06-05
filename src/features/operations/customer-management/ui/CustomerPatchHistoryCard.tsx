@@ -151,9 +151,8 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                   <TableHead className="w-72">패치명</TableHead>
                   <TableHead className="w-24">버전</TableHead>
                   <TableHead className="">설명</TableHead>
-                  <TableHead className="w-52">담당자</TableHead>
                   <TableHead className="w-52">생성자</TableHead>
-                  <TableHead className="w-36 whitespace-nowrap">생성일시</TableHead>
+                  <TableHead className="w-36 whitespace-nowrap">패치일시</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,7 +182,7 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                       {patch.description ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="block truncate max-w-40 cursor-default">
+                            <span className="block truncate max-w-md cursor-default">
                               {patch.description}
                             </span>
                           </TooltipTrigger>
@@ -193,36 +192,6 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
                         </Tooltip>
                       ) : (
                         '-'
-                      )}
-                    </TableCell>
-                    <TableCell className="py-3">
-                      {patch.assigneeEmail ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2 cursor-default">
-                              {patch.isDeletedAssignee ? (
-                                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                                  <UserX className="h-3.5 w-3.5 text-muted-foreground" />
-                                </div>
-                              ) : (
-                                <DiceBearAvatar
-                                  style={(patch.assigneeAvatarStyle as AvatarStyleKey) || 'initials'}
-                                  seed={patch.assigneeAvatarSeed || patch.assigneeEmail}
-                                  size={24}
-                                  name={patch.assigneeName || patch.assigneeEmail}
-                                />
-                              )}
-                              <span className="text-sm truncate max-w-40">
-                                {patch.assigneeName || patch.assigneeEmail}
-                              </span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{patch.isDeletedAssignee ? '삭제된 사용자' : patch.assigneeEmail}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
                       )}
                     </TableCell>
                     <TableCell className="py-3">

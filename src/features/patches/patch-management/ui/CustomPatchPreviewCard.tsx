@@ -5,7 +5,6 @@
 
 import { Layers } from 'lucide-react'
 
-import type { Account } from '@/entities/operations'
 import type { CustomPatchCustomer } from '@/entities/patches/patch'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -16,18 +15,15 @@ import type { CustomPatchCreateFormData } from '../model/types'
 interface CustomPatchPreviewCardProps {
   formData: CustomPatchCreateFormData
   customers: CustomPatchCustomer[]
-  accounts: Account[]
   userEmail?: string
 }
 
 export function CustomPatchPreviewCard({
   formData,
   customers,
-  accounts,
   userEmail,
 }: CustomPatchPreviewCardProps) {
   const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
-  const selectedAssignee = accounts.find((a) => a.accountId === formData.assigneeId)
 
   if (!formData.customerId || !formData.fromVersion || !formData.toVersion) {
     return (
@@ -74,12 +70,6 @@ export function CustomPatchPreviewCard({
               <TypographyMuted>생성자</TypographyMuted>
               <TypographySmall>{userEmail}</TypographySmall>
             </div>
-            {selectedAssignee && (
-              <div className="flex justify-between">
-                <TypographyMuted>담당자</TypographyMuted>
-                <TypographySmall>{selectedAssignee.accountName}</TypographySmall>
-              </div>
-            )}
             {formData.description && (
               <div className="pt-2 border-t">
                 <TypographyMuted className="block mb-1">설명</TypographyMuted>
