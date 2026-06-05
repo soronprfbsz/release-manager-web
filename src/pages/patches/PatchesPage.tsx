@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@tanstack/react-query'
-import { GitBranch, Plus, Trash2 } from 'lucide-react'
+import { GitBranch, Info, Plus, Trash2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
 import { PatchFileExplorer } from '@/widgets/patches'
@@ -500,6 +500,29 @@ export function PatchesPage() {
         </div>
       }
     >
+      {/* 운영 관리 안내 배너 — 생성된 패치 파일 처리 가이드 */}
+      <div className="mb-4 p-3 rounded-md border bg-muted/50">
+        <div className="flex gap-2">
+          <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+          <div className="text-xs leading-relaxed">
+            <p className="font-semibold text-foreground">패치 관리 안내</p>
+            <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
+              <li>
+                생성된 패치 파일을{' '}
+                <strong className="text-foreground">실제 사이트에 적용한 경우 반드시 “패치 완료” 처리</strong>해 주세요. 완료 처리되어야 고객사 사이트 버전 추적이 정확해집니다.
+              </li>
+              <li>
+                <strong className="text-foreground">사용 계획이 없는 패치는 즉시 삭제</strong>해 NAS 저장공간을 깔끔하게 유지해 주세요.
+              </li>
+              <li>
+                생성 후{' '}
+                <strong className="text-foreground">30일이 지난 패치 파일은 자동 삭제</strong>됩니다. 보존이 필요하다면 별도 백업 후 사용하세요.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* 페이지 레벨 탭 + ContentCard 로 분리 (기존 TabbedContentCard 구조 해체) */}
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsList>
