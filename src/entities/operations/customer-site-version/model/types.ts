@@ -10,6 +10,8 @@ export type SiteComponent = 'BASE' | 'WEB' | 'ENGINE'
 export interface SiteVersionResponse {
   /** 컴포넌트 구분 (BASE: 기본 버전, WEB: 웹 빌드, ENGINE: 엔진 빌드) */
   component: SiteComponent
+  /** 엔진명 (component=ENGINE 일 때만; BASE/WEB 은 null) */
+  engineName: string | null
   /** 현재 적용된 버전 문자열 (BASE: "1.1.0", WEB/ENGINE: "1.1.0.260511-1") */
   currentVersion: string
   /** 마지막 갱신 일시 (ISO datetime) */

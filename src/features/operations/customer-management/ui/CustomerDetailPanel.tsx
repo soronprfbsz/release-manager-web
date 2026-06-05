@@ -22,6 +22,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { CustomerNotesCard } from './CustomerNotesCard'
 import { CustomerPatchHistoryCard } from './CustomerPatchHistoryCard'
+import { EngineBuildVersionsRow } from './EngineBuildVersionsRow'
 
 interface CustomerDetailPanelProps {
   customer: Customer
@@ -34,12 +35,10 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
     projectId
   )
 
-  const byComponent = Object.fromEntries(
-    siteVersions.map((sv) => [sv.component, sv.currentVersion])
-  )
-  const baseVersion = byComponent.BASE
-  const webVersion = byComponent.WEB
-  const engineVersion = byComponent.ENGINE
+  // BASE / WEB 은 단일 row. ENGINE 은 엔진별 N row → 별도 처리.
+  const baseVersion = siteVersions.find((sv) => sv.component === 'BASE')?.currentVersion
+  const webVersion = siteVersions.find((sv) => sv.component === 'WEB')?.currentVersion
+  const engineRows = siteVersions.filter((sv) => sv.component === 'ENGINE')
 
   // 글리프 배지
   const { text: glyphText, glyphClass } = resolveGlyph({
@@ -58,7 +57,7 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
           {/* 글리프 배지 */}
           <div
             className={cn(
-              'flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center',
+              'flex-shrink-0 h-14 w-14 rounded-xl flex items-center justify-center',
               'font-mono font-semibold select-none',
               glyphFontSize,
               glyphClass
@@ -99,7 +98,12 @@ export function CustomerDetailPanel({ customer }: CustomerDetailPanelProps) {
             <>
               <AttributeRow label="VERSION" value={baseVersion} large />
               {webVersion && <AttributeRow label="BUILD · WEB" value={webVersion} />}
-              {engineVersion && <AttributeRow label="BUILD · ENGINE" value={engineVersion} />}
+              {engineRows.length > 0 && (
+                <EngineBuildVersionsRow
+                  customerName={customer.customerName}
+                  engines={engineRows}
+                />
+              )}
             </>
           )}
         </div>

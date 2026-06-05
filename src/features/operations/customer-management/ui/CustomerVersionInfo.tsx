@@ -4,12 +4,14 @@
  * <p>customer_site_version 테이블에서 컴포넌트별 최신 버전을 직접 조회해 표시.
  *  - BASE   → "VERSION" 행 (크게)
  *  - WEB    → "BUILD · WEB" 행 (모노 풀버전)
- *  - ENGINE → "BUILD · ENGINE" 행 (없으면 생략)
+ *  - ENGINE → "BUILD · ENGINE" 행. 엔진별 N row → 요약 칩 + Sheet 로 전체 목록.
  *  - 응답 빈 배열 → "패치 미적용" fallback
  */
 
 import { useCustomerSiteVersions } from '@/entities/operations/customer-site-version'
 import type { Customer } from '@/entities/operations/customer'
+
+import { EngineBuildVersionsRow } from './EngineBuildVersionsRow'
 
 interface CustomerVersionInfoProps {
   customer: Customer
@@ -23,7 +25,6 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
     projectId
   )
 
-  // 로딩 중
   if (isLoading) {
     return (
       <VersionInfoBox>
@@ -32,7 +33,6 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
     )
   }
 
-  // 패치 완료 이력 없음 (빈 배열)
   if (!projectId || siteVersions.length === 0) {
     return (
       <VersionInfoBox>
@@ -41,26 +41,19 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
     )
   }
 
-  // component 별로 인덱싱 (BE 는 BASE → ENGINE → WEB 알파벳 순 반환)
-  const byComponent = Object.fromEntries(
-    siteVersions.map((sv) => [sv.component, sv.currentVersion])
-  )
+  const baseVersion = siteVersions.find((sv) => sv.component === 'BASE')?.currentVersion
+  const webVersion = siteVersions.find((sv) => sv.component === 'WEB')?.currentVersion
+  const engineRows = siteVersions.filter((sv) => sv.component === 'ENGINE')
 
   return (
     <VersionInfoBox>
-      {/* BASE 컴포넌트: 기본 버전 (크게) */}
-      {byComponent.BASE && (
-        <AttributeRow label="VERSION" value={byComponent.BASE} large />
-      )}
-
-      {/* WEB 빌드 버전 */}
-      {byComponent.WEB && (
-        <AttributeRow label="BUILD · WEB" value={byComponent.WEB} />
-      )}
-
-      {/* ENGINE 빌드 버전 */}
-      {byComponent.ENGINE && (
-        <AttributeRow label="BUILD · ENGINE" value={byComponent.ENGINE} />
+      {baseVersion && <AttributeRow label="VERSION" value={baseVersion} large />}
+      {webVersion && <AttributeRow label="BUILD · WEB" value={webVersion} />}
+      {engineRows.length > 0 && (
+        <EngineBuildVersionsRow
+          customerName={customer.customerName}
+          engines={engineRows}
+        />
       )}
     </VersionInfoBox>
   )
@@ -69,11 +62,7 @@ export function CustomerVersionInfo({ customer }: CustomerVersionInfoProps) {
 /* ----------------------------- 내부 컴포넌트 ----------------------------- */
 
 function VersionInfoBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="space-y-2">
-      {children}
-    </div>
-  )
+  return <div className="space-y-2">{children}</div>
 }
 
 function AttributeRow({
