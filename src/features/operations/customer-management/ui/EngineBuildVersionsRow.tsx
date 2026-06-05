@@ -89,15 +89,12 @@ export function EngineBuildVersionsRow({
             className="mt-6 overflow-y-auto pr-1"
             style={{ maxHeight: 'calc(100vh - 140px)' }}
           >
-            <ol className="space-y-0">
+            <ul className="space-y-0">
               {sorted.map((row, i) => (
                 <li
                   key={`${row.engineName ?? '(legacy)'}-${i}`}
                   className="flex items-center gap-3 py-2.5 px-1 border-b last:border-b-0"
                 >
-                  <span className="text-[11px] tabular-nums text-muted-foreground w-6 flex-shrink-0 text-right">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
                   <span className="font-mono text-sm text-foreground flex-1 truncate">
                     {row.engineName ?? '(미지정)'}
                   </span>
@@ -106,7 +103,7 @@ export function EngineBuildVersionsRow({
                   </span>
                 </li>
               ))}
-            </ol>
+            </ul>
           </div>
         </SheetContent>
       </Sheet>
