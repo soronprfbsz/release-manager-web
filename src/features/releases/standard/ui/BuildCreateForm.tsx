@@ -145,7 +145,7 @@ export function BuildCreateForm({
 
   // 빌드 안내 배너
   const headerContent = (
-    <div className="mb-5 p-3 rounded-md border border-accent bg-accent/40">
+    <div className="mb-5 p-3 rounded-md border bg-muted/50">
       <div className="flex gap-2">
         <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
         <div className="text-xs leading-relaxed">
