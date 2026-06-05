@@ -509,14 +509,14 @@ export function PatchesPage() {
             <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
               <li>
                 생성된 패치 파일을{' '}
-                <strong className="text-foreground">실제 사이트에 적용한 경우 반드시 “패치 완료” 처리</strong>해 주세요.
+                <strong className="text-foreground">실제 사이트에 적용 후 반드시 “패치 완료” 처리</strong>해 주세요.
               </li>
               <li>
-                <strong className="text-foreground">사용 계획이 없는 패치는 즉시 삭제</strong>해 주세요.
+                <strong className="text-foreground">사용 계획이 없는 패치는 “삭제”</strong> 해주세요.
               </li>
               <li>
                 생성 후{' '}
-                <strong className="text-foreground">30일이 지난 패치 파일은 자동 삭제</strong>됩니다.
+                <strong className="text-foreground">30일이 지난 패치 파일은 자동 “삭제”</strong> 됩니다.
               </li>
             </ul>
           </div>
