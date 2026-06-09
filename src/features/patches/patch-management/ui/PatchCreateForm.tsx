@@ -220,20 +220,12 @@ export function PatchCreateForm({
     onFormDataChangeRef.current((prev) => ({ ...prev, buildSelection: selection }))
   }, [buildsQuery.data])
 
-  // 클라이언트 검증 — 같은 base 면 빌드라도 포함되어야 의미 있음
-  const sameBase =
-    formData.fromVersionId != null &&
-    formData.fromVersionId === formData.toVersionId
-  const sel = formData.buildSelection
-  const pickerEmpty =
-    !sel || (sel.web == null && (!sel.engines || sel.engines.length === 0))
   // customerCode 가 비어있으면 미선택. '__undefined__' 는 명시적 "없음" 선택.
   const customerChosen = formData.customerCode !== ''
   const submitDisabled =
     !formData.fromVersion ||
     !formData.toVersion ||
-    !customerChosen ||
-    (sameBase && pickerEmpty)
+    !customerChosen
 
   // 자동 패치명 미리보기 — backend 호출로 충돌 검사까지 적용된 실 확정 이름
   // ("__undefined__" 는 backend 에 빈 값으로 전달되어 "undefined" prefix 로 처리)
@@ -258,8 +250,7 @@ export function PatchCreateForm({
       return { type: 'info' as const, text: '패치 이력 없음 — 초기 적용입니다.' }
     }
     if (nextRange.suggestedFromVersion === null) {
-      // 사이트 버전이 등록된 최신 버전과 동일.
-      // base 간 패치는 불필요하지만 빌드 전용 패치(같은 base 내 buildSelection)는 여전히 생성 가능하므로
+      // 사이트 버전이 등록된 최신 버전과 동일 — 추가로 적용할 신규 버전이 없는 상태.
       // 부정적 경고가 아닌 중립 안내로 표시한다.
       return { type: 'info' as const, text: `최신 상태 (${nextRange.currentVersion})` }
     }
@@ -383,12 +374,6 @@ export function PatchCreateForm({
         )}
         {!isVersionsLoading && versions.length === 0 && (
           <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
-        )}
-        {/* 빌드 전용 인디케이터 */}
-        {sameBase && (
-          <p className="text-xs text-muted-foreground">
-            빌드 전용 패치 — DB 스크립트 없이 빌드 파일만 생성됩니다
-          </p>
         )}
       </div>
 

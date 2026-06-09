@@ -111,18 +111,10 @@ export function PatchGenerateFormCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildsQuery.data])
 
-  // 클라이언트 검증 — 같은 base 면 빌드라도 포함되어야 의미 있음
-  const sameBase =
-    formData.fromVersionId != null &&
-    formData.fromVersionId === formData.toVersionId
-  const sel = formData.buildSelection
-  const pickerEmpty =
-    !sel || (sel.web == null && (!sel.engines || sel.engines.length === 0))
   const submitDisabled =
     !formData.fromVersion ||
     !formData.toVersion ||
-    isSubmitting ||
-    (sameBase && pickerEmpty)
+    isSubmitting
 
   return (
     <Card>
@@ -186,12 +178,6 @@ export function PatchGenerateFormCard({
           {isVersionsLoading && <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>}
           {!isVersionsLoading && versions.length === 0 && (
             <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
-          )}
-          {/* 빌드 전용 인디케이터 */}
-          {sameBase && (
-            <p className="text-xs text-muted-foreground">
-              빌드 전용 패치 — DB 스크립트 없이 빌드 파일만 생성됩니다
-            </p>
           )}
         </div>
 
