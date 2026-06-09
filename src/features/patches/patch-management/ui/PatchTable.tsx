@@ -264,7 +264,7 @@ export function PatchTable({
                       )
                     })}
                   {patch.isBuildOnly && (
-                    <Badge variant="secondary" size="sm" className="shrink-0">
+                    <Badge variant="etc" size="sm" className="shrink-0">
                       Build-only
                     </Badge>
                   )}
