@@ -297,7 +297,12 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
       </SectionWithHairline>
 
       {/* 삭제 확인 다이얼로그 */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) setDeleteTarget(null)
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>패치 이력 삭제</AlertDialogTitle>
@@ -309,9 +314,13 @@ export function CustomerPatchHistoryCard({ customer }: CustomerPatchHistoryCardP
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>취소</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => {
+                // Radix 기본 동작(클릭 즉시 모달 닫힘)을 막아 삭제 완료까지 모달을 유지한다.
+                e.preventDefault()
+                handleDelete()
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleteMutation.isPending}
             >

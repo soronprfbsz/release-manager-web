@@ -61,7 +61,11 @@ export function PatchDeleteModal({
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={(e) => {
+              // Radix 기본 동작(클릭 즉시 모달 닫힘)을 막아 삭제 완료까지 모달을 유지한다.
+              e.preventDefault()
+              onConfirm()
+            }}
             disabled={isDeleting}
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >

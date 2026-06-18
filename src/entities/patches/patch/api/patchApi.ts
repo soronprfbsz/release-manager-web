@@ -67,9 +67,9 @@ export const patchApi = {
     return response
   },
 
-  /** 패치 이력 삭제 */
+  /** 패치 이력 삭제 — 버전 재계산이 길어질 수 있어 파일 작업용 타임아웃 사용 */
   deleteHistory: async (id: number): Promise<void> => {
-    await apiClient.delete(ENDPOINTS.historyById(id))
+    await apiClient.delete(ENDPOINTS.historyById(id), { timeout: API_TIMEOUT.FILE_OPERATION })
   },
 
   /** 패치 상세 조회 */
@@ -133,19 +133,19 @@ export const patchApi = {
     return response
   },
 
-  /** 패치 완료 처리 — 완료 후 해당 patch row 삭제됨 */
+  /** 패치 완료 처리 — 완료 후 해당 patch row 삭제됨 (대용량 파일 삭제 동반 → 파일 작업용 타임아웃) */
   completePatch: async (id: number): Promise<void> => {
-    await apiClient.post(ENDPOINTS.complete(id), null)
+    await apiClient.post(ENDPOINTS.complete(id), null, { timeout: API_TIMEOUT.FILE_OPERATION })
   },
 
-  /** 패치 삭제 */
+  /** 패치 삭제 — 대용량 파일 삭제로 길어질 수 있어 파일 작업용 타임아웃 사용 */
   deleteById: async (id: number): Promise<void> => {
-    await apiClient.delete(ENDPOINTS.delete(id))
+    await apiClient.delete(ENDPOINTS.delete(id), { timeout: API_TIMEOUT.FILE_OPERATION })
   },
 
-  /** 패치 일괄 삭제 */
+  /** 패치 일괄 삭제 — 여러 패치 파일 삭제로 가장 길어질 수 있어 파일 작업용 타임아웃 사용 */
   bulkDelete: async (ids: number[]): Promise<void> => {
-    await apiClient.delete(ENDPOINTS.bulkDelete(ids))
+    await apiClient.delete(ENDPOINTS.bulkDelete(ids), { timeout: API_TIMEOUT.FILE_OPERATION })
   },
 
   /**

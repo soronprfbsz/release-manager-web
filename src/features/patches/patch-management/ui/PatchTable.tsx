@@ -18,8 +18,6 @@ import {
 
 import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch'
 
-import { usePermission } from '@/shared/lib/hooks/use-permission'
-import { useAuthStore } from '@/shared/store'
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import {
@@ -96,18 +94,8 @@ export function PatchTable({
 
   const { toast } = useToast()
   const completeMutation = useCompletePatch()
-  const { isUser } = usePermission()
-  const currentEmail = useAuthStore((s) => s.user?.email)
-
-  /**
-   * 패치 완료 / 삭제 권한 — 본인 생성 분기
-   *  - USER: 본인이 만든 패치만 액션 가능
-   *  - OPERATOR / DEVELOPER / ADMIN: 모든 패치에 대해 액션 가능
-   */
-  const canActOnPatch = (patch: CumulativePatch): boolean => {
-    if (!isUser) return true
-    return !!currentEmail && patch.createdByEmail === currentEmail
-  }
+  // 모든 인증된 역할(USER 포함)이 패치 완료/삭제 가능
+  const canActOnPatch = (_patch: CumulativePatch): boolean => true
 
   /** 패치 완료 처리 확인 */
   const handleCompleteConfirm = () => {
@@ -415,7 +403,11 @@ export function PatchTable({
             취소
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleCompleteConfirm}
+            onClick={(e) => {
+              // Radix 기본 동작(클릭 즉시 모달 닫힘)을 막아 완료 처리까지 모달을 유지한다.
+              e.preventDefault()
+              handleCompleteConfirm()
+            }}
             disabled={completeMutation.isPending}
             className="bg-green-600 hover:bg-green-700 text-white"
           >

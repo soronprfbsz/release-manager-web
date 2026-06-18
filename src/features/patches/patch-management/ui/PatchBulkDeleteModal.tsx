@@ -31,7 +31,7 @@ export function PatchBulkDeleteModal({
   onClose,
 }: PatchBulkDeleteModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isDeleting && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>패치 일괄 삭제 확인</DialogTitle>
