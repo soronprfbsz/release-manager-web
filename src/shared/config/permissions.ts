@@ -34,8 +34,8 @@ export const ROUTE_PERMISSIONS: Record<string, readonly Role[]> = {
   [ROUTES.OPERATIONS.ACCOUNTS]: AUTHENTICATED_ROLES,
   [ROUTES.OPERATIONS.PROJECTS]: AUTHENTICATED_ROLES,
 
-  // 운영관리 - 파일동기화 (ADMIN only)
-  [ROUTES.OPERATIONS.FILE_SYNC]: ['ADMIN'] as readonly Role[],
+  // 운영관리 - 파일동기화
+  [ROUTES.OPERATIONS.FILE_SYNC]: ['ADMIN', 'DEVELOPER'] as readonly Role[],
 
   // 운영관리 - 운영이력
   [ROUTES.OPERATIONS.HISTORY]: ['ADMIN', 'OPERATOR'] as readonly Role[],
