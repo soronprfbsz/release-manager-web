@@ -8,6 +8,7 @@ import { ArrowRight, GitBranch, Layers, Loader2 } from 'lucide-react'
 import type { Account } from '@/entities/operations'
 import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
 
+import { compareVersions } from '@/shared/lib/utils/version'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Combobox } from '@/shared/ui/combobox'
@@ -48,14 +49,14 @@ export function CustomPatchGenerateFormCard({
 
   // toVersion: 베이스 버전이 아닌 것 + fromVersion보다 큰 것
   const filteredToVersions = approvedVersions.filter(
-    (v) => !v.isBaseVersion && formData.fromVersion && v.version > formData.fromVersion
+    (v) => !v.isBaseVersion && formData.fromVersion && compareVersions(v.version, formData.fromVersion) > 0
   )
 
   const handleFromVersionChange = (value: string) => {
     onFormDataChange({
       ...formData,
       fromVersion: value,
-      toVersion: formData.toVersion && value >= formData.toVersion ? '' : formData.toVersion,
+      toVersion: formData.toVersion && compareVersions(value, formData.toVersion) >= 0 ? '' : formData.toVersion,
     })
   }
 

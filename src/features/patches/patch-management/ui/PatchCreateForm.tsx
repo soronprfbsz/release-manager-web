@@ -16,6 +16,7 @@ import { usePatchNamePreview, type BuildSelection } from '@/entities/patches/pat
 import { useNextPatchRange } from '@/entities/operations/customer-site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
+import { compareVersions } from '@/shared/lib/utils/version'
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
@@ -153,7 +154,7 @@ export function PatchCreateForm({
     onFormDataChange((prev) => {
       const fromVersionId = getVersionIdFromOption(versionOptions, value)
       const toVersionCleared =
-        prev.toVersion && value >= prev.toVersion ? '' : prev.toVersion
+        prev.toVersion && compareVersions(value, prev.toVersion) >= 0 ? '' : prev.toVersion
       return {
         ...prev,
         fromVersion: value,
@@ -179,21 +180,12 @@ export function PatchCreateForm({
   }
 
   // 버전 옵션을 semver desc 로 정렬 — 최신 버전이 위에 노출되어 운영자가 흔히
-  // 고르는 "최신" 을 빠르게 선택할 수 있게.
-  const compareVersionDesc = (a: string, b: string) => {
-    const aParts = a.split('.').map(Number)
-    const bParts = b.split('.').map(Number)
-    const len = Math.max(aParts.length, bParts.length)
-    for (let i = 0; i < len; i++) {
-      const ai = aParts[i] ?? 0
-      const bi = bParts[i] ?? 0
-      if (ai !== bi) return bi - ai
-    }
-    return 0
-  }
-  const sortedVersions = [...versions].sort(compareVersionDesc)
+  // 고르는 "최신" 을 빠르게 선택할 수 있게. (공유 compareVersions 로 정렬/필터 일원화)
+  const sortedVersions = [...versions].sort((a, b) => compareVersions(b, a))
+  // 끝 버전은 시작 버전 이상만. 문자열 비교 시 "1.1.10" < "1.1.8" 이 되어 최신(.10/.11)이
+  // 누락되므로 반드시 semver 비교(compareVersions)를 사용한다.
   const filteredToVersions = sortedVersions.filter(
-    (v) => formData.fromVersion && v >= formData.fromVersion
+    (v) => formData.fromVersion && compareVersions(v, formData.fromVersion) >= 0
   )
 
   // builds-in-range 쿼리

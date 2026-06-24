@@ -22,6 +22,7 @@ import type {
 } from '@/entities/patches/patch'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
+import { compareVersions } from '@/shared/lib/utils/version'
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
@@ -81,7 +82,7 @@ export function CustomPatchCreateForm({
   const approvedVersions = versions.filter((v) => v.isApproved)
   const fromVersionOptions = approvedVersions
   const filteredToVersions = approvedVersions.filter(
-    (v) => !v.isBaseVersion && formData.fromVersion && v.version > formData.fromVersion,
+    (v) => !v.isBaseVersion && formData.fromVersion && compareVersions(v.version, formData.fromVersion) > 0,
   )
 
   const findVersionId = (versionStr: string): number | null =>
@@ -90,7 +91,7 @@ export function CustomPatchCreateForm({
   const handleFromVersionChange = (value: string) => {
     const fromVersionId = findVersionId(value)
     const clearTo =
-      formData.toVersion && value >= formData.toVersion
+      formData.toVersion && compareVersions(value, formData.toVersion) >= 0
         ? { toVersion: '', toVersionId: null }
         : { toVersion: formData.toVersion, toVersionId: formData.toVersionId }
     onFormDataChange({

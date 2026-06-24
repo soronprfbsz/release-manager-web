@@ -13,6 +13,7 @@ import type { Customer } from '@/entities/operations'
 import type { BuildSelection } from '@/entities/patches/patch'
 
 import { ROUTES } from '@/shared/config/constants'
+import { compareVersions } from '@/shared/lib/utils/version'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Combobox } from '@/shared/ui/combobox'
@@ -58,7 +59,7 @@ export function PatchGenerateFormCard({
   const handleFromVersionChange = (value: string) => {
     const fromVersionId = getVersionIdFromOption(versionOptions, value)
     const toVersionCleared =
-      formData.toVersion && value >= formData.toVersion ? '' : formData.toVersion
+      formData.toVersion && compareVersions(value, formData.toVersion) >= 0 ? '' : formData.toVersion
     onFormDataChange({
       ...formData,
       fromVersion: value,
@@ -84,7 +85,7 @@ export function PatchGenerateFormCard({
   }
 
   const filteredToVersions = versions.filter(
-    (v) => formData.fromVersion && v >= formData.fromVersion
+    (v) => formData.fromVersion && compareVersions(v, formData.fromVersion) >= 0
   )
 
   const handleCustomClick = () => {
