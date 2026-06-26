@@ -7,11 +7,11 @@ import { useEffect, useState, useCallback } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { Save, User, Shuffle, Check } from 'lucide-react'
+import { Save, User, Shuffle, Check, KeyRound } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { ChangePasswordForm } from '@/features/operations/password-management'
+import { ChangePasswordDialog } from '@/features/operations/password-management'
 
 import { useCodesByType } from '@/entities/_shared/code'
 import { useUpdateMyAccount, type MyAccountUpdateRequest } from '@/entities/operations/account'
@@ -81,6 +81,9 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
 
   // 폼 초기화 여부 추적
   const [isInitialized, setIsInitialized] = useState(false)
+
+  // 비밀번호 변경 모달 열림 상태
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
 
   // Position 코드 목록 조회
   const { data: positionCodes = [] } = useCodesByType('POSITION', {
@@ -361,16 +364,23 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
         </div>
       </Form>
 
-      {/* 비밀번호 변경 섹션 (프로필 저장과 분리된 독립 섹션) */}
+      {/* 비밀번호 변경 — 버튼만 노출, 클릭 시 별도 모달에서 처리 (프로필 저장과 분리) */}
       <div className="border-t pt-5">
-        <div className="mb-4">
-          <h3 className="text-sm font-medium">비밀번호 변경</h3>
-          <p className="text-xs text-muted-foreground">
-            현재 비밀번호를 입력해 새 비밀번호로 변경합니다.
-          </p>
-        </div>
-        <ChangePasswordForm />
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full gap-2"
+          onClick={() => setIsPasswordDialogOpen(true)}
+        >
+          <KeyRound className="h-4 w-4" />
+          비밀번호 변경
+        </Button>
       </div>
+
+      <ChangePasswordDialog
+        open={isPasswordDialogOpen}
+        onOpenChange={setIsPasswordDialogOpen}
+      />
     </FormSheet>
   )
 }

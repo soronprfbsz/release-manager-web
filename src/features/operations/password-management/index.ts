@@ -5,6 +5,7 @@
 
 // UI Components
 export { ChangePasswordForm } from './ui/ChangePasswordForm'
+export { ChangePasswordDialog } from './ui/ChangePasswordDialog'
 export { ForcedPasswordChangeGate } from './ui/ForcedPasswordChangeGate'
 export { ResetPasswordConfirmDialog } from './ui/ResetPasswordConfirmDialog'
 export { ResetPasswordResultDialog } from './ui/ResetPasswordResultDialog'
