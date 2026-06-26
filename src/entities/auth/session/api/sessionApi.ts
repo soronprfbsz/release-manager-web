@@ -8,6 +8,7 @@ import type {
   SignUpResponse,
   SignInRequest,
   AccessTokenResponse,
+  AdminContact,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -15,6 +16,7 @@ const ENDPOINTS = {
   signin: '/api/auth/signin',
   refresh: '/api/auth/refresh',
   logout: '/api/auth/logout',
+  admins: '/api/auth/admins',
 } as const
 
 const authAxios = axios.create({
@@ -48,6 +50,12 @@ export const sessionApi = {
   /** 로그아웃 */
   logout: async (): Promise<ApiResponse<{ message: string }>> => {
     const response = await authAxios.post<ApiResponse<{ message: string }>>(ENDPOINTS.logout)
+    return response.data
+  },
+
+  /** 활성 관리자 연락처 목록 조회 (비밀번호 재설정 안내용, 인증 불필요) */
+  getAdminContacts: async (): Promise<ApiResponse<AdminContact[]>> => {
+    const response = await authAxios.get<ApiResponse<AdminContact[]>>(ENDPOINTS.admins)
     return response.data
   },
 }

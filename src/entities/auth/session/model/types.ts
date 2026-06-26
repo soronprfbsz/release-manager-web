@@ -44,3 +44,11 @@ export interface AccessTokenResponse {
   expiresIn: number
   accountInfo: AccountInfo
 }
+
+/** 비밀번호 재설정 안내용 관리자 연락처 */
+export interface AdminContact {
+  departmentName: string
+  accountName: string
+  email: string
+  role: 'ADMIN' | 'OPERATOR'
+}

@@ -14,10 +14,13 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 
+import { PasswordResetGuideDialog } from './PasswordResetGuideDialog'
+
 export function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isResetGuideOpen, setIsResetGuideOpen] = useState(false)
   const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -92,14 +95,26 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex flex-col items-center gap-2">
         <p className="text-sm text-muted-foreground">
           계정이 없으신가요?{' '}
           <Link to="/signup" className="text-primary hover:underline font-medium">
             회원가입
           </Link>
         </p>
+        <button
+          type="button"
+          onClick={() => setIsResetGuideOpen(true)}
+          className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+        >
+          비밀번호를 잊으셨나요?
+        </button>
       </CardFooter>
+
+      <PasswordResetGuideDialog
+        open={isResetGuideOpen}
+        onOpenChange={setIsResetGuideOpen}
+      />
     </Card>
   )
 }

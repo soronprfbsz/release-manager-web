@@ -9,6 +9,7 @@ export type {
   SignUpResponse,
   SignInRequest,
   AccessTokenResponse,
+  AdminContact,
 } from './model/types'
 
 // API
@@ -20,3 +21,9 @@ export {
   useSignIn,
   useLogout,
 } from './mutations/sessionMutations'
+
+// Queries
+export {
+  sessionKeys,
+  useAdminContacts,
+} from './queries/sessionQueries'
