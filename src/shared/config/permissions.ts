@@ -120,6 +120,8 @@ export const ACTION_PERMISSIONS = {
     view: AUTHENTICATED_ROLES,
     edit: ['ADMIN', 'OPERATOR'] as readonly Role[],
     delete: ['ADMIN', 'OPERATOR'] as readonly Role[],
+    /** 비밀번호 초기화. OPERATOR→ADMIN·본인 제외는 대상 행 단위로 추가 판정 */
+    resetPassword: ['ADMIN', 'OPERATOR'] as readonly Role[],
   },
 
   // 리소스 관리

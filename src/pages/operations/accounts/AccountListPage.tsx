@@ -15,17 +15,22 @@ import {
   type AccountFiltersState,
   createAccountFormData,
 } from '@/features/operations/account-management'
+import {
+  ResetPasswordConfirmDialog,
+  ResetPasswordResultDialog,
+} from '@/features/operations/password-management'
 
 import {
   useAccounts,
   useUpdateAccount,
   useDeleteAccount,
+  useResetAccountPassword,
   type Account,
   type AccountUpdateRequest,
 } from '@/entities/operations/account'
 
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import { createErrorHandler } from '@/shared/lib/utils/error-handler'
+import { getErrorMessage, createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { ContentCard } from '@/shared/ui/content-layout'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { PageLayout } from '@/shared/ui/page-layout'
@@ -55,6 +60,10 @@ export function AccountListPage() {
   // Delete state
   const [deleteConfirmAccount, setDeleteConfirmAccount] = useState<Account | null>(null)
 
+  // Reset password state
+  const [resetTarget, setResetTarget] = useState<Account | null>(null)
+  const [resetResult, setResetResult] = useState<{ account: Account; temporaryPassword: string } | null>(null)
+
   // Filter state
   const [filters, setFilters] = useState<AccountFiltersState>({ keyword: '' })
 
@@ -69,6 +78,7 @@ export function AccountListPage() {
   // Mutations
   const updateMutation = useUpdateAccount()
   const deleteMutation = useDeleteAccount()
+  const resetPasswordMutation = useResetAccountPassword()
 
   // Handlers
   const openEditModal = (account: Account) => {
@@ -117,6 +127,26 @@ export function AccountListPage() {
     })
   }
 
+  const handleResetPassword = () => {
+    if (!resetTarget) return
+    const target = resetTarget
+
+    resetPasswordMutation.mutate(target.accountId, {
+      onSuccess: (data) => {
+        setResetTarget(null)
+        setResetResult({ account: target, temporaryPassword: data.temporaryPassword })
+      },
+      onError: (error) => {
+        toast({
+          variant: 'destructive',
+          title: '비밀번호 초기화 실패',
+          description: getErrorMessage(error),
+        })
+        setResetTarget(null)
+      },
+    })
+  }
+
   const handleSort = (key: string) => {
     setSort((current) => {
       if (current?.key === key) {
@@ -146,6 +176,7 @@ export function AccountListPage() {
                 const account = accountList.find((a) => a.accountId === id)
                 if (account) setDeleteConfirmAccount(account)
               }}
+              onResetPassword={setResetTarget}
             />
             {accountList.length > 0 && (
               <div className="pt-6">
@@ -180,6 +211,24 @@ export function AccountListPage() {
         accountUsername={deleteConfirmAccount?.accountName || null}
         onConfirm={handleDelete}
         onCancel={() => setDeleteConfirmAccount(null)}
+      />
+
+      {/* Reset Password Confirm Dialog */}
+      <ResetPasswordConfirmDialog
+        open={resetTarget !== null}
+        accountName={resetTarget?.accountName || null}
+        email={resetTarget?.email || null}
+        isResetting={resetPasswordMutation.isPending}
+        onConfirm={handleResetPassword}
+        onCancel={() => setResetTarget(null)}
+      />
+
+      {/* Reset Password Result Dialog */}
+      <ResetPasswordResultDialog
+        open={resetResult !== null}
+        accountName={resetResult?.account.accountName || null}
+        temporaryPassword={resetResult?.temporaryPassword || null}
+        onClose={() => setResetResult(null)}
       />
     </PageLayout>
   )

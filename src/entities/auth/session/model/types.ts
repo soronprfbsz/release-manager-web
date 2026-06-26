@@ -14,6 +14,8 @@ export interface AccountInfo {
   role: string
   avatarStyle?: string
   avatarSeed?: string
+  /** 강제 비밀번호 변경 필요 여부 (임시비번 초기화 시 true) */
+  mustChangePassword?: boolean
 }
 
 export interface SignUpRequest {

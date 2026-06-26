@@ -6,6 +6,7 @@
 import {
   User,
   Edit2,
+  KeyRound,
   Trash2,
 } from 'lucide-react'
 
@@ -13,6 +14,7 @@ import type { Account } from '@/entities/operations/account'
 
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { formatDateTime } from '@/shared/lib/utils/date'
+import { useAuthStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { DataTable } from '@/shared/ui/data-table'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
@@ -45,6 +47,7 @@ interface AccountTableProps {
   onSort: (key: string) => void
   onEdit: (account: Account) => void
   onDelete: (accountId: number) => void
+  onResetPassword: (account: Account) => void
 }
 
 export function AccountTable({
@@ -53,9 +56,19 @@ export function AccountTable({
   onSort,
   onEdit,
   onDelete,
+  onResetPassword,
 }: AccountTableProps) {
-  const { canEditAccount, canDeleteAccount } = usePermission()
-  const canManageAccount = canEditAccount || canDeleteAccount
+  const { canEditAccount, canDeleteAccount, canResetAccountPassword, role } = usePermission()
+  const currentAccountId = useAuthStore((state) => state.user?.accountId)
+
+  // 대상 계정에 대해 비밀번호 초기화 버튼을 노출할지 판정
+  // (권한 보유 && 본인 아님 && OPERATOR 가 ADMIN 을 대상으로 하지 않음)
+  const canResetTarget = (account: Account): boolean =>
+    canResetAccountPassword &&
+    account.accountId !== currentAccountId &&
+    !(role === 'OPERATOR' && account.role === 'ADMIN')
+
+  const canManageAccount = canEditAccount || canDeleteAccount || canResetAccountPassword
 
   if (accounts.length === 0) {
     return (
@@ -190,6 +203,12 @@ export function AccountTable({
                       <TableActionMenuItem onClick={() => onEdit(account)}>
                         <Edit2 className="mr-2 h-4 w-4" />
                         수정
+                      </TableActionMenuItem>
+                    )}
+                    {canResetTarget(account) && (
+                      <TableActionMenuItem onClick={() => onResetPassword(account)}>
+                        <KeyRound className="mr-2 h-4 w-4" />
+                        비밀번호 초기화
                       </TableActionMenuItem>
                     )}
                     {canDeleteAccount && (

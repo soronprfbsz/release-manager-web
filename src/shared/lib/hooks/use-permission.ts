@@ -113,6 +113,7 @@ export function usePermission() {
     canViewAccount: hasPermission('account', 'view'),
     canEditAccount: hasPermission('account', 'edit'),
     canDeleteAccount: hasPermission('account', 'delete'),
+    canResetAccountPassword: hasPermission('account', 'resetPassword'),
 
     // ========================================================================
     // 리소스 관리 권한

@@ -6,8 +6,10 @@
 export type {
   Account,
   AccountUpdateRequest,
+  ChangePasswordRequest,
   MyAccount,
   MyAccountUpdateRequest,
+  ResetPasswordResponse,
 } from './model/types'
 
 export type { AccountListParams } from './api/accountApi'
@@ -24,5 +26,7 @@ export {
   useDeleteAccount,
   useMyAccount,
   useUpdateMyAccount,
+  useChangeMyPassword,
+  useResetAccountPassword,
   useBatchTransferDepartment,
 } from './queries/accountQueries'

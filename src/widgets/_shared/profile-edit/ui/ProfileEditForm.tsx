@@ -7,9 +7,11 @@ import { useEffect, useState, useCallback } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { Save, Lock, Eye, EyeOff, User, Shuffle, Check } from 'lucide-react'
+import { Save, User, Shuffle, Check } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+
+import { ChangePasswordForm } from '@/features/operations/password-management'
 
 import { useCodesByType } from '@/entities/_shared/code'
 import { useUpdateMyAccount, type MyAccountUpdateRequest } from '@/entities/operations/account'
@@ -45,25 +47,7 @@ const formSchema = z.object({
     .min(2, '이름은 2자 이상이어야 합니다.')
     .max(50, '이름은 50자 이하여야 합니다.'),
   position: z.string().optional(),
-  password: z
-    .string()
-    .optional()
-    .refine(
-      (val) => !val || val.length >= 8,
-      '비밀번호는 8자 이상이어야 합니다.'
-    )
-    .refine(
-      (val) => !val || val.length <= 100,
-      '비밀번호는 100자 이하여야 합니다.'
-    ),
-  confirmPassword: z.string().optional(),
-}).refine(
-  (data) => !data.password || data.password === data.confirmPassword,
-  {
-    message: '비밀번호가 일치하지 않습니다.',
-    path: ['confirmPassword'],
-  }
-)
+})
 
 type FormValues = z.infer<typeof formSchema>
 
@@ -83,9 +67,6 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
   const setUser = useAuthStore((state) => state.setUser)
   const { toast } = useToast()
   const updateMyAccount = useUpdateMyAccount()
-
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // 아바타 수정 모드 토글
   const [isAvatarEditMode, setIsAvatarEditMode] = useState(false)
@@ -119,8 +100,6 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
     defaultValues: {
       accountName: '',
       position: '',
-      password: '',
-      confirmPassword: '',
     },
   })
 
@@ -130,8 +109,6 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
       form.reset({
         accountName: user.accountName,
         position: user.position || '',
-        password: '',
-        confirmPassword: '',
       })
 
       const style = (user.avatarStyle as AvatarStyleKey) || DEFAULT_AVATAR_STYLE
@@ -142,8 +119,6 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
       setOriginalAvatarStyle(style)
       setOriginalAvatarSeed(seed)
 
-      setShowPassword(false)
-      setShowConfirmPassword(false)
       setIsAvatarEditMode(false)
       setIsInitialized(true)
     }
@@ -169,9 +144,6 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
       }
       if ((values.position || '') !== (user?.position || '')) {
         request.position = values.position || undefined
-      }
-      if (values.password) {
-        request.password = values.password
       }
       // 아바타 수정 모드가 활성화된 경우에만 아바타 변경사항 포함
       if (isAvatarEditMode) {
@@ -214,11 +186,7 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
           setOriginalAvatarStyle(selectedAvatarStyle)
           setOriginalAvatarSeed(avatarSeed)
 
-          // 비밀번호 필드 및 아바타 수정 모드 초기화
-          form.setValue('password', '')
-          form.setValue('confirmPassword', '')
-          setShowPassword(false)
-          setShowConfirmPassword(false)
+          // 아바타 수정 모드 초기화
           setIsAvatarEditMode(false)
 
           toast({
@@ -391,83 +359,18 @@ export function ProfileEditForm({ open, onOpenChange }: ProfileEditFormProps) {
             )}
           />
         </div>
-
-        {/* 새 비밀번호 */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-1">
-                <Lock className="h-3.5 w-3.5" />
-                새 비밀번호
-              </FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="변경할 비밀번호 입력"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* 비밀번호 확인 */}
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-1">
-                <Lock className="h-3.5 w-3.5" />
-                비밀번호 확인
-              </FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="비밀번호 다시 입력"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </Form>
+
+      {/* 비밀번호 변경 섹션 (프로필 저장과 분리된 독립 섹션) */}
+      <div className="border-t pt-5">
+        <div className="mb-4">
+          <h3 className="text-sm font-medium">비밀번호 변경</h3>
+          <p className="text-xs text-muted-foreground">
+            현재 비밀번호를 입력해 새 비밀번호로 변경합니다.
+          </p>
+        </div>
+        <ChangePasswordForm />
+      </div>
     </FormSheet>
   )
 }

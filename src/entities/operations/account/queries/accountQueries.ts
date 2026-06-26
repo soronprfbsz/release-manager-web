@@ -6,7 +6,11 @@ import {
   type BatchTransferDepartmentRequest,
 } from '../api/accountApi'
 
-import type { AccountUpdateRequest, MyAccountUpdateRequest } from '../model/types'
+import type {
+  AccountUpdateRequest,
+  ChangePasswordRequest,
+  MyAccountUpdateRequest,
+} from '../model/types'
 
 export const accountKeys = {
   all: ['accounts'] as const,
@@ -79,6 +83,25 @@ export function useUpdateMyAccount() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountKeys.me() })
     },
+  })
+}
+
+/** 내 비밀번호 변경 (자가 변경 / 강제 변경 공용) */
+export function useChangeMyPassword() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) => accountApi.changeMyPassword(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountKeys.me() })
+    },
+  })
+}
+
+/** 비밀번호 초기화 (관리자) */
+export function useResetAccountPassword() {
+  return useMutation({
+    mutationFn: (accountId: number) => accountApi.resetPassword(accountId),
   })
 }
 

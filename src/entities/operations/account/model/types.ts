@@ -46,13 +46,25 @@ export interface MyAccount {
   avatarSeed?: string
   createdAt: string
   updatedAt: string
+  /** 강제 비밀번호 변경 필요 여부 */
+  mustChangePassword: boolean
 }
 
 /** 내 정보 수정 요청 */
 export interface MyAccountUpdateRequest {
   accountName?: string
-  password?: string
   position?: string
   avatarStyle?: string
   avatarSeed?: string
+}
+
+/** 비밀번호 변경 요청 (자가 변경 / 강제 변경 공용) */
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
+}
+
+/** 비밀번호 초기화 응답 (임시비번 1회 노출) */
+export interface ResetPasswordResponse {
+  temporaryPassword: string
 }

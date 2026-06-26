@@ -1,12 +1,21 @@
 import { apiClient } from '@/shared/api/client'
 import type { PageResponse, PaginationParams } from '@/shared/api/types'
 
-import type { Account, AccountUpdateRequest, MyAccount, MyAccountUpdateRequest } from '../model/types'
+import type {
+  Account,
+  AccountUpdateRequest,
+  ChangePasswordRequest,
+  MyAccount,
+  MyAccountUpdateRequest,
+  ResetPasswordResponse,
+} from '../model/types'
 
 const ENDPOINTS = {
   base: '/api/accounts',
   byId: (id: number) => `/api/accounts/${id}`,
   me: '/api/accounts/me',
+  myPassword: '/api/accounts/me/password',
+  resetPassword: (id: number) => `/api/accounts/${id}/reset-password`,
   batchTransfer: '/api/accounts/batch-transfer-department',
 } as const
 
@@ -76,6 +85,19 @@ export const accountApi = {
   /** 내 정보 수정 */
   updateMe: async (request: MyAccountUpdateRequest): Promise<MyAccount> => {
     const response = await apiClient.patch<MyAccount>(ENDPOINTS.me, request)
+    return response
+  },
+
+  /** 내 비밀번호 변경 (현재 비번 검증 후 변경) */
+  changeMyPassword: async (request: ChangePasswordRequest): Promise<void> => {
+    await apiClient.post<null>(ENDPOINTS.myPassword, request)
+  },
+
+  /** 비밀번호 초기화 (관리자) — 임시비번 1회 반환 */
+  resetPassword: async (accountId: number): Promise<ResetPasswordResponse> => {
+    const response = await apiClient.post<ResetPasswordResponse>(
+      ENDPOINTS.resetPassword(accountId)
+    )
     return response
   },
 
