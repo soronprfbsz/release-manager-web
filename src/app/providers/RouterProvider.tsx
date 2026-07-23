@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider as ReactRouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider as ReactRouterProvider } from 'react-router-dom'
 
 import { LoginPage } from '@/pages/auth/login'
 import { SignUpPage } from '@/pages/auth/signup'
@@ -66,16 +66,21 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.OPERATIONS.CUSTOMERS,
+    path: ROUTES.SITES,
     element: (
       <ProtectedRoute>
         <MainLayout>
-          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.CUSTOMERS]}>
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SITES]}>
             <SiteListPage />
           </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
     ),
+  },
+  // 구 고객사 경로 — 북마크 호환용 리다이렉트
+  {
+    path: '/operations/customers',
+    element: <Navigate to={ROUTES.SITES} replace />,
   },
   {
     path: ROUTES.OPERATIONS.DEPARTMENTS,

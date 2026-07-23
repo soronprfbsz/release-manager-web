@@ -20,12 +20,12 @@ export const menuItems: MenuItem[] = [
     path: ROUTES.PATCHES,
   },
   {
+    label: '사이트 관리',
+    path: ROUTES.SITES,
+  },
+  {
     label: '운영 관리',
     children: [
-      {
-        label: '고객사',
-        path: ROUTES.OPERATIONS.CUSTOMERS,
-      },
       {
         label: '부서',
         path: ROUTES.OPERATIONS.DEPARTMENTS,

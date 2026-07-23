@@ -16,8 +16,8 @@ export const ROUTES = {
   },
   RELEASES: '/releases',
   PATCHES: '/patches',
+  SITES: '/sites',
   OPERATIONS: {
-    CUSTOMERS: '/operations/customers',
     DEPARTMENTS: '/operations/departments',
     ACCOUNTS: '/operations/accounts',
     PROJECTS: '/operations/projects',

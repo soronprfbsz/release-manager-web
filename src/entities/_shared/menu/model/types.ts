@@ -32,9 +32,10 @@ export type MenuId =
   | 'patch_management'
   | 'patch_standard'
   | 'patch_custom'
+  // 사이트 관리 (1depth)
+  | 'site_management'
   // 운영 관리
   | 'operation_management'
-  | 'operation_sites'
   | 'operation_engineers'
   | 'operation_accounts'
   // 업무 지원 (1depth)
