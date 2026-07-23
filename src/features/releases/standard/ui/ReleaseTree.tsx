@@ -84,6 +84,18 @@ export function ReleaseTree({
   // 핫픽스/빌드가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
+  // major.minor 그룹 확장 상태 — 최초 마운트 시 최신 버전이 속한 그룹만 펼침
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    const latestId = findLatestVersionId(majorMinorGroups)
+    if (latestId == null) return new Set()
+    for (const group of majorMinorGroups) {
+      if (group.versions.some((v) => v.versionId === latestId)) {
+        return new Set([group.majorMinor])
+      }
+    }
+    return new Set()
+  })
+
   // 최신 버전 ID 계산
   const latestVersionId = findLatestVersionId(majorMinorGroups)
 
@@ -108,6 +120,27 @@ export function ReleaseTree({
     }
   }, [selectedVersionId, majorMinorGroups])
 
+  // selectedVersionId 가 접힌 그룹 안의 버전(또는 그 하위 build/hotfix)이면 해당 그룹 자동 expand
+  useEffect(() => {
+    if (selectedVersionId == null) return
+    for (const group of majorMinorGroups) {
+      const hasMatch = group.versions.some((version) =>
+        version.versionId === selectedVersionId ||
+        version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
+        version.builds?.some((b) => b.versionId === selectedVersionId)
+      )
+      if (hasMatch) {
+        setExpandedGroups((prev) => {
+          if (prev.has(group.majorMinor)) return prev
+          const next = new Set(prev)
+          next.add(group.majorMinor)
+          return next
+        })
+        return
+      }
+    }
+  }, [selectedVersionId, majorMinorGroups])
+
   const toggleVersion = (versionId: number, e: React.MouseEvent) => {
     e.stopPropagation()
     setExpandedVersions((prev) => {
@@ -116,6 +149,18 @@ export function ReleaseTree({
         next.delete(versionId)
       } else {
         next.add(versionId)
+      }
+      return next
+    })
+  }
+
+  const toggleGroup = (majorMinor: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(majorMinor)) {
+        next.delete(majorMinor)
+      } else {
+        next.add(majorMinor)
       }
       return next
     })
@@ -132,13 +177,24 @@ export function ReleaseTree({
   return (
     <div className="space-y-4">
       {majorMinorGroups.map((group) => {
+        const isGroupExpanded = expandedGroups.has(group.majorMinor)
+
         return (
           <div key={group.majorMinor}>
             {/* 그룹 헤더 — 평문 uppercase 라벨 (Backstage 시안의 1.5.X / 1.4.X 패턴) */}
-            <div className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <button
+              onClick={() => toggleGroup(group.majorMinor)}
+              className="flex items-center gap-1.5 w-full px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {isGroupExpanded ? (
+                <ChevronDown className="h-3 w-3 shrink-0" />
+              ) : (
+                <ChevronRight className="h-3 w-3 shrink-0" />
+              )}
               {group.majorMinor.toUpperCase()}
-            </div>
+            </button>
 
+            {isGroupExpanded && (
             <div className="space-y-0.5">
               {group.versions.map((version) => {
                   const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
@@ -355,6 +411,7 @@ export function ReleaseTree({
                   )
                 })}
               </div>
+            )}
           </div>
         )
       })}

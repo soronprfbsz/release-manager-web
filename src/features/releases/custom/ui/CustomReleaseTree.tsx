@@ -94,6 +94,22 @@ export function CustomReleaseTree({
   // 고객사별 최신 버전 ID 맵
   const latestVersionMap = useMemo(() => findLatestVersionIdByCustomer(customers), [customers])
 
+  // major.minor 그룹 확장 상태 — 최초 마운트 시 고객사별 최신 버전이 속한 그룹만 펼침
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    const initial = new Set<string>()
+    for (const customer of customers) {
+      const latestId = latestVersionMap.get(customer.customerCode)
+      if (latestId == null) continue
+      for (const group of customer.majorMinorGroups) {
+        if (group.versions.some((v) => v.versionId === latestId)) {
+          initial.add(`${customer.customerCode}-${group.majorMinor}`)
+          break
+        }
+      }
+    }
+    return initial
+  })
+
   useEffect(() => {
     if (customers.length > 0) {
       setExpandedCustomers(new Set(customers.map(c => c.customerCode)))
@@ -123,6 +139,30 @@ export function CustomReleaseTree({
     }
   }, [selectedVersionId, customers])
 
+  // selectedVersionId 가 접힌 그룹 안의 버전(또는 그 하위 build/hotfix)이면 해당 그룹 자동 expand
+  useEffect(() => {
+    if (selectedVersionId == null) return
+    for (const customer of customers) {
+      for (const group of customer.majorMinorGroups) {
+        const hasMatch = group.versions.some((version) =>
+          version.versionId === selectedVersionId ||
+          version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
+          version.builds?.some((b) => b.versionId === selectedVersionId)
+        )
+        if (hasMatch) {
+          const groupKey = `${customer.customerCode}-${group.majorMinor}`
+          setExpandedGroups((prev) => {
+            if (prev.has(groupKey)) return prev
+            const next = new Set(prev)
+            next.add(groupKey)
+            return next
+          })
+          return
+        }
+      }
+    }
+  }, [selectedVersionId, customers])
+
   const toggleCustomer = (customerCode: string) => {
     setExpandedCustomers((prev) => {
       const next = new Set(prev)
@@ -143,6 +183,18 @@ export function CustomReleaseTree({
         next.delete(versionId)
       } else {
         next.add(versionId)
+      }
+      return next
+    })
+  }
+
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(groupKey)) {
+        next.delete(groupKey)
+      } else {
+        next.add(groupKey)
       }
       return next
     })
@@ -187,14 +239,24 @@ export function CustomReleaseTree({
               <div className="ml-4 pl-2 border-l border-border space-y-4 mt-1">
                 {customer.majorMinorGroups.map((group) => {
                   const groupKey = `${customer.customerCode}-${group.majorMinor}`
+                  const isGroupExpanded = expandedGroups.has(groupKey)
 
                   return (
                     <div key={groupKey}>
                       {/* Major.Minor 그룹 헤더 — 표준 탭과 동일한 uppercase 평문 라벨 */}
-                      <div className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <button
+                        onClick={() => toggleGroup(groupKey)}
+                        className="flex items-center gap-1.5 w-full px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {isGroupExpanded ? (
+                          <ChevronDown className="h-3 w-3 shrink-0" />
+                        ) : (
+                          <ChevronRight className="h-3 w-3 shrink-0" />
+                        )}
                         {group.majorMinor.toUpperCase()}
-                      </div>
+                      </button>
 
+                      {isGroupExpanded && (
                       <div className="space-y-0.5">
                           {group.versions.map((version) => {
                             const hasHotfixes = version.hotfixes && version.hotfixes.length > 0
@@ -417,6 +479,7 @@ export function CustomReleaseTree({
                             )
                           })}
                       </div>
+                      )}
                     </div>
                   )
                 })}
