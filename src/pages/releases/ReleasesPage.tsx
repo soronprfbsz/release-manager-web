@@ -86,7 +86,7 @@ interface CustomSelectedState {
   versionId: number
   version: string
   isHotfix: boolean
-  customerCode: string
+  siteCode: string
   customBaseVersion: string | null
   /** 빌드 여부 */
   isBuild?: boolean
@@ -99,7 +99,7 @@ interface ActionTargetInfo {
   versionId: number
   version: string
   isHotfix: boolean
-  customerCode?: string
+  siteCode?: string
 }
 
 export function ReleasesPage() {
@@ -203,18 +203,18 @@ export function ReleasesPage() {
   // 홈페이지에서 전달된 버전 선택 (Custom) — 표준 버전 / 빌드 / 핫픽스 모두 매칭
   useEffect(() => {
     const state = location.state as { selectedVersionId?: number } | null
-    if (!(state?.selectedVersionId && customTreeData?.customers && !customSelected && currentTab === 'custom')) return
+    if (!(state?.selectedVersionId && customTreeData?.sites && !customSelected && currentTab === 'custom')) return
 
-    for (const customer of customTreeData.customers) {
-      for (const group of customer.majorMinorGroups) {
+    for (const site of customTreeData.sites) {
+      for (const group of site.majorMinorGroups) {
         const foundVersion = group.versions.find(v => v.versionId === state.selectedVersionId)
         if (foundVersion) {
           setCustomSelected({
             versionId: foundVersion.versionId,
             version: foundVersion.version,
             isHotfix: false,
-            customerCode: customer.customerCode,
-            customBaseVersion: customer.customBaseVersion,
+            siteCode: site.siteCode,
+            customBaseVersion: site.customBaseVersion,
           })
           return
         }
@@ -227,8 +227,8 @@ export function ReleasesPage() {
               isHotfix: false,
               isBuild: true,
               buildBaseVersion: version.version,
-              customerCode: customer.customerCode,
-              customBaseVersion: customer.customBaseVersion,
+              siteCode: site.siteCode,
+              customBaseVersion: site.customBaseVersion,
             })
             return
           }
@@ -238,8 +238,8 @@ export function ReleasesPage() {
               versionId: foundHotfix.versionId,
               version: foundHotfix.fullVersion,
               isHotfix: true,
-              customerCode: customer.customerCode,
-              customBaseVersion: customer.customBaseVersion,
+              siteCode: site.siteCode,
+              customBaseVersion: site.customBaseVersion,
             })
             return
           }
@@ -302,10 +302,10 @@ export function ReleasesPage() {
     : null
 
   // Custom 선택된 버전 데이터
-  const customVersion = customSelected && customTreeData?.customers
+  const customVersion = customSelected && customTreeData?.sites
     ? (() => {
-      for (const customer of customTreeData.customers) {
-        for (const group of customer.majorMinorGroups) {
+      for (const site of customTreeData.sites) {
+        for (const group of site.majorMinorGroups) {
           const foundVersion = group.versions.find(v => v.versionId === customSelected.versionId)
           if (foundVersion) return foundVersion
           for (const version of group.versions) {
@@ -378,7 +378,7 @@ export function ReleasesPage() {
       versionId: info.versionId,
       version: info.version,
       isHotfix: info.isHotfix,
-      customerCode: info.customerCode,
+      siteCode: info.siteCode,
       customBaseVersion: info.customBaseVersion,
       isBuild: info.isBuild,
       buildBaseVersion: info.buildBaseVersion,
@@ -408,12 +408,12 @@ export function ReleasesPage() {
   }
 
   // 트리 액션 메뉴 핸들러
-  const handleTreeHotfix = (versionId: number, version: string, customerCode?: string) => {
-    setHotfixTarget({ versionId, version, isHotfix: false, customerCode })
+  const handleTreeHotfix = (versionId: number, version: string, siteCode?: string) => {
+    setHotfixTarget({ versionId, version, isHotfix: false, siteCode })
   }
 
-  const handleTreeBuild = (versionId: number, version: string, customerCode?: string) => {
-    setBuildTarget({ versionId, version, isHotfix: false, customerCode })
+  const handleTreeBuild = (versionId: number, version: string, siteCode?: string) => {
+    setBuildTarget({ versionId, version, isHotfix: false, siteCode })
   }
 
   const handleTreeDelete = (versionId: number, version: string, isHotfix: boolean) => {
@@ -474,8 +474,8 @@ export function ReleasesPage() {
     (acc, g) => acc + g.versions.length, 0
   ) || 0
 
-  const customVersionCount = customTreeData?.customers?.reduce(
-    (acc, customer) => acc + customer.majorMinorGroups.reduce(
+  const customVersionCount = customTreeData?.sites?.reduce(
+    (acc, site) => acc + site.majorMinorGroups.reduce(
       (groupAcc, group) => groupAcc + group.versions.length, 0
     ), 0
   ) || 0
@@ -571,11 +571,11 @@ export function ReleasesPage() {
               </div>
             ) : (
               <CustomReleaseTree
-                customers={customTreeData?.customers || []}
+                sites={customTreeData?.sites || []}
                 selectedVersionId={customSelected?.versionId || null}
                 onSelectVersion={handleCustomSelect}
-                onHotfix={(versionId, version, customerCode) => handleTreeHotfix(versionId, version, customerCode)}
-                onBuild={(versionId, version, customerCode) => handleTreeBuild(versionId, version, customerCode)}
+                onHotfix={(versionId, version, siteCode) => handleTreeHotfix(versionId, version, siteCode)}
+                onBuild={(versionId, version, siteCode) => handleTreeBuild(versionId, version, siteCode)}
                 onDelete={handleTreeDelete}
                 canAddVersion={canAddVersion}
                 canDeleteVersion={canDeleteVersion}

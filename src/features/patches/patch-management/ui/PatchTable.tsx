@@ -18,6 +18,7 @@ import {
 
 import { useCompletePatch, type CumulativePatch } from '@/entities/patches/patch'
 
+import { useToast } from '@/shared/lib/hooks/use-toast'
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import {
@@ -52,7 +53,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TruncatedCell } from '@/shared/ui/truncated-cell'
 import { TypographyInlineCode, TypographyMuted } from '@/shared/ui/typography'
 import { UserAvatar } from '@/shared/ui/user-avatar'
-import { useToast } from '@/shared/lib/hooks/use-toast'
 
 import type { SortConfig } from '../model/types'
 
@@ -179,11 +179,11 @@ export function PatchTable({
             <TableHead className="w-40">버전 범위</TableHead>
             <SortableTableHead
               className="w-56"
-              id="customerName"
+              id="siteName"
               currentSort={sort}
               onSort={onSort}
             >
-              고객사
+              사이트
             </SortableTableHead>
             <SortableTableHead
               className="w-44"
@@ -275,11 +275,11 @@ export function PatchTable({
                 {patch.fromVersion} → {patch.toVersion}
               </TableCell>
               <TableCell>
-                {patch.customerName ? (
+                {patch.siteName ? (
                   <div className="space-y-0.5">
-                    <div className="text-sm">{patch.customerName}</div>
+                    <div className="text-sm">{patch.siteName}</div>
                     <TypographyMuted className="text-xs">
-                      {patch.customerCode}
+                      {patch.siteCode}
                     </TypographyMuted>
                   </div>
                 ) : (
@@ -321,8 +321,8 @@ export function PatchTable({
                     <Download className="mr-2 h-4 w-4" />
                     다운로드
                   </TableActionMenuItem>
-                  {/* 패치 완료: 본인 생성(또는 OPERATOR↑) + 고객사가 지정된 패치만 */}
-                  {canActOnPatch(patch) && patch.customerCode && (
+                  {/* 패치 완료: 본인 생성(또는 OPERATOR↑) + 사이트가 지정된 패치만 */}
+                  {canActOnPatch(patch) && patch.siteCode && (
                     <>
                       <TableActionMenuSeparator />
                       <TableActionMenuItem
@@ -338,7 +338,7 @@ export function PatchTable({
                   {/* 삭제: showDelete prop (페이지 권한) + 본인 생성(또는 OPERATOR↑) */}
                   {showDelete && canActOnPatch(patch) && (
                     <>
-                      {!patch.customerCode && <TableActionMenuSeparator />}
+                      {!patch.siteCode && <TableActionMenuSeparator />}
                       <TableActionMenuItem
                         onClick={() => onDelete(patch)}
                         disabled={isDeleting}
@@ -371,9 +371,9 @@ export function PatchTable({
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>
                 이 패치 파일을{' '}
-                {completeTarget?.customerName && (
+                {completeTarget?.siteName && (
                   <>
-                    <span className="text-foreground font-medium">{completeTarget.customerName}</span>{' '}
+                    <span className="text-foreground font-medium">{completeTarget.siteName}</span>{' '}
                   </>
                 )}
                 사이트에 실제로 적용하셨습니까?
@@ -383,7 +383,7 @@ export function PatchTable({
               <div className="rounded-md border bg-muted/50 px-4 py-3 space-y-1.5">
                 <p className="text-foreground font-medium">완료 처리 시 다음이 진행됩니다:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  {completeTarget?.customerName && (
+                  {completeTarget?.siteName && (
                     <li>
                       사이트의 최신 버전이{' '}
                       <span className="font-mono text-foreground">{completeTarget?.toVersion}</span>

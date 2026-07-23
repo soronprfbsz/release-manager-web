@@ -21,7 +21,7 @@ export const releaseKeys = {
   trees: () => [...releaseKeys.all, 'tree'] as const,
   standardTree: (projectId: string) => [...releaseKeys.trees(), 'standard', projectId] as const,
   standardVersionList: (projectId: string) => [...releaseKeys.all, 'standard-version-list', projectId] as const,
-  customTree: (projectId: string, customerCode: string) => [...releaseKeys.trees(), 'custom', projectId, customerCode] as const,
+  customTree: (projectId: string, siteCode: string) => [...releaseKeys.trees(), 'custom', projectId, siteCode] as const,
   allCustomTree: (projectId: string) => [...releaseKeys.trees(), 'custom', 'all', projectId] as const,
   versions: () => [...releaseKeys.all, 'version'] as const,
   version: (id: number) => [...releaseKeys.versions(), id] as const,
@@ -55,13 +55,13 @@ export const useStandardVersionList = (
 
 export const useCustomReleaseTree = (
   projectId: string,
-  customerCode: string,
+  siteCode: string,
   options?: Omit<UseQueryOptions<ReleaseTreeResponse>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({
-    queryKey: releaseKeys.customTree(projectId, customerCode),
-    queryFn: () => releaseApi.getCustomTree(projectId, customerCode),
-    enabled: !!customerCode,
+    queryKey: releaseKeys.customTree(projectId, siteCode),
+    queryFn: () => releaseApi.getCustomTree(projectId, siteCode),
+    enabled: !!siteCode,
     ...options,
   })
 
@@ -248,12 +248,12 @@ export const useBuildsInRange = (
   projectId: string | null,
   fromVersionId: number | null,
   toVersionId: number | null,
-  customerId?: number | null,
+  siteId?: number | null,
 ) =>
   useQuery<BuildsInRangeResponse>({
-    queryKey: ['builds-in-range', projectId, fromVersionId, toVersionId, customerId ?? null],
+    queryKey: ['builds-in-range', projectId, fromVersionId, toVersionId, siteId ?? null],
     queryFn: () =>
-      releaseApi.getBuildsInRange(projectId!, fromVersionId!, toVersionId!, customerId),
+      releaseApi.getBuildsInRange(projectId!, fromVersionId!, toVersionId!, siteId),
     enabled: !!projectId && !!fromVersionId && !!toVersionId,
   })
 

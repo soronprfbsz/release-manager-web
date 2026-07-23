@@ -6,7 +6,7 @@
 import { ArrowRight, GitBranch, Layers, Loader2 } from 'lucide-react'
 
 import type { Account } from '@/entities/operations'
-import type { CustomPatchCustomer, CustomPatchVersion } from '@/entities/patches/patch'
+import type { CustomPatchSite, CustomPatchVersion } from '@/entities/patches/patch'
 
 import { compareVersions } from '@/shared/lib/utils/version'
 import { Button } from '@/shared/ui/button'
@@ -20,10 +20,10 @@ import type { CustomPatchCreateFormData } from '../model/types'
 
 interface CustomPatchGenerateFormCardProps {
   formData: CustomPatchCreateFormData
-  customers: CustomPatchCustomer[]
+  sites: CustomPatchSite[]
   versions: CustomPatchVersion[]
   accounts: Account[]
-  isCustomersLoading: boolean
+  isSitesLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
   onFormDataChange: (data: CustomPatchCreateFormData) => void
@@ -32,10 +32,10 @@ interface CustomPatchGenerateFormCardProps {
 
 export function CustomPatchGenerateFormCard({
   formData,
-  customers,
+  sites,
   versions,
   accounts,
-  isCustomersLoading,
+  isSitesLoading,
   isVersionsLoading,
   isSubmitting,
   onFormDataChange,
@@ -60,7 +60,7 @@ export function CustomPatchGenerateFormCard({
     })
   }
 
-  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
+  const selectedSite = sites.find((c) => c.siteId === formData.siteId)
 
   return (
     <Card>
@@ -71,30 +71,30 @@ export function CustomPatchGenerateFormCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        {/* Customer Selection */}
+        {/* Site Selection */}
         <div className="space-y-2">
-          <Label required>고객사</Label>
+          <Label required>사이트</Label>
           <Combobox
-            options={customers.map((c) => ({
-              value: String(c.customerId),
-              label: `${c.customerName} (${c.customerCode})`,
+            options={sites.map((c) => ({
+              value: String(c.siteId),
+              label: `${c.siteName} (${c.siteCode})`,
             }))}
-            value={formData.customerId ? String(formData.customerId) : ''}
+            value={formData.siteId ? String(formData.siteId) : ''}
             onValueChange={(value) => {
               onFormDataChange({
                 ...formData,
-                customerId: value ? Number(value) : null,
+                siteId: value ? Number(value) : null,
                 fromVersion: '',
                 toVersion: '',
               })
             }}
-            placeholder="고객사를 선택하세요"
-            searchPlaceholder="고객사 검색..."
-            disabled={isCustomersLoading}
+            placeholder="사이트를 선택하세요"
+            searchPlaceholder="사이트 검색..."
+            disabled={isSitesLoading}
           />
-          {isCustomersLoading && <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>}
-          {!isCustomersLoading && customers.length === 0 && (
-            <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+          {isSitesLoading && <TypographyMuted>사이트 목록을 불러오는 중...</TypographyMuted>}
+          {!isSitesLoading && sites.length === 0 && (
+            <TypographyMuted>커스텀 버전이 있는 사이트가 없습니다.</TypographyMuted>
           )}
         </div>
 
@@ -111,7 +111,7 @@ export function CustomPatchGenerateFormCard({
               onValueChange={handleFromVersionChange}
               placeholder="시작 버전"
               searchPlaceholder="버전 검색..."
-              disabled={isVersionsLoading || !formData.customerId || fromVersionOptions.length === 0}
+              disabled={isVersionsLoading || !formData.siteId || fromVersionOptions.length === 0}
               className="flex-1"
             />
             <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -124,14 +124,14 @@ export function CustomPatchGenerateFormCard({
               onValueChange={(value) => onFormDataChange({ ...formData, toVersion: value })}
               placeholder="종료 버전"
               searchPlaceholder="버전 검색..."
-              disabled={isVersionsLoading || !formData.customerId || !formData.fromVersion}
+              disabled={isVersionsLoading || !formData.siteId || !formData.fromVersion}
               className="flex-1"
             />
           </div>
-          {formData.customerId && isVersionsLoading && (
+          {formData.siteId && isVersionsLoading && (
             <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
           )}
-          {formData.customerId && !isVersionsLoading && approvedVersions.length === 0 && (
+          {formData.siteId && !isVersionsLoading && approvedVersions.length === 0 && (
             <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
           )}
         </div>
@@ -173,16 +173,16 @@ export function CustomPatchGenerateFormCard({
         {/* Info Message */}
         <div className="p-3 bg-muted/50 rounded-lg">
           <TypographyMuted>
-            {selectedCustomer
-              ? `${selectedCustomer.customerName}의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.`
-              : '고객사를 선택하면 해당 고객사의 커스텀 버전 목록이 표시됩니다.'}
+            {selectedSite
+              ? `${selectedSite.siteName}의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.`
+              : '사이트를 선택하면 해당 사이트의 커스텀 버전 목록이 표시됩니다.'}
           </TypographyMuted>
         </div>
 
         {/* Submit Button */}
         <Button
           onClick={onSubmit}
-          disabled={!formData.customerId || !formData.fromVersion || !formData.toVersion || isSubmitting}
+          disabled={!formData.siteId || !formData.fromVersion || !formData.toVersion || isSubmitting}
           className="w-full"
           size="lg"
         >

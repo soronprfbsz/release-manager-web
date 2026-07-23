@@ -20,9 +20,9 @@ export interface PatchCreateFormData {
   toVersionId: number | null
   /** 프로젝트 ID (builds-in-range 조회용) */
   projectId: string
-  customerCode: string
-  /** 고객사 ID (커스텀 패치 시 builds-in-range customerId 전달용) */
-  customerId: number | null
+  siteCode: string
+  /** 사이트 ID (커스텀 패치 시 builds-in-range siteId 전달용) */
+  siteId: number | null
   assigneeId: number | null
   description: string
   buildSelection: BuildSelection | null
@@ -30,7 +30,7 @@ export interface PatchCreateFormData {
 }
 
 export interface CustomPatchCreateFormData {
-  customerId: number | null
+  siteId: number | null
   /** 시작 버전 (베이스 또는 커스텀, 빌드 인식) */
   fromVersion: string
   /** 종료 커스텀 버전 (빌드 인식) */

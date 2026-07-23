@@ -5,7 +5,7 @@
 
 import { Layers } from 'lucide-react'
 
-import type { CustomPatchCustomer } from '@/entities/patches/patch'
+import type { CustomPatchSite } from '@/entities/patches/patch'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
@@ -14,18 +14,18 @@ import type { CustomPatchCreateFormData } from '../model/types'
 
 interface CustomPatchPreviewCardProps {
   formData: CustomPatchCreateFormData
-  customers: CustomPatchCustomer[]
+  sites: CustomPatchSite[]
   userEmail?: string
 }
 
 export function CustomPatchPreviewCard({
   formData,
-  customers,
+  sites,
   userEmail,
 }: CustomPatchPreviewCardProps) {
-  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
+  const selectedSite = sites.find((c) => c.siteId === formData.siteId)
 
-  if (!formData.customerId || !formData.fromVersion || !formData.toVersion) {
+  if (!formData.siteId || !formData.fromVersion || !formData.toVersion) {
     return (
       <Card>
         <CardHeader>
@@ -34,7 +34,7 @@ export function CustomPatchPreviewCard({
         <CardContent>
           <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
             <Layers className="h-12 w-12 mb-3 opacity-50" />
-            <TypographyMuted>고객사와 버전 범위를 선택하면</TypographyMuted>
+            <TypographyMuted>사이트와 버전 범위를 선택하면</TypographyMuted>
             <TypographyMuted>생성 정보가 표시됩니다.</TypographyMuted>
           </div>
         </CardContent>
@@ -55,8 +55,8 @@ export function CustomPatchPreviewCard({
               <TypographySmall>커스텀</TypographySmall>
             </div>
             <div className="flex justify-between">
-              <TypographyMuted>고객사</TypographyMuted>
-              <TypographySmall>{selectedCustomer?.customerName}</TypographySmall>
+              <TypographyMuted>사이트</TypographyMuted>
+              <TypographySmall>{selectedSite?.siteName}</TypographySmall>
             </div>
             <div className="flex justify-between">
               <TypographyMuted>시작 버전</TypographyMuted>
@@ -79,7 +79,7 @@ export function CustomPatchPreviewCard({
           </div>
           <div className="p-4 bg-primary/10 rounded-lg">
             <p className="text-sm text-primary">
-              <strong>{selectedCustomer?.customerName}</strong>의{' '}
+              <strong>{selectedSite?.siteName}</strong>의{' '}
               <strong>{formData.fromVersion}</strong> 이상 ~ <strong>{formData.toVersion}</strong>{' '}
               이하 버전의 모든 변경사항이 포함된 패치가 생성됩니다.
             </p>

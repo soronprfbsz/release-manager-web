@@ -7,7 +7,8 @@ import { useState } from 'react'
 
 import { Layers, type LucideIcon } from 'lucide-react'
 
-import { useCustomers, useAccounts, type Customer, type Account } from '@/entities/operations'
+import { useAccounts, type Account } from '@/entities/operations'
+import { useSites, type Site } from '@/entities/sites'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -35,19 +36,19 @@ export function PatchRegisterForm({
   icon: PageIcon = Layers,
 }: PatchRegisterFormProps) {
   const [assigneeId, setAssigneeId] = useState<number | null>(null)
-  const [customerCode, setCustomerCode] = useState('')
+  const [siteCode, setSiteCode] = useState('')
   const [description, setDescription] = useState('')
 
-  // 고객사 및 계정 목록 조회 (담당자는 엔지니어만)
-  const { data: customersResponse } = useCustomers()
+  // 사이트 및 계정 목록 조회 (담당자는 엔지니어만)
+  const { data: sitesResponse } = useSites()
   const { data: accountsResponse } = useAccounts({ departmentType: 'ENGINEER', size: 10000 })
 
-  const customers = customersResponse?.content ?? []
+  const sites = sitesResponse?.content ?? []
   const accounts = accountsResponse?.content ?? []
 
   const handleClose = () => {
     setAssigneeId(null)
-    setCustomerCode('')
+    setSiteCode('')
     setDescription('')
     onOpenChange(false)
   }
@@ -58,7 +59,7 @@ export function PatchRegisterForm({
     const data: PatchRegisterItem = {
       id: item.id,
       ...(assigneeId !== null && { assigneeId }),
-      ...(customerCode && { customerCode }),
+      ...(siteCode && { siteCode }),
       ...(description.trim() && { description: description.trim() }),
     }
 
@@ -91,26 +92,26 @@ export function PatchRegisterForm({
         </div>
       )}
 
-      {/* 고객사 */}
+      {/* 사이트 */}
       <div className="space-y-2">
-        <Label>고객사</Label>
+        <Label>사이트</Label>
         <Combobox
           options={[
             { value: '__none__', label: '선택 안함' },
-            ...customers.map((c: Customer) => ({
-              value: c.customerCode,
-              label: `${c.customerName} (${c.customerCode})`,
+            ...sites.map((c: Site) => ({
+              value: c.siteCode,
+              label: `${c.siteName} (${c.siteCode})`,
             })),
           ]}
-          value={customerCode || '__none__'}
+          value={siteCode || '__none__'}
           onValueChange={(value) =>
-            setCustomerCode(value === '__none__' ? '' : value)
+            setSiteCode(value === '__none__' ? '' : value)
           }
           placeholder="선택 안함"
-          searchPlaceholder="고객사 검색..."
+          searchPlaceholder="사이트 검색..."
         />
         <p className="text-xs text-muted-foreground">
-          고객사를 선택하면 커스텀 패치로 등록됩니다.
+          사이트를 선택하면 커스텀 패치로 등록됩니다.
         </p>
       </div>
 

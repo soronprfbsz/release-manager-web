@@ -2,18 +2,18 @@
  * Patch Create Form Component
  * 패치 생성 폼 컴포넌트
  *
- * 폼 항목 순서: 고객사 → 버전 범위 → 설명 → 빌드 파일 picker → 미리보기
- * 고객사 선택 시 next-patch-range API 호출 → from/to 자동 채움
+ * 폼 항목 순서: 사이트 → 버전 범위 → 설명 → 빌드 파일 picker → 미리보기
+ * 사이트 선택 시 next-patch-range API 호출 → from/to 자동 채움
  */
 
 import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 
 import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
-import { useBuildsInRange } from '@/entities/releases/release'
-import type { Customer } from '@/entities/operations'
 import { usePatchNamePreview, type BuildSelection } from '@/entities/patches/patch'
-import { useNextPatchRange } from '@/entities/operations/customer-site-version'
+import { useBuildsInRange } from '@/entities/releases/release'
+import type { Site } from '@/entities/sites'
+import { useNextPatchRange } from '@/entities/sites/site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { compareVersions } from '@/shared/lib/utils/version'
@@ -31,9 +31,10 @@ import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { PatchCreateFormData, VersionOption } from '../model/types'
-import { getVersionIdFromOption } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+import { getVersionIdFromOption } from '../lib/helpers'
+
+import type { PatchCreateFormData, VersionOption } from '../model/types'
 
 /** 패치 생성 8단계 라벨 — ServerProgressView 체크리스트 미리보기용 */
 const PATCH_STEPS = [
@@ -54,7 +55,7 @@ interface PatchCreateFormProps {
   versions: string[]
   /** 버전 ID 매핑 (builds-in-range 조회용, 선택 사항) */
   versionOptions?: VersionOption[]
-  customers: Customer[]
+  sites: Site[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   /** 진행도 polling 결과 — isSubmitting 일 때만 의미 있음. null/undefined 면 메시지 비표시 */
@@ -72,7 +73,7 @@ export function PatchCreateForm({
   formData,
   versions,
   versionOptions = [],
-  customers,
+  sites,
   isVersionsLoading,
   isSubmitting,
   progress,
@@ -89,29 +90,29 @@ export function PatchCreateForm({
   const onFormDataChangeRef = useRef(onFormDataChange)
   onFormDataChangeRef.current = onFormDataChange
 
-  // 현재 선택된 고객사 객체 — customerCode로 역참조
-  const selectedCustomer =
-    formData.customerCode && formData.customerCode !== '__undefined__'
-      ? customers.find((c) => c.customerCode === formData.customerCode) ?? null
+  // 현재 선택된 사이트 객체 — siteCode로 역참조
+  const selectedSite =
+    formData.siteCode && formData.siteCode !== '__undefined__'
+      ? sites.find((c) => c.siteCode === formData.siteCode) ?? null
       : null
 
-  // 다음 패치 추천 범위 — 실제 고객사 선택 + 폼 열린 상태일 때만 fetch
-  // isOpen 이 false 면 customerId/projectId 를 undefined 로 전달해 enabled=false 유도
+  // 다음 패치 추천 범위 — 실제 사이트 선택 + 폼 열린 상태일 때만 fetch
+  // isOpen 이 false 면 siteId/projectId 를 undefined 로 전달해 enabled=false 유도
   const { data: nextRange, isFetching: isRangeFetching } = useNextPatchRange(
-    isOpen ? selectedCustomer?.customerId : undefined,
+    isOpen ? selectedSite?.siteId : undefined,
     isOpen ? (formData.projectId || undefined) : undefined,
   )
 
   /**
-   * 고객사가 변경될 때마다 추천 범위로 from/to 자동 채움.
+   * 사이트가 변경될 때마다 추천 범위로 from/to 자동 채움.
    * - "__undefined__" 또는 미선택: 채움 안 함, from/to 초기화
-   * - 실제 고객사 선택 → nextRange 데이터 도착 시 덮어씀
-   * customerId 를 dep 에 포함해 고객사가 바뀔 때만 트리거.
+   * - 실제 사이트 선택 → nextRange 데이터 도착 시 덮어씀
+   * siteId 를 dep 에 포함해 사이트가 바뀔 때만 트리거.
    */
   useEffect(() => {
     if (!isOpen) return
 
-    if (!selectedCustomer) {
+    if (!selectedSite) {
       // "없음" 또는 미선택: from/to 초기화 — functional setter 로 stale 회피
       onFormDataChangeRef.current((prev) => ({
         ...prev,
@@ -143,7 +144,7 @@ export function PatchCreateForm({
     // versions.length 도 dep 에 포함 — tree fetch 가 nextRange 보다 늦게 도착하면
     // Select 옵션이 비어있는 상태에서 value 만 set 되어 placeholder 표시되던 문제 회피.
     // 옵션 도착 시점에 set 을 한 번 더 호출해 Radix Select 가 value 와 매칭하도록.
-  }, [selectedCustomer?.customerId, nextRange, versions.length])
+  }, [selectedSite?.siteId, nextRange, versions.length])
 
   const handleFromVersionChange = (value: string) => {
     // Radix Select 알려진 버그 우회: 비동기로 옵션이 늦게 mount 되어 controlled
@@ -189,10 +190,10 @@ export function PatchCreateForm({
   )
 
   // builds-in-range 쿼리
-  // 표준 패치의 빌드는 customer=null(표준 빌드)이다. "고객사" 선택은 패치 태깅 / 추천 범위용일 뿐
-  // 빌드 출처가 아니므로 빌드 조회에는 customerId 를 넘기지 않는다.
-  // (넘기면 findBuildsInBaseRange 의 customerMatch 가 표준 빌드(customer null)를 전부 배제하여
-  //  web/engine 빌드가 패치에서 누락된다 — 고객사 선택 시 빌드 미포함 버그의 원인)
+  // 표준 패치의 빌드는 site=null(표준 빌드)이다. "사이트" 선택은 패치 태깅 / 추천 범위용일 뿐
+  // 빌드 출처가 아니므로 빌드 조회에는 siteId 를 넘기지 않는다.
+  // (넘기면 findBuildsInBaseRange 의 siteMatch 가 표준 빌드(site null)를 전부 배제하여
+  //  web/engine 빌드가 패치에서 누락된다 — 사이트 선택 시 빌드 미포함 버그의 원인)
   const buildsQuery = useBuildsInRange(
     formData.projectId || null,
     formData.fromVersionId ?? null,
@@ -212,27 +213,27 @@ export function PatchCreateForm({
     onFormDataChangeRef.current((prev) => ({ ...prev, buildSelection: selection }))
   }, [buildsQuery.data])
 
-  // customerCode 가 비어있으면 미선택. '__undefined__' 는 명시적 "없음" 선택.
-  const customerChosen = formData.customerCode !== ''
+  // siteCode 가 비어있으면 미선택. '__undefined__' 는 명시적 "없음" 선택.
+  const siteChosen = formData.siteCode !== ''
   const submitDisabled =
     !formData.fromVersion ||
     !formData.toVersion ||
-    !customerChosen
+    !siteChosen
 
   // 자동 패치명 미리보기 — backend 호출로 충돌 검사까지 적용된 실 확정 이름
   // ("__undefined__" 는 backend 에 빈 값으로 전달되어 "undefined" prefix 로 처리)
-  const previewCustomerCode = customerChosen
-    ? (formData.customerCode === '__undefined__' ? '' : formData.customerCode)
+  const previewSiteCode = siteChosen
+    ? (formData.siteCode === '__undefined__' ? '' : formData.siteCode)
     : undefined
   const { data: previewedName } = usePatchNamePreview(
-    isOpen ? previewCustomerCode : undefined,
-    isOpen && customerChosen,
+    isOpen ? previewSiteCode : undefined,
+    isOpen && siteChosen,
   )
-  const computedPatchName = customerChosen ? (previewedName ?? null) : null
+  const computedPatchName = siteChosen ? (previewedName ?? null) : null
 
   /** 추천 범위 상태 안내 메시지 */
   const rangeHint = (() => {
-    if (!selectedCustomer) return null
+    if (!selectedSite) return null
     if (isRangeFetching) return null
 
     if (!nextRange) return null
@@ -280,37 +281,37 @@ export function PatchCreateForm({
         />
       ) : (
       <>
-      {/* 1. 고객사 — 필수. "없음" 선택 시 customerCode 'undefined' 로 처리됨.
+      {/* 1. 사이트 — 필수. "없음" 선택 시 siteCode 'undefined' 로 처리됨.
           담당자는 백엔드가 현재 로그인 사용자로 자동 설정.
-          고객사 선택 시 next-patch-range API 로 from/to 자동 추천. */}
+          사이트 선택 시 next-patch-range API 로 from/to 자동 추천. */}
       <div className="space-y-2">
-        <Label required>고객사</Label>
+        <Label required>사이트</Label>
         <Combobox
           options={[
             { value: '__undefined__', label: '없음' },
-            ...customers.map((c) => ({
-              value: c.customerCode,
-              label: `${c.customerName} (${c.customerCode})`,
+            ...sites.map((c) => ({
+              value: c.siteCode,
+              label: `${c.siteName} (${c.siteCode})`,
             })),
           ]}
-          value={formData.customerCode || ''}
+          value={formData.siteCode || ''}
           onValueChange={(value) =>
             onFormDataChange((prev) => ({
               ...prev,
-              customerCode: value,
-              // 고객사 변경 시 customerId 동기화
-              customerId:
+              siteCode: value,
+              // 사이트 변경 시 siteId 동기화
+              siteId:
                 value === '__undefined__'
                   ? null
-                  : (customers.find((c) => c.customerCode === value)?.customerId ?? null),
+                  : (sites.find((c) => c.siteCode === value)?.siteId ?? null),
             }))
           }
-          placeholder="고객사 선택..."
-          searchPlaceholder="고객사 검색..."
+          placeholder="사이트 선택..."
+          searchPlaceholder="사이트 검색..."
         />
 
         {/* 추천 범위 상태 안내 */}
-        {isRangeFetching && selectedCustomer && (
+        {isRangeFetching && selectedSite && (
           <TypographyMuted className="text-xs">버전 범위 확인 중...</TypographyMuted>
         )}
         {rangeHint && (
@@ -382,8 +383,8 @@ export function PatchCreateForm({
         />
       </div>
 
-      {/* 빌드 정보 + 패치명 preview — 버전 범위 + 고객사 모두 채워졌을 때만 표시 */}
-      {formData.fromVersionId && formData.toVersionId && customerChosen && buildsQuery.data &&
+      {/* 빌드 정보 + 패치명 preview — 버전 범위 + 사이트 모두 채워졌을 때만 표시 */}
+      {formData.fromVersionId && formData.toVersionId && siteChosen && buildsQuery.data &&
         (buildsQuery.data.web.length > 0 || buildsQuery.data.engines.length > 0) && (
         <div className="flex flex-col gap-2">
           <div className="rounded-lg border p-4 space-y-3">
@@ -397,12 +398,12 @@ export function PatchCreateForm({
           </div>
         </div>
       )}
-      {formData.fromVersionId && formData.toVersionId && customerChosen && buildsQuery.isLoading && (
+      {formData.fromVersionId && formData.toVersionId && siteChosen && buildsQuery.isLoading && (
         <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
       )}
 
       {/* 생성 정보 미리보기 (버전 범위 + 패치명) */}
-      {formData.fromVersion && formData.toVersion && customerChosen && (
+      {formData.fromVersion && formData.toVersion && siteChosen && (
         <div className="p-4 bg-primary/10 rounded-lg space-y-2">
           <p className="text-sm text-primary">
             <strong>{formData.fromVersion}</strong> 이상 ~{' '}

@@ -2,7 +2,7 @@
  * 버전 관련 유틸리티 함수
  */
 
-import type { MajorMinorNode, VersionNode, CustomerReleaseNode } from '@/entities/releases/release'
+import type { MajorMinorNode, VersionNode, SiteReleaseNode } from '@/entities/releases/release'
 
 /**
  * 버전 문자열을 숫자 배열로 파싱
@@ -115,17 +115,17 @@ export function suggestNextVersion(majorMinorGroups: MajorMinorNode[]): string {
 }
 
 /**
- * 고객사별 최신 버전 ID 맵을 생성
- * @param customers 고객사 릴리즈 노드 배열
- * @returns { customerCode: latestVersionId } 맵
+ * 사이트별 최신 버전 ID 맵을 생성
+ * @param sites 사이트 릴리즈 노드 배열
+ * @returns { siteCode: latestVersionId } 맵
  */
-export function findLatestVersionIdByCustomer(customers: CustomerReleaseNode[]): Map<string, number> {
+export function findLatestVersionIdBySite(sites: SiteReleaseNode[]): Map<string, number> {
   const latestVersionMap = new Map<string, number>()
 
-  for (const customer of customers) {
-    const latestId = findLatestVersionId(customer.majorMinorGroups)
+  for (const site of sites) {
+    const latestId = findLatestVersionId(site.majorMinorGroups)
     if (latestId !== null) {
-      latestVersionMap.set(customer.customerCode, latestId)
+      latestVersionMap.set(site.siteCode, latestId)
     }
   }
 
@@ -133,17 +133,17 @@ export function findLatestVersionIdByCustomer(customers: CustomerReleaseNode[]):
 }
 
 /**
- * 고객사별 최신 버전 문자열 맵을 생성
- * @param customers 고객사 릴리즈 노드 배열
- * @returns { customerCode: latestVersionString } 맵
+ * 사이트별 최신 버전 문자열 맵을 생성
+ * @param sites 사이트 릴리즈 노드 배열
+ * @returns { siteCode: latestVersionString } 맵
  */
-export function findLatestVersionStringByCustomer(customers: CustomerReleaseNode[]): Map<string, string> {
+export function findLatestVersionStringBySite(sites: SiteReleaseNode[]): Map<string, string> {
   const latestVersionMap = new Map<string, string>()
 
-  for (const customer of customers) {
-    const latestVersion = findLatestVersionString(customer.majorMinorGroups)
+  for (const site of sites) {
+    const latestVersion = findLatestVersionString(site.majorMinorGroups)
     if (latestVersion !== null) {
-      latestVersionMap.set(customer.customerCode, latestVersion)
+      latestVersionMap.set(site.siteCode, latestVersion)
     }
   }
 
@@ -151,17 +151,17 @@ export function findLatestVersionStringByCustomer(customers: CustomerReleaseNode
 }
 
 /**
- * 주어진 버전이 해당 고객사의 최신 버전인지 확인
+ * 주어진 버전이 해당 사이트의 최신 버전인지 확인
  */
-export function isLatestVersionForCustomer(
+export function isLatestVersionForSite(
   versionId: number,
-  customerCode: string,
-  customers: CustomerReleaseNode[]
+  siteCode: string,
+  sites: SiteReleaseNode[]
 ): boolean {
-  const customer = customers.find(c => c.customerCode === customerCode)
-  if (!customer) return false
+  const site = sites.find(c => c.siteCode === siteCode)
+  if (!site) return false
   
-  const latestId = findLatestVersionId(customer.majorMinorGroups)
+  const latestId = findLatestVersionId(site.majorMinorGroups)
   return latestId === versionId
 }
 

@@ -161,9 +161,9 @@ export function PublishingCard({
         <CardContent className="pt-3 px-4 pb-4 flex-1 min-h-[100px] flex flex-col justify-between">
           {/* 메타 정보 */}
           <div className="flex-1">
-            {publishing.customerName && (
+            {publishing.siteName && (
               <p className="text-xs text-muted-foreground mb-1">
-                {publishing.customerName}
+                {publishing.siteName}
               </p>
             )}
             {publishing.description && subCategoryLabel && (

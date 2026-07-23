@@ -14,12 +14,12 @@ import { useEffect } from 'react'
 
 import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
-import { useBuildsInRange } from '@/entities/releases/release'
 import type {
   BuildSelection,
-  CustomPatchCustomer,
+  CustomPatchSite,
   CustomPatchVersion,
 } from '@/entities/patches/patch'
+import { useBuildsInRange } from '@/entities/releases/release'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { compareVersions } from '@/shared/lib/utils/version'
@@ -31,8 +31,9 @@ import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { CustomPatchCreateFormData } from '../model/types'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+
+import type { CustomPatchCreateFormData } from '../model/types'
 
 /** 패치 생성 8단계 라벨 — ServerProgressView 체크리스트 미리보기용 */
 const PATCH_STEPS = [
@@ -49,9 +50,9 @@ const PATCH_STEPS = [
 interface CustomPatchCreateFormProps {
   isOpen: boolean
   formData: CustomPatchCreateFormData
-  customers: CustomPatchCustomer[]
+  sites: CustomPatchSite[]
   versions: CustomPatchVersion[]
-  isCustomersLoading: boolean
+  isSitesLoading: boolean
   isVersionsLoading: boolean
   isSubmitting: boolean
   /** 진행도 polling 결과 — isSubmitting 일 때만 의미 */
@@ -66,9 +67,9 @@ interface CustomPatchCreateFormProps {
 export function CustomPatchCreateForm({
   isOpen,
   formData,
-  customers,
+  sites,
   versions,
-  isCustomersLoading,
+  isSitesLoading,
   isVersionsLoading,
   isSubmitting,
   progress,
@@ -113,12 +114,12 @@ export function CustomPatchCreateForm({
     })
   }
 
-  // builds-in-range 쿼리 — customerId 동봉
+  // builds-in-range 쿼리 — siteId 동봉
   const buildsQuery = useBuildsInRange(
     formData.projectId || null,
     formData.fromVersionId ?? null,
     formData.toVersionId ?? null,
-    formData.customerId,
+    formData.siteId,
   )
 
   // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
@@ -133,21 +134,21 @@ export function CustomPatchCreateForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buildsQuery.data])
 
-  const selectedCustomer = customers.find((c) => c.customerId === formData.customerId)
+  const selectedSite = sites.find((c) => c.siteId === formData.siteId)
   const fullBaseVersion = versions.find((v) => v.isBaseVersion)?.version || ''
   const standardVersion = fullBaseVersion.includes('-')
     ? fullBaseVersion.split('-')[0]
     : fullBaseVersion
 
   const getFullVersionName = (version: string) => {
-    if (!standardVersion || !selectedCustomer?.customerCode) return version
+    if (!standardVersion || !selectedSite?.siteCode) return version
     if (version === standardVersion) return version
-    if (version.includes(`-${selectedCustomer.customerCode}.`)) return version
-    return `${standardVersion}-${selectedCustomer.customerCode}.${version}`
+    if (version.includes(`-${selectedSite.siteCode}.`)) return version
+    return `${standardVersion}-${selectedSite.siteCode}.${version}`
   }
 
   const submitDisabled =
-    !formData.customerId || !formData.fromVersion || !formData.toVersion
+    !formData.siteId || !formData.fromVersion || !formData.toVersion
 
   return (
     <FormSheet
@@ -157,7 +158,7 @@ export function CustomPatchCreateForm({
         description={
           isSubmitting
             ? '진행 중인 작업이 끝날 때까지 잠시만 기다려 주세요.'
-            : '고객사의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.'
+            : '사이트의 커스텀 버전 범위 내 모든 변경사항이 하나의 패치 파일로 생성됩니다.'
         }
         submitLabel="패치 생성"
         submitIcon={PageIcon}
@@ -176,19 +177,19 @@ export function CustomPatchCreateForm({
           />
         ) : (
           <>
-            {/* 고객사 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
+            {/* 사이트 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
             <div className="space-y-2">
-              <Label required>고객사</Label>
+              <Label required>사이트</Label>
               <Combobox
-                options={customers.map((c) => ({
-                  value: String(c.customerId),
-                  label: `${c.customerName} (${c.customerCode})`,
+                options={sites.map((c) => ({
+                  value: String(c.siteId),
+                  label: `${c.siteName} (${c.siteCode})`,
                 }))}
-                value={formData.customerId ? String(formData.customerId) : ''}
+                value={formData.siteId ? String(formData.siteId) : ''}
                 onValueChange={(value) => {
                   onFormDataChange({
                     ...formData,
-                    customerId: value ? Number(value) : null,
+                    siteId: value ? Number(value) : null,
                     fromVersion: '',
                     toVersion: '',
                     fromVersionId: null,
@@ -196,15 +197,15 @@ export function CustomPatchCreateForm({
                     buildSelection: { enabled: true, web: null, engines: [] },
                   })
                 }}
-                placeholder="고객사 선택"
-                searchPlaceholder="고객사 검색..."
-                disabled={isCustomersLoading}
+                placeholder="사이트 선택"
+                searchPlaceholder="사이트 검색..."
+                disabled={isSitesLoading}
               />
-              {isCustomersLoading && (
-                <TypographyMuted>고객사 목록을 불러오는 중...</TypographyMuted>
+              {isSitesLoading && (
+                <TypographyMuted>사이트 목록을 불러오는 중...</TypographyMuted>
               )}
-              {!isCustomersLoading && customers.length === 0 && (
-                <TypographyMuted>커스텀 버전이 있는 고객사가 없습니다.</TypographyMuted>
+              {!isSitesLoading && sites.length === 0 && (
+                <TypographyMuted>커스텀 버전이 있는 사이트가 없습니다.</TypographyMuted>
               )}
             </div>
 
@@ -222,7 +223,7 @@ export function CustomPatchCreateForm({
                   placeholder="시작 버전"
                   searchPlaceholder="버전 검색..."
                   disabled={
-                    isVersionsLoading || !formData.customerId || fromVersionOptions.length === 0
+                    isVersionsLoading || !formData.siteId || fromVersionOptions.length === 0
                   }
                   className="flex-1"
                 />
@@ -236,14 +237,14 @@ export function CustomPatchCreateForm({
                   onValueChange={handleToVersionChange}
                   placeholder="종료 버전"
                   searchPlaceholder="버전 검색..."
-                  disabled={isVersionsLoading || !formData.customerId || !formData.fromVersion}
+                  disabled={isVersionsLoading || !formData.siteId || !formData.fromVersion}
                   className="flex-1"
                 />
               </div>
-              {formData.customerId && isVersionsLoading && (
+              {formData.siteId && isVersionsLoading && (
                 <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
               )}
-              {formData.customerId && !isVersionsLoading && approvedVersions.length === 0 && (
+              {formData.siteId && !isVersionsLoading && approvedVersions.length === 0 && (
                 <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
               )}
             </div>
@@ -254,7 +255,7 @@ export function CustomPatchCreateForm({
               <Input
                 value={formData.patchName}
                 onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
-                placeholder="미입력 시 자동 생성 (e.g. customerCode_260511)"
+                placeholder="미입력 시 자동 생성 (e.g. siteCode_260511)"
                 maxLength={100}
               />
             </div>
@@ -290,7 +291,7 @@ export function CustomPatchCreateForm({
             )}
 
             {/* 생성 정보 미리보기 */}
-            {formData.customerId && formData.fromVersion && formData.toVersion && (
+            {formData.siteId && formData.fromVersion && formData.toVersion && (
               <div className="p-4 bg-primary/10 rounded-lg space-y-2">
                 <div className="flex items-center justify-center gap-3 text-sm">
                   <span className="text-muted-foreground">

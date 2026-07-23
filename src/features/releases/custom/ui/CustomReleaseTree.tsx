@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo } from 'react'
 
 import { ChevronRight, ChevronDown, Tag, Building2, Zap, Wrench, Sparkles, Trash2 } from 'lucide-react'
 
-import type { CustomerReleaseNode } from '@/entities/releases/release'
+import type { SiteReleaseNode } from '@/entities/releases/release'
 
 import { cn } from '@/shared/lib/utils'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
-import { findLatestVersionIdByCustomer } from '@/shared/lib/utils/version'
+import { findLatestVersionIdBySite } from '@/shared/lib/utils/version'
 import { Badge } from '@/shared/ui/badge'
 import {
   Tooltip,
@@ -50,7 +50,7 @@ export interface SelectedCustomVersionInfo {
   versionId: number
   version: string
   isHotfix: boolean
-  customerCode: string
+  siteCode: string
   customBaseVersion: string | null
   /** 빌드 여부 */
   isBuild?: boolean
@@ -59,13 +59,13 @@ export interface SelectedCustomVersionInfo {
 }
 
 interface CustomReleaseTreeProps {
-  customers: CustomerReleaseNode[]
+  sites: SiteReleaseNode[]
   selectedVersionId: number | null
   onSelectVersion: (info: SelectedCustomVersionInfo) => void
   /** 핫픽스 생성 콜백 */
-  onHotfix?: (versionId: number, version: string, customerCode: string) => void
+  onHotfix?: (versionId: number, version: string, siteCode: string) => void
   /** 빌드 생성 콜백 */
-  onBuild?: (versionId: number, version: string, customerCode: string) => void
+  onBuild?: (versionId: number, version: string, siteCode: string) => void
   /** 삭제 콜백 */
   onDelete?: (versionId: number, version: string, isHotfix: boolean) => void
   /** 핫픽스/빌드 생성 권한 */
@@ -75,7 +75,7 @@ interface CustomReleaseTreeProps {
 }
 
 export function CustomReleaseTree({
-  customers,
+  sites,
   selectedVersionId,
   onSelectVersion,
   onHotfix,
@@ -85,24 +85,24 @@ export function CustomReleaseTree({
   canDeleteVersion = false,
 }: CustomReleaseTreeProps) {
   const showActions = canAddVersion || canDeleteVersion
-  const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(() => {
-    return new Set(customers.map(c => c.customerCode))
+  const [expandedSites, setExpandedSites] = useState<Set<string>>(() => {
+    return new Set(sites.map(c => c.siteCode))
   })
   // 핫픽스가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
 
-  // 고객사별 최신 버전 ID 맵
-  const latestVersionMap = useMemo(() => findLatestVersionIdByCustomer(customers), [customers])
+  // 사이트별 최신 버전 ID 맵
+  const latestVersionMap = useMemo(() => findLatestVersionIdBySite(sites), [sites])
 
-  // major.minor 그룹 확장 상태 — 최초 마운트 시 고객사별 최신 버전이 속한 그룹만 펼침
+  // major.minor 그룹 확장 상태 — 최초 마운트 시 사이트별 최신 버전이 속한 그룹만 펼침
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>()
-    for (const customer of customers) {
-      const latestId = latestVersionMap.get(customer.customerCode)
+    for (const site of sites) {
+      const latestId = latestVersionMap.get(site.siteCode)
       if (latestId == null) continue
-      for (const group of customer.majorMinorGroups) {
+      for (const group of site.majorMinorGroups) {
         if (group.versions.some((v) => v.versionId === latestId)) {
-          initial.add(`${customer.customerCode}-${group.majorMinor}`)
+          initial.add(`${site.siteCode}-${group.majorMinor}`)
           break
         }
       }
@@ -111,16 +111,16 @@ export function CustomReleaseTree({
   })
 
   useEffect(() => {
-    if (customers.length > 0) {
-      setExpandedCustomers(new Set(customers.map(c => c.customerCode)))
+    if (sites.length > 0) {
+      setExpandedSites(new Set(sites.map(c => c.siteCode)))
     }
-  }, [customers])
+  }, [sites])
 
   // selectedVersionId 가 빌드/핫픽스 노드인 경우 부모(표준 버전) 자동 expand
   useEffect(() => {
     if (selectedVersionId == null) return
-    for (const customer of customers) {
-      for (const group of customer.majorMinorGroups) {
+    for (const site of sites) {
+      for (const group of site.majorMinorGroups) {
         for (const version of group.versions) {
           const hasChildMatch =
             version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
@@ -137,20 +137,20 @@ export function CustomReleaseTree({
         }
       }
     }
-  }, [selectedVersionId, customers])
+  }, [selectedVersionId, sites])
 
   // selectedVersionId 가 접힌 그룹 안의 버전(또는 그 하위 build/hotfix)이면 해당 그룹 자동 expand
   useEffect(() => {
     if (selectedVersionId == null) return
-    for (const customer of customers) {
-      for (const group of customer.majorMinorGroups) {
+    for (const site of sites) {
+      for (const group of site.majorMinorGroups) {
         const hasMatch = group.versions.some((version) =>
           version.versionId === selectedVersionId ||
           version.hotfixes?.some((h) => h.versionId === selectedVersionId) ||
           version.builds?.some((b) => b.versionId === selectedVersionId)
         )
         if (hasMatch) {
-          const groupKey = `${customer.customerCode}-${group.majorMinor}`
+          const groupKey = `${site.siteCode}-${group.majorMinor}`
           setExpandedGroups((prev) => {
             if (prev.has(groupKey)) return prev
             const next = new Set(prev)
@@ -161,15 +161,15 @@ export function CustomReleaseTree({
         }
       }
     }
-  }, [selectedVersionId, customers])
+  }, [selectedVersionId, sites])
 
-  const toggleCustomer = (customerCode: string) => {
-    setExpandedCustomers((prev) => {
+  const toggleSite = (siteCode: string) => {
+    setExpandedSites((prev) => {
       const next = new Set(prev)
-      if (next.has(customerCode)) {
-        next.delete(customerCode)
+      if (next.has(siteCode)) {
+        next.delete(siteCode)
       } else {
-        next.add(customerCode)
+        next.add(siteCode)
       }
       return next
     })
@@ -200,7 +200,7 @@ export function CustomReleaseTree({
     })
   }
 
-  if (customers.length === 0) {
+  if (sites.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[240px] text-muted-foreground">
         <p className="text-sm">릴리즈 버전이 없습니다.</p>
@@ -210,35 +210,35 @@ export function CustomReleaseTree({
 
   return (
     <div className="space-y-1">
-      {customers.map((customer) => {
-        const isCustomerExpanded = expandedCustomers.has(customer.customerCode)
-        const customerVersionCount = customer.majorMinorGroups.reduce((acc, g) => acc + g.versions.length, 0)
+      {sites.map((site) => {
+        const isSiteExpanded = expandedSites.has(site.siteCode)
+        const siteVersionCount = site.majorMinorGroups.reduce((acc, g) => acc + g.versions.length, 0)
 
         return (
-          <div key={customer.customerCode}>
-            {/* Customer Level */}
+          <div key={site.siteCode}>
+            {/* Site Level */}
             <button
-              onClick={() => toggleCustomer(customer.customerCode)}
+              onClick={() => toggleSite(site.siteCode)}
               className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md hover:bg-accent text-left"
             >
-              {isCustomerExpanded ? (
+              {isSiteExpanded ? (
                 <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
               ) : (
                 <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
               )}
               <Building2 className="h-4 w-4 text-blue-500 shrink-0" />
-              <span className="font-medium truncate" title={customer.customerName}>
-                {customer.customerName}
+              <span className="font-medium truncate" title={site.siteName}>
+                {site.siteName}
               </span>
               <span className="text-xs text-muted-foreground ml-auto shrink-0">
-                ({customerVersionCount})
+                ({siteVersionCount})
               </span>
             </button>
 
-            {isCustomerExpanded && (
+            {isSiteExpanded && (
               <div className="ml-4 pl-2 border-l border-border space-y-4 mt-1">
-                {customer.majorMinorGroups.map((group) => {
-                  const groupKey = `${customer.customerCode}-${group.majorMinor}`
+                {site.majorMinorGroups.map((group) => {
+                  const groupKey = `${site.siteCode}-${group.majorMinor}`
                   const isGroupExpanded = expandedGroups.has(groupKey)
 
                   return (
@@ -277,8 +277,8 @@ export function CustomReleaseTree({
                                     versionId: version.versionId,
                                     version: version.version,
                                     isHotfix: false,
-                                    customerCode: customer.customerCode,
-                                    customBaseVersion: customer.customBaseVersion
+                                    siteCode: site.siteCode,
+                                    customBaseVersion: site.customBaseVersion
                                   })}
                                 >
                                   {/* 자식(핫픽스/빌드)이 있는 경우 확장 버튼 */}
@@ -307,7 +307,7 @@ export function CustomReleaseTree({
                                     )}>
                                       {version.version}
                                     </span>
-                                    {latestVersionMap.get(customer.customerCode) === version.versionId && <LatestIndicator />}
+                                    {latestVersionMap.get(site.siteCode) === version.versionId && <LatestIndicator />}
                                     <div className="flex gap-1 ml-auto items-center">
                                       {version.fileCategories && version.fileCategories.length > 0 && (
                                         <>
@@ -329,13 +329,13 @@ export function CustomReleaseTree({
                                   {showActions && (
                                     <TreeActionMenu>
                                       {canAddVersion && (
-                                        <TreeActionMenuItem onClick={() => onHotfix?.(version.versionId, version.version, customer.customerCode)}>
+                                        <TreeActionMenuItem onClick={() => onHotfix?.(version.versionId, version.version, site.siteCode)}>
                                           <Zap className="h-4 w-4 mr-2 text-amber-500" />
                                           핫픽스 생성
                                         </TreeActionMenuItem>
                                       )}
                                       {canAddVersion && (
-                                        <TreeActionMenuItem onClick={() => onBuild?.(version.versionId, version.version, customer.customerCode)}>
+                                        <TreeActionMenuItem onClick={() => onBuild?.(version.versionId, version.version, site.siteCode)}>
                                           <Wrench className="h-4 w-4 mr-2 text-sky-400" />
                                           빌드 생성
                                         </TreeActionMenuItem>
@@ -371,8 +371,8 @@ export function CustomReleaseTree({
                                           versionId: hotfix.versionId,
                                           version: hotfix.fullVersion,
                                           isHotfix: true,
-                                          customerCode: customer.customerCode,
-                                          customBaseVersion: customer.customBaseVersion
+                                          siteCode: site.siteCode,
+                                          customBaseVersion: site.customBaseVersion
                                         })}
                                       >
                                         <div className="flex items-center gap-2 flex-1 text-left text-sm">
@@ -433,8 +433,8 @@ export function CustomReleaseTree({
                                           isHotfix: false,
                                           isBuild: true,
                                           buildBaseVersion: version.version,
-                                          customerCode: customer.customerCode,
-                                          customBaseVersion: customer.customBaseVersion,
+                                          siteCode: site.siteCode,
+                                          customBaseVersion: site.customBaseVersion,
                                         })}
                                       >
                                         <div className="flex items-center gap-2 flex-1 text-left text-sm">

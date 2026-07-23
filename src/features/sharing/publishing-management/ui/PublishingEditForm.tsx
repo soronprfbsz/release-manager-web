@@ -13,10 +13,10 @@ import * as z from 'zod'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import type { PublishingListItem, PublishingUpdateRequest } from '@/entities/infrastructure/publishing'
-import { customerApi } from '@/entities/operations'
+import { siteApi } from '@/entities/sites'
 
-import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { getFormIcon } from '@/shared/config/domain-icons'
+import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
 import { Combobox } from '@/shared/ui/combobox'
 import {
@@ -63,8 +63,8 @@ export function PublishingEditForm({
   onSubmit,
   onClose,
 }: PublishingEditFormProps) {
-  // 고객사 ID 상태 (zod 외부에서 관리)
-  const [customerId, setCustomerId] = useState<number | null>(null)
+  // 사이트 ID 상태 (zod 외부에서 관리)
+  const [siteId, setSiteId] = useState<number | null>(null)
   // 글리프 상태 (zod 외부에서 관리)
   const [glyphText, setGlyphText] = useState('')
   const [glyphBackgroundColor, setGlyphBackgroundColor] = useState('')
@@ -74,12 +74,12 @@ export function PublishingEditForm({
 
   const { data: categoryList = [] } = useCodesByType(CODE_TYPE.PUBLISHING_CATEGORY)
 
-  const { data: customersData } = useQuery({
-    queryKey: ['customers-active'],
-    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
+  const { data: sitesData } = useQuery({
+    queryKey: ['sites-active'],
+    queryFn: () => siteApi.getList({ isActive: true, size: 1000 }),
     enabled: isOpen,
   })
-  const customers = customersData?.content || []
+  const sites = sitesData?.content || []
 
   const defaultValues: FormValues = {
     publishingName: '',
@@ -115,15 +115,15 @@ export function PublishingEditForm({
   }, [isOpen, publishing, categoryList])
 
   useEffect(() => {
-    if (isOpen && publishing && customers.length > 0) {
-      if (publishing.customerName) {
-        const matchedCustomer = customers.find(c => c.customerName === publishing.customerName)
-        setCustomerId(matchedCustomer?.customerId || null)
+    if (isOpen && publishing && sites.length > 0) {
+      if (publishing.siteName) {
+        const matchedSite = sites.find(c => c.siteName === publishing.siteName)
+        setSiteId(matchedSite?.siteId || null)
       } else {
-        setCustomerId(null)
+        setSiteId(null)
       }
     }
-  }, [isOpen, publishing, customers])
+  }, [isOpen, publishing, sites])
 
   const getSubCategoryCodeType = (category: string) => {
     switch (category) {
@@ -147,7 +147,7 @@ export function PublishingEditForm({
   useEffect(() => {
     if (!isOpen) {
       form.reset(defaultValues)
-      setCustomerId(null)
+      setSiteId(null)
       setGlyphText('')
       setGlyphBackgroundColor('')
       initializedIdRef.current = null
@@ -169,7 +169,7 @@ export function PublishingEditForm({
       publishingCategory: values.publishingCategory,
       subCategory: values.subCategory || undefined,
       description: values.description || undefined,
-      customerId: customerId,
+      siteId: siteId,
       glyphText: glyphText,
       glyphBackgroundColor: glyphBackgroundColor,
     })
@@ -255,23 +255,23 @@ export function PublishingEditForm({
           )}
         />
 
-        {/* 고객사 선택 */}
+        {/* 사이트 선택 */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">고객사</label>
+          <label className="text-sm font-medium">사이트</label>
           <Combobox
             options={[
               { value: '__none__', label: '선택 안함' },
-              ...customers.map((c) => ({
-                value: String(c.customerId),
-                label: `${c.customerName} (${c.customerCode})`,
+              ...sites.map((c) => ({
+                value: String(c.siteId),
+                label: `${c.siteName} (${c.siteCode})`,
               })),
             ]}
-            value={customerId ? String(customerId) : '__none__'}
+            value={siteId ? String(siteId) : '__none__'}
             onValueChange={(value) =>
-              setCustomerId(value === '__none__' || !value ? null : Number(value))
+              setSiteId(value === '__none__' || !value ? null : Number(value))
             }
             placeholder="선택 안함"
-            searchPlaceholder="고객사 검색..."
+            searchPlaceholder="사이트 검색..."
           />
         </div>
 

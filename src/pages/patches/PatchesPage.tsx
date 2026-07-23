@@ -25,11 +25,10 @@ import {
   validatePatchForm,
 } from '@/features/patches/patch-management'
 
-import { customerApi } from '@/entities/operations'
 import {
   patchApi,
   usePatches,
-  useCustomPatchCustomers,
+  useCustomPatchSites,
   useCustomPatchVersions,
   useGenerateStandardPatch,
   useGenerateCustomPatch,
@@ -44,21 +43,22 @@ import {
   useStandardReleaseTree,
   type VersionNode,
 } from '@/entities/releases/release'
+import { siteApi } from '@/entities/sites'
 
 import { useServerProgress } from '@/shared/api'
-import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
 import { usePermission } from '@/shared/lib/hooks'
 import { useNavigationBlock } from '@/shared/lib/hooks/use-navigation-block'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { createErrorHandler } from '@/shared/lib/utils/error-handler'
 import { useAuthStore, useProjectStore } from '@/shared/store'
 import { Button } from '@/shared/ui/button'
 import { ContentCard } from '@/shared/ui/content-layout'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { DataTablePagination } from '@/shared/ui/data-table-pagination'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { PageLayout } from '@/shared/ui/page-layout'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 type TabType = 'standard' | 'custom'
@@ -89,8 +89,8 @@ const INITIAL_STANDARD_FORM: PatchCreateFormData = {
   fromVersionId: null,
   toVersionId: null,
   projectId: '',
-  customerCode: '',
-  customerId: null,
+  siteCode: '',
+  siteId: null,
   assigneeId: null,
   description: '',
   // 빌드 파일 포함 default ON. data 로드 후 PatchCreateForm 의 useEffect 가 자동 preselect.
@@ -99,7 +99,7 @@ const INITIAL_STANDARD_FORM: PatchCreateFormData = {
 }
 
 const INITIAL_CUSTOM_FORM: CustomPatchCreateFormData = {
-  customerId: null,
+  siteId: null,
   fromVersion: '',
   toVersion: '',
   fromVersionId: null,
@@ -206,9 +206,9 @@ export function PatchesPage() {
     enabled: standardFormOpen,
   })
 
-  const { data: customers } = useQuery({
-    queryKey: ['customers-active'],
-    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
+  const { data: sites } = useQuery({
+    queryKey: ['sites-active'],
+    queryFn: () => siteApi.getList({ isActive: true, size: 1000 }),
     enabled: standardFormOpen,
   })
 
@@ -229,15 +229,15 @@ export function PatchesPage() {
     sort: customSort ? `${customSort.key},${customSort.direction}` : undefined,
   })
 
-  const { data: customCustomers = [], isLoading: isCustomersLoading } = useCustomPatchCustomers(
+  const { data: customSites = [], isLoading: isSitesLoading } = useCustomPatchSites(
     projectId,
     { enabled: customFormOpen }
   )
 
   const { data: customVersions = [], isLoading: isVersionsLoading } = useCustomPatchVersions(
-    customFormData.customerId,
+    customFormData.siteId,
     projectId,
-    { enabled: customFormOpen && !!customFormData.customerId }
+    { enabled: customFormOpen && !!customFormData.siteId }
   )
 
   // Mutations
@@ -284,14 +284,14 @@ export function PatchesPage() {
       return
     }
 
-    const selectedCustomer = customers?.content.find(
-      (c) => c.customerCode === standardFormData.customerCode
+    const selectedSite = sites?.content.find(
+      (c) => c.siteCode === standardFormData.siteCode
     )
 
     const request: CumulativePatchGenerateRequest = {
       projectId,
       type: 'standard',
-      customerId: selectedCustomer?.customerId,
+      siteId: selectedSite?.siteId,
       fromVersion: standardFormData.fromVersion,
       toVersion: standardFormData.toVersion,
       createdByEmail: user?.email || '',
@@ -345,8 +345,8 @@ export function PatchesPage() {
   }
 
   const handleCustomSubmit = () => {
-    if (!customFormData.customerId) {
-      toast({ title: '입력 오류', description: '고객사를 선택해주세요.', variant: 'destructive' })
+    if (!customFormData.siteId) {
+      toast({ title: '입력 오류', description: '사이트를 선택해주세요.', variant: 'destructive' })
       return
     }
 
@@ -357,7 +357,7 @@ export function PatchesPage() {
 
     const request: CustomPatchGenerateRequest = {
       projectId,
-      customerId: customFormData.customerId,
+      siteId: customFormData.siteId,
       fromVersion: customFormData.fromVersion,
       toVersion: customFormData.toVersion,
       createdByEmail: user?.email || '',
@@ -465,7 +465,7 @@ export function PatchesPage() {
 
   return (
     <PageLayout
-      description="릴리즈 범위로 누적 패치를 생성하고 고객사별로 배포하세요."
+      description="릴리즈 범위로 누적 패치를 생성하고 사이트별로 배포하세요."
       actions={
         <div className="flex items-center gap-2">
           {canDeletePatch && currentSelectedCount > 0 && (
@@ -629,7 +629,7 @@ export function PatchesPage() {
         formData={standardFormData}
         versions={standardVersions}
         versionOptions={standardVersionOptions}
-        customers={customers?.content || []}
+        sites={sites?.content || []}
         isVersionsLoading={isTreeLoading}
         isSubmitting={standardGenerateMutation.isPending}
         progress={progressQuery.data ?? null}
@@ -645,9 +645,9 @@ export function PatchesPage() {
       <CustomPatchCreateForm
         isOpen={customFormOpen}
         formData={customFormData}
-        customers={customCustomers}
+        sites={customSites}
         versions={customVersions}
-        isCustomersLoading={isCustomersLoading}
+        isSitesLoading={isSitesLoading}
         isVersionsLoading={isVersionsLoading}
         isSubmitting={customGenerateMutation.isPending}
         progress={progressQuery.data ?? null}

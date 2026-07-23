@@ -13,6 +13,9 @@ export * from './sharing'
 // Operations Features
 export * from './operations'
 
+// Sites Features
+export * from './sites'
+
 // Patches Features
 export {
   PatchTable,

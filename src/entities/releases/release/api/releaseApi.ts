@@ -16,7 +16,7 @@ import type {
 const ENDPOINTS = {
   standardTree: (id: string) => `/api/releases/projects/${id}/standard/tree`,
   standardVersionList: (id: string) => `/api/releases/projects/${id}/versions`,
-  customTree: (id: string, customerCode: string) => `/api/releases/projects/${id}/custom/${customerCode}/tree`,
+  customTree: (id: string, siteCode: string) => `/api/releases/projects/${id}/custom/${siteCode}/tree`,
   allCustomTree: (id: string) => `/api/releases/projects/${id}/custom/tree`,
   versionById: (id: number) => `/api/releases/versions/${id}`,
   versionFiles: (id: number) => `/api/releases/versions/${id}/files`,
@@ -51,13 +51,13 @@ export const releaseApi = {
     return response
   },
 
-  /** 커스텀 릴리즈 트리 조회 (특정 고객사) */
-  getCustomTree: async (projectId: string, customerCode: string): Promise<ReleaseTreeResponse> => {
-    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.customTree(projectId, customerCode))
+  /** 커스텀 릴리즈 트리 조회 (특정 사이트) */
+  getCustomTree: async (projectId: string, siteCode: string): Promise<ReleaseTreeResponse> => {
+    const response = await apiClient.get<ReleaseTreeResponse>(ENDPOINTS.customTree(projectId, siteCode))
     return response
   },
 
-  /** 전체 커스텀 릴리즈 트리 조회 (모든 고객사) */
+  /** 전체 커스텀 릴리즈 트리 조회 (모든 사이트) */
   getAllCustomTree: async (projectId: string): Promise<CustomReleaseTreeResponse> => {
     const response = await apiClient.get<CustomReleaseTreeResponse>(ENDPOINTS.allCustomTree(projectId))
     return response
@@ -98,7 +98,7 @@ export const releaseApi = {
   /** 커스텀 버전 생성 (multipart/form-data) */
   createCustomVersion: async (
     projectId: string,
-    customerId: number,
+    siteId: number,
     customVersion: string,
     comment: string,
     patchFiles: File,
@@ -109,7 +109,7 @@ export const releaseApi = {
   ): Promise<void> => {
     const formData = new FormData()
     formData.append('projectId', projectId)
-    formData.append('customerId', String(customerId))
+    formData.append('siteId', String(siteId))
     formData.append('customVersion', customVersion)
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
@@ -243,14 +243,14 @@ export const releaseApi = {
     projectId: string,
     fromVersionId: number,
     toVersionId: number,
-    customerId?: number | null,
+    siteId?: number | null,
   ): Promise<BuildsInRangeResponse> => {
     const queryParams = new URLSearchParams({
       projectId,
       fromVersionId: String(fromVersionId),
       toVersionId: String(toVersionId),
     })
-    if (customerId != null) queryParams.append('customerId', String(customerId))
+    if (siteId != null) queryParams.append('siteId', String(siteId))
     const response = await apiClient.get<BuildsInRangeResponse>(
       `${ENDPOINTS.buildsInRange}?${queryParams.toString()}`
     )

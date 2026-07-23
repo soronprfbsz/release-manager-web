@@ -26,7 +26,7 @@ export interface PublishingListItem {
   description: string | null
   publishingCategory: string    // INFRAEYE1, INFRAEYE2, COMMON, ETC
   subCategory: string | null    // DASHBOARD, REPORT, MONITORING 등
-  customerName: string | null
+  siteName: string | null
   sortOrder: number
   fileCount: number
   createdAt: string
@@ -42,8 +42,8 @@ export interface PublishingDetail {
   description: string | null
   publishingCategory: string
   subCategory: string | null
-  customerId: number | null
-  customerName: string | null
+  siteId: number | null
+  siteName: string | null
   sortOrder: number
   fileCount: number
   totalFileSize: number
@@ -64,7 +64,7 @@ export interface PublishingUploadRequest {
   publishingCategory: string
   subCategory?: string
   description?: string
-  customerId?: number
+  siteId?: number
   glyphText?: string
   glyphBackgroundColor?: string
 }
@@ -75,7 +75,7 @@ export interface PublishingUpdateRequest {
   publishingCategory?: string
   subCategory?: string
   description?: string
-  customerId?: number | null
+  siteId?: number | null
   /** 글리프 텍스트 (최대 3자). 빈 문자열("") 전송 시 NULL 처리 */
   glyphText?: string
   /** 글리프 배경 색상 키 (팔레트). 빈 문자열("") 전송 시 NULL 처리 */
@@ -86,7 +86,7 @@ export interface PublishingUpdateRequest {
 export interface PublishingQueryParams {
   publishingCategory?: string
   subCategory?: string
-  customerId?: number
+  siteId?: number
   keyword?: string
 }
 

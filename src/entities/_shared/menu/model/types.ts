@@ -34,7 +34,7 @@ export type MenuId =
   | 'patch_custom'
   // 운영 관리
   | 'operation_management'
-  | 'operation_customers'
+  | 'operation_sites'
   | 'operation_engineers'
   | 'operation_accounts'
   // 업무 지원 (1depth)

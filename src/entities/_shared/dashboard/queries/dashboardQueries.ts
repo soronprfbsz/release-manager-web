@@ -11,10 +11,10 @@ import type {
   RecentStandardResponse,
   RecentBuildResponse,
   RecentPatchResponse,
-  TopCustomersResponse,
+  TopSitesResponse,
   MonthlyPatchesResponse,
   StatisticsParams,
-  VersionCustomerDistributionResponse,
+  VersionSiteDistributionResponse,
 } from '../model/types'
 
 // ============================================================================
@@ -29,12 +29,12 @@ export const dashboardKeys = {
     [...dashboardKeys.all, 'recent-build', projectId, params] as const,
   recentPatch: (projectId: string, params?: RecentPatchParams) =>
     [...dashboardKeys.all, 'recent-patch', projectId, params] as const,
-  topCustomers: (projectId: string, params?: StatisticsParams) =>
-    [...dashboardKeys.all, 'top-customers', projectId, params] as const,
+  topSites: (projectId: string, params?: StatisticsParams) =>
+    [...dashboardKeys.all, 'top-sites', projectId, params] as const,
   monthlyPatches: (projectId: string, months?: number) =>
     [...dashboardKeys.all, 'monthly-patches', projectId, months] as const,
-  versionCustomers: (projectId: string) =>
-    [...dashboardKeys.all, 'version-customers', projectId] as const,
+  versionSites: (projectId: string) =>
+    [...dashboardKeys.all, 'version-sites', projectId] as const,
 }
 
 // ============================================================================
@@ -90,16 +90,16 @@ export function useDashboardRecentPatch(
 }
 
 /**
- * 고객사별 패치 통계 조회 훅 (Top N)
+ * 사이트별 패치 통계 조회 훅 (Top N)
  */
-export function useDashboardTopCustomers(
+export function useDashboardTopSites(
   projectId: string,
   params?: StatisticsParams,
-  options?: Omit<UseQueryOptions<TopCustomersResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<TopSitesResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: dashboardKeys.topCustomers(projectId, params),
-    queryFn: () => dashboardApi.getTopCustomers(projectId, params),
+    queryKey: dashboardKeys.topSites(projectId, params),
+    queryFn: () => dashboardApi.getTopSites(projectId, params),
     enabled: !!projectId,
     ...options,
   })
@@ -122,15 +122,15 @@ export function useDashboardMonthlyPatches(
 }
 
 /**
- * 버전별 고객사 분포 조회 훅
+ * 버전별 사이트 분포 조회 훅
  */
-export function useDashboardVersionCustomers(
+export function useDashboardVersionSites(
   projectId: string,
-  options?: Omit<UseQueryOptions<VersionCustomerDistributionResponse, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<VersionSiteDistributionResponse, Error>, 'queryKey' | 'queryFn'>
 ) {
   return useQuery({
-    queryKey: dashboardKeys.versionCustomers(projectId),
-    queryFn: () => dashboardApi.getVersionCustomers(projectId),
+    queryKey: dashboardKeys.versionSites(projectId),
+    queryFn: () => dashboardApi.getVersionSites(projectId),
     enabled: !!projectId,
     ...options,
   })

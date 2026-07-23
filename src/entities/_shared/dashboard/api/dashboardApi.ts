@@ -4,10 +4,10 @@ import type {
   RecentStandardResponse,
   RecentBuildResponse,
   RecentPatchResponse,
-  TopCustomersResponse,
+  TopSitesResponse,
   MonthlyPatchesResponse,
   StatisticsParams,
-  VersionCustomerDistributionResponse,
+  VersionSiteDistributionResponse,
 } from '../model/types'
 
 /** 요청 파라미터 */
@@ -23,9 +23,9 @@ const ENDPOINTS = {
   recentStandard: (id: string) => `/api/projects/${id}/dashboard/recent/standard`,
   recentBuild: (id: string) => `/api/projects/${id}/dashboard/recent/build`,
   recentPatch: (id: string) => `/api/projects/${id}/dashboard/recent/patch`,
-  topCustomers: (id: string) => `/api/projects/${id}/analytics/patches/top-customers`,
+  topSites: (id: string) => `/api/projects/${id}/analytics/patches/top-sites`,
   monthlyPatches: (id: string) => `/api/projects/${id}/analytics/patches/monthly`,
-  versionCustomers: (id: string) => `/api/projects/${id}/analytics/patches/version-customers`,
+  versionSites: (id: string) => `/api/projects/${id}/analytics/patches/version-sites`,
 } as const
 
 export const dashboardApi = {
@@ -53,9 +53,9 @@ export const dashboardApi = {
     return response
   },
 
-  /** 고객사별 패치 통계 (Top N) */
-  getTopCustomers: async (projectId: string, params?: StatisticsParams): Promise<TopCustomersResponse> => {
-    const response = await apiClient.get<TopCustomersResponse>(ENDPOINTS.topCustomers(projectId), {
+  /** 사이트별 패치 통계 (Top N) */
+  getTopSites: async (projectId: string, params?: StatisticsParams): Promise<TopSitesResponse> => {
+    const response = await apiClient.get<TopSitesResponse>(ENDPOINTS.topSites(projectId), {
       params: { months: params?.months, topN: params?.topN },
     })
     return response
@@ -69,9 +69,9 @@ export const dashboardApi = {
     return response
   },
 
-  /** 버전별 고객사 분포 — 각 고객사의 최신 완료 patch_history.to_version 기준 */
-  getVersionCustomers: async (projectId: string): Promise<VersionCustomerDistributionResponse> => {
-    const response = await apiClient.get<VersionCustomerDistributionResponse>(ENDPOINTS.versionCustomers(projectId))
+  /** 버전별 사이트 분포 — 각 사이트의 최신 완료 patch_history.to_version 기준 */
+  getVersionSites: async (projectId: string): Promise<VersionSiteDistributionResponse> => {
+    const response = await apiClient.get<VersionSiteDistributionResponse>(ENDPOINTS.versionSites(projectId))
     return response
   },
 }

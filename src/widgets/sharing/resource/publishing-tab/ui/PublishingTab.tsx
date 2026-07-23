@@ -36,7 +36,7 @@ const INITIAL_FORM_DATA: PublishingUploadFormData = {
   publishingCategory: '',
   subCategory: '',
   description: '',
-  customerId: null,
+  siteId: null,
   glyphText: '',
   glyphBackgroundColor: '',
 }
@@ -169,7 +169,7 @@ export const PublishingTab = forwardRef<PublishingTabHandle, PublishingTabProps>
         publishingCategory: formData.publishingCategory,
         subCategory: formData.subCategory || undefined,
         description: formData.description.trim() || undefined,
-        customerId: formData.customerId || undefined,
+        siteId: formData.siteId || undefined,
         glyphText: formData.glyphText || undefined,
         glyphBackgroundColor: formData.glyphBackgroundColor || undefined,
         onProgress: (progressEvent) => {

@@ -88,8 +88,8 @@ export const ACTION_PERMISSIONS = {
     downloadInstall: AUTHENTICATED_ROLES,
   },
 
-  // 고객사 관리
-  customer: {
+  // 사이트 관리
+  site: {
     view: AUTHENTICATED_ROLES,
     create: AUTHENTICATED_ROLES,
     edit: AUTHENTICATED_ROLES,
@@ -100,7 +100,7 @@ export const ACTION_PERMISSIONS = {
     deleteNote: AUTHENTICATED_ROLES,
     viewPatchHistory: AUTHENTICATED_ROLES,
     deletePatchHistory: ['ADMIN', 'OPERATOR'] as readonly Role[],
-    /** 고객사 패치 적용 이력 전체 초기화 — ADMIN 단독 */
+    /** 사이트 패치 적용 이력 전체 초기화 — ADMIN 단독 */
     resetPatchState: ['ADMIN'] as readonly Role[],
   },
 

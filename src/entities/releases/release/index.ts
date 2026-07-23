@@ -21,7 +21,7 @@ export type {
   ReleaseVersionDetail,
   ReleaseFileNode,
   ReleaseFileStructure,
-  CustomerReleaseNode,
+  SiteReleaseNode,
   CustomReleaseTreeResponse,
   StandardVersionSimple,
 } from './model/types'

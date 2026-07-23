@@ -64,7 +64,7 @@ export function createErrorHandler(
  * @example
  * ```ts
  * const isLoading = combineLoadingStates(
- *   customersQuery.isLoading,
+ *   sitesQuery.isLoading,
  *   projectsQuery.isLoading
  * )
  * ```

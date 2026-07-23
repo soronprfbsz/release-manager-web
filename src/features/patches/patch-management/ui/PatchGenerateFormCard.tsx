@@ -8,9 +8,9 @@ import { useEffect } from 'react'
 import { ArrowRight, GitBranch, Layers, Loader2, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-import { useBuildsInRange } from '@/entities/releases/release'
-import type { Customer } from '@/entities/operations'
 import type { BuildSelection } from '@/entities/patches/patch'
+import { useBuildsInRange } from '@/entities/releases/release'
+import type { Site } from '@/entities/sites'
 
 import { ROUTES } from '@/shared/config/constants'
 import { compareVersions } from '@/shared/lib/utils/version'
@@ -22,9 +22,10 @@ import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
-import type { PatchCreateFormData, VersionOption } from '../model/types'
-import { getVersionIdFromOption } from '../lib/helpers'
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+import { getVersionIdFromOption } from '../lib/helpers'
+
+import type { PatchCreateFormData, VersionOption } from '../model/types'
 
 type ReleaseType = 'STANDARD' | 'CUSTOM'
 
@@ -34,7 +35,7 @@ interface PatchGenerateFormCardProps {
   versions: string[]
   /** 버전 ID 매핑 (builds-in-range 조회용, 선택 사항) */
   versionOptions?: VersionOption[]
-  customers: Customer[]
+  sites: Site[]
   isVersionsLoading: boolean
   isSubmitting: boolean
   onReleaseTypeChange: (type: ReleaseType) => void
@@ -47,7 +48,7 @@ export function PatchGenerateFormCard({
   formData,
   versions,
   versionOptions = [],
-  customers,
+  sites,
   isVersionsLoading,
   isSubmitting,
   onReleaseTypeChange,
@@ -97,7 +98,7 @@ export function PatchGenerateFormCard({
     formData.projectId || null,
     formData.fromVersionId ?? null,
     formData.toVersionId ?? null,
-    formData.customerId ?? null,
+    formData.siteId ?? null,
   )
 
   // 빌드 데이터 로드 시 자동 preselect (항상 최신). 빌드 후보가 없으면 enabled=false.
@@ -182,26 +183,26 @@ export function PatchGenerateFormCard({
           )}
         </div>
 
-        {/* Customer */}
+        {/* Site */}
         <div className="space-y-2">
-          <Label>고객사</Label>
+          <Label>사이트</Label>
           <Combobox
             options={[
               { value: '__none__', label: '선택 안함' },
-              ...customers.map((c) => ({
-                value: c.customerCode,
-                label: `${c.customerName} (${c.customerCode})`,
+              ...sites.map((c) => ({
+                value: c.siteCode,
+                label: `${c.siteName} (${c.siteCode})`,
               })),
             ]}
-            value={formData.customerCode || '__none__'}
+            value={formData.siteCode || '__none__'}
             onValueChange={(value) =>
               onFormDataChange({
                 ...formData,
-                customerCode: value === '__none__' || !value ? '' : value,
+                siteCode: value === '__none__' || !value ? '' : value,
               })
             }
             placeholder="선택 안함"
-            searchPlaceholder="고객사 검색..."
+            searchPlaceholder="사이트 검색..."
           />
         </div>
 
@@ -213,7 +214,7 @@ export function PatchGenerateFormCard({
           <Input
             value={formData.patchName}
             onChange={(e) => onFormDataChange({ ...formData, patchName: e.target.value })}
-            placeholder="미입력 시 자동 생성 (e.g. customerCode_260511)"
+            placeholder="미입력 시 자동 생성 (e.g. siteCode_260511)"
             maxLength={100}
           />
         </div>

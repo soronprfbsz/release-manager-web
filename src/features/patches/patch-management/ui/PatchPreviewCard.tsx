@@ -5,7 +5,7 @@
 
 import { Layers } from 'lucide-react'
 
-import type { Customer } from '@/entities/operations'
+import type { Site } from '@/entities/sites'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TypographyInlineCode, TypographyMuted, TypographySmall } from '@/shared/ui/typography'
@@ -17,17 +17,17 @@ type ReleaseType = 'STANDARD' | 'CUSTOM'
 interface PatchPreviewCardProps {
   releaseType: ReleaseType
   formData: PatchCreateFormData
-  customers: Customer[]
+  sites: Site[]
   userEmail?: string
 }
 
 export function PatchPreviewCard({
   releaseType,
   formData,
-  customers,
+  sites,
   userEmail,
 }: PatchPreviewCardProps) {
-  const selectedCustomer = customers.find((c) => c.customerCode === formData.customerCode)
+  const selectedSite = sites.find((c) => c.siteCode === formData.siteCode)
 
   if (!formData.fromVersion || !formData.toVersion) {
     return (
@@ -58,10 +58,10 @@ export function PatchPreviewCard({
               <TypographyMuted>릴리즈 타입</TypographyMuted>
               <TypographySmall>{releaseType === 'STANDARD' ? '표준' : '커스텀'}</TypographySmall>
             </div>
-            {formData.customerCode && selectedCustomer && (
+            {formData.siteCode && selectedSite && (
               <div className="flex justify-between">
-                <TypographyMuted>고객사</TypographyMuted>
-                <TypographySmall>{selectedCustomer.customerName}</TypographySmall>
+                <TypographyMuted>사이트</TypographyMuted>
+                <TypographySmall>{selectedSite.siteName}</TypographySmall>
               </div>
             )}
             <div className="flex justify-between">

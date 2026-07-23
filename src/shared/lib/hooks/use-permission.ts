@@ -82,19 +82,19 @@ export function usePermission() {
     canDownloadInstall: hasPermission('project', 'downloadInstall'),
 
     // ========================================================================
-    // 고객사 관리 권한
+    // 사이트 관리 권한
     // ========================================================================
-    canViewCustomer: hasPermission('customer', 'view'),
-    canCreateCustomer: hasPermission('customer', 'create'),
-    canEditCustomer: hasPermission('customer', 'edit'),
-    canDeleteCustomer: hasPermission('customer', 'delete'),
-    canViewCustomerNote: hasPermission('customer', 'viewNote'),
-    canCreateCustomerNote: hasPermission('customer', 'createNote'),
-    canEditCustomerNote: hasPermission('customer', 'editNote'),
-    canDeleteCustomerNote: hasPermission('customer', 'deleteNote'),
-    canViewPatchHistory: hasPermission('customer', 'viewPatchHistory'),
-    canDeletePatchHistory: hasPermission('customer', 'deletePatchHistory'),
-    canResetCustomerPatchState: hasPermission('customer', 'resetPatchState'),
+    canViewSite: hasPermission('site', 'view'),
+    canCreateSite: hasPermission('site', 'create'),
+    canEditSite: hasPermission('site', 'edit'),
+    canDeleteSite: hasPermission('site', 'delete'),
+    canViewSiteNote: hasPermission('site', 'viewNote'),
+    canCreateSiteNote: hasPermission('site', 'createNote'),
+    canEditSiteNote: hasPermission('site', 'editNote'),
+    canDeleteSiteNote: hasPermission('site', 'deleteNote'),
+    canViewPatchHistory: hasPermission('site', 'viewPatchHistory'),
+    canDeletePatchHistory: hasPermission('site', 'deletePatchHistory'),
+    canResetSitePatchState: hasPermission('site', 'resetPatchState'),
 
     // ========================================================================
     // 부서 관리 권한

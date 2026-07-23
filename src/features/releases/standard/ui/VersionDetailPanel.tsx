@@ -906,7 +906,7 @@ function VersionDetailDialogs() {
                 <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                   <p className="font-semibold">⚠ 패치 이력 확인 필요</p>
                   <p className="mt-1 text-destructive/90 leading-relaxed">
-                    이 버전 또는 그 빌드/핫픽스가 <strong>고객사에 이미 패치된 경우</strong> 삭제 시
+                    이 버전 또는 그 빌드/핫픽스가 <strong>사이트에 이미 패치된 경우</strong> 삭제 시
                     사이트 버전 추적이 어긋나 운영 관리에 큰 혼선을 줄 수 있습니다.
                     <br />
                     <strong>패치가 진행된 적이 없는 버전</strong>일 때만 삭제하세요.
@@ -920,7 +920,7 @@ function VersionDetailDialogs() {
                     className="h-4 w-4 cursor-pointer"
                   />
                   <span>
-                    이 버전이 어떤 고객사에도 <strong>패치된 적이 없음</strong>을 확인했습니다.
+                    이 버전이 어떤 사이트에도 <strong>패치된 적이 없음</strong>을 확인했습니다.
                   </span>
                 </label>
               </div>

@@ -1,7 +1,7 @@
 /**
  * DataTableCard Component
  * 테이블 + 헤더(타이틀/아이콘/필터) + 페이지네이션을 포함한 공통 카드 컴포넌트
- * 고객사 관리 스타일을 기준으로 통일
+ * 사이트 관리 스타일을 기준으로 통일
  */
 
 import type { ReactNode } from 'react'

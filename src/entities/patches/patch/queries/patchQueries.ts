@@ -10,7 +10,7 @@ import type {
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
   CustomPatchGenerateRequest,
-  CustomPatchCustomer,
+  CustomPatchSite,
   CustomPatchVersion,
   GenerateResponse,
   PatchFileStructure,
@@ -20,10 +20,10 @@ import type {
 export const patchKeys = {
   all: ['patches'] as const,
   lists: () => [...patchKeys.all, 'list'] as const,
-  list: (params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string }) =>
+  list: (params?: PaginationParams & { releaseType?: string; projectId?: string; siteCode?: string }) =>
     [...patchKeys.lists(), params] as const,
   histories: () => [...patchKeys.all, 'histories'] as const,
-  history: (params: { projectId: string; customerId: number; page?: number; size?: number; sort?: string }) =>
+  history: (params: { projectId: string; siteId: number; page?: number; size?: number; sort?: string }) =>
     [...patchKeys.histories(), params] as const,
   details: () => [...patchKeys.all, 'detail'] as const,
   detail: (id: number) => [...patchKeys.details(), id] as const,
@@ -31,17 +31,17 @@ export const patchKeys = {
   /** @deprecated Use fileContentKeys from shared/api instead */
   fileContent: (filePath: string) => fileContentKeys.content(filePath),
   // Custom patch keys
-  customCustomers: (projectId: string) => [...patchKeys.all, 'custom-customers', projectId] as const,
-  customVersions: (customerId: number, projectId: string) =>
-    [...patchKeys.all, 'custom-versions', customerId, projectId] as const,
-  /** 자동 패치명 미리보기 — customer 별 + KST 일자별 캐시 */
-  previewName: (customerCode: string | undefined) =>
-    [...patchKeys.all, 'preview-name', customerCode ?? '__undefined__'] as const,
+  customSites: (projectId: string) => [...patchKeys.all, 'custom-sites', projectId] as const,
+  customVersions: (siteId: number, projectId: string) =>
+    [...patchKeys.all, 'custom-versions', siteId, projectId] as const,
+  /** 자동 패치명 미리보기 — site 별 + KST 일자별 캐시 */
+  previewName: (siteCode: string | undefined) =>
+    [...patchKeys.all, 'preview-name', siteCode ?? '__undefined__'] as const,
 }
 
 // Query Hooks
 export const usePatches = (
-  params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string },
+  params?: PaginationParams & { releaseType?: string; projectId?: string; siteCode?: string },
   options?: Omit<UseQueryOptions<PageResponse<CumulativePatch>>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({
@@ -50,15 +50,15 @@ export const usePatches = (
     ...options,
   })
 
-/** 고객사별 패치 이력 조회 */
+/** 사이트별 패치 이력 조회 */
 export const usePatchHistories = (
-  params: { projectId: string; customerId: number; page?: number; size?: number; sort?: string },
+  params: { projectId: string; siteId: number; page?: number; size?: number; sort?: string },
   options?: Omit<UseQueryOptions<PageResponse<CumulativePatch>>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({
     queryKey: patchKeys.history(params),
     queryFn: () => patchApi.getHistories(params),
-    enabled: !!params.projectId && !!params.customerId,
+    enabled: !!params.projectId && !!params.siteId,
     ...options,
   })
 
@@ -96,26 +96,26 @@ export const usePatchFileContent = (
 ) => useFileContentByPath(filePath, enabled)
 
 // Custom Patch Query Hooks
-export const useCustomPatchCustomers = (
+export const useCustomPatchSites = (
   projectId: string,
-  options?: Omit<UseQueryOptions<CustomPatchCustomer[]>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<CustomPatchSite[]>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({
-    queryKey: patchKeys.customCustomers(projectId),
-    queryFn: () => patchApi.getCustomPatchCustomers(projectId),
+    queryKey: patchKeys.customSites(projectId),
+    queryFn: () => patchApi.getCustomPatchSites(projectId),
     enabled: !!projectId,
     ...options,
   })
 
 export const useCustomPatchVersions = (
-  customerId: number | null,
+  siteId: number | null,
   projectId: string,
   options?: Omit<UseQueryOptions<CustomPatchVersion[]>, 'queryKey' | 'queryFn'>
 ) =>
   useQuery({
-    queryKey: patchKeys.customVersions(customerId!, projectId),
-    queryFn: () => patchApi.getCustomPatchVersions(customerId!, projectId),
-    enabled: !!customerId && !!projectId,
+    queryKey: patchKeys.customVersions(siteId!, projectId),
+    queryFn: () => patchApi.getCustomPatchVersions(siteId!, projectId),
+    enabled: !!siteId && !!projectId,
     ...options,
   })
 
@@ -197,14 +197,14 @@ export const useBulkDeletePatches = () => {
 
 /**
  * 자동 패치명 미리보기 — 실제 확정될 이름 (충돌 시 -N suffix 포함).
- * customerCode 가 `''` / undefined 이면 "undefined" prefix 로 backend 가 처리.
+ * siteCode 가 `''` / undefined 이면 "undefined" prefix 로 backend 가 처리.
  * enabled 가 truthy 일 때만 fetch.
  */
-export const usePatchNamePreview = (customerCode: string | undefined, enabled: boolean) =>
+export const usePatchNamePreview = (siteCode: string | undefined, enabled: boolean) =>
   useQuery({
-    queryKey: patchKeys.previewName(customerCode),
-    queryFn: () => patchApi.previewName(customerCode),
+    queryKey: patchKeys.previewName(siteCode),
+    queryFn: () => patchApi.previewName(siteCode),
     enabled,
-    // 짧게 사용되는 미리보기 — 같은 customer 로 다시 열 때마다 fresh 값
+    // 짧게 사용되는 미리보기 — 같은 site 로 다시 열 때마다 fresh 값
     staleTime: 0,
   })

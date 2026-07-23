@@ -3,13 +3,12 @@ import { useState, useMemo } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
-import { useCustomers, type Customer } from '@/entities/operations/customer'
 import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
+import { useSites, type Site } from '@/entities/sites/site'
 
 import { useServerProgress } from '@/shared/api'
-import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { cn } from '@/shared/lib/utils'
 import { findLatestVersionString } from '@/shared/lib/utils/version'
 import { useProjectStore } from '@/shared/store'
@@ -23,6 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/ui/popover'
+import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
@@ -61,9 +61,9 @@ function parseVersion(version: string): { major: number; minor: number; patch: n
   }
 }
 
-/** 커스텀 버전에서 커스텀 버전 부분만 추출 (예: 1.1.0-customerB.1.0.0 -> 1.0.0) */
+/** 커스텀 버전에서 커스텀 버전 부분만 추출 (예: 1.1.0-siteB.1.0.0 -> 1.0.0) */
 function extractCustomVersionPart(fullVersion: string): string | null {
-  // 형식: {표준본버전}-{고객코드}.{커스텀버전} (예: 1.1.0-customerB.1.0.0)
+  // 형식: {표준본버전}-{사이트 코드}.{커스텀버전} (예: 1.1.0-siteB.1.0.0)
   // 마지막 버전 패턴(X.Y.Z)을 찾아서 추출
   const match = fullVersion.match(/(\d+\.\d+\.\d+)$/)
   return match ? match[1] : null
@@ -86,7 +86,7 @@ function bumpVersion(version: string, type: VersionBumpType): string {
 
 export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: PageIcon = Tag }: CustomVersionCreateFormProps) {
   const projectId = useProjectStore((state) => state.projectId)
-  const [customerId, setCustomerId] = useState<number | null>(null)
+  const [siteId, setSiteId] = useState<number | null>(null)
   const [customBaseVersionId, setCustomBaseVersionId] = useState<number | null>(null)
   const [customVersion, setCustomVersion] = useState('')
   const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
@@ -103,49 +103,49 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   // 서버 처리 단계 진행도 polling
   const progressQuery = useServerProgress(activeProgressId, activeProgressId !== null)
 
-  // 고객사 목록 조회 (활성화된 고객사만)
-  const { data: customersData } = useCustomers({ isActive: true, size: 1000 })
-  const customers = customersData?.content || []
+  // 사이트 목록 조회 (활성화된 사이트만)
+  const { data: sitesData } = useSites({ isActive: true, size: 1000 })
+  const sites = sitesData?.content || []
 
   // 표준본 버전 목록 조회 (baseVersion 선택용)
   const { data: standardVersions = [] } = useStandardVersionList(projectId)
 
-  // 커스텀 릴리즈 트리 조회 (고객사별 버전 존재 여부 확인용)
+  // 커스텀 릴리즈 트리 조회 (사이트별 버전 존재 여부 확인용)
   const { data: customTreeData } = useAllCustomReleaseTree(projectId)
 
-  // 선택된 고객사 정보
-  const selectedCustomer = useMemo(() => {
-    return customers.find(c => c.customerId === customerId)
-  }, [customers, customerId])
+  // 선택된 사이트 정보
+  const selectedSite = useMemo(() => {
+    return sites.find(c => c.siteId === siteId)
+  }, [sites, siteId])
 
-  // 선택된 고객사의 최초 버전 생성 여부 확인
-  const isFirstVersionForCustomer = useMemo(() => {
-    if (!selectedCustomer || !customTreeData?.customers) return false
-    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
-    // 고객사 노드가 없거나 버전 그룹이 없으면 최초 버전
-    return !customerNode || customerNode.majorMinorGroups.length === 0
-  }, [selectedCustomer, customTreeData])
+  // 선택된 사이트의 최초 버전 생성 여부 확인
+  const isFirstVersionForSite = useMemo(() => {
+    if (!selectedSite || !customTreeData?.sites) return false
+    const siteNode = customTreeData.sites.find(c => c.siteCode === selectedSite.siteCode)
+    // 사이트 노드가 없거나 버전 그룹이 없으면 최초 버전
+    return !siteNode || siteNode.majorMinorGroups.length === 0
+  }, [selectedSite, customTreeData])
 
-  // 선택된 고객사의 최신 버전 문자열
-  const latestVersionForCustomer = useMemo(() => {
-    if (!selectedCustomer || !customTreeData?.customers) return null
-    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
-    if (!customerNode) return null
-    return findLatestVersionString(customerNode.majorMinorGroups)
-  }, [selectedCustomer, customTreeData])
+  // 선택된 사이트의 최신 버전 문자열
+  const latestVersionForSite = useMemo(() => {
+    if (!selectedSite || !customTreeData?.sites) return null
+    const siteNode = customTreeData.sites.find(c => c.siteCode === selectedSite.siteCode)
+    if (!siteNode) return null
+    return findLatestVersionString(siteNode.majorMinorGroups)
+  }, [selectedSite, customTreeData])
 
-  // 커스텀 버전 부분만 추출 (예: 1.1.0-customerB.1.0.0 -> 1.0.0)
+  // 커스텀 버전 부분만 추출 (예: 1.1.0-siteB.1.0.0 -> 1.0.0)
   const currentCustomVersion = useMemo(() => {
-    if (!latestVersionForCustomer) return null
-    return extractCustomVersionPart(latestVersionForCustomer)
-  }, [latestVersionForCustomer])
+    if (!latestVersionForSite) return null
+    return extractCustomVersionPart(latestVersionForSite)
+  }, [latestVersionForSite])
 
-  // 선택된 고객사의 customBaseVersion 조회 (기존 버전이 있는 경우)
+  // 선택된 사이트의 customBaseVersion 조회 (기존 버전이 있는 경우)
   const existingCustomBaseVersion = useMemo(() => {
-    if (!selectedCustomer || !customTreeData?.customers) return null
-    const customerNode = customTreeData.customers.find(c => c.customerCode === selectedCustomer.customerCode)
-    return customerNode?.customBaseVersion || null
-  }, [selectedCustomer, customTreeData])
+    if (!selectedSite || !customTreeData?.sites) return null
+    const siteNode = customTreeData.sites.find(c => c.siteCode === selectedSite.siteCode)
+    return siteNode?.customBaseVersion || null
+  }, [selectedSite, customTreeData])
 
   // 선택된 표준본 버전 문자열 (최초 버전 생성 시)
   const selectedStandardVersion = useMemo(() => {
@@ -156,19 +156,19 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   // 실제 사용할 baseVersion (기존 것 또는 새로 선택한 것)
   const effectiveBaseVersion = existingCustomBaseVersion || selectedStandardVersion
 
-  // 풀네임 커스텀 버전 생성: {baseVersion}-{customerCode}.{customVersion}
+  // 풀네임 커스텀 버전 생성: {baseVersion}-{siteCode}.{customVersion}
   const getFullVersionName = (version: string) => {
-    if (!effectiveBaseVersion || !selectedCustomer?.customerCode) return version
-    return `${effectiveBaseVersion}-${selectedCustomer.customerCode}.${version}`
+    if (!effectiveBaseVersion || !selectedSite?.siteCode) return version
+    return `${effectiveBaseVersion}-${selectedSite.siteCode}.${version}`
   }
 
   // 자동 계산된 버전
   const calculatedVersion = useMemo(() => {
-    if (!customerId) return ''
+    if (!siteId) return ''
     // 버전이 없는 경우 (최초 버전) 기본값 1.0.0
-    if (!latestVersionForCustomer || !currentCustomVersion) return DEFAULT_VERSION
+    if (!latestVersionForSite || !currentCustomVersion) return DEFAULT_VERSION
     return bumpVersion(currentCustomVersion, bumpType)
-  }, [customerId, latestVersionForCustomer, currentCustomVersion, bumpType])
+  }, [siteId, latestVersionForSite, currentCustomVersion, bumpType])
 
   // 실제 사용될 버전 (수동 입력 모드면 customVersion, 아니면 calculatedVersion)
   const effectiveVersion = isManualInput ? customVersion : calculatedVersion
@@ -203,12 +203,12 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
 
       await releaseApi.createCustomVersion(
         projectId,
-        customerId!,
+        siteId!,
         effectiveVersion,
         comment,
         file!,
         isApproved,
-        isFirstVersionForCustomer && customBaseVersionId ? customBaseVersionId : undefined,
+        isFirstVersionForSite && customBaseVersionId ? customBaseVersionId : undefined,
         progressHandler,
         progressId
       )
@@ -236,7 +236,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
 
   const handleClose = () => {
     if (createMutation.isPending) return
-    setCustomerId(null)
+    setSiteId(null)
     setCustomBaseVersionId(null)
     setCustomVersion('')
     setBumpType('patch')
@@ -250,16 +250,16 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   }
 
   const handleSubmit = () => {
-    if (!customerId) {
+    if (!siteId) {
       toast({
         title: '입력 오류',
-        description: '고객사를 선택해주세요.',
+        description: '사이트를 선택해주세요.',
         variant: 'destructive',
       })
       return
     }
 
-    if (isFirstVersionForCustomer && !customBaseVersionId) {
+    if (isFirstVersionForSite && !customBaseVersionId) {
       toast({
         title: '입력 오류',
         description: '최초 버전 생성 시 표준본 버전(Base Version)을 선택해주세요.',
@@ -376,7 +376,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       description={
         isProcessing
           ? '파일을 업로드하고 서버에서 처리 중입니다. 잠시만 기다려 주세요.'
-          : '고객사별 커스텀 릴리즈 버전을 생성합니다.'
+          : '사이트별 커스텀 릴리즈 버전을 생성합니다.'
       }
       submitLabel="생성"
       submitIcon={Tag}
@@ -396,31 +396,31 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         />
       ) : (
       <>
-      {/* 고객사 선택 */}
+      {/* 사이트 선택 */}
       <div className="space-y-2">
-        <Label htmlFor="customerId" required>
-          고객사
+        <Label htmlFor="siteId" required>
+          사이트
         </Label>
         <Combobox
-          options={customers.map((customer: Customer) => ({
-            value: String(customer.customerId),
-            label: `${customer.customerName} (${customer.customerCode})`,
+          options={sites.map((site: Site) => ({
+            value: String(site.siteId),
+            label: `${site.siteName} (${site.siteCode})`,
           }))}
-          value={customerId ? String(customerId) : ''}
+          value={siteId ? String(siteId) : ''}
           onValueChange={(value) => {
-            setCustomerId(value ? Number(value) : null)
-            setCustomBaseVersionId(null) // 고객사 변경 시 customBaseVersionId 초기화
-            setBumpType('patch') // 고객사 변경 시 버전 타입 초기화
-            setIsManualInput(false) // 고객사 변경 시 수동 입력 모드 해제
-            setCustomVersion('') // 고객사 변경 시 버전 초기화
+            setSiteId(value ? Number(value) : null)
+            setCustomBaseVersionId(null) // 사이트 변경 시 customBaseVersionId 초기화
+            setBumpType('patch') // 사이트 변경 시 버전 타입 초기화
+            setIsManualInput(false) // 사이트 변경 시 수동 입력 모드 해제
+            setCustomVersion('') // 사이트 변경 시 버전 초기화
           }}
-          placeholder="고객사를 선택하세요"
-          searchPlaceholder="고객사 검색..."
+          placeholder="사이트를 선택하세요"
+          searchPlaceholder="사이트 검색..."
         />
       </div>
 
       {/* 표준본 버전 선택 (최초 버전 생성 시에만 표시) */}
-      {customerId && isFirstVersionForCustomer && (
+      {siteId && isFirstVersionForSite && (
         <div className="space-y-2">
           <Label htmlFor="customBaseVersionId" required>
             표준본 버전 (Base Version)
@@ -436,7 +436,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
             searchPlaceholder="표준본 버전 검색..."
           />
           <TypographyMuted className="text-xs">
-            고객사별 최초 커스텀 버전 생성 시 기준이 될 표준본 버전을 선택해야 합니다.
+            사이트별 최초 커스텀 버전 생성 시 기준이 될 표준본 버전을 선택해야 합니다.
           </TypographyMuted>
         </div>
       )}
@@ -445,7 +445,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       <div className="space-y-3">
         <Label required>버전</Label>
 
-        {customerId && !isManualInput ? (
+        {siteId && !isManualInput ? (
           <div className="rounded-lg border bg-card p-4 space-y-4">
             {/* 버전 타입 선택 버튼 (최초 버전이 아닌 경우에만 표시) */}
             {currentCustomVersion && (
@@ -500,7 +500,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
               )}
             </div>
           </div>
-        ) : customerId ? (
+        ) : siteId ? (
           <Input
             id="customVersion"
             placeholder="e.g. 1.0.0"
@@ -511,13 +511,13 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         ) : (
           <Input
             id="customVersion"
-            placeholder="고객사를 먼저 선택하세요"
+            placeholder="사이트를 먼저 선택하세요"
             disabled
           />
         )}
 
         {/* 직접 입력 토글 */}
-        {customerId && (
+        {siteId && (
           <button
             type="button"
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"

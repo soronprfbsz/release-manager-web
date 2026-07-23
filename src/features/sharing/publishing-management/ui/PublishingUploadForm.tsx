@@ -7,10 +7,10 @@ import { useQuery } from '@tanstack/react-query'
 import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
-import { customerApi } from '@/entities/operations'
+import { siteApi } from '@/entities/sites'
 
-import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { getDomainIcon } from '@/shared/config/domain-icons'
+import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
 import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
@@ -49,12 +49,12 @@ export function PublishingUploadForm({
 }: PublishingUploadFormProps) {
   const { data: categoryList = [] } = useCodesByType(CODE_TYPE.PUBLISHING_CATEGORY)
 
-  const { data: customersData } = useQuery({
-    queryKey: ['customers-active'],
-    queryFn: () => customerApi.getList({ isActive: true, size: 1000 }),
+  const { data: sitesData } = useQuery({
+    queryKey: ['sites-active'],
+    queryFn: () => siteApi.getList({ isActive: true, size: 1000 }),
     enabled: isOpen,
   })
-  const customers = customersData?.content || []
+  const sites = sitesData?.content || []
 
   const getSubCategoryCodeType = (category: string) => {
     switch (category) {
@@ -117,7 +117,7 @@ export function PublishingUploadForm({
       onClose={onClose}
       headerContent={headerContent}
     >
-      {/* Category & Customer Select */}
+      {/* Category & Site Select */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label required>카테고리</Label>
@@ -134,24 +134,24 @@ export function PublishingUploadForm({
         </div>
 
         <div className="space-y-2">
-          <Label>고객사</Label>
+          <Label>사이트</Label>
           <Combobox
             options={[
               { value: '__none__', label: '선택 안함' },
-              ...customers.map((c) => ({
-                value: String(c.customerId),
-                label: `${c.customerName} (${c.customerCode})`,
+              ...sites.map((c) => ({
+                value: String(c.siteId),
+                label: `${c.siteName} (${c.siteCode})`,
               })),
             ]}
-            value={formData.customerId ? String(formData.customerId) : '__none__'}
+            value={formData.siteId ? String(formData.siteId) : '__none__'}
             onValueChange={(value) =>
               onFormDataChange({
                 ...formData,
-                customerId: value === '__none__' || !value ? null : Number(value),
+                siteId: value === '__none__' || !value ? null : Number(value),
               })
             }
             placeholder="선택 안함"
-            searchPlaceholder="고객사 검색..."
+            searchPlaceholder="사이트 검색..."
           />
         </div>
       </div>

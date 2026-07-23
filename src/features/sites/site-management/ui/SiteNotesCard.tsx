@@ -1,0 +1,279 @@
+/**
+ * Site Notes Card Component
+ * 사이트 특이사항 카드 컴포넌트 (목록 + CRUD)
+ */
+
+import { useState } from 'react'
+
+import {
+  StickyNote,
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2,
+} from 'lucide-react'
+
+import {
+  useSiteNotes,
+  useCreateSiteNote,
+  useUpdateSiteNote,
+  useDeleteSiteNote,
+  type SiteNote,
+} from '@/entities/sites/site-note'
+
+import { useToast } from '@/shared/lib/hooks/use-toast'
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { useAuthStore } from '@/shared/store'
+import { Button } from '@/shared/ui/button'
+import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
+import { SectionWithHairline } from '@/shared/ui/section-with-hairline'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+
+
+import { SiteNoteDeleteDialog } from './SiteNoteDeleteDialog'
+import {
+  SiteNoteForm,
+  type SiteNoteFormMode,
+  type SiteNoteFormData,
+} from './SiteNoteForm'
+
+interface SiteNotesCardProps {
+  siteId: number
+}
+
+export function SiteNotesCard({ siteId }: SiteNotesCardProps) {
+  const { toast } = useToast()
+  const user = useAuthStore((state) => state.user)
+
+  // 특이사항 목록 조회
+  const { data: notes = [], isLoading } = useSiteNotes(siteId)
+
+  // Mutations
+  const createMutation = useCreateSiteNote()
+  const updateMutation = useUpdateSiteNote()
+  const deleteMutation = useDeleteSiteNote()
+
+  // Form state
+  const [formOpen, setFormOpen] = useState(false)
+  const [formMode, setFormMode] = useState<SiteNoteFormMode>(null)
+  const [editingNote, setEditingNote] = useState<SiteNote | null>(null)
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deletingNote, setDeletingNote] = useState<SiteNote | null>(null)
+
+  const handleCreate = () => {
+    setFormMode('create')
+    setEditingNote(null)
+    setFormOpen(true)
+  }
+
+  const handleEdit = (note: SiteNote) => {
+    setFormMode('edit')
+    setEditingNote(note)
+    setFormOpen(true)
+  }
+
+  const handleDelete = (note: SiteNote) => {
+    setDeletingNote(note)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleFormSubmit = (data: SiteNoteFormData) => {
+    if (formMode === 'create') {
+      createMutation.mutate(
+        { siteId, data: { title: data.title, content: data.content } },
+        {
+          onSuccess: () => {
+            toast({ title: '등록 완료', description: '특이사항이 등록되었습니다.' })
+            setFormOpen(false)
+            setFormMode(null)
+          },
+          onError: () => {
+            toast({
+              variant: 'destructive',
+              title: '등록 실패',
+              description: '특이사항 등록에 실패했습니다.',
+            })
+          },
+        }
+      )
+    } else if (formMode === 'edit' && editingNote) {
+      updateMutation.mutate(
+        {
+          siteId,
+          noteId: editingNote.noteId,
+          data: { title: data.title, content: data.content },
+        },
+        {
+          onSuccess: () => {
+            toast({ title: '수정 완료', description: '특이사항이 수정되었습니다.' })
+            setFormOpen(false)
+            setFormMode(null)
+            setEditingNote(null)
+          },
+          onError: () => {
+            toast({
+              variant: 'destructive',
+              title: '수정 실패',
+              description: '특이사항 수정에 실패했습니다.',
+            })
+          },
+        }
+      )
+    }
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!deletingNote) return
+
+    deleteMutation.mutate(
+      { siteId, noteId: deletingNote.noteId },
+      {
+        onSuccess: () => {
+          toast({ title: '삭제 완료', description: '특이사항이 삭제되었습니다.' })
+          setDeleteDialogOpen(false)
+          setDeletingNote(null)
+        },
+        onError: () => {
+          toast({
+            variant: 'destructive',
+            title: '삭제 실패',
+            description: '특이사항 삭제에 실패했습니다.',
+          })
+        },
+      }
+    )
+  }
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending
+
+  // 포스트잇 파스텔 배경 팔레트 (순서별 순환)
+  const NOTE_BG_PALETTE = [
+    'bg-yellow-100/70 dark:bg-yellow-950/30',
+    'bg-emerald-100/70 dark:bg-emerald-950/30',
+    'bg-rose-100/70 dark:bg-rose-950/30',
+    'bg-sky-100/70 dark:bg-sky-950/30',
+    'bg-violet-100/70 dark:bg-violet-950/30',
+    'bg-orange-100/70 dark:bg-orange-950/30',
+  ]
+
+  return (
+    <>
+      <SectionWithHairline
+        icon={StickyNote}
+        title="특이사항"
+        count={notes.length}
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+            <span className="text-sm">로딩 중...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {notes.length === 0 ? null : notes.map((note, idx) => (
+              <div
+                key={note.noteId}
+                className={`group p-4 rounded-lg transition-colors ${NOTE_BG_PALETTE[idx % NOTE_BG_PALETTE.length]}`}
+              >
+                {/* Title */}
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold">{note.title}</h4>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {(user?.role === 'ADMIN' || user?.email === note.createdByEmail) && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleEdit(note)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => handleDelete(note)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <p className="text-sm whitespace-pre-wrap text-foreground/80 mb-3">{note.content}</p>
+
+                {/* Footer - Author & Date */}
+                <div className="flex items-center gap-2 pt-3 border-t border-dashed border-foreground/15">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2 cursor-default">
+                        <DiceBearAvatar
+                          seed={note.createdByAvatarSeed || note.createdByEmail}
+                          style={(note.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                          name={note.createdByName}
+                          size={20}
+                        />
+                        <span className="text-xs font-medium">
+                          {note.createdByName}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{note.createdByEmail}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-xs text-muted-foreground ml-auto font-mono">
+                    {formatDateTime(note.createdAt)}
+                  </span>
+                  {note.updatedAt !== note.createdAt && note.updatedByAccountName && (
+                    <span className="text-xs text-muted-foreground">(수정됨)</span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* "+ 특이사항 추가" dashed placeholder 카드 — 항상 그리드 마지막에 */}
+            <button
+              type="button"
+              onClick={handleCreate}
+              className="group flex flex-col items-center justify-center gap-2 min-h-[140px] p-4 rounded-lg border border-dashed border-border hover:border-foreground/30 hover:bg-muted/30 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-sm">특이사항 추가</span>
+            </button>
+          </div>
+        )}
+      </SectionWithHairline>
+
+      {/* Note Form */}
+      <SiteNoteForm
+        open={formOpen}
+        mode={formMode}
+        initialData={editingNote}
+        isSubmitting={isSubmitting}
+        onSubmit={handleFormSubmit}
+        onClose={() => {
+          setFormOpen(false)
+          setFormMode(null)
+          setEditingNote(null)
+        }}
+      />
+
+      {/* Delete Dialog */}
+      <SiteNoteDeleteDialog
+        open={deleteDialogOpen}
+        isDeleting={deleteMutation.isPending}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => {
+          setDeleteDialogOpen(false)
+          setDeletingNote(null)
+        }}
+      />
+    </>
+  )
+}

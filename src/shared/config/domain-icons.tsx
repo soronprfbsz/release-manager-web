@@ -47,7 +47,7 @@ export const DOMAIN_ICONS = {
   projectManagement: Settings,
   onboarding: PackageOpen,
   install: HardDrive,
-  customer: Building2,
+  site: Building2,
   engineer: Users,
   account: Users,
   

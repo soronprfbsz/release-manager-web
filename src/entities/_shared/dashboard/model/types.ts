@@ -34,7 +34,7 @@ export interface RecentStandardResponse {
  * 최신 빌드 버전 아이템
  *
  * `version` 은 빌드 라벨까지 포함된 full 버전 (예: "1.1.0.260501-1").
- * customer* 필드는 CUSTOM 빌드인 경우에만 채워진다.
+ * site* 필드는 CUSTOM 빌드인 경우에만 채워진다.
  */
 export interface RecentBuildVersion {
   releaseVersionId: number
@@ -43,9 +43,9 @@ export interface RecentBuildVersion {
   createdAt: string
   comment: string | null
   fileCategories: string[]
-  customerId: number | null
-  customerCode: string | null
-  customerName: string | null
+  siteId: number | null
+  siteCode: string | null
+  siteName: string | null
   createdByName: string
   createdByEmail: string
   createdByAvatarStyle: string | null
@@ -70,9 +70,9 @@ export interface RecentPatch {
   releaseType: string
   createdAt: string
   description: string | null
-  customerId: number | null
-  customerCode: string | null
-  customerName: string | null
+  siteId: number | null
+  siteCode: string | null
+  siteName: string | null
   assigneeName: string | null
   assigneeEmail: string | null
   assigneeAvatarStyle: string | null
@@ -110,31 +110,31 @@ export interface DashboardRecentData {
   recentPatches: RecentPatch[]
 }
 
-/** 고객사별 패치 통계 아이템 */
-export interface CustomerPatchStat {
-  customerId: number
-  customerCode: string
-  customerName: string
+/** 사이트별 패치 통계 아이템 */
+export interface SitePatchStat {
+  siteId: number
+  siteCode: string
+  siteName: string
   patchCount: number
 }
 
-/** 고객사별 패치 통계 응답 */
-export interface TopCustomersResponse {
+/** 사이트별 패치 통계 응답 */
+export interface TopSitesResponse {
   months: number
   topN: number
-  customers: CustomerPatchStat[]
+  sites: SitePatchStat[]
 }
 
-/** 월별 패치 통계 아이템 (고객사별 breakdown 포함) */
+/** 월별 패치 통계 아이템 (사이트별 breakdown 포함) */
 export interface MonthlyPatchStat {
   yearMonth: string // "2025-06" 형식
-  customerCounts: Record<string, number> // 고객사별 패치 수
+  siteCounts: Record<string, number> // 사이트별 패치 수
 }
 
 /** 월별 패치 통계 응답 */
 export interface MonthlyPatchesResponse {
   months: number
-  customers: string[] // 고객사 목록
+  sites: string[] // 사이트 목록
   monthly: MonthlyPatchStat[]
 }
 
@@ -145,26 +145,26 @@ export interface StatisticsParams {
 }
 
 // ============================================================================
-// 버전별 고객사 분포
+// 버전별 사이트 분포
 // ============================================================================
 
-/** 고객사 간단 정보 (버전별 그룹 안에 들어가는 segment) */
-export interface CustomerInfo {
-  customerId: number
-  customerCode: string
-  customerName: string
+/** 사이트 간단 정보 (버전별 그룹 안에 들어가는 segment) */
+export interface SiteInfo {
+  siteId: number
+  siteCode: string
+  siteName: string
 }
 
-/** 버전별 고객사 그룹 */
-export interface VersionCustomerGroup {
+/** 버전별 사이트 그룹 */
+export interface VersionSiteGroup {
   version: string
   count: number
-  customers: CustomerInfo[]
+  sites: SiteInfo[]
 }
 
-/** 버전별 고객사 분포 응답 */
-export interface VersionCustomerDistributionResponse {
-  versions: VersionCustomerGroup[]
+/** 버전별 사이트 분포 응답 */
+export interface VersionSiteDistributionResponse {
+  versions: VersionSiteGroup[]
 }
 
 /** 최근 데이터 요청 파라미터 */

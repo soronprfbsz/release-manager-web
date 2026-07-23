@@ -30,8 +30,8 @@ export interface CumulativePatch {
   /** 패치 이력 API에서 반환되는 고유 ID (historyId) */
   historyId?: number
   releaseType: string
-  customerCode: string | null
-  customerName: string | null
+  siteCode: string | null
+  siteName: string | null
   fromVersion: string
   toVersion: string
   patchName: string
@@ -60,8 +60,8 @@ export interface CumulativePatch {
 export interface CumulativePatchDetail {
   patchId: number
   releaseType: string
-  customerCode: string | null
-  customerName: string | null
+  siteCode: string | null
+  siteName: string | null
   fromVersion: string
   toVersion: string
   patchName: string
@@ -104,7 +104,7 @@ export interface BuildSelection {
 export interface CumulativePatchGenerateRequest {
   projectId: string
   type: 'standard' | 'custom'
-  customerId?: number
+  siteId?: number
   fromVersion: string
   toVersion: string
   createdByEmail: string
@@ -126,7 +126,7 @@ export interface GenerateResponse {
 /** 커스텀 패치 생성 요청 (신규 API) */
 export interface CustomPatchGenerateRequest {
   projectId: string
-  customerId: number
+  siteId: number
   fromVersion: string
   toVersion: string
   createdByEmail: string
@@ -137,14 +137,14 @@ export interface CustomPatchGenerateRequest {
   buildSelection?: BuildSelection | null
 }
 
-/** 커스텀 버전 보유 고객사 */
-export interface CustomPatchCustomer {
-  customerId: number
-  customerCode: string
-  customerName: string
+/** 커스텀 버전 보유 사이트 */
+export interface CustomPatchSite {
+  siteId: number
+  siteCode: string
+  siteName: string
 }
 
-/** 고객사별 커스텀 버전 */
+/** 사이트별 커스텀 버전 */
 export interface CustomPatchVersion {
   versionId: number
   version: string

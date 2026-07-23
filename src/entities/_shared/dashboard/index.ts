@@ -10,7 +10,7 @@ export {
   useDashboardRecentStandard,
   useDashboardRecentBuild,
   useDashboardRecentPatch,
-  useDashboardTopCustomers,
+  useDashboardTopSites,
   useDashboardMonthlyPatches,
-  useDashboardVersionCustomers,
+  useDashboardVersionSites,
 } from './queries/dashboardQueries'

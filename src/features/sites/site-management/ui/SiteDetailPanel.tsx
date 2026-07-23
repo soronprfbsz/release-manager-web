@@ -1,0 +1,166 @@
+/**
+ * Site Detail Panel Component
+ * 사이트 상세 패널 컴포넌트 (우측 패널)
+ *
+ * Hero + Meta Rail 헤더:
+ *  - 좌측: SITE + 사이트 코드 eyebrow, 회사명 큰 글씨, 활성 pill
+ *  - 가운데(vertical line): 적용 버전 + WEB/ENGINE 빌드 정보
+ *  - 우측: 마지막 수정일
+ * 그 아래에 특이사항 / 패치 이력 섹션
+ */
+
+import { Calendar } from 'lucide-react'
+
+import type { Site } from '@/entities/sites/site'
+import { useSiteVersions } from '@/entities/sites/site-version'
+
+import { resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
+import { cn } from '@/shared/lib/utils'
+import { formatDateTime } from '@/shared/lib/utils/date'
+import { Badge } from '@/shared/ui/badge'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
+
+import { BuildVersionsRow } from './BuildVersionsRow'
+import { SiteNotesCard } from './SiteNotesCard'
+import { SitePatchHistoryCard } from './SitePatchHistoryCard'
+
+interface SiteDetailPanelProps {
+  site: Site
+}
+
+export function SiteDetailPanel({ site }: SiteDetailPanelProps) {
+  const projectId = site.project?.projectId
+  const { data: siteVersions = [], isLoading } = useSiteVersions(
+    site.siteId,
+    projectId
+  )
+
+  // BASE / WEB 은 단일 row. ENGINE 은 엔진별 N row → 별도 처리.
+  const baseVersion = siteVersions.find((sv) => sv.component === 'BASE')?.currentVersion
+  const webVersion = siteVersions.find((sv) => sv.component === 'WEB')?.currentVersion
+  const engineRows = siteVersions.filter((sv) => sv.component === 'ENGINE')
+
+  // 글리프 배지
+  const { text: glyphText, glyphClass } = resolveGlyph({
+    name: site.siteName,
+    glyphText: site.glyphText,
+    glyphBackgroundColor: site.glyphBackgroundColor,
+  })
+  const glyphFontSize = getGlyphFontSizeClass(glyphText)
+
+  return (
+    <div className="pt-6">
+      {/* Hero + Meta Rail */}
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
+        {/* 좌측: 사이트 정체성 */}
+        <div className="flex items-center gap-4 min-w-0">
+          {/* 글리프 배지 */}
+          <div
+            className={cn(
+              'flex-shrink-0 h-14 w-14 rounded-xl flex items-center justify-center',
+              'font-mono font-semibold select-none',
+              glyphFontSize,
+              glyphClass
+            )}
+          >
+            {glyphText}
+          </div>
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <code className="font-mono text-[10px] font-semibold tracking-[0.08em] text-muted-foreground">
+              {site.siteCode}
+            </code>
+            {site.description ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate cursor-default">
+                    {site.siteName}
+                  </h2>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-[300px]">{site.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <h2 className="text-[34px] font-semibold tracking-[-0.8px] leading-none truncate">
+                {site.siteName}
+              </h2>
+            )}
+          </div>
+        </div>
+
+        {/* 가운데: 적용 버전 + 빌드 정보 (좌측 vertical line) */}
+        <div className="self-stretch min-w-0 pl-6 border-l border-border flex flex-col justify-center gap-2">
+          {isLoading ? (
+            <span className="text-sm text-muted-foreground">확인 중...</span>
+          ) : !baseVersion ? (
+            <span className="text-sm text-muted-foreground">패치 미적용</span>
+          ) : (
+            <>
+              <AttributeRow label="VERSION" value={baseVersion} large />
+              {(webVersion || engineRows.length > 0) && (
+                <BuildVersionsRow
+                  siteName={site.siteName}
+                  webVersion={webVersion ?? null}
+                  engines={engineRows}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* 우측: 활성/비활성 pill + 마지막 수정일 */}
+        <div className="flex flex-col items-end gap-2.5">
+          {site.isActive ? (
+            <Badge variant="success" size="pill" dot>활성</Badge>
+          ) : (
+            <Badge variant="neutral" size="pill" dot>비활성</Badge>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground cursor-default">
+                <Calendar className="h-3.5 w-3.5" />
+                {formatDateTime(site.updatedAt || site.createdAt)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>최종 수정일</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+
+      <div className="space-y-10">
+        {/* 특이사항 */}
+        <SiteNotesCard siteId={site.siteId} />
+
+        {/* 패치 이력 — 완료된 패치만 */}
+        <SitePatchHistoryCard site={site} />
+      </div>
+    </div>
+  )
+}
+
+function AttributeRow({
+  label,
+  value,
+  large = false,
+}: {
+  label: string
+  value: string
+  large?: boolean
+}) {
+  return (
+    <div className="flex items-baseline gap-3 min-w-0">
+      <span className="text-[10px] font-medium tracking-widest text-muted-foreground/70 uppercase flex-shrink-0 w-28">
+        {label}
+      </span>
+      <span
+        className={
+          large
+            ? 'font-mono text-xl font-semibold text-foreground truncate'
+            : 'font-mono text-sm text-foreground truncate'
+        }
+      >
+        {value}
+      </span>
+    </div>
+  )
+}

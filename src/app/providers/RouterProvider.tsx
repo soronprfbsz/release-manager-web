@@ -5,7 +5,6 @@ import { SignUpPage } from '@/pages/auth/signup'
 import { NotFoundPage } from '@/pages/error/NotFoundPage'
 import { HomePage } from '@/pages/home'
 import { AccountListPage } from '@/pages/operations/accounts/AccountListPage'
-import { CustomerListPage } from '@/pages/operations/customers'
 import { DepartmentPage } from '@/pages/operations/departments'
 import { FileSyncPage } from '@/pages/operations/file-sync/FileSyncPage'
 import { ApiLogPage } from '@/pages/operations/history'
@@ -14,6 +13,7 @@ import { PatchesPage } from '@/pages/patches'
 import { ReleasesPage } from '@/pages/releases'
 import { MariaDBPage, TerminalPage, SchedulerPage } from '@/pages/remote-jobs'
 import { ResourcePage, CoworkPage } from '@/pages/sharing'
+import { SiteListPage } from '@/pages/sites'
 
 import { ROUTES } from '@/shared/config/constants'
 import { ROUTE_PERMISSIONS } from '@/shared/config/permissions'
@@ -71,7 +71,7 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <MainLayout>
           <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.OPERATIONS.CUSTOMERS]}>
-            <CustomerListPage />
+            <SiteListPage />
           </RoleGuard>
         </MainLayout>
       </ProtectedRoute>

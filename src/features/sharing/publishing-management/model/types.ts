@@ -10,7 +10,7 @@ export interface PublishingUploadFormData {
   publishingCategory: string    // INFRAEYE1, INFRAEYE2, COMMON, ETC
   subCategory: string           // DASHBOARD, REPORT, MONITORING 등
   description: string
-  customerId: number | null     // 고객사 ID (커스터마이징용)
+  siteId: number | null     // 사이트 ID (커스터마이징용)
   glyphText: string
   glyphBackgroundColor: string
 }

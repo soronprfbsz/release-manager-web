@@ -8,7 +8,7 @@ import type {
   CumulativePatchDetail,
   CumulativePatchGenerateRequest,
   CustomPatchGenerateRequest,
-  CustomPatchCustomer,
+  CustomPatchSite,
   CustomPatchVersion,
   GenerateResponse,
   PatchFileStructure,
@@ -21,9 +21,9 @@ const ENDPOINTS = {
   // Standard patch
   generateStandard: '/api/patches/standard/generate',
   // Custom patch
-  customCustomers: (projectId: string) => `/api/patches/custom/customers?projectId=${projectId}`,
-  customVersions: (customerId: number, projectId: string) =>
-    `/api/patches/custom/customers/${customerId}/versions?projectId=${projectId}`,
+  customSites: (projectId: string) => `/api/patches/custom/sites?projectId=${projectId}`,
+  customVersions: (siteId: number, projectId: string) =>
+    `/api/patches/custom/sites/${siteId}/versions?projectId=${projectId}`,
   generateCustom: '/api/patches/custom/generate',
   // Common
   byId: (id: number) => `/api/patches/${id}`,
@@ -37,14 +37,14 @@ const ENDPOINTS = {
 
 export const patchApi = {
   /** 패치 목록 조회 (페이징) */
-  getList: async (params?: PaginationParams & { releaseType?: string; projectId?: string; customerCode?: string }): Promise<PageResponse<CumulativePatch>> => {
+  getList: async (params?: PaginationParams & { releaseType?: string; projectId?: string; siteCode?: string }): Promise<PageResponse<CumulativePatch>> => {
     const queryParams = new URLSearchParams()
     if (params?.page !== undefined) queryParams.append('page', String(params.page))
     if (params?.size !== undefined) queryParams.append('size', String(params.size))
     if (params?.sort) queryParams.append('sort', params.sort)
     if (params?.releaseType) queryParams.append('releaseType', params.releaseType)
     if (params?.projectId) queryParams.append('projectId', params.projectId)
-    if (params?.customerCode) queryParams.append('customerCode', params.customerCode)
+    if (params?.siteCode) queryParams.append('siteCode', params.siteCode)
 
     const queryString = queryParams.toString()
     const url = queryString ? `${ENDPOINTS.base}?${queryString}` : ENDPOINTS.base
@@ -53,11 +53,11 @@ export const patchApi = {
     return response
   },
 
-  /** 고객사별 패치 이력 조회 (페이징) */
-  getHistories: async (params: PaginationParams & { projectId: string; customerId: number }): Promise<PageResponse<CumulativePatch>> => {
+  /** 사이트별 패치 이력 조회 (페이징) */
+  getHistories: async (params: PaginationParams & { projectId: string; siteId: number }): Promise<PageResponse<CumulativePatch>> => {
     const queryParams = new URLSearchParams()
     queryParams.append('projectId', params.projectId)
-    queryParams.append('customerId', String(params.customerId))
+    queryParams.append('siteId', String(params.siteId))
     if (params.page !== undefined) queryParams.append('page', String(params.page))
     if (params.size !== undefined) queryParams.append('size', String(params.size))
     if (params.sort) queryParams.append('sort', params.sort)
@@ -94,15 +94,15 @@ export const patchApi = {
     return response
   },
 
-  /** 커스텀 버전 보유 고객사 목록 조회 */
-  getCustomPatchCustomers: async (projectId: string): Promise<CustomPatchCustomer[]> => {
-    const response = await apiClient.get<CustomPatchCustomer[]>(ENDPOINTS.customCustomers(projectId))
+  /** 커스텀 버전 보유 사이트 목록 조회 */
+  getCustomPatchSites: async (projectId: string): Promise<CustomPatchSite[]> => {
+    const response = await apiClient.get<CustomPatchSite[]>(ENDPOINTS.customSites(projectId))
     return response
   },
 
-  /** 고객사별 커스텀 버전 목록 조회 */
-  getCustomPatchVersions: async (customerId: number, projectId: string): Promise<CustomPatchVersion[]> => {
-    const response = await apiClient.get<CustomPatchVersion[]>(ENDPOINTS.customVersions(customerId, projectId))
+  /** 사이트별 커스텀 버전 목록 조회 */
+  getCustomPatchVersions: async (siteId: number, projectId: string): Promise<CustomPatchVersion[]> => {
+    const response = await apiClient.get<CustomPatchVersion[]>(ENDPOINTS.customVersions(siteId, projectId))
     return response
   },
 
@@ -150,10 +150,10 @@ export const patchApi = {
 
   /**
    * 자동 생성될 패치명 미리보기 — 백엔드의 충돌 검사까지 적용된 실 확정 이름 반환
-   * @param customerCode 빈 값이면 "undefined" prefix
+   * @param siteCode 빈 값이면 "undefined" prefix
    */
-  previewName: async (customerCode?: string): Promise<string> => {
-    const query = customerCode ? `?customerCode=${encodeURIComponent(customerCode)}` : ''
+  previewName: async (siteCode?: string): Promise<string> => {
+    const query = siteCode ? `?siteCode=${encodeURIComponent(siteCode)}` : ''
     const response = await apiClient.get<{ patchName: string }>(`${ENDPOINTS.previewName}${query}`)
     return response.patchName
   },

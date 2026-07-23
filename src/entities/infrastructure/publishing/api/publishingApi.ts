@@ -56,8 +56,8 @@ export const publishingApi = {
     if (data.description) {
       formData.append('description', data.description)
     }
-    if (data.customerId) {
-      formData.append('customerId', String(data.customerId))
+    if (data.siteId) {
+      formData.append('siteId', String(data.siteId))
     }
     if (data.glyphText !== undefined) {
       formData.append('glyphText', data.glyphText)

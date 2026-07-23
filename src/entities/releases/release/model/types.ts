@@ -117,7 +117,7 @@ export interface MajorMinorNode {
 
 export interface ReleaseTreeResponse {
   releaseType: string
-  customerCode: string | null
+  siteCode: string | null
   majorMinorGroups: MajorMinorNode[]
 }
 
@@ -136,7 +136,7 @@ export interface ReleaseFileSimple {
 export interface ReleaseVersionDetail {
   releaseVersionId: number
   releaseType: string
-  customerCode: string | null
+  siteCode: string | null
   version: string
   majorVersion: number
   minorVersion: number
@@ -191,11 +191,11 @@ export interface ReleaseFileStructure {
   files: ReleaseFileNode
 }
 
-/** 고객사별 커스텀 릴리즈 노드 */
-export interface CustomerReleaseNode {
-  customerId: number
-  customerCode: string
-  customerName: string
+/** 사이트별 커스텀 릴리즈 노드 */
+export interface SiteReleaseNode {
+  siteId: number
+  siteCode: string
+  siteName: string
   customBaseVersionId: number | null
   customBaseVersion: string | null
   majorMinorGroups: MajorMinorNode[]
@@ -203,7 +203,7 @@ export interface CustomerReleaseNode {
 
 /** 전체 커스텀 릴리즈 트리 응답 */
 export interface CustomReleaseTreeResponse {
-  customers: CustomerReleaseNode[]
+  sites: SiteReleaseNode[]
 }
 
 /** 표준본 버전 간단 정보 (셀렉트박스용) */

@@ -14,7 +14,7 @@ import {
   useDashboardRecentStandard,
   useDashboardRecentBuild,
   useDashboardRecentPatch,
-  useDashboardVersionCustomers,
+  useDashboardVersionSites,
   useDashboardMonthlyPatches,
   type RecentStandardVersion,
   type RecentBuildVersion,
@@ -25,14 +25,14 @@ import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { StackedBarChart, VersionCustomerChart } from '@/shared/ui/charts'
+import { StackedBarChart, VersionSiteChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
 
 /**
  * 버전 문자열을 semver 숫자 segment 로 분해해 내림차순 비교.
- * 표준 (1.1.0) / 빌드 (1.1.0.260511-1) / 커스텀 (1.1.0-customerA.1.0.1) 모두 처리.
+ * 표준 (1.1.0) / 빌드 (1.1.0.260511-1) / 커스텀 (1.1.0-siteA.1.0.1) 모두 처리.
  */
 function compareVersionDesc(a: string, b: string): number {
   const parts = (v: string) => v.split(/[.\-]/).map((s) => parseInt(s, 10) || 0)
@@ -59,8 +59,8 @@ export function HomePage() {
   // 최근 적용 패치
   const { data: patchData, isLoading: isLoadingPatch } = useDashboardRecentPatch(projectId)
 
-  // 버전별 고객사 분포 (좌측 통계 차트용)
-  const { data: versionCustomersData, isLoading: isLoadingVersionCustomers } = useDashboardVersionCustomers(projectId)
+  // 버전별 사이트 분포 (좌측 통계 차트용)
+  const { data: versionSitesData, isLoading: isLoadingVersionSites } = useDashboardVersionSites(projectId)
 
   // 월별 패치 (우측 통계 차트용) - 최근 12개월
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId, 12)
@@ -73,14 +73,14 @@ export function HomePage() {
   const buildVersions = buildData?.versions || []
   const recentPatches = patchData?.patches || []
 
-  // 버전별 고객사 그룹
-  const versionCustomerGroups = versionCustomersData?.versions || []
+  // 버전별 사이트 그룹
+  const versionSiteGroups = versionSitesData?.versions || []
 
-  // 월별 데이터 - 고객사 목록과 포맷팅된 데이터
-  const monthlyCustomers = monthlyPatchesData?.customers || []
+  // 월별 데이터 - 사이트 목록과 포맷팅된 데이터
+  const monthlySites = monthlyPatchesData?.sites || []
   const formattedMonthlyData = (monthlyPatchesData?.monthly || []).map(item => ({
     displayMonth: item.yearMonth.slice(2).replace('-', '.'),
-    ...item.customerCounts,  // customerCounts를 최상위로 평탄화
+    ...item.siteCounts,  // siteCounts를 최상위로 평탄화
   }))
 
   // 버전 항목 렌더링 헬퍼 (표준본)
@@ -127,7 +127,7 @@ export function HomePage() {
   )
 
   // 버전 항목 렌더링 헬퍼 (빌드) — 표준 빌드는 표준 릴리즈와 동일한 구조,
-  // 커스텀 빌드는 좌측에 고객사명만 truncate 로 표시
+  // 커스텀 빌드는 좌측에 사이트명만 truncate 로 표시
   const renderBuildVersion = (version: RecentBuildVersion) => {
     const href = version.releaseType === 'CUSTOM' ? `${ROUTES.RELEASES}?tab=custom` : ROUTES.RELEASES
     return (
@@ -138,15 +138,15 @@ export function HomePage() {
         className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          {version.customerName && (
+          {version.siteName && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-                  {version.customerName}
+                  {version.siteName}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{version.customerName}</p>
+                <p>{version.siteName}</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -303,7 +303,7 @@ export function HomePage() {
                             <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           )}
                           <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
-                            {patch.customerName || '-'}
+                            {patch.siteName || '-'}
                           </span>
                           <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
                             {patch.patchName}
@@ -334,19 +334,19 @@ export function HomePage() {
       <div>
         <TypographyLarge className="mb-3">Statistics</TypographyLarge>
         <div className="grid grid-cols-2 gap-4">
-          {/* 버전별 고객사 현황 (Stacked Horizontal Bar) */}
+          {/* 버전별 사이트 현황 (Stacked Horizontal Bar) */}
           <Card className="flex flex-col h-80">
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
-                버전별 고객사 수
+                버전별 사이트 수
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 pb-4">
-              {isLoadingVersionCustomers ? (
+              {isLoadingVersionSites ? (
                 <div className="animate-pulse h-full bg-muted rounded" />
               ) : (
-                <VersionCustomerChart data={versionCustomerGroups} />
+                <VersionSiteChart data={versionSiteGroups} />
               )}
             </CardContent>
           </Card>
@@ -367,7 +367,7 @@ export function HomePage() {
                   <StackedBarChart
                     data={formattedMonthlyData}
                     xAxisKey="displayMonth"
-                    stackKeys={monthlyCustomers}
+                    stackKeys={monthlySites}
                     height="100%"
                     tooltipValueFormatter={(value) => `${value}건`}
                     tooltipLabelFormatter={(label) => `20${label.replace('.', '년 ')}월`}

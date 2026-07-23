@@ -15,19 +15,6 @@ export {
   type AccountFiltersState,
 } from './account-management'
 
-// Customer Management
-export {
-  CustomerTable,
-  CustomerForm,
-  CustomerFilters,
-  CustomerDeleteModal,
-  validateCustomerForm,
-  type CustomerFormData,
-  type CustomerFiltersState,
-  type CustomerFormMode,
-  type ValidationResult,
-} from './customer-management'
-
 // Project Management
 export {
   ProjectCard,

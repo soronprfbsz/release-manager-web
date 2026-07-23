@@ -24,7 +24,7 @@ interface StackedBarChartProps {
   data: Record<string, unknown>[]
   /** X축에 표시할 데이터 키 */
   xAxisKey: string
-  /** 스택으로 쌓을 키 목록 (고객사명 등) */
+  /** 스택으로 쌓을 키 목록 (사이트명 등) */
   stackKeys: string[]
   /** 차트 높이 (기본: 200, 숫자 또는 "100%" 등 퍼센트 문자열) */
   height?: number | `${number}%`

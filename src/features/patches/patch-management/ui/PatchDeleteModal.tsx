@@ -51,7 +51,7 @@ export function PatchDeleteModal({
                 <ul className="list-disc list-inside space-y-1">
                   <li>패치 파일이 디스크에서 영구 삭제</li>
                   <li>패치 관리 / 다운로드 목록에서 즉시 사라짐</li>
-                  <li>고객사의 버전 이력에는 영향 없음 (적용 전 폐기)</li>
+                  <li>사이트의 버전 이력에는 영향 없음 (적용 전 폐기)</li>
                 </ul>
               </div>
               <p className="text-destructive font-medium">되돌릴 수 없습니다.</p>
