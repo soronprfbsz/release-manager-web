@@ -152,7 +152,7 @@ export function BoardWidget({
           title: '게시글 작성 완료',
           description: '게시글이 등록되었습니다.',
         })
-      } catch (error) {
+      } catch {
         toast({
           variant: 'destructive',
           title: '오류',
@@ -173,7 +173,7 @@ export function BoardWidget({
         title: '게시글 삭제 완료',
         description: '게시글이 삭제되었습니다.',
       })
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: '오류',

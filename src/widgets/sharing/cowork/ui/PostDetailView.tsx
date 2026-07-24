@@ -201,7 +201,7 @@ export function PostDetailView({
           title: '게시글 작성 완료',
           description: '게시글이 등록되었습니다.',
         })
-      } catch (error) {
+      } catch {
         toast({
           variant: 'destructive',
           title: '오류',
@@ -236,7 +236,7 @@ export function PostDetailView({
           title: '게시글 수정 완료',
           description: '게시글이 수정되었습니다.',
         })
-      } catch (error) {
+      } catch {
         toast({
           variant: 'destructive',
           title: '오류',
@@ -256,7 +256,7 @@ export function PostDetailView({
         description: '게시글이 삭제되었습니다.',
       })
       handleBack()
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: '오류',
@@ -284,7 +284,7 @@ export function PostDetailView({
           title: '댓글 등록 완료',
           description: '댓글이 등록되었습니다.',
         })
-      } catch (error) {
+      } catch {
         toast({
           variant: 'destructive',
           title: '오류',
@@ -311,7 +311,7 @@ export function PostDetailView({
           title: '댓글 수정 완료',
           description: '댓글이 수정되었습니다.',
         })
-      } catch (error) {
+      } catch {
         toast({
           variant: 'destructive',
           title: '오류',
@@ -332,7 +332,7 @@ export function PostDetailView({
         title: '댓글 삭제 완료',
         description: '댓글이 삭제되었습니다.',
       })
-    } catch (error) {
+    } catch {
       toast({
         variant: 'destructive',
         title: '오류',

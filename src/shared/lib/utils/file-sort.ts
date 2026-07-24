@@ -69,17 +69,19 @@ export function sortFileNodes<T extends SortableFileNode>(
         comparison = a.name.localeCompare(b.name, 'ko')
         break
 
-      case 'modifiedAt':
+      case 'modifiedAt': {
         const dateA = a.modifiedAt ? new Date(a.modifiedAt).getTime() : 0
         const dateB = b.modifiedAt ? new Date(b.modifiedAt).getTime() : 0
         comparison = dateA - dateB
         break
+      }
 
-      case 'size':
+      case 'size': {
         const sizeA = a.size ?? 0
         const sizeB = b.size ?? 0
         comparison = sizeA - sizeB
         break
+      }
 
       default:
         comparison = a.name.localeCompare(b.name, 'ko')

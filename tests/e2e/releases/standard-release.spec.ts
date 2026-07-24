@@ -231,7 +231,6 @@ test.describe('표준 버전 관리 페이지', () => {
       const retryButton = page.getByRole('button', { name: '다시 시도' })
 
       const hasError = await errorMessage.isVisible().catch(() => false)
-      const hasRetry = await retryButton.isVisible().catch(() => false)
 
       // 에러 상태가 정상적으로 표시되는지 확인
       if (hasError) {

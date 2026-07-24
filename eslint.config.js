@@ -97,6 +97,15 @@ export default tseslint.config(
       ],
       'import/newline-after-import': 'error',
       'import/no-duplicates': 'error',
+      // `_` 접두어 변수/인자/catch 바인딩은 의도적 미사용으로 간주
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 )

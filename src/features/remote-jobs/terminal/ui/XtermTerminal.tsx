@@ -5,8 +5,6 @@
 
 import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback, useState } from 'react'
 
-import type { ITheme } from '@xterm/xterm'
-
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { Terminal as XTerm } from '@xterm/xterm'
@@ -19,6 +17,8 @@ import { useThemeStore } from '@/shared/store/useThemeStore'
 import { Button } from '@/shared/ui/button'
 
 import { XTERM_THEMES } from '../config/xterm-themes'
+
+import type { ITheme } from '@xterm/xterm'
 
 interface XtermTerminalProps {
   sessionId: string | null

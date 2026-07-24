@@ -11,8 +11,8 @@ import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 
-import { resolveGlyph, getGlyphFontSizeClass } from '../lib/glyph'
 import { ComponentList } from './ComponentList'
+import { resolveGlyph, getGlyphFontSizeClass } from '../lib/glyph'
 
 interface ServiceCardProps {
   service: Service

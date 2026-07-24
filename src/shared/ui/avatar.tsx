@@ -67,7 +67,7 @@ const AvatarRoot = React.forwardRef<HTMLDivElement, AvatarRootProps>(
 )
 AvatarRoot.displayName = 'Avatar'
 
-interface AvatarImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {}
+type AvatarImageProps = React.ImgHTMLAttributes<HTMLImageElement>
 
 const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
   ({ className, src, alt = '', ...props }, ref) => {
@@ -96,7 +96,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
 )
 AvatarImage.displayName = 'AvatarImage'
 
-interface AvatarFallbackProps extends React.HTMLAttributes<HTMLDivElement> {}
+type AvatarFallbackProps = React.HTMLAttributes<HTMLDivElement>
 
 const AvatarFallback = React.forwardRef<HTMLDivElement, AvatarFallbackProps>(
   ({ className, children, ...props }, ref) => {

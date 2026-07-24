@@ -7,10 +7,11 @@
  *  의 buildSelection 을 자동 채워 두므로 submit 시 그대로 전송됨.
  */
 
+import type { BuildSelection, SelectedEngine } from '@/entities/patches/patch'
+import type { BuildCandidate, BuildsInRangeResponse } from '@/entities/releases/release'
+
 import { Label } from '@/shared/ui/label'
 
-import type { BuildCandidate, BuildsInRangeResponse } from '@/entities/releases/release'
-import type { BuildSelection, SelectedEngine } from '@/entities/patches/patch'
 
 interface BuildSummarySectionProps {
   data: BuildsInRangeResponse

@@ -18,10 +18,8 @@ export interface MenuItem {
   children?: MenuItem[]
 }
 
-/**
- * 메뉴 응답 데이터를 내비게이션 메뉴 아이템으로 변환
- */
-export function convertMenuResponseToMenuItem(menu: {
+/** 메뉴 응답 데이터 (재귀 트리) */
+interface MenuResponse {
   menuId: string
   menuName: string
   menuUrl?: string
@@ -30,8 +28,13 @@ export function convertMenuResponseToMenuItem(menu: {
   description?: string
   isDescriptionVisible?: boolean
   isLineBreak?: boolean
-  children: any[]
-}): MenuItem {
+  children?: MenuResponse[]
+}
+
+/**
+ * 메뉴 응답 데이터를 내비게이션 메뉴 아이템으로 변환
+ */
+export function convertMenuResponseToMenuItem(menu: MenuResponse): MenuItem {
   return {
     menuId: menu.menuId,
     label: menu.menuName,

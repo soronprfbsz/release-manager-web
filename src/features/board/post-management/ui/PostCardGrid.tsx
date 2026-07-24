@@ -40,7 +40,7 @@ function sanitizeHtmlPreview(html: string): string {
   result = result.replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi, ' ')
 
   // 허용되지 않은 태그 제거 (허용된 태그는 유지)
-  const tagRegex = new RegExp(`<(?!\/?(${allowedTagsPattern})\\b)[^>]+>`, 'gi')
+  const tagRegex = new RegExp(`<(?!/?(${allowedTagsPattern})\\b)[^>]+>`, 'gi')
   result = result.replace(tagRegex, '')
 
   // 연속된 공백 정리

@@ -18,6 +18,8 @@ interface FileCardProps {
   onDelete: (resource: ResourceFile) => void
   onEdit?: (resource: ResourceFile) => void
   onView?: (resource: ResourceFile) => void
+  // dnd-kit useSortable 의 attributes+listeners 스프레드 핸들
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragHandleProps?: any
 }
 

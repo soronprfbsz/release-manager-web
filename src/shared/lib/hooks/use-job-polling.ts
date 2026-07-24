@@ -38,7 +38,7 @@ class JobPollingManager {
     intervalId: ReturnType<typeof setInterval>
     attempts: number
     options: JobPollingOptions
-    toastRef: { dismiss: () => void; update: (props: any) => void } | null
+    toastRef: ReturnType<typeof toast> | null
   }>()
   private listeners = new Set<() => void>()
 

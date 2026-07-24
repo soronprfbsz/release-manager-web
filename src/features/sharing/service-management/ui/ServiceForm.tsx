@@ -24,6 +24,7 @@ import {
   resolveGlyph,
   getGlyphFontSizeClass,
 } from '../lib/glyph'
+
 import type { ServiceFormData, ServiceFormMode } from '../model/types'
 
 interface ServiceFormProps {

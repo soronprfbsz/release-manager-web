@@ -12,6 +12,7 @@ export {
 } from '@/shared/lib/glyph'
 
 import type { Service } from '@/entities/infrastructure/service'
+
 import { resolveGlyph as sharedResolveGlyph } from '@/shared/lib/glyph'
 
 /**

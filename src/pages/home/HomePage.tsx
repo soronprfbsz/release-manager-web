@@ -35,7 +35,7 @@ import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared
  * 표준 (1.1.0) / 빌드 (1.1.0.260511-1) / 커스텀 (1.1.0-siteA.1.0.1) 모두 처리.
  */
 function compareVersionDesc(a: string, b: string): number {
-  const parts = (v: string) => v.split(/[.\-]/).map((s) => parseInt(s, 10) || 0)
+  const parts = (v: string) => v.split(/[.-]/).map((s) => parseInt(s, 10) || 0)
   const aParts = parts(a)
   const bParts = parts(b)
   const len = Math.max(aParts.length, bParts.length)

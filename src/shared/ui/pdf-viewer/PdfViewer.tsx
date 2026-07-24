@@ -5,11 +5,10 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader2, Info } from 'lucide-react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
-
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Loader2, Info } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
 import { TypographyMuted } from '@/shared/ui/typography'

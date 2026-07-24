@@ -25,7 +25,8 @@ interface ResourceCardProps {
   description?: string | null
   /** 아이콘 (ReactNode) */
   icon: ReactNode
-  /** 드래그 핸들 props */
+  /** 드래그 핸들 props (dnd-kit useSortable 의 attributes+listeners 스프레드 핸들) */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragHandleProps?: any
   /** 메인 액션 버튼 (다운로드, 열기 등) */
   actionButton: ReactNode

@@ -101,16 +101,19 @@ export const useUpdateSiteStatus = () => {
       const previousData = queryClient.getQueriesData({ queryKey: siteKeys.lists() })
 
       // Optimistically update all list queries
-      queryClient.setQueriesData({ queryKey: siteKeys.lists() }, (old: any) => {
-        if (!old?.content) return old
+      queryClient.setQueriesData<{ content: Array<{ siteId: number; isActive: boolean }> }>(
+        { queryKey: siteKeys.lists() },
+        (old) => {
+          if (!old?.content) return old
 
-        return {
-          ...old,
-          content: old.content.map((site: any) =>
-            site.siteId === id ? { ...site, isActive } : site
-          ),
+          return {
+            ...old,
+            content: old.content.map((site) =>
+              site.siteId === id ? { ...site, isActive } : site
+            ),
+          }
         }
-      })
+      )
 
       return { previousData }
     },

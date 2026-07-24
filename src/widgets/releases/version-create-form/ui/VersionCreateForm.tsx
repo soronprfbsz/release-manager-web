@@ -6,9 +6,8 @@ import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 import { releaseApi } from '@/entities/releases/release'
 
 import { useServerProgress } from '@/shared/api'
-import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { useToast } from '@/shared/lib/hooks/use-toast'
-import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
+import { generateProgressId } from '@/shared/lib/progress/generateProgressId'
 import { cn } from '@/shared/lib/utils'
 import { useProjectStore } from '@/shared/store'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
@@ -20,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/ui/popover'
+import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'

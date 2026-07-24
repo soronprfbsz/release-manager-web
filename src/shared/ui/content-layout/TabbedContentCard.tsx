@@ -24,11 +24,12 @@
 
 import type { ReactNode } from 'react'
 
-import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
 import { Card } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+
+import type { LucideIcon } from 'lucide-react'
 
 export interface TabbedTab {
   /** Tabs.Trigger / Tabs.Content 의 value */
