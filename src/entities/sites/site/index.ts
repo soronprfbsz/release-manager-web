@@ -25,3 +25,14 @@ export {
   useUpdateSiteStatus,
   useResetSitePatchState,
 } from './queries/siteQueries'
+
+// 카테고리 메타 (정본)
+export {
+  SITE_CATEGORIES,
+  DEFAULT_SITE_CATEGORY,
+  getSiteCategoryLabel,
+  type SiteCategoryMeta,
+} from './model/categories'
+
+// UI
+export { SiteSelect, type SiteSelectProps, type SiteSelectOption } from './ui/SiteSelect'

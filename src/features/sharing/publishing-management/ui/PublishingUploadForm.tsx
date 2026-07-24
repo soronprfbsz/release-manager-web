@@ -7,12 +7,11 @@ import { useQuery } from '@tanstack/react-query'
 import { FileArchive, Upload, AlertTriangle } from 'lucide-react'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
-import { siteApi } from '@/entities/sites'
+import { SiteSelect, siteApi } from '@/entities/sites'
 
 import { getDomainIcon } from '@/shared/config/domain-icons'
 import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
-import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Input } from '@/shared/ui/input'
@@ -135,23 +134,16 @@ export function PublishingUploadForm({
 
         <div className="space-y-2">
           <Label>사이트</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...sites.map((c) => ({
-                value: String(c.siteId),
-                label: `${c.siteName} (${c.siteCode})`,
-              })),
-            ]}
-            value={formData.siteId ? String(formData.siteId) : '__none__'}
-            onValueChange={(value) =>
+          <SiteSelect
+            sites={sites}
+            value={sites.find((c) => c.siteId === formData.siteId)?.siteCode ?? '__none__'}
+            onChange={(_value, site) =>
               onFormDataChange({
                 ...formData,
-                siteId: value === '__none__' || !value ? null : Number(value),
+                siteId: site?.siteId ?? null,
               })
             }
-            placeholder="선택 안함"
-            searchPlaceholder="사이트 검색..."
+            includeNone
           />
         </div>
       </div>

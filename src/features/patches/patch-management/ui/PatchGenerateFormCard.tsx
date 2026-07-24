@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { BuildSelection } from '@/entities/patches/patch'
 import { useBuildsInRange } from '@/entities/releases/release'
-import type { Site } from '@/entities/sites'
+import { SiteSelect, type Site } from '@/entities/sites'
 
 import { ROUTES } from '@/shared/config/constants'
 import { compareVersions } from '@/shared/lib/utils/version'
@@ -186,23 +186,16 @@ export function PatchGenerateFormCard({
         {/* Site */}
         <div className="space-y-2">
           <Label>사이트</Label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...sites.map((c) => ({
-                value: c.siteCode,
-                label: `${c.siteName} (${c.siteCode})`,
-              })),
-            ]}
+          <SiteSelect
+            sites={sites}
             value={formData.siteCode || '__none__'}
-            onValueChange={(value) =>
+            onChange={(value) =>
               onFormDataChange({
                 ...formData,
                 siteCode: value === '__none__' || !value ? '' : value,
               })
             }
-            placeholder="선택 안함"
-            searchPlaceholder="사이트 검색..."
+            includeNone
           />
         </div>
 

@@ -7,6 +7,7 @@ import { ArrowRight, GitBranch, Layers, Loader2 } from 'lucide-react'
 
 import type { Account } from '@/entities/operations'
 import type { CustomPatchSite, CustomPatchVersion } from '@/entities/patches/patch'
+import { SiteSelect } from '@/entities/sites'
 
 import { compareVersions } from '@/shared/lib/utils/version'
 import { Button } from '@/shared/ui/button'
@@ -74,22 +75,18 @@ export function CustomPatchGenerateFormCard({
         {/* Site Selection */}
         <div className="space-y-2">
           <Label required>사이트</Label>
-          <Combobox
-            options={sites.map((c) => ({
-              value: String(c.siteId),
-              label: `${c.siteName} (${c.siteCode})`,
-            }))}
-            value={formData.siteId ? String(formData.siteId) : ''}
-            onValueChange={(value) => {
+          <SiteSelect
+            sites={sites}
+            value={selectedSite?.siteCode ?? ''}
+            onChange={(_value, site) => {
               onFormDataChange({
                 ...formData,
-                siteId: value ? Number(value) : null,
+                siteId: site?.siteId ?? null,
                 fromVersion: '',
                 toVersion: '',
               })
             }}
             placeholder="사이트를 선택하세요"
-            searchPlaceholder="사이트 검색..."
             disabled={isSitesLoading}
           />
           {isSitesLoading && <TypographyMuted>사이트 목록을 불러오는 중...</TypographyMuted>}

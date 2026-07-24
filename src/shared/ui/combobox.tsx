@@ -22,8 +22,17 @@ export interface ComboboxOption {
   label: string
 }
 
-export interface ComboboxProps {
+export interface ComboboxGroup {
+  /** 그룹 헤딩. 생략 시 헤딩 없이 항목만 렌더 (예: "없음" 단독 항목) */
+  heading?: string
   options: ComboboxOption[]
+}
+
+export interface ComboboxProps {
+  /** 플랫 옵션 (하위호환). groups 를 주면 무시된다. */
+  options?: ComboboxOption[]
+  /** 그룹 옵션. 주어지면 헤딩별로 렌더된다. */
+  groups?: ComboboxGroup[]
   value?: string
   onValueChange?: (value: string) => void
   placeholder?: string
@@ -35,6 +44,7 @@ export interface ComboboxProps {
 
 export function Combobox({
   options,
+  groups,
   value,
   onValueChange,
   placeholder = "선택하세요...",
@@ -45,7 +55,11 @@ export function Combobox({
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
 
-  const selectedOption = options.find((option) => option.value === value)
+  // groups 우선, 없으면 flat options 를 단일 그룹으로 취급
+  const resolvedGroups: ComboboxGroup[] = groups ?? [{ options: options ?? [] }]
+  const selectedOption = resolvedGroups
+    .flatMap((group) => group.options)
+    .find((option) => option.value === value)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -72,27 +86,29 @@ export function Combobox({
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList onWheel={(e) => e.stopPropagation()}>
             <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label}
-                  onSelect={() => {
-                    const newValue = option.value === value ? "" : option.value
-                    onValueChange?.(newValue)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {resolvedGroups.map((group, groupIndex) => (
+              <CommandGroup key={group.heading ?? `__group_${groupIndex}`} heading={group.heading}>
+                {group.options.map((option) => (
+                  <CommandItem
+                    key={option.value}
+                    value={option.label}
+                    onSelect={() => {
+                      const newValue = option.value === value ? "" : option.value
+                      onValueChange?.(newValue)
+                      setOpen(false)
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

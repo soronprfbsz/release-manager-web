@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { Layers, type LucideIcon } from 'lucide-react'
 
 import { useAccounts, type Account } from '@/entities/operations'
-import { useSites, type Site } from '@/entities/sites'
+import { SiteSelect, useSites } from '@/entities/sites'
 
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -95,20 +95,11 @@ export function PatchRegisterForm({
       {/* 사이트 */}
       <div className="space-y-2">
         <Label>사이트</Label>
-        <Combobox
-          options={[
-            { value: '__none__', label: '선택 안함' },
-            ...sites.map((c: Site) => ({
-              value: c.siteCode,
-              label: `${c.siteName} (${c.siteCode})`,
-            })),
-          ]}
+        <SiteSelect
+          sites={sites}
           value={siteCode || '__none__'}
-          onValueChange={(value) =>
-            setSiteCode(value === '__none__' ? '' : value)
-          }
-          placeholder="선택 안함"
-          searchPlaceholder="사이트 검색..."
+          onChange={(value) => setSiteCode(value === '__none__' ? '' : value)}
+          includeNone
         />
         <p className="text-xs text-muted-foreground">
           사이트를 선택하면 커스텀 패치로 등록됩니다.

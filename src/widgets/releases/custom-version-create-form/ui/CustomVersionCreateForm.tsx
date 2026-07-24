@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
 
 import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
-import { useSites, type Site } from '@/entities/sites/site'
+import { SiteSelect, useSites, type Site } from '@/entities/sites/site'
 
 import { useServerProgress } from '@/shared/api'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -401,21 +401,17 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         <Label htmlFor="siteId" required>
           사이트
         </Label>
-        <Combobox
-          options={sites.map((site: Site) => ({
-            value: String(site.siteId),
-            label: `${site.siteName} (${site.siteCode})`,
-          }))}
-          value={siteId ? String(siteId) : ''}
-          onValueChange={(value) => {
-            setSiteId(value ? Number(value) : null)
+        <SiteSelect
+          sites={sites}
+          value={sites.find((s: Site) => s.siteId === siteId)?.siteCode ?? ''}
+          onChange={(_value, site) => {
+            setSiteId(site?.siteId ?? null)
             setCustomBaseVersionId(null) // 사이트 변경 시 customBaseVersionId 초기화
             setBumpType('patch') // 사이트 변경 시 버전 타입 초기화
             setIsManualInput(false) // 사이트 변경 시 수동 입력 모드 해제
             setCustomVersion('') // 사이트 변경 시 버전 초기화
           }}
           placeholder="사이트를 선택하세요"
-          searchPlaceholder="사이트 검색..."
         />
       </div>
 

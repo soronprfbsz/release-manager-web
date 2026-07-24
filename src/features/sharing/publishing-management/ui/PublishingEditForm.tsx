@@ -13,12 +13,11 @@ import * as z from 'zod'
 
 import { CODE_TYPE, useCodesByType } from '@/entities/_shared/code'
 import type { PublishingListItem, PublishingUpdateRequest } from '@/entities/infrastructure/publishing'
-import { siteApi } from '@/entities/sites'
+import { SiteSelect, siteApi } from '@/entities/sites'
 
 import { getFormIcon } from '@/shared/config/domain-icons'
 import { GLYPH_COLORS, resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
-import { Combobox } from '@/shared/ui/combobox'
 import {
   Form,
   FormControl,
@@ -258,20 +257,11 @@ export function PublishingEditForm({
         {/* 사이트 선택 */}
         <div className="space-y-2">
           <label className="text-sm font-medium">사이트</label>
-          <Combobox
-            options={[
-              { value: '__none__', label: '선택 안함' },
-              ...sites.map((c) => ({
-                value: String(c.siteId),
-                label: `${c.siteName} (${c.siteCode})`,
-              })),
-            ]}
-            value={siteId ? String(siteId) : '__none__'}
-            onValueChange={(value) =>
-              setSiteId(value === '__none__' || !value ? null : Number(value))
-            }
-            placeholder="선택 안함"
-            searchPlaceholder="사이트 검색..."
+          <SiteSelect
+            sites={sites}
+            value={sites.find((c) => c.siteId === siteId)?.siteCode ?? '__none__'}
+            onChange={(_value, site) => setSiteId(site?.siteId ?? null)}
+            includeNone
           />
         </div>
 

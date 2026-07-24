@@ -20,6 +20,7 @@ import type {
   CustomPatchVersion,
 } from '@/entities/patches/patch'
 import { useBuildsInRange } from '@/entities/releases/release'
+import { SiteSelect } from '@/entities/sites'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { compareVersions } from '@/shared/lib/utils/version'
@@ -180,16 +181,13 @@ export function CustomPatchCreateForm({
             {/* 사이트 — 담당자는 백엔드가 현재 로그인 사용자로 자동 설정 */}
             <div className="space-y-2">
               <Label required>사이트</Label>
-              <Combobox
-                options={sites.map((c) => ({
-                  value: String(c.siteId),
-                  label: `${c.siteName} (${c.siteCode})`,
-                }))}
-                value={formData.siteId ? String(formData.siteId) : ''}
-                onValueChange={(value) => {
+              <SiteSelect
+                sites={sites}
+                value={selectedSite?.siteCode ?? ''}
+                onChange={(_value, site) => {
                   onFormDataChange({
                     ...formData,
-                    siteId: value ? Number(value) : null,
+                    siteId: site?.siteId ?? null,
                     fromVersion: '',
                     toVersion: '',
                     fromVersionId: null,
@@ -198,7 +196,6 @@ export function CustomPatchCreateForm({
                   })
                 }}
                 placeholder="사이트 선택"
-                searchPlaceholder="사이트 검색..."
                 disabled={isSitesLoading}
               />
               {isSitesLoading && (

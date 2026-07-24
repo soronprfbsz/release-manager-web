@@ -12,12 +12,11 @@ import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
 import { usePatchNamePreview, type BuildSelection } from '@/entities/patches/patch'
 import { useBuildsInRange } from '@/entities/releases/release'
-import type { Site } from '@/entities/sites'
+import { SiteSelect, type Site } from '@/entities/sites'
 import { useNextPatchRange } from '@/entities/sites/site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { compareVersions } from '@/shared/lib/utils/version'
-import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
 import {
@@ -286,28 +285,19 @@ export function PatchCreateForm({
           사이트 선택 시 next-patch-range API 로 from/to 자동 추천. */}
       <div className="space-y-2">
         <Label required>사이트</Label>
-        <Combobox
-          options={[
-            { value: '__undefined__', label: '없음' },
-            ...sites.map((c) => ({
-              value: c.siteCode,
-              label: `${c.siteName} (${c.siteCode})`,
-            })),
-          ]}
+        <SiteSelect
+          sites={sites}
           value={formData.siteCode || ''}
-          onValueChange={(value) =>
+          onChange={(value, site) =>
             onFormDataChange((prev) => ({
               ...prev,
               siteCode: value,
               // 사이트 변경 시 siteId 동기화
-              siteId:
-                value === '__undefined__'
-                  ? null
-                  : (sites.find((c) => c.siteCode === value)?.siteId ?? null),
+              siteId: value === '__undefined__' ? null : (site?.siteId ?? null),
             }))
           }
-          placeholder="사이트 선택..."
-          searchPlaceholder="사이트 검색..."
+          includeNone
+          noneValue="__undefined__"
         />
 
         {/* 추천 범위 상태 안내 */}

@@ -3,6 +3,8 @@
  * 패치 도메인 타입 정의
  */
 
+import type { SiteCategory } from '@/entities/sites/site'
+
 export interface IncludedWeb {
   buildVersionId: number | null
   fullVersion: string
@@ -142,6 +144,7 @@ export interface CustomPatchSite {
   siteId: number
   siteCode: string
   siteName: string
+  siteCategory: SiteCategory
 }
 
 /** 사이트별 커스텀 버전 */
