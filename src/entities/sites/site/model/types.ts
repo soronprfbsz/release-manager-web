@@ -11,11 +11,15 @@ export interface SiteProject {
   lastPatchedAt: string | null
 }
 
+/** 사이트 구분 (좌측 트리 그룹핑 기준) */
+export type SiteCategory = 'CUSTOMER' | 'INTERNAL_TEST'
+
 export interface Site {
   rowNumber: number
   siteId: number
   siteCode: string
   siteName: string
+  siteCategory: SiteCategory
   description: string | null
   isActive: boolean
   hasCustomVersion: boolean
@@ -37,6 +41,7 @@ export interface Site {
 export interface SiteCreateRequest {
   siteCode: string
   siteName: string
+  siteCategory?: SiteCategory
   description?: string
   isActive?: boolean
   projectId?: string
@@ -46,6 +51,7 @@ export interface SiteCreateRequest {
 
 export interface SiteUpdateRequest {
   siteName?: string
+  siteCategory?: SiteCategory
   description?: string
   isActive?: boolean
   /** 빈 문자열("") 전송 시 NULL 처리 */

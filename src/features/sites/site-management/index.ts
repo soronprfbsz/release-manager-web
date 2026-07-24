@@ -26,5 +26,13 @@ export type {
   SiteFilter,
 } from './model/types'
 
+// 사이트 구분 메타데이터
+export {
+  SITE_CATEGORIES,
+  DEFAULT_SITE_CATEGORY,
+  getSiteCategoryLabel,
+  type SiteCategoryMeta,
+} from './model/categories'
+
 // Validation
 export { validateSiteForm, type ValidationResult } from './model/validation'

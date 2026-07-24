@@ -5,6 +5,7 @@
 // Types
 export type {
   Site,
+  SiteCategory,
   SiteCreateRequest,
   SiteUpdateRequest,
   ResetPatchStateResponse,

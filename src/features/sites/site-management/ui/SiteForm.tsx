@@ -37,6 +37,8 @@ import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
+import { SITE_CATEGORIES } from '../model/categories'
+
 import type { SiteFormData, SiteFormMode } from '../model/types'
 
 interface SiteFormProps {
@@ -148,6 +150,39 @@ export function SiteForm({
             사이트 코드는 수정할 수 없습니다.
           </TypographyMuted>
         )}
+
+        {/* 사이트 구분 (고객사 / 내부 테스트) */}
+        <div className="space-y-2">
+          <Label required>사이트 구분</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {SITE_CATEGORIES.map((cat) => {
+              const selected = formData.siteCategory === cat.value
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() =>
+                    onFormDataChange({ ...formData, siteCategory: cat.value })
+                  }
+                  aria-pressed={selected}
+                  className={cn(
+                    'flex flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-colors',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    selected
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:bg-accent'
+                  )}
+                >
+                  <span className="text-sm font-medium">{cat.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {cat.description}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label>설명</Label>
           <Textarea

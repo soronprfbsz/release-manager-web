@@ -12,6 +12,7 @@ import {
   SiteDeleteModal,
   SiteList,
   SiteDetailPanel,
+  DEFAULT_SITE_CATEGORY,
   type SiteFormData,
   type SiteFormMode,
   type SiteFilter,
@@ -40,6 +41,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 const INITIAL_FORM_DATA: SiteFormData = {
   siteCode: '',
   siteName: '',
+  siteCategory: DEFAULT_SITE_CATEGORY,
   description: '',
   isActive: true,
   projectId: '',
@@ -123,6 +125,7 @@ export function SiteListPage() {
     setFormData({
       siteCode: site.siteCode,
       siteName: site.siteName,
+      siteCategory: site.siteCategory,
       description: site.description || '',
       isActive: site.isActive,
       projectId: site.project?.projectId || '',
@@ -152,6 +155,7 @@ export function SiteListPage() {
         {
           siteCode: formData.siteCode.trim(),
           siteName: formData.siteName.trim(),
+          siteCategory: formData.siteCategory,
           description: formData.description.trim() || undefined,
           isActive: formData.isActive,
           projectId: formData.projectId || undefined,
@@ -172,6 +176,7 @@ export function SiteListPage() {
           id: editingSite.siteId,
           data: {
             siteName: formData.siteName.trim(),
+            siteCategory: formData.siteCategory,
             description: formData.description.trim() || undefined,
             isActive: formData.isActive,
             glyphText: formData.glyphText,

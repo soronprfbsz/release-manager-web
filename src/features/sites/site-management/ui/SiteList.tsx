@@ -1,19 +1,25 @@
 /**
  * Site List Component
- * 사이트 평면 리스트 (표준/커스텀 필터 탭·검색은 패널 헤더에서 관리)
+ * 사이트 구분(고객사 / 내부 테스트)별 그룹 리스트.
+ * 표준/커스텀 필터 탭·검색은 패널 헤더에서 관리된다.
  */
 
-import { ChevronRight, Pencil, Trash2, Search, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 
-import type { Site } from '@/entities/sites/site'
+import { ChevronRight, ChevronDown, Pencil, Trash2, Search, Loader2 } from 'lucide-react'
+
+import type { Site, SiteCategory } from '@/entities/sites/site'
 
 import { resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
+import { Badge } from '@/shared/ui/badge'
 import {
   TreeActionMenu,
   TreeActionMenuItem,
   TreeActionMenuSeparator,
 } from '@/shared/ui/tree-action-menu'
+
+import { SITE_CATEGORIES } from '../model/categories'
 
 import type { SiteFilter } from '../model/types'
 
@@ -84,10 +90,14 @@ function SiteListItem({
           <span className="truncate text-sm font-medium">
             {site.siteName}
           </span>
-          {!site.isActive && (
-            <span className="text-[10px] text-orange-500 flex-shrink-0">
+          {site.isActive ? (
+            <Badge variant="success" size="sm" dot className="flex-shrink-0">
+              운영중
+            </Badge>
+          ) : (
+            <Badge variant="neutral" size="sm" dot className="flex-shrink-0">
               비활성
-            </span>
+            </Badge>
           )}
         </div>
         <p className="truncate text-xs text-muted-foreground mt-0.5">
@@ -135,6 +145,52 @@ function SiteListItem({
   )
 }
 
+interface SiteCategoryGroupProps {
+  label: string
+  count: number
+  collapsed: boolean
+  onToggle: () => void
+  children: React.ReactNode
+  isEmpty: boolean
+}
+
+function SiteCategoryGroup({
+  label,
+  count,
+  collapsed,
+  onToggle,
+  children,
+  isEmpty,
+}: SiteCategoryGroupProps) {
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors select-none"
+      >
+        {collapsed ? (
+          <ChevronRight className="h-3.5 w-3.5" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5" />
+        )}
+        <span>{label}</span>
+        <span className="inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[10px] font-semibold tabular-nums bg-muted text-muted-foreground">
+          {count}
+        </span>
+      </button>
+      {!collapsed &&
+        (isEmpty ? (
+          <p className="px-3 py-1.5 text-xs text-muted-foreground/70">
+            등록된 사이트 없음
+          </p>
+        ) : (
+          <div className="space-y-1.5">{children}</div>
+        ))}
+    </div>
+  )
+}
+
 export function SiteList({
   sites,
   filter,
@@ -146,6 +202,11 @@ export function SiteList({
   onEdit,
   onDelete,
 }: SiteListProps) {
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+
+  const toggle = (category: SiteCategory) =>
+    setCollapsed((s) => ({ ...s, [category]: !s[category] }))
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
@@ -177,17 +238,31 @@ export function SiteList({
   }
 
   return (
-    <div className="space-y-1.5">
-      {sites.map((site) => (
-        <SiteListItem
-          key={site.siteId}
-          site={site}
-          isSelected={selectedId === site.siteId}
-          onSelect={onSelect}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      ))}
+    <div className="space-y-2">
+      {SITE_CATEGORIES.map((cat) => {
+        const groupSites = sites.filter((s) => s.siteCategory === cat.value)
+        return (
+          <SiteCategoryGroup
+            key={cat.value}
+            label={cat.label}
+            count={groupSites.length}
+            collapsed={Boolean(collapsed[cat.value])}
+            onToggle={() => toggle(cat.value)}
+            isEmpty={groupSites.length === 0}
+          >
+            {groupSites.map((site) => (
+              <SiteListItem
+                key={site.siteId}
+                site={site}
+                isSelected={selectedId === site.siteId}
+                onSelect={onSelect}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </SiteCategoryGroup>
+        )
+      })}
     </div>
   )
 }
