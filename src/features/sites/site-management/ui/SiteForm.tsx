@@ -127,11 +127,23 @@ export function SiteForm({
             <Input
               value={formData.siteCode}
               onChange={(e) =>
-                onFormDataChange({ ...formData, siteCode: e.target.value })
+                onFormDataChange({
+                  ...formData,
+                  // 소문자·숫자·-·_ 만 허용 — 입력 즉시 정규화(허용외 문자 제거).
+                  siteCode: e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9_-]/g, ''),
+                })
               }
-              placeholder="e.g. siteA"
+              placeholder="e.g. company_a"
+              maxLength={50}
               disabled={mode === 'edit'}
             />
+            {mode === 'create' && (
+              <TypographyMuted className="text-xs">
+                소문자·숫자·하이픈(-)·언더스코어(_)만 입력됩니다.
+              </TypographyMuted>
+            )}
           </div>
 
           <div className="space-y-2">

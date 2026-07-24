@@ -202,7 +202,10 @@ export function SiteList({
   onEdit,
   onDelete,
 }: SiteListProps) {
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  // 첫 진입 시 고객사는 펼치고 내부 테스트는 접어둔다.
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    INTERNAL_TEST: true,
+  })
 
   const toggle = (category: SiteCategory) =>
     setCollapsed((s) => ({ ...s, [category]: !s[category] }))
@@ -241,12 +244,17 @@ export function SiteList({
     <div className="space-y-2">
       {SITE_CATEGORIES.map((cat) => {
         const groupSites = sites.filter((s) => s.siteCategory === cat.value)
+        // 검색 중이고 해당 그룹에 결과가 있으면 접힘 상태와 무관하게 펼쳐 보여준다.
+        const effectiveCollapsed =
+          hasSearch && groupSites.length > 0
+            ? false
+            : Boolean(collapsed[cat.value])
         return (
           <SiteCategoryGroup
             key={cat.value}
             label={cat.label}
             count={groupSites.length}
-            collapsed={Boolean(collapsed[cat.value])}
+            collapsed={effectiveCollapsed}
             onToggle={() => toggle(cat.value)}
             isEmpty={groupSites.length === 0}
           >
