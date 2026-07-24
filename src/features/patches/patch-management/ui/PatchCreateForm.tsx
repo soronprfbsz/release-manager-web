@@ -90,10 +90,9 @@ export function PatchCreateForm({
   onFormDataChangeRef.current = onFormDataChange
 
   // 현재 선택된 사이트 객체 — siteCode로 역참조
-  const selectedSite =
-    formData.siteCode && formData.siteCode !== '__undefined__'
-      ? sites.find((c) => c.siteCode === formData.siteCode) ?? null
-      : null
+  const selectedSite = formData.siteCode
+    ? sites.find((c) => c.siteCode === formData.siteCode) ?? null
+    : null
 
   // 다음 패치 추천 범위 — 실제 사이트 선택 + 폼 열린 상태일 때만 fetch
   // isOpen 이 false 면 siteId/projectId 를 undefined 로 전달해 enabled=false 유도
@@ -104,7 +103,7 @@ export function PatchCreateForm({
 
   /**
    * 사이트가 변경될 때마다 추천 범위로 from/to 자동 채움.
-   * - "__undefined__" 또는 미선택: 채움 안 함, from/to 초기화
+   * - 미선택: 채움 안 함, from/to 초기화
    * - 실제 사이트 선택 → nextRange 데이터 도착 시 덮어씀
    * siteId 를 dep 에 포함해 사이트가 바뀔 때만 트리거.
    */
@@ -112,7 +111,7 @@ export function PatchCreateForm({
     if (!isOpen) return
 
     if (!selectedSite) {
-      // "없음" 또는 미선택: from/to 초기화 — functional setter 로 stale 회피
+      // 미선택: from/to 초기화 — functional setter 로 stale 회피
       onFormDataChangeRef.current((prev) => ({
         ...prev,
         fromVersion: '',
@@ -212,7 +211,7 @@ export function PatchCreateForm({
     onFormDataChangeRef.current((prev) => ({ ...prev, buildSelection: selection }))
   }, [buildsQuery.data])
 
-  // siteCode 가 비어있으면 미선택. '__undefined__' 는 명시적 "없음" 선택.
+  // 사이트 필수 — 비어있으면 제출 불가
   const siteChosen = formData.siteCode !== ''
   const submitDisabled =
     !formData.fromVersion ||
@@ -220,10 +219,7 @@ export function PatchCreateForm({
     !siteChosen
 
   // 자동 패치명 미리보기 — backend 호출로 충돌 검사까지 적용된 실 확정 이름
-  // ("__undefined__" 는 backend 에 빈 값으로 전달되어 "undefined" prefix 로 처리)
-  const previewSiteCode = siteChosen
-    ? (formData.siteCode === '__undefined__' ? '' : formData.siteCode)
-    : undefined
+  const previewSiteCode = siteChosen ? formData.siteCode : undefined
   const { data: previewedName } = usePatchNamePreview(
     isOpen ? previewSiteCode : undefined,
     isOpen && siteChosen,
@@ -280,8 +276,7 @@ export function PatchCreateForm({
         />
       ) : (
       <>
-      {/* 1. 사이트 — 필수. "없음" 선택 시 siteCode 'undefined' 로 처리됨.
-          담당자는 백엔드가 현재 로그인 사용자로 자동 설정.
+      {/* 1. 사이트 — 필수. 담당자는 백엔드가 현재 로그인 사용자로 자동 설정.
           사이트 선택 시 next-patch-range API 로 from/to 자동 추천. */}
       <div className="space-y-2">
         <Label required>사이트</Label>
@@ -293,11 +288,9 @@ export function PatchCreateForm({
               ...prev,
               siteCode: value,
               // 사이트 변경 시 siteId 동기화
-              siteId: value === '__undefined__' ? null : (site?.siteId ?? null),
+              siteId: site?.siteId ?? null,
             }))
           }
-          includeNone
-          noneValue="__undefined__"
         />
 
         {/* 추천 범위 상태 안내 */}
