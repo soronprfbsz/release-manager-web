@@ -79,7 +79,7 @@ export function DesktopSidebar() {
     <TooltipProvider delayDuration={500}>
       <aside
         className={cn(
-          'flex flex-col flex-none border-r border-border overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out',
+          'flex flex-col flex-none border-r border-[hsl(var(--sidebar-border))] overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out',
           // 카본 command slab — 할프톤 dot-matrix (스피커 그릴 질감)
           'halftone',
           collapsed ? 'w-16' : 'w-[256px]'
@@ -92,7 +92,7 @@ export function DesktopSidebar() {
           href={ROUTES.HOME}
           onClick={handleLogoClick}
           className={cn(
-            'flex items-center gap-2.5 h-16 border-b border-border cursor-pointer hover:bg-muted/30 transition-colors flex-none',
+            'flex items-center gap-2.5 h-16 border-b border-[hsl(var(--sidebar-border))] cursor-pointer hover:bg-muted/30 transition-colors flex-none',
             collapsed ? 'px-0 justify-center' : 'px-4'
           )}
           aria-label="홈으로"
@@ -145,7 +145,7 @@ export function DesktopSidebar() {
 
         {/* 사용자 영역 */}
         {user && (
-          <div className={cn('border-t border-border', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
+          <div className={cn('border-t border-[hsl(var(--sidebar-border))]', collapsed ? 'px-1 py-2' : 'px-2 py-2')}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button

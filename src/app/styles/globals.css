@@ -175,7 +175,7 @@
     --sidebar-bg:             225 27% 87%;
     --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
     --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
-    --sidebar-border:         225 22% 82%;
+    --sidebar-border:         225 20% 74%;
     --sidebar-hover:          0 0% 100%;      /* hover 시 흰색 — 카드와 동일 surface */
     --sidebar-active-bg:      38 70% 88%;     /* 옅은 amber 틴트 */
     --sidebar-active-fg:      30 75% 28%;     /* 진한 amber-브라운 (5.95:1) */

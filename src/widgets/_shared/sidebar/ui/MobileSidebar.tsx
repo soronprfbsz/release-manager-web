@@ -85,7 +85,7 @@ export function MobileSidebar() {
           <SheetTitle className="sr-only">주 메뉴</SheetTitle>
 
           {/* 로고 영역 */}
-          <div className="flex items-center gap-2.5 h-16 px-4 border-b border-border flex-none">
+          <div className="flex items-center gap-2.5 h-16 px-4 border-b border-[hsl(var(--sidebar-border))] flex-none">
             <span
               className="inline-grid place-items-center w-[30px] h-[30px] rounded-md text-white text-[13px] font-extrabold tracking-[0.5px]"
               style={{
@@ -131,7 +131,7 @@ export function MobileSidebar() {
 
           {/* 사용자 영역 */}
           {user && (
-            <div className="border-t border-border px-2 py-2">
+            <div className="border-t border-[hsl(var(--sidebar-border))] px-2 py-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
