@@ -80,6 +80,8 @@ export function DesktopSidebar() {
       <aside
         className={cn(
           'flex flex-col flex-none border-r border-border overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out',
+          // 카본 command slab — 할프톤 dot-matrix (스피커 그릴 질감)
+          'halftone',
           collapsed ? 'w-16' : 'w-[256px]'
         )}
         style={{ backgroundColor: 'hsl(var(--sidebar-bg))' }}

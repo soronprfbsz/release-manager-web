@@ -20,7 +20,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Inter"', '"DM Sans"', '"Pretendard"', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        // Arial = 2001년 웹세이프 현실. Pretendard 는 한글 폴백.
+        sans: ['Arial', 'Helvetica', '"Pretendard"', 'system-ui', '-apple-system', 'sans-serif'],
+        // 히어로 워드마크용 — .display-outline 과 함께 쓴다.
+        display: ['"Arial Black"', 'Arial', 'Helvetica', 'sans-serif'],
+        // 터미널(xterm) 가독성 때문에 등폭 유지.
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       animation: {

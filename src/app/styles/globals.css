@@ -3,140 +3,223 @@
 @tailwind utilities;
 
 /* =================================================================
-   Release Manager — Backstage redesign
+   Release Manager — Nintendo.com 2001 redesign
    Two themes: light + dark. Default = dark.
-   Palette: Backstage Design System (Untitled-UI style)
-     - Neutral: pure gray ramp + deep "night" surfaces
-     - Brand: teal (#0e9384, brand-600)
-   shadcn HSL token form is preserved so all existing UI inherits.
+   Palette: getdesign.md `nintendo-2001` (DESIGN.md 산문 기준)
+     - 쿨 크롬: 페리윙클 → 크롬 인디고 (색상환 222–228°)
+     - 카본 네이비 command layer (내비 / 사이드바 / 푸터)
+     - 따뜻한 색은 길찾기 신호 전용 (amber / signal / nav-gold)
+   설계: docs/superpowers/specs/2026-07-31-nintendo-2001-design-tokens-design.md
+   shadcn HSL token form 은 그대로 유지해 기존 UI 가 전부 상속받는다.
    ================================================================= */
 
 @layer base {
-  /* ---------- DARK (default) -------------------------------------- */
-  /* :root 가 디폴트로 dark 토큰을 갖는다. <html> 에 클래스 없을 때 / .dark 일 때 모두 적용. */
+  /* ---------- DARK (default) --------------------------------------
+     "전원 꺼진 페리윙클 콘솔" — 섀시는 어두워지되 플레이트 구조는 유지.
+     핵심: 베벨선(--border)이 표면보다 *밝다* (라이트의 극성 반전).
+     값은 getdesign nintendo-2001 preview-dark 추출본. */
   :root,
   :root.dark {
-    --background:             0 0% 9%;         /* #171717 night-900 */
-    --foreground:             0 0% 97%;        /* #f7f7f7 night-fg */
-    --card:                   0 0% 6%;         /* #0f0f0f night-1000 */
-    --card-foreground:        0 0% 97%;
-    --popover:                0 0% 6%;
-    --popover-foreground:     0 0% 97%;
+    --background:             228 26% 7%;     /* #0e1018 미드나이트 네이비 */
+    --foreground:             0 0% 100%;
+    --card:                   225 27% 12%;    /* #161a26 다크 슬레이트블루 플레이트 */
+    --card-foreground:        0 0% 100%;
+    --popover:                225 27% 12%;
+    --popover-foreground:     0 0% 100%;
 
-    --primary:                173 83% 31%;     /* brand-600 teal */
-    --primary-foreground:     0 0% 100%;
+    --primary:                38 83% 57%;     /* amber #ecab37 — 양 테마 불변 */
+    --primary-foreground:     227 39% 5%;     /* #070910 */
 
-    --secondary:              0 0% 6%;         /* night-1000 */
-    --secondary-foreground:   0 0% 97%;
+    --secondary:              224 24% 15%;    /* #1e2330 */
+    --secondary-foreground:   0 0% 100%;
 
-    --muted:                  0 0% 16%;        /* #292929 night-700 */
-    --muted-foreground:       0 0% 60%;        /* #989898 night-fg-2 */
+    --muted:                  221 20% 18%;    /* #252b38 */
+    --muted-foreground:       227 31% 76%;    /* #aeb6d4 */
 
-    --accent:                 173 70% 18%;     /* deep teal tint for active states */
-    --accent-foreground:      170 75% 64%;     /* brand-300 #5fe9d0 */
+    --accent:                 31 60% 18%;     /* signal 딥 틴트 */
+    --accent-foreground:      31 92% 54%;     /* signal #f68d1f — 불변 */
 
-    --destructive:            4 75% 49%;
-    --destructive-foreground: 0 0% 97%;
+    --destructive:            355 100% 45%;   /* error #e60012 — 불변 */
+    --destructive-foreground: 0 0% 100%;      /* red 위에는 white (4.77:1) */
 
-    --border:                 0 0% 16%;        /* night-700 */
-    --input:                  0 0% 16%;
-    --ring:                   170 75% 64%;     /* brand-300 — visible on dark */
+    --border:                 227 25% 30%;    /* #39415e — 표면보다 밝은 베벨선 */
+    --input:                  227 25% 30%;
+    --ring:                   31 92% 54%;     /* signal — 포커스 = "액션이 여기 떨어진다" */
 
-    --radius:                 0.5rem;          /* 8px — Backstage button radius */
+    --radius:                 0.375rem;       /* 6px → lg 6 / md 4 / sm 2 (preview 스케일) */
 
-    --chart-1:                170 75% 64%;     /* brand-300 light teal */
-    --chart-2:                211 100% 76%;    /* #84caff blue-300 */
-    --chart-3:                253 89% 76%;     /* #a48afb violet-300 */
-    --chart-4:                39 99% 64%;      /* #fec84b warning-300 */
-    --chart-5:                146 67% 67%;     /* #6ce9a6 success-300 */
+    /* 크롬 레이어 베벨 하이라이트 — 다크는 표면보다 밝은 선 */
+    --plate-highlight:        227 25% 30% / 0.8;
 
-    --cat-database:           211 100% 76%;
-    --cat-web:                146 67% 67%;
-    --cat-engine:             253 89% 76%;
-    --cat-etc:                0 0% 60%;
+    /* 차트 — page-tint 파생, warm 은 액션 전용이라 제외 */
+    --chart-1:                214 60% 70%;    /* sky */
+    --chart-2:                194 58% 55%;    /* systems-teal */
+    --chart-3:                240 55% 79%;    /* lavender #acace7 원본 */
+    --chart-4:                359 61% 62%;    /* games-red */
+    --chart-5:                227 31% 76%;    /* #aeb6d4 쿨 그레이 */
 
-    --theme-color-1:          170 75% 64%;
-    --theme-color-2:          39 99% 64%;
-    --theme-color-3:          211 100% 76%;
-    --theme-color-4:          146 67% 67%;
-    --theme-color-5:          253 89% 76%;
+    --cat-database:           214 60% 70%;
+    --cat-web:                194 58% 55%;    /* 산문에 녹색 없음 → 티얼 */
+    --cat-engine:             240 55% 79%;
+    --cat-etc:                229 19% 57%;    /* #7c84a6 */
 
-    --header-bg:              0 0% 9%;
+    --theme-color-1:          214 60% 70%;
+    --theme-color-2:          194 58% 55%;
+    --theme-color-3:          240 55% 79%;
+    --theme-color-4:          359 61% 62%;
+    --theme-color-5:          227 31% 76%;
 
-    /* Sidebar — dark theme */
-    --sidebar-bg:             0 0% 6%;         /* night-1000 */
-    --sidebar-fg:             0 0% 97%;
-    --sidebar-fg-muted:       0 0% 60%;
-    --sidebar-border:         0 0% 16%;
-    --sidebar-hover:          0 0% 12%;        /* night-800 */
-    --sidebar-active-bg:      173 70% 18%;        /* deep teal tint — brand 색 */
-    --sidebar-active-fg:      0 0% 97%;           /* sidebar-fg 유지 (배경만 brand) */
-    --sidebar-active-border:  173 70% 35% / 0.40;
+    --header-bg:              225 27% 12%;    /* plate 레벨 — 다크에서 "위"는 더 밝음 */
+
+    /* Sidebar — 다크 command layer */
+    --sidebar-bg:             225 27% 12%;
+    --sidebar-fg:             0 0% 100%;
+    --sidebar-fg-muted:       227 31% 76%;
+    --sidebar-border:         227 25% 30%;
+    --sidebar-hover:          221 20% 18%;    /* #252b38 */
+    --sidebar-active-bg:      31 60% 18%;     /* signal 딥 틴트 */
+    --sidebar-active-fg:      38 83% 57%;     /* amber (6.15:1) */
+    --sidebar-active-border:  31 92% 54% / 0.45;
   }
 
-  /* ---------- LIGHT ------------------------------------------------ */
-  /* :root.light 로 specificity (0,2,0) > :root (0,1,0) — 명시적으로 우선순위 보장.
-     모던 SaaS 라이트 테마 (GitHub / Stripe / Linear) 의 3단 visual hierarchy:
-       Sidebar (slate-100, 가장 짙은 회색)  >  Page (slate-50, 옅은 회색)  >  Card (흰색, 가장 밝음)
-     덕분에 카드가 페이지 위에 살짝 떠있는 elevation 감을 보이며 트리 / 디테일 영역이 한눈에 구분됨. */
+  /* ---------- LIGHT ------------------------------------------------
+     :root.light 로 specificity (0,2,0) > :root (0,1,0) — 우선순위 보장.
+     산문의 표면 위계 3단:
+       carbon 사이드바 (가장 어두움) > canvas 페리윙클 섀시 > white 카드 (가장 밝음)
+     canvas 는 플레이트 *사이의 섀시*이며 텍스트 표면이 아니다.
+     본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
-    --background:             210 20% 98%;     /* #f8fafc slate-50 — 페이지 옅은 회색 */
-    --foreground:             0 0% 13%;        /* #202020 gray-900 */
-    --card:                   0 0% 100%;       /* #FFFFFF white — 카드는 흰색으로 떠보임 */
-    --card-foreground:        0 0% 13%;
+    --background:             225 32% 60%;    /* canvas #7a8aba 페리윙클 섀시 */
+    --foreground:             226 16% 15%;    /* ink #21242e */
+    --card:                   0 0% 100%;      /* white — 콘텐츠 카드 */
+    --card-foreground:        226 16% 15%;
     --popover:                0 0% 100%;
-    --popover-foreground:     0 0% 13%;
+    --popover-foreground:     226 16% 15%;
 
-    --primary:                173 83% 31%;     /* #0e9384 brand-600 teal */
-    --primary-foreground:     0 0% 100%;
+    --primary:                38 83% 57%;     /* amber #ecab37 — red 는 로고 전용 */
+    --primary-foreground:     226 16% 15%;    /* ink on amber (7.7:1) */
 
-    --secondary:              0 0% 98%;        /* #fafafa gray-50 */
-    --secondary-foreground:   0 0% 13%;
+    --secondary:              214 60% 76%;    /* canvas-soft #9fbee7 light inset panel */
+    --secondary-foreground:   226 16% 15%;
 
-    --muted:                  0 0% 96%;        /* #f5f5f5 gray-100 */
-    --muted-foreground:       0 0% 44%;        /* #707070 gray-500 */
+    --muted:                  0 0% 87%;       /* platinum #dedede — list-row surface */
+    --muted-foreground:       228 42% 42%;    /* ink-soft #3d4f97 — platinum/white 위에서만 */
 
-    --accent:                 173 76% 96%;     /* brand-50 #f0fdf9 — soft brand tint */
-    --accent-foreground:      173 76% 25%;     /* #107569 brand-700 */
+    --accent:                 222 46% 69%;    /* periwinkle #8ba1d4 raised mid panel */
+    --accent-foreground:      226 16% 15%;
 
-    --destructive:            4 75% 49%;       /* #d92d20 error-600 */
+    --destructive:            355 100% 45%;   /* error #e60012 */
     --destructive-foreground: 0 0% 100%;
 
-    --border:                 0 0% 92%;        /* #eaeaea gray-200 */
-    --input:                  0 0% 92%;
-    --ring:                   173 83% 31%;     /* brand-600 */
+    --border:                 228 42% 42%;    /* chrome-indigo — 베벨 그림자선 */
+    --input:                  230 30% 77%;    /* hairline #b3b9d6 (preview 추출) */
+    --ring:                   31 92% 54%;     /* signal #f68d1f */
 
-    /* Charts — Backstage signature palette */
-    --chart-1:                173 83% 31%;     /* brand teal */
-    --chart-2:                211 95% 58%;     /* blue */
-    --chart-3:                248 92% 67%;     /* violet */
-    --chart-4:                35 95% 50%;      /* warning amber */
-    --chart-5:                154 91% 30%;     /* success green */
+    /* 크롬 레이어 베벨 하이라이트 — 라이트는 상단 흰 엣지-라이트 */
+    --plate-highlight:        0 0% 100% / 0.5;
 
-    /* Category badge tints — light theme — slightly darker for contrast on white */
-    --cat-database:           211 95% 45%;
-    --cat-web:                154 91% 30%;
-    --cat-engine:             248 92% 55%;
-    --cat-etc:                0 0% 44%;
+    /* 차트 — 라이트는 명도 하향해 흰/플래티넘 위 가독 확보 */
+    --chart-1:                214 60% 40%;    /* sky */
+    --chart-2:                194 58% 30%;    /* systems-teal */
+    --chart-3:                240 55% 50%;    /* lavender */
+    --chart-4:                359 61% 41%;    /* games-red */
+    --chart-5:                226 16% 45%;    /* carbon hue 중명도 = 쿨 그레이 */
 
-    /* Theme-color scale (legacy safelist) */
-    --theme-color-1:          173 83% 31%;     /* brand teal */
-    --theme-color-2:          35 95% 50%;      /* warning amber */
-    --theme-color-3:          211 95% 58%;     /* blue */
-    --theme-color-4:          154 91% 30%;     /* success green */
-    --theme-color-5:          248 92% 67%;     /* violet */
+    --cat-database:           214 60% 40%;
+    --cat-web:                194 58% 30%;
+    --cat-engine:             240 55% 50%;
+    --cat-etc:                226 16% 45%;
 
-    --header-bg:              0 0% 100%;
+    --theme-color-1:          214 60% 40%;
+    --theme-color-2:          194 58% 30%;
+    --theme-color-3:          240 55% 50%;
+    --theme-color-4:          359 61% 41%;
+    --theme-color-5:          226 16% 45%;
 
-    /* Sidebar — light theme: 페이지(slate-50) 보다 한 단계 더 짙은 slate-100 */
-    --sidebar-bg:             220 14% 94%;     /* #ebedf2 — slate-100 보다 살짝 더 짙어서 page 와 명확 구분 */
-    --sidebar-fg:             0 0% 13%;        /* gray-900 */
-    --sidebar-fg-muted:       0 0% 44%;        /* gray-500 */
-    --sidebar-border:         220 14% 88%;     /* sidebar 와 page 경계 보강 */
-    --sidebar-hover:          0 0% 100%;       /* hover 시 white — 카드와 동일 surface */
-    --sidebar-active-bg:      173 76% 96%;     /* brand-50 — brand 색 */
-    --sidebar-active-fg:      0 0% 13%;        /* sidebar-fg 유지 (배경만 brand) */
-    --sidebar-active-border:  173 76% 70% / 0.30;
+    --header-bg:              226 16% 15%;    /* carbon — nav-bar 슬랩 */
+
+    /* Sidebar — 라이트에서도 carbon command layer (산문 Elevation 3) */
+    --sidebar-bg:             226 16% 15%;
+    --sidebar-fg:             0 0% 100%;      /* 15.5:1 */
+    --sidebar-fg-muted:       214 60% 76%;    /* canvas-soft, 산문 footer 텍스트색 (8.1:1) */
+    --sidebar-border:         228 42% 42%;    /* chrome-indigo 베벨선 */
+    --sidebar-hover:          226 16% 22%;    /* carbon 한 단계 밝게 */
+    --sidebar-active-bg:      35 100% 16%;    /* nav-gold 딥 틴트 */
+    --sidebar-active-fg:      38 83% 57%;     /* amber (5.86:1) */
+    --sidebar-active-border:  31 92% 54% / 0.45;
+  }
+}
+
+/* =================================================================
+   크롬 레이어 — 산문의 "조립된 기계" 형태·질감.
+   토큰이 아니라 형상이므로 유틸리티 클래스로 구현한다.
+   Elevation 은 흐린 drop-shadow 가 아니라 하드 베벨로 표현한다.
+   ================================================================= */
+@layer utilities {
+  /* Elevation 1 — Plate: 상단 하이라이트 + 하단 베벨 그림자선 */
+  .plate {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--plate-highlight)),
+      0 1px 0 0 hsl(var(--border));
+  }
+
+  /* Elevation 0 — Inset: 극성 반전 (상단 어두운 선, 하단 밝은 선) */
+  .plate-inset {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--border)),
+      inset 0 -1px 0 0 hsl(var(--plate-highlight));
+  }
+
+  /* Elevation 2 — Raised chip: 밝은 상단 엣지 + 하드 하단 그림자 */
+  .plate-chip {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--plate-highlight)),
+      0 2px 0 0 hsl(var(--border));
+  }
+
+  /* 할프톤 dot-matrix — 카본 슬랩의 스피커 그릴 질감 */
+  .halftone {
+    background-image: radial-gradient(hsl(0 0% 100% / 0.045) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+
+  /* Elevation 3 — Command slab: 카본 + 할프톤 */
+  .slab {
+    background-color: hsl(var(--sidebar-bg));
+    background-image: radial-gradient(hsl(0 0% 100% / 0.045) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+
+  /* 45° 컷 코너 — 산문의 machined faceplate 엣지.
+     border-radius 로는 표현 불가. 최상위 패널에만 쓴다.
+     주의: clip-path 는 자식의 overflow 를 자르므로
+     드롭다운/팝오버를 품는 컨테이너에는 쓰지 않는다. */
+  .chamfer {
+    clip-path: polygon(
+      8px 0,
+      100% 0,
+      100% calc(100% - 8px),
+      calc(100% - 8px) 100%,
+      0 100%,
+      0 8px
+    );
+  }
+
+  /* 실크스크린 레전드 voice — 모든 구조 라벨 */
+  .ui-label {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+
+  /* 박스아트 워드마크 — 아웃라인 + 하드 오프셋 그림자 */
+  .display-outline {
+    font-family: "Arial Black", Arial, sans-serif;
+    -webkit-text-stroke: 2px hsl(var(--foreground));
+    paint-order: stroke fill;
+    text-shadow: 3px 3px 0 hsl(var(--border));
   }
 }
 
@@ -158,14 +241,15 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Inter", "DM Sans", "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* Arial = 2001년 웹세이프 현실. Pretendard 는 한글 폴백
+       (Arial 에 한글 글리프가 없어 체인으로 라틴/한글을 나눔). */
+    font-family: Arial, Helvetica, "Pretendard", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "cv11", "ss03";
   }
 
-  /* Backstage signature negative tracking on display text */
-  h1, h2, h3 { letter-spacing: -0.01em; }
+  /* 산문의 크롬 voice — 구조 라벨은 uppercase + tracking */
+  h1, h2, h3 { letter-spacing: 0.3px; }
 
   /* Browser scrollbar style (unchanged) */
   html {

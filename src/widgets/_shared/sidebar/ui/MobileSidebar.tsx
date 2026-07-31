@@ -79,7 +79,7 @@ export function MobileSidebar() {
       <Sheet open={open} onOpenChange={setMobile}>
         <SheetContent
           side="left"
-          className="w-72 p-0 flex flex-col"
+          className="w-72 p-0 flex flex-col halftone"
           style={{ backgroundColor: 'hsl(var(--sidebar-bg))' }}
         >
           <SheetTitle className="sr-only">주 메뉴</SheetTitle>
