@@ -172,7 +172,7 @@
 
     /* Sidebar — carbon 슬랩을 버리고 page 보다 한 단계 짙은 쿨그레이로.
        라이트에서 near-black 사이드바는 흰 콘텐츠와 괴리가 너무 컸다. */
-    --sidebar-bg:             225 27% 87%;
+    --sidebar-bg:             225 17% 87%;
     --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
     --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
     --sidebar-border:         225 20% 74%;
