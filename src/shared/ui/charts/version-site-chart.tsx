@@ -8,24 +8,17 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 
-const COLORS = [
-  '#10b981', // emerald
-  '#f59e0b', // amber
-  '#a855f7', // purple
-  '#0ea5e9', // sky
-  '#f43f5e', // rose
-  '#84cc16', // lime
-  '#06b6d4', // cyan
-  '#d946ef', // fuchsia
-  '#f97316', // orange
-  '#14b8a6', // teal
-  '#6366f1', // indigo
-  '#ec4899', // pink
-]
+/**
+ * 사이트 식별 색 — `--site-1` ~ `--site-8` 토큰 순환.
+ * 이전에는 Tailwind 원색 12개(emerald/rose/fuchsia/lime…)를 하드코딩해
+ * 테마와 무관하게 과채도로 튀었다. 토큰화하면서 채도를 낮췄고
+ * 라이트/다크에서 각각 적절한 명도로 전환된다.
+ */
+const SITE_COLOR_COUNT = 8
 
 function siteColor(c: SiteInfo): string {
-  const idx = Number(c.siteId) % COLORS.length
-  return COLORS[idx]
+  const idx = (Number(c.siteId) % SITE_COLOR_COUNT) + 1
+  return `hsl(var(--site-${idx}))`
 }
 
 interface VersionSiteChartProps {

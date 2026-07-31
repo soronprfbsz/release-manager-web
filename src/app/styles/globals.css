@@ -69,6 +69,17 @@
     --theme-color-4:          359 61% 62%;
     --theme-color-5:          227 31% 76%;
 
+    /* 사이트 식별 팔레트 — 차트 segment 용. 저채도 8색 순환.
+       (하드코딩 12색 팔레트는 테마 무관이라 다크에서도 과채도였다) */
+    --site-1:                 214 52% 68%;
+    --site-2:                 194 42% 58%;
+    --site-3:                 240 42% 76%;
+    --site-4:                 355 52% 66%;
+    --site-5:                 158 34% 56%;
+    --site-6:                 28 52% 62%;
+    --site-7:                 276 34% 70%;
+    --site-8:                 226 18% 62%;
+
     --header-bg:              225 27% 12%;    /* plate 레벨 — 다크에서 "위"는 더 밝음 */
 
     /* Sidebar — 다크 command layer */
@@ -89,64 +100,81 @@
      canvas 는 플레이트 *사이의 섀시*이며 텍스트 표면이 아니다.
      본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
-    --background:             225 32% 60%;    /* canvas #7a8aba 페리윙클 섀시 */
-    --foreground:             226 16% 15%;    /* ink #21242e */
+    /* 값(lightness) 사다리를 좁게 유지한다 — 이게 "무난함"의 핵심.
+       sidebar 88% → page 94% → card 100%. 점프 6/6.
+       (초안은 carbon 15% → 페리윙클 60% → white 100% 로 45/40 점프였고
+        세 영역이 서로 싸워 게이밍 느낌을 만들었다.)
+       페리윙클 정체성은 hue 225 를 저채도로 남겨 "귓속말" 수준으로만 유지. */
+    --background:             225 24% 94%;    /* 옅은 페리윙클 섀시 */
+    --foreground:             226 20% 18%;    /* ink 살짝 밝게 (순수 검정 회피) */
     --card:                   0 0% 100%;      /* white — 콘텐츠 카드 */
-    --card-foreground:        226 16% 15%;
+    --card-foreground:        226 20% 18%;
     --popover:                0 0% 100%;
-    --popover-foreground:     226 16% 15%;
+    --popover-foreground:     226 20% 18%;
 
-    --primary:                38 83% 57%;     /* amber #ecab37 — red 는 로고 전용 */
-    --primary-foreground:     226 16% 15%;    /* ink on amber (7.7:1) */
+    --primary:                38 78% 52%;     /* amber — 흰 배경 위 대비 위해 약간 진하게 */
+    --primary-foreground:     226 20% 15%;
 
-    --secondary:              214 60% 76%;    /* canvas-soft #9fbee7 light inset panel */
-    --secondary-foreground:   226 16% 15%;
+    --secondary:              222 28% 90%;    /* 옅은 페리윙클 inset panel */
+    --secondary-foreground:   226 20% 18%;
 
-    --muted:                  0 0% 87%;       /* platinum #dedede — list-row surface */
-    --muted-foreground:       228 42% 42%;    /* ink-soft #3d4f97 — platinum/white 위에서만 */
+    --muted:                  225 20% 92%;    /* list-row / inset surface */
+    --muted-foreground:       226 16% 42%;    /* 쿨 슬레이트 — ink-soft 채도 대폭 하향 */
 
-    --accent:                 222 46% 69%;    /* periwinkle #8ba1d4 raised mid panel */
-    --accent-foreground:      226 16% 15%;
+    --accent:                 222 30% 91%;
+    --accent-foreground:      228 35% 32%;
 
-    --destructive:            355 100% 45%;   /* error #e60012 */
+    --destructive:            355 72% 48%;    /* 채도 하향 */
     --destructive-foreground: 0 0% 100%;
 
-    --border:                 228 42% 42%;    /* chrome-indigo — 베벨 그림자선 */
-    --input:                  230 30% 77%;    /* hairline #b3b9d6 (preview 추출) */
-    --ring:                   31 92% 54%;     /* signal #f68d1f */
+    --border:                 225 22% 85%;    /* 진한 남색선 → 옅은 쿨그레이 */
+    --input:                  225 22% 83%;
+    --ring:                   31 85% 52%;     /* signal */
 
-    /* 크롬 레이어 베벨 하이라이트 — 라이트는 상단 흰 엣지-라이트 */
-    --plate-highlight:        0 0% 100% / 0.5;
+    /* 크롬 레이어 베벨 하이라이트 */
+    --plate-highlight:        0 0% 100% / 0.7;
 
-    /* 차트 — 라이트는 명도 하향해 흰/플래티넘 위 가독 확보 */
-    --chart-1:                214 60% 40%;    /* sky */
-    --chart-2:                194 58% 30%;    /* systems-teal */
-    --chart-3:                240 55% 50%;    /* lavender */
-    --chart-4:                359 61% 41%;    /* games-red */
-    --chart-5:                226 16% 45%;    /* carbon hue 중명도 = 쿨 그레이 */
+    /* 차트 — 채도를 32~45% 로 낮춰 정보 레이어가 튀지 않게 */
+    --chart-1:                214 45% 48%;
+    --chart-2:                194 40% 38%;
+    --chart-3:                240 30% 58%;
+    --chart-4:                355 45% 50%;
+    --chart-5:                226 12% 52%;
 
-    --cat-database:           214 60% 40%;
-    --cat-web:                194 58% 30%;
-    --cat-engine:             240 55% 50%;
-    --cat-etc:                226 16% 45%;
+    --cat-database:           214 45% 48%;
+    --cat-web:                194 40% 38%;
+    --cat-engine:             240 30% 58%;
+    --cat-etc:                226 12% 52%;
 
-    --theme-color-1:          214 60% 40%;
-    --theme-color-2:          194 58% 30%;
-    --theme-color-3:          240 55% 50%;
-    --theme-color-4:          359 61% 41%;
-    --theme-color-5:          226 16% 45%;
+    --theme-color-1:          214 45% 48%;
+    --theme-color-2:          194 40% 38%;
+    --theme-color-3:          240 30% 58%;
+    --theme-color-4:          355 45% 50%;
+    --theme-color-5:          226 12% 52%;
 
-    --header-bg:              226 16% 15%;    /* carbon — nav-bar 슬랩 */
+    /* 사이트 식별 팔레트 — 차트 segment 용. 저채도 8색 순환.
+       (하드코딩 12색 emerald/rose/fuchsia/lime… 을 대체) */
+    --site-1:                 214 45% 48%;
+    --site-2:                 194 40% 38%;
+    --site-3:                 240 30% 58%;
+    --site-4:                 355 45% 50%;
+    --site-5:                 158 32% 38%;
+    --site-6:                 28 48% 46%;
+    --site-7:                 276 26% 52%;
+    --site-8:                 226 12% 52%;
 
-    /* Sidebar — 라이트에서도 carbon command layer (산문 Elevation 3) */
-    --sidebar-bg:             226 16% 15%;
-    --sidebar-fg:             0 0% 100%;      /* 15.5:1 */
-    --sidebar-fg-muted:       214 60% 76%;    /* canvas-soft, 산문 footer 텍스트색 (8.1:1) */
-    --sidebar-border:         228 42% 42%;    /* chrome-indigo 베벨선 */
-    --sidebar-hover:          226 16% 22%;    /* carbon 한 단계 밝게 */
-    --sidebar-active-bg:      35 100% 16%;    /* nav-gold 딥 틴트 */
-    --sidebar-active-fg:      38 83% 57%;     /* amber (5.86:1) */
-    --sidebar-active-border:  31 92% 54% / 0.45;
+    --header-bg:              0 0% 100%;      /* 흰 톱바 — page 위에 얹힌 표면 */
+
+    /* Sidebar — carbon 슬랩을 버리고 page 보다 한 단계 짙은 쿨그레이로.
+       라이트에서 near-black 사이드바는 흰 콘텐츠와 괴리가 너무 컸다. */
+    --sidebar-bg:             226 20% 88%;
+    --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
+    --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
+    --sidebar-border:         225 22% 82%;
+    --sidebar-hover:          0 0% 100%;      /* hover 시 흰색 — 카드와 동일 surface */
+    --sidebar-active-bg:      38 70% 88%;     /* 옅은 amber 틴트 */
+    --sidebar-active-fg:      30 75% 28%;     /* 진한 amber-브라운 (5.95:1) */
+    --sidebar-active-border:  31 85% 52% / 0.35;
   }
 }
 
@@ -232,6 +260,15 @@
      덕분에 자식 컴포넌트가 h-full 로 자연스럽게 채움.
      body overflow: hidden — native 브라우저 스크롤 leak 차단.
      세로 스크롤은 <main> 이 단독 책임. */
+  /* 전역 밀도 — rem 기준을 16px → 15px 로 낮춘다.
+     앱의 폰트(text-sm 341곳 / text-xs 268곳)와 Tailwind 스페이싱이 전부
+     rem 기반이라 이 한 줄로 타입과 여백이 같은 비율(93.75%)로 함께 줄어든다.
+     text-[10px] 등 하드코딩 px 값(51곳)은 영향받지 않는다 — 이미 최소 크기라 의도된 유지.
+     행 높이·카드 패딩 같은 큰 항목은 table.tsx / card.tsx 에서 추가로 조인다. */
+  html {
+    font-size: 15px;
+  }
+
   html, body, #root {
     height: 100%;
   }
