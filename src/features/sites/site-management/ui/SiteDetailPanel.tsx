@@ -18,6 +18,7 @@ import { resolveGlyph, getGlyphFontSizeClass } from '@/shared/lib/glyph'
 import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { Badge } from '@/shared/ui/badge'
+import { CONTENT_SPACING } from '@/shared/ui/content-layout'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 
 import { BuildVersionsRow } from './BuildVersionsRow'
@@ -49,9 +50,9 @@ export function SiteDetailPanel({ site }: SiteDetailPanelProps) {
   const glyphFontSize = getGlyphFontSizeClass(glyphText)
 
   return (
-    <div className="pt-4">
+    <div className={CONTENT_SPACING.DETAIL_PANEL_TOP}>
       {/* Hero + Meta Rail */}
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-5">
+      <div className={cn('grid grid-cols-[auto_1fr_auto] items-center gap-[18px]', CONTENT_SPACING.DETAIL_HERO_BOTTOM)}>
         {/* 좌측: 사이트 정체성 */}
         <div className="flex items-center gap-4 min-w-0">
           {/* 글리프 배지 */}
@@ -127,7 +128,7 @@ export function SiteDetailPanel({ site }: SiteDetailPanelProps) {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className={CONTENT_SPACING.DETAIL_SECTION_STACK}>
         {/* 특이사항 */}
         <SiteNotesCard siteId={site.siteId} />
 

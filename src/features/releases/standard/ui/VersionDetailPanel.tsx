@@ -17,6 +17,7 @@ import { fileDownloadApi } from '@/shared/api'
 import { useFileContentViewer } from '@/shared/lib/hooks/use-file-content-viewer'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { useToast } from '@/shared/lib/hooks/use-toast'
+import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { getFileIcon, isViewableFile } from '@/shared/lib/utils/file-icon'
 import { formatFileSize } from '@/shared/lib/utils/format'
@@ -33,6 +34,7 @@ import {
 } from '@/shared/ui/alert-dialog'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
+import { CONTENT_SPACING } from '@/shared/ui/content-layout'
 import { ErrorDisplay } from '@/shared/ui/error-display'
 import { FileViewer } from '@/shared/ui/file-viewer'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -564,7 +566,7 @@ function VersionHeaderCard() {
   return (
     <div>
       {/* Hero + Meta Rail — 좌측 VERSION 큰 모노 / 가운데 vertical-rail 메타 / 우측 status pill + tags */}
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
+      <div className={cn('grid grid-cols-[auto_1fr_auto] items-center gap-[18px]', CONTENT_SPACING.DETAIL_HERO_BOTTOM)}>
         {/* 좌측 VERSION 블록 */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
@@ -806,13 +808,13 @@ function VersionDetailContent() {
   const hasFiles = fileStructure?.files?.children && fileStructure.files.children.length > 0
 
   return (
-    <div className="pt-6">
+    <div className={CONTENT_SPACING.DETAIL_PANEL_TOP}>
       {/* 버전 헤더 카드 — 큰 VERSION 좌측, 메타 가운데, 상태/카테고리 우측 + 코멘트 통합 */}
       <VersionHeaderCard />
 
       {/* 파일 — 영역 구분은 마진(pt-6 = 24px)으로만 */}
       {fileStructure && (
-        <div className="pt-6">
+        <div className={CONTENT_SPACING.DETAIL_SECTION_GAP}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-1.5 text-sm text-foreground">
               <FolderTree className="h-4 w-4" />
@@ -975,7 +977,7 @@ export function VersionDetailPanel({ version, isHotfix = false, isBuild = false,
         {/* Content — 별도 상단 헤더 없음. 컨텐츠 카드 안에서 VERSION 표제가 헤더 역할 */}
         <div className="flex-1 overflow-hidden p-0">
           <ScrollArea className="h-full">
-            <div className="px-8 pb-8 pt-6">
+            <div className={cn(CONTENT_SPACING.CARD_PADDING_X, 'pb-4')}>
               <VersionDetailContent />
             </div>
           </ScrollArea>
