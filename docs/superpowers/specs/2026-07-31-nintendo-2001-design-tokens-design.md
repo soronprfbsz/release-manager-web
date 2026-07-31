@@ -284,11 +284,24 @@ Preview 추출값: `button/input/status 2px · tile 4px · card/frame 6px`.
 `tailwind.config.js` 의 `fontFamily.sans` 와 `globals.css` 의 `body` font-family 를 교체한다.
 
 ```js
-sans: ['Arial', 'Helvetica', '"Pretendard"', 'system-ui', 'sans-serif'],
-display: ['"Arial Black"', 'Arial', 'sans-serif'],
+sans: ['"Pretendard"', 'Arial', 'Helvetica', '"Malgun Gothic"',
+       '"Apple SD Gothic Neo"', '"Noto Sans KR"', 'system-ui', 'sans-serif'],
+display: ['"Arial Black"', 'Arial', 'Helvetica', 'sans-serif'],
 ```
 
-`"Pretendard"` 는 한글 폴백으로 유지한다 — 이 앱은 UI 텍스트가 한글이고 Arial 에 한글 글리프가 없다. Arial → Pretendard 폴백 체인이 라틴/한글을 각각 담당한다.
+**Pretendard 가 Arial 앞에 온다.** 처음에는 "Arial 이 라틴, Pretendard 가 한글" 폴백 체인을 의도했으나 **구현 중 실측으로 반증됐다.**
+
+`Arial` 을 앞에 두면 한글 일부가 두부(□)로 깨진다. 같은 요소에 서체만 바꿔 4배 확대 캡처한 결과:
+
+| 적용 서체 | 결과 |
+|---|---|
+| `Pretendard` 명시 | 한글 정상 |
+| `sans-serif` | 두부 |
+| `Arial, Helvetica, "Pretendard", …` | 두부 |
+
+원인: Chromium 은 `Arial` 이 시스템에서 해석되면(fontconfig 별칭 포함) 누락 글리프에 대해 **선언 목록 뒤쪽의 웹폰트로 내려가지 않고 시스템 폴백으로 빠진다.** 교체 전 스택(`Inter, DM Sans, Pretendard, …`)이 정상이던 이유도 같다 — Inter 는 한글 없는 웹폰트, DM Sans 는 미설치라 Pretendard 가 첫 해석 가능 서체였다. `index.html` 이 Pretendard 를 jsDelivr CDN 웹폰트로 로드하므로(`fonts.check('14px Pretendard','버전 관리')` = true) 글리프 자체는 항상 있었고, 도달하지 못한 것이 문제였다.
+
+Arial 을 라틴에만 묶는 `@font-face { src: local('Arial'); unicode-range: … }` 분리도 가능하지만, 로컬 서체는 weight 별 face 를 각각 선언해야 하고 bold 합성 품질이 떨어진다. **DESIGN.md 자체가 *"The system gets its character not from typeface choice but from treatment"* 라고 명시**하므로 Pretendard 우선이 저렴한 트레이드다. 2001년 voice 는 `.ui-label` 의 uppercase + 0.5px tracking 과 `.display-outline` 이 담당한다.
 
 `mono` 는 터미널(xterm) 가독성 때문에 현행 JetBrains Mono 를 유지한다. Preview 는 `--font-mono` 를 Arial 로 두었으나 이는 kit-mirror 의 단순화이고, 실제 터미널에 등폭 폰트를 포기하는 것은 기능 후퇴다.
 

@@ -20,9 +20,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Arial = 2001년 웹세이프 현실 (라틴). 한글은 서체를 명시해야 한다 —
-        // Arial 에 한글 글리프가 없어 폴백만 믿으면 두부(□)가 난다.
-        sans: ['Arial', 'Helvetica', '"Pretendard"', '"Malgun Gothic"', '"Apple SD Gothic Neo"', '"Noto Sans KR"', 'system-ui', 'sans-serif'],
+        // Pretendard 우선 — Arial 을 먼저 두면 Chromium 이 한글 글리프를
+        // Pretendard 로 폴백하지 않고 두부(□)를 낸다. 상세는 globals.css body 주석.
+        sans: ['"Pretendard"', 'Arial', 'Helvetica', '"Malgun Gothic"', '"Apple SD Gothic Neo"', '"Noto Sans KR"', 'system-ui', 'sans-serif'],
         // 히어로 워드마크용 — .display-outline 과 함께 쓴다.
         display: ['"Arial Black"', 'Arial', 'Helvetica', 'sans-serif'],
         // 터미널(xterm) 가독성 때문에 등폭 유지.
