@@ -8,9 +8,9 @@ import { apiClient } from '@/shared/api/client'
 import type { NextPatchRangeResponse, SiteVersionResponse } from '../model/types'
 
 const ENDPOINTS = {
-  /** GET /api/sites/{siteId}/projects/{projectId}/site-versions */
+  /** GET /api/sites/{siteId}/projects/{projectId}/versions */
   siteVersions: (siteId: number, projectId: string) =>
-    `/api/sites/${siteId}/projects/${projectId}/site-versions`,
+    `/api/sites/${siteId}/projects/${projectId}/versions`,
   /** GET /api/sites/{siteId}/projects/{projectId}/next-patch-range */
   nextPatchRange: (siteId: number, projectId: string) =>
     `/api/sites/${siteId}/projects/${projectId}/next-patch-range`,
