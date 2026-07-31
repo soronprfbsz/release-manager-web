@@ -31,10 +31,17 @@ export default {
       animation: {
         'spin-slow': 'spin 1.5s linear infinite',
       },
+      // radius 단일 소스 = --radius (globals.css).
+      // DEFAULT/xl 까지 파생시켜 `rounded` (57곳) 와 `rounded-xl` (4곳) 도 토큰을 따르게 한다.
+      // 이 둘은 원래 Tailwind 고정값(4px / 12px)이라 --radius 를 바꿔도 안 따라왔다.
+      // 현재 --radius: 0.5rem 기준 계산값이 기존 고정값과 동일하므로 지금 화면은 그대로다.
+      // rounded-full / rounded-none 은 물리적 컨트롤(핀/원형 배지)용이라 의도적으로 고정.
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        DEFAULT: 'calc(var(--radius) - 4px)', //  4px
+        sm: 'calc(var(--radius) - 4px)',      //  4px
+        md: 'calc(var(--radius) - 2px)',      //  6px
+        lg: 'var(--radius)',                  //  8px
+        xl: 'calc(var(--radius) + 4px)',      // 12px
       },
       colors: {
         background: 'hsl(var(--background))',

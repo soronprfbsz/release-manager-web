@@ -46,7 +46,7 @@
     --input:                  227 25% 30%;
     --ring:                   31 92% 54%;     /* signal — 포커스 = "액션이 여기 떨어진다" */
 
-    --radius:                 0.375rem;       /* 6px → lg 6 / md 4 / sm 2 (preview 스케일) */
+    --radius:                 0.5rem;         /* 8px → lg 8 / md 6 / sm 4 */
 
     /* 크롬 레이어 베벨 하이라이트 — 다크는 표면보다 밝은 선 */
     --plate-highlight:        227 25% 30% / 0.8;

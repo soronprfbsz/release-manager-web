@@ -40,7 +40,7 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("[&_tr:hover]:bg-muted/30", className)}
+    className={cn("[&_tr:hover]:bg-foreground/[0.045]", className)}
     {...props}
   />
 ))
@@ -215,7 +215,7 @@ const SortableTableHead = React.forwardRef<HTMLTableCellElement, SortableTableHe
     return (
       <TableHead
         ref={ref}
-        className={cn('cursor-pointer select-none hover:bg-muted/50 transition-colors', className)}
+        className={cn('cursor-pointer select-none hover:bg-foreground/[0.09] transition-colors', className)}
         onClick={() => onSort(id)}
         {...props}
       >
