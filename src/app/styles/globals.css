@@ -50,6 +50,8 @@
 
     /* 크롬 레이어 베벨 하이라이트 — 다크는 표면보다 밝은 선 */
     --plate-highlight:        227 25% 30% / 0.8;
+    /* 할프톤 dot-matrix 점 색 — 어두운 면 위 흰 점 */
+    --halftone-dot:           0 0% 100% / 0.05;
 
     /* 차트 — page-tint 파생, warm 은 액션 전용이라 제외 */
     --chart-1:                214 60% 70%;    /* sky */
@@ -133,6 +135,9 @@
 
     /* 크롬 레이어 베벨 하이라이트 */
     --plate-highlight:        0 0% 100% / 0.7;
+    /* 할프톤 dot-matrix 점 색 — 밝은 면 위에서는 어두운 점으로 반전.
+       white 하드코딩이면 라이트에서 질감이 통째로 사라진다. */
+    --halftone-dot:           226 30% 28% / 0.09;
 
     /* 차트 — 채도를 32~45% 로 낮춰 정보 레이어가 튀지 않게 */
     --chart-1:                214 45% 48%;
@@ -167,7 +172,7 @@
 
     /* Sidebar — carbon 슬랩을 버리고 page 보다 한 단계 짙은 쿨그레이로.
        라이트에서 near-black 사이드바는 흰 콘텐츠와 괴리가 너무 컸다. */
-    --sidebar-bg:             226 20% 88%;
+    --sidebar-bg:             225 27% 87%;
     --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
     --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
     --sidebar-border:         225 22% 82%;
@@ -207,14 +212,14 @@
 
   /* 할프톤 dot-matrix — 카본 슬랩의 스피커 그릴 질감 */
   .halftone {
-    background-image: radial-gradient(hsl(0 0% 100% / 0.045) 0.5px, transparent 0.5px);
+    background-image: radial-gradient(hsl(var(--halftone-dot)) 0.5px, transparent 0.5px);
     background-size: 3px 3px;
   }
 
   /* Elevation 3 — Command slab: 카본 + 할프톤 */
   .slab {
     background-color: hsl(var(--sidebar-bg));
-    background-image: radial-gradient(hsl(0 0% 100% / 0.045) 0.5px, transparent 0.5px);
+    background-image: radial-gradient(hsl(var(--halftone-dot)) 0.5px, transparent 0.5px);
     background-size: 3px 3px;
   }
 
@@ -292,6 +297,19 @@
 
   /* 산문의 크롬 voice — 구조 라벨은 uppercase + tracking */
   h1, h2, h3 { letter-spacing: 0.3px; }
+
+  /* Chrome 자동완성이 배경을 rgb(232,240,254) 로 강제해 다크 테마를 덮어쓴다.
+     background-color 는 UA 스타일을 못 이기므로 inset box-shadow 로 칠한다. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    -webkit-box-shadow: 0 0 0 1000px hsl(var(--card)) inset;
+    box-shadow: 0 0 0 1000px hsl(var(--card)) inset;
+    caret-color: hsl(var(--foreground));
+    transition: background-color 9999s ease-in-out 0s;
+  }
 
   /* Browser scrollbar style (unchanged) */
   html {

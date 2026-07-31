@@ -49,9 +49,9 @@ export function SiteDetailPanel({ site }: SiteDetailPanelProps) {
   const glyphFontSize = getGlyphFontSizeClass(glyphText)
 
   return (
-    <div className="pt-6">
+    <div className="pt-4">
       {/* Hero + Meta Rail */}
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-7">
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px] pb-5">
         {/* 좌측: 사이트 정체성 */}
         <div className="flex items-center gap-4 min-w-0">
           {/* 글리프 배지 */}
@@ -127,7 +127,7 @@ export function SiteDetailPanel({ site }: SiteDetailPanelProps) {
         </div>
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-6">
         {/* 특이사항 */}
         <SiteNotesCard siteId={site.siteId} />
 

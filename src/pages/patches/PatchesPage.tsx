@@ -501,7 +501,7 @@ export function PatchesPage() {
       }
     >
       {/* 운영 관리 안내 배너 — 생성된 패치 파일 처리 가이드 */}
-      <div className="mb-4 p-3 rounded-md border bg-muted/50">
+      <div className="mb-2 p-3 rounded-md border bg-muted/50">
         <div className="flex gap-2">
           <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">

@@ -810,9 +810,9 @@ function VersionDetailContent() {
       {/* 버전 헤더 카드 — 큰 VERSION 좌측, 메타 가운데, 상태/카테고리 우측 + 코멘트 통합 */}
       <VersionHeaderCard />
 
-      {/* 파일 — 영역 구분은 마진(pt-8)으로만 */}
+      {/* 파일 — 영역 구분은 마진(pt-6 = 24px)으로만 */}
       {fileStructure && (
-        <div className="pt-8">
+        <div className="pt-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-1.5 text-sm text-foreground">
               <FolderTree className="h-4 w-4" />
