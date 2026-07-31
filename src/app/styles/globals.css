@@ -241,9 +241,12 @@
 
   body {
     @apply bg-background text-foreground;
-    /* Arial = 2001년 웹세이프 현실. Pretendard 는 한글 폴백
-       (Arial 에 한글 글리프가 없어 체인으로 라틴/한글을 나눔). */
-    font-family: Arial, Helvetica, "Pretendard", system-ui, -apple-system, sans-serif;
+    /* Arial = 2001년 웹세이프 현실 (라틴 크롬 담당).
+       Arial 에 한글 글리프가 없으므로 한글 서체를 *명시*한다 —
+       글리프 폴백에만 의존하면 일부 요소가 두부(□)로 깨진다.
+       Pretendard → Malgun Gothic(Win) → Apple SD Gothic Neo(mac) → Noto Sans KR. */
+    font-family: Arial, Helvetica, "Pretendard", "Malgun Gothic",
+      "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
