@@ -40,7 +40,7 @@ export interface TabbedTab {
   icon?: LucideIcon
   /** 탭이 active 일 때 표시될 컨텐츠 */
   content: ReactNode
-  /** 이 탭만 컨텐츠 영역 className 을 override (기본: 'px-8 py-8') */
+  /** 이 탭만 컨텐츠 영역 className 을 override (기본: 'px-4 py-4') */
   contentClassName?: string
 }
 
@@ -63,7 +63,7 @@ interface TabbedContentCardProps {
   fullHeight?: boolean
 }
 
-const DEFAULT_CONTENT_CLASS = 'px-8 py-8'
+const DEFAULT_CONTENT_CLASS = 'px-4 py-4'
 
 export function TabbedContentCard({
   value,

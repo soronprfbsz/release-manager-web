@@ -77,7 +77,7 @@ function ContentSplitTree({
       {rawHeader ? (
         <div className="flex-none">{header}</div>
       ) : (
-        <div className="px-4 py-4 flex-none flex items-center justify-between border-b border-border">
+        <div className="px-4 py-2.5 flex-none flex items-center justify-between border-b border-border">
           {header || (
             <>
               <h3 className="text-base font-semibold">{title}</h3>
@@ -124,7 +124,7 @@ function ContentSplitDetail({
   return (
     <Card className={cn('flex flex-col overflow-hidden', className)}>
       {header && (
-        <div className="px-8 py-6 flex-none flex items-center justify-between min-h-[76px] border-b border-border">
+        <div className="px-5 py-3 flex-none flex items-center justify-between min-h-[56px] border-b border-border">
           {header}
         </div>
       )}
@@ -135,7 +135,7 @@ function ContentSplitDetail({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="px-8 pb-6 pt-4">
+            <div className="px-5 pb-4 pt-3">
               {children}
             </div>
           </ScrollArea>

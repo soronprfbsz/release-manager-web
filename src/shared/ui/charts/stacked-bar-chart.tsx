@@ -11,12 +11,21 @@ import {
 } from 'recharts'
 
 // 차트 색상
+/**
+ * stackKeys 는 사이트 목록이라 사이트 식별 팔레트(`--site-1` ~ `--site-8`)를 쓴다.
+ * chart-1~5 만 순환하면 사이트가 5개를 넘는 순간 색이 겹쳐 범례가 모호해진다
+ * (운영 기준 11개 사이트). VersionSiteChart 와 같은 팔레트라 대시보드 안에서
+ * 두 차트의 색 언어가 일치한다.
+ */
 const CHART_COLORS = [
-  'hsl(var(--chart-1))',
-  'hsl(var(--chart-2))',
-  'hsl(var(--chart-3))',
-  'hsl(var(--chart-4))',
-  'hsl(var(--chart-5))',
+  'hsl(var(--site-1))',
+  'hsl(var(--site-2))',
+  'hsl(var(--site-3))',
+  'hsl(var(--site-4))',
+  'hsl(var(--site-5))',
+  'hsl(var(--site-6))',
+  'hsl(var(--site-7))',
+  'hsl(var(--site-8))',
 ]
 
 interface StackedBarChartProps {

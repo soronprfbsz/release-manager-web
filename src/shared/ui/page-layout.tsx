@@ -69,7 +69,7 @@ export function PageLayout({
   return (
     <div
       className={cn(
-        'flex flex-col gap-6 px-6 py-7',
+        'flex flex-col gap-4 px-4 py-4',
         // fullHeight: 정확히 viewport-bound — main 높이 = PageLayout 높이.
         // overflow-hidden 으로 PageLayout 이 main 을 넘어 자라지 못하도록 차단.
         // 결과: 내부 컨텐츠 (ContentSplit) 가 잔여 높이를 모두 차지하고 패널마다
