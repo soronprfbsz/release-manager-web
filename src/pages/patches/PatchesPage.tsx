@@ -501,7 +501,9 @@ export function PatchesPage() {
       }
     >
       {/* 운영 관리 안내 배너 — 생성된 패치 파일 처리 가이드 */}
-      <div className="mb-2 p-3 rounded-md border bg-muted/50">
+      {/* 배경은 bg-card — 아래 테이블 카드와 같은 표면 토큰이라 양 테마에서 자동으로 일치한다.
+          (bg-muted/50 은 라이트에서 회색으로 떠 보였다) */}
+      <div className="mb-2 p-3 rounded-md border bg-card">
         <div className="flex gap-2">
           <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">
