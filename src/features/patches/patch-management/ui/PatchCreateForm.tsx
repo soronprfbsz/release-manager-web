@@ -152,8 +152,10 @@ export function PatchCreateForm({
     if (!value) return
     onFormDataChange((prev) => {
       const fromVersionId = getVersionIdFromOption(versionOptions, value)
+      // From == To 는 유효한 범위다 (해당 버전에 사후 추가된 빌드/파일 회수용).
+      // From 이 To 를 넘어설 때만 To 를 비운다.
       const toVersionCleared =
-        prev.toVersion && compareVersions(value, prev.toVersion) >= 0 ? '' : prev.toVersion
+        prev.toVersion && compareVersions(value, prev.toVersion) > 0 ? '' : prev.toVersion
       return {
         ...prev,
         fromVersion: value,
