@@ -196,7 +196,7 @@ export function ResourcePage() {
           // 파일 탭: 카테고리 생성 드롭다운
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -212,7 +212,7 @@ export function ResourcePage() {
              (currentTab === 'publishing' && canCreatePublishing) ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={handleAdd} variant="outline" size="icon">
+              <Button onClick={handleAdd} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>

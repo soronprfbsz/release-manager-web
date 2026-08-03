@@ -383,7 +383,7 @@ export function SiteForm({
               <AlertDialogAction
                 onClick={handleResetConfirm}
                 disabled={resetMutation.isPending}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
               >
                 {resetMutation.isPending ? (
                   <>

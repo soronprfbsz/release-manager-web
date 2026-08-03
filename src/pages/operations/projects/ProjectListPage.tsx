@@ -715,7 +715,7 @@ export function ProjectListPage() {
         currentTab === 'management' && canCreateProject ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={handleAddClick} variant="outline" size="icon">
+              <Button onClick={handleAddClick} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -726,7 +726,7 @@ export function ProjectListPage() {
         ) : currentTab === 'onboarding' && projectId && canManageProjectFiles ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -744,7 +744,7 @@ export function ProjectListPage() {
         ) : currentTab === 'install' && projectId && canManageProjectFiles ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

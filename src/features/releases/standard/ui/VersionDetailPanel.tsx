@@ -933,7 +933,7 @@ function VersionDetailDialogs() {
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={deleteMutation.isPending || !deleteAcknowledged}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/70"
             >
               {deleteMutation.isPending ? '삭제 중...' : '삭제'}
             </AlertDialogAction>

@@ -220,7 +220,7 @@ export function SiteListPage() {
         canCreateSite ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={openCreateModal} variant="outline" size="icon">
+              <Button onClick={openCreateModal} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>

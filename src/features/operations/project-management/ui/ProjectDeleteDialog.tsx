@@ -49,7 +49,7 @@ export function ProjectDeleteDialog({
               e.preventDefault()
               onConfirm()
             }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
             disabled={isDeleting}
           >
             {isDeleting ? '삭제 중...' : '삭제'}

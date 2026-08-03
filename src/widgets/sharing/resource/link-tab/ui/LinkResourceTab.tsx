@@ -178,7 +178,7 @@ export const LinkResourceTab = forwardRef<LinkResourceTabHandle, LinkResourceTab
                   e.preventDefault()
                   if (deleteLinkTarget) deleteLinkMutation.mutate(deleteLinkTarget.resourceLinkId)
                 }}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
               >
                 {deleteLinkMutation.isPending ? '삭제 중...' : '삭제'}
               </AlertDialogAction>

@@ -488,7 +488,7 @@ export function PatchesPage() {
           {canAddPatch && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button onClick={handleAdd} variant="outline" size="icon">
+                <Button onClick={handleAdd} size="icon">
                   <Plus className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>

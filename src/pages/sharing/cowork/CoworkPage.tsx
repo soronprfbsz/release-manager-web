@@ -73,7 +73,7 @@ export function CoworkPage() {
         <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={handleOpenForm} variant="outline" size="icon">
+              <Button onClick={handleOpenForm} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>

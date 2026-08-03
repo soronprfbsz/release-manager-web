@@ -44,7 +44,7 @@ export function PostDeleteDialog({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
           >
             {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             삭제

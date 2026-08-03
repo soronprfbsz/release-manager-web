@@ -80,11 +80,10 @@ export function DesktopSidebar() {
       <aside
         className={cn(
           'flex flex-col flex-none border-r border-[hsl(var(--sidebar-border))] overflow-y-auto overflow-x-hidden transition-[width] duration-200 ease-out',
-          // 카본 command slab — 할프톤 dot-matrix (스피커 그릴 질감)
-          'halftone',
+          // command slab — 탑바(MainLayout)와 같은 클래스. 배경색은 .slab 한 곳에서만 바꾼다
+          'slab',
           collapsed ? 'w-16' : 'w-[256px]'
         )}
-        style={{ backgroundColor: 'hsl(var(--sidebar-bg))' }}
         aria-label="주 메뉴"
       >
         {/* 로고 영역 — topbar 와 동일한 h-16 */}

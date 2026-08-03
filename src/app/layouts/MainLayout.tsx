@@ -32,8 +32,8 @@ export function MainLayout({ children }: MainLayoutProps) {
     <div className="flex h-full w-full bg-background overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-        {/* 사이드바와 같은 command slab — 둘이 하나의 L자 섀시로 읽히도록
-            재질(--sidebar-bg + 할프톤)과 경계선을 맞춘다. */}
+        {/* 사이드바와 *같은 .slab 클래스* — 둘이 하나의 L자 섀시로 읽히도록
+            배경(재질 포함)을 한 클래스에 모아 두고 경계선만 맞춘다. */}
         <header className="slab flex items-center gap-3 px-6 h-16 border-b border-[hsl(var(--sidebar-border))] flex-none">
           <SidebarTrigger />
           <div className="flex-1 min-w-0 overflow-hidden">

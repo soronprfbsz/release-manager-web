@@ -211,7 +211,7 @@ export function SchedulerPage() {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={openCreateForm} variant="outline" size="icon">
+              <Button onClick={openCreateForm} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>

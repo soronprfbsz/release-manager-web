@@ -321,7 +321,7 @@ export function SitePatchHistoryCard({ site }: SitePatchHistoryCardProps) {
                 e.preventDefault()
                 handleDelete()
               }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? '삭제 중...' : '삭제'}

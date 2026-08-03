@@ -27,7 +27,7 @@
     --popover:                225 27% 12%;
     --popover-foreground:     0 0% 100%;
 
-    --primary:                38 83% 57%;     /* amber #ecab37 — 양 테마 불변 */
+    --primary:                48 100% 50%;    /* gold #ffcc00 — 양 테마 불변 */
     --primary-foreground:     227 39% 5%;     /* #070910 */
 
     --secondary:              224 24% 15%;    /* #1e2330 */
@@ -92,30 +92,30 @@
     --sidebar-border:         227 25% 30%;
     --sidebar-hover:          221 20% 18%;    /* #252b38 */
     --sidebar-active-bg:      31 60% 18%;     /* signal 딥 틴트 */
-    --sidebar-active-fg:      38 83% 57%;     /* amber (6.15:1) */
+    --sidebar-active-fg:      48 100% 50%;    /* gold = --primary (8.1:1) */
     --sidebar-active-border:  31 92% 54% / 0.45;
   }
 
   /* ---------- LIGHT ------------------------------------------------
      :root.light 로 specificity (0,2,0) > :root (0,1,0) — 우선순위 보장.
-     표면 위계 2단:
-       canvas 페리윙클 섀시 < white 카드 (크롬 = 사이드바/탑바 포함, 가장 밝음)
+     표면 위계 3단 (다크와 같은 극성):
+       크롬 민트 파스텔(사이드바/탑바) < canvas 뉴트럴 < white 카드
      canvas 는 플레이트 *사이의 섀시*이며 텍스트 표면이 아니다.
      본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
     /* 값(lightness) 사다리를 좁게 유지한다 — 이게 "무난함"의 핵심.
-       page 94% → card(= 사이드바/탑바) 100%. 점프 6.
+       chrome 95% → page 98% → card 100%. 점프 3 / 2.
        (초안은 carbon 15% → 페리윙클 60% → white 100% 로 45/40 점프였고
         세 영역이 서로 싸워 게이밍 느낌을 만들었다.)
-       페리윙클 정체성은 hue 225 를 저채도로 남겨 "귓속말" 수준으로만 유지. */
-    --background:             225 24% 94%;    /* 옅은 페리윙클 섀시 */
+       canvas 는 뉴트럴로 비우고, 색 정체성은 크롬(사이드바/탑바)이 진다. */
+    --background:             0 0% 98%;       /* #fafafa 뉴트럴 섀시 */
     --foreground:             226 20% 18%;    /* ink 살짝 밝게 (순수 검정 회피) */
     --card:                   0 0% 100%;      /* white — 콘텐츠 카드 */
     --card-foreground:        226 20% 18%;
     --popover:                0 0% 100%;
     --popover-foreground:     226 20% 18%;
 
-    --primary:                38 78% 52%;     /* amber — 흰 배경 위 대비 위해 약간 진하게 */
+    --primary:                48 100% 50%;    /* gold #ffcc00 — 다크와 동일 (양 테마 불변) */
     --primary-foreground:     226 20% 15%;
 
     --secondary:              222 28% 90%;    /* 옅은 페리윙클 inset panel */
@@ -136,8 +136,10 @@
 
     /* 크롬 레이어 베벨 하이라이트 */
     --plate-highlight:        0 0% 100% / 0.7;
-    /* --halftone-dot 없음 — 라이트는 dot-matrix 를 쓰지 않는다.
-       질감 자체는 아래 @layer utilities 의 :root.light 오버라이드에서 끈다. */
+    /* 할프톤 dot-matrix 점 색 — 극성 반전: 밝은 면 위 잉크 점.
+       hue 164 로 크롬(.slab)과 같은 계열에 맞춘다. lightness 는 그대로 둬서
+       지각 강도(다크의 0.05 white 와 맞춘 값)는 건드리지 않는다. */
+    --halftone-dot:           164 20% 35% / 0.06;
 
     /* 차트 — 채도를 32~45% 로 낮춰 정보 레이어가 튀지 않게 */
     --chart-1:                214 45% 48%;
@@ -170,15 +172,16 @@
 
     --header-bg:              0 0% 100%;      /* 흰 톱바 — page 위에 얹힌 표면 */
 
-    /* Sidebar — 크롬(사이드바/탑바)은 카드와 같은 흰 면.
-       한 단계 짙은 쿨그레이(87%)를 두면 흰 카드와 3단이 되어 면이 많아진다. */
-    --sidebar-bg:             0 0% 100%;      /* = --card */
+    /* Sidebar — 크롬(사이드바/탑바 = .slab) 배경. 여기만 바꾸면 둘 다 바뀐다.
+       캔버스(98%)가 흰 카드와 거의 붙어버리므로, 다크와 같은 극성으로
+       크롬을 한 단계 낮춰 L자 섀시가 콘텐츠 면과 분리되게 한다. */
+    --sidebar-bg:             164 15% 95%;    /* #f0f4f3 옅은 민트 */
     --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
     --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
-    --sidebar-border:         225 20% 74%;
-    --sidebar-hover:          225 20% 95%;    /* 사이드바가 흰 면이 되어 흰색 hover 는 무변화 — 한 단계 낮춘다 */
-    --sidebar-active-bg:      38 70% 88%;     /* 옅은 amber 틴트 */
-    --sidebar-active-fg:      30 75% 28%;     /* 진한 amber-브라운 (5.95:1) */
+    --sidebar-border:         164 15% 78%;    /* 크롬 면과 같은 hue — 경계선만 파랑기 도는 걸 방지 */
+    --sidebar-hover:          164 20% 89%;    /* 민트 면 위에서 한 단계 진하게 */
+    --sidebar-active-bg:      48 70% 88%;     /* 옅은 gold 틴트 */
+    --sidebar-active-fg:      40 75% 28%;     /* 진한 gold-브라운 (5.2:1) */
     --sidebar-active-border:  31 85% 52% / 0.35;
   }
 }
@@ -216,18 +219,13 @@
     background-size: 3px 3px;
   }
 
-  /* Elevation 3 — Command slab: 카본 + 할프톤 */
+  /* Elevation 3 — Command slab: 사이드바 + 탑바 공용 배경.
+     둘 다 이 클래스만 쓰므로 여기 한 곳만 바꾸면 함께 바뀐다.
+     (DesktopSidebar / MobileSidebar / MainLayout header) */
   .slab {
     background-color: hsl(var(--sidebar-bg));
     background-image: radial-gradient(hsl(var(--halftone-dot)) 0.5px, transparent 0.5px);
     background-size: 3px 3px;
-  }
-
-  /* 라이트는 dot-matrix 를 쓰지 않는다 — 질감만 끄고 .slab 의 배경색은 남긴다.
-     :root.light .halftone (0,3,0) > .halftone (0,1,0) 이라 같은 레이어에서 이긴다. */
-  :root.light .halftone,
-  :root.light .slab {
-    background-image: none;
   }
 
   /* 45° 컷 코너 — 산문의 machined faceplate 엣지.

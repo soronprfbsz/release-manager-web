@@ -16,7 +16,7 @@ import { cn } from "@/shared/lib/utils"
  *
  *  중립 변형(outline / secondary / ghost / ghost-icon)의 hover 는 primary
  *  amber 를 15% 틴트로 깐다. 텍스트까지 primary 로 바꾸지 않는 이유는
- *  라이트에서 --primary(38 78% 52%) 가 그 틴트 위에서 2.02:1 로 AA 미달이기
+ *  라이트에서 --primary(48 100% 50%) 가 그 틴트 위에서 AA 미달이기
  *  때문 — 배경만 브랜드색을 쓰고 전경은 --foreground 를 유지해 대비를 지킨다.
  *  destructive 는 파괴적 동작을 알리는 의미색이라 amber 로 바꾸지 않는다.
  */
@@ -26,9 +26,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground plate-chip hover:bg-primary/90",
+          "bg-primary text-primary-foreground plate-chip hover:bg-primary/70",
         destructive:
-          "bg-destructive text-destructive-foreground plate-chip hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground plate-chip hover:bg-destructive/70",
         outline:
           "border border-input bg-card text-foreground hover:bg-primary/15 hover:text-foreground",
         secondary:

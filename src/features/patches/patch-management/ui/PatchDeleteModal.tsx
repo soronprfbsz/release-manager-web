@@ -67,7 +67,7 @@ export function PatchDeleteModal({
               onConfirm()
             }}
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            className="bg-destructive hover:bg-destructive/70 text-destructive-foreground"
           >
             {isDeleting ? (
               <>

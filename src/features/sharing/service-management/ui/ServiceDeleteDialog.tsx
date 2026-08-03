@@ -77,7 +77,7 @@ export function ServiceDeleteDialog({
               onConfirm()
             }}
             disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
           >
             {isDeleting ? '삭제 중...' : '삭제'}
           </AlertDialogAction>

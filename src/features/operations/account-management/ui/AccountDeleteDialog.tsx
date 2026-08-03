@@ -50,7 +50,7 @@ export function AccountDeleteDialog({
           <AlertDialogCancel onClick={onCancel}>취소</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/70"
           >
             삭제
           </AlertDialogAction>

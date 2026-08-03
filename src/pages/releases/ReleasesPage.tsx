@@ -503,7 +503,7 @@ export function ReleasesPage() {
         canAddVersion && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={handleAdd} variant="outline" size="icon">
+              <Button onClick={handleAdd} size="icon">
                 <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -675,7 +675,7 @@ export function ReleasesPage() {
             <AlertDialogAction
               onClick={handleTreeDeleteConfirm}
               disabled={deleteMutation.isPending}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/70"
             >
               {deleteMutation.isPending ? '삭제 중...' : '삭제'}
             </AlertDialogAction>
