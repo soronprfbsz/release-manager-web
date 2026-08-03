@@ -13,6 +13,12 @@ import { cn } from "@/shared/lib/utils"
  *  - Sizes: h-9 default, h-8 sm, h-10 lg + icon variants
  *  hover 는 산문의 button-primary-pressed(amber → nav-gold) 규칙 파생 —
  *  warm 계열은 한 단계 어둡게.
+ *
+ *  중립 변형(outline / secondary / ghost / ghost-icon)의 hover 는 primary
+ *  amber 를 15% 틴트로 깐다. 텍스트까지 primary 로 바꾸지 않는 이유는
+ *  라이트에서 --primary(38 78% 52%) 가 그 틴트 위에서 2.02:1 로 AA 미달이기
+ *  때문 — 배경만 브랜드색을 쓰고 전경은 --foreground 를 유지해 대비를 지킨다.
+ *  destructive 는 파괴적 동작을 알리는 의미색이라 amber 로 바꾸지 않는다.
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -24,11 +30,11 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground plate-chip hover:bg-destructive/90",
         outline:
-          "border border-input bg-card text-foreground hover:bg-muted hover:text-foreground",
+          "border border-input bg-card text-foreground hover:bg-primary/15 hover:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground border border-border plate-chip hover:bg-muted",
-        ghost: "hover:bg-muted hover:text-foreground",
-        "ghost-icon": "text-muted-foreground hover:bg-muted hover:text-foreground",
+          "bg-secondary text-secondary-foreground border border-border plate-chip hover:bg-primary/15",
+        ghost: "hover:bg-primary/15 hover:text-foreground",
+        "ghost-icon": "text-muted-foreground hover:bg-primary/15 hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
