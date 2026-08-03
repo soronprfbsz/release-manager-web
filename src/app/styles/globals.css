@@ -29,6 +29,8 @@
 
     --primary:                48 100% 50%;    /* gold #ffcc00 — 양 테마 불변 */
     --primary-foreground:     227 39% 5%;     /* #070910 */
+    /* text-primary 전용 — 채움색과 분리한다. 다크는 어두운 면 위라 동일값으로 충분. */
+    --primary-text:           var(--primary);
 
     --secondary:              224 24% 15%;    /* #1e2330 */
     --secondary-foreground:   0 0% 100%;
@@ -104,11 +106,11 @@
      본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
     /* 값(lightness) 사다리를 좁게 유지한다 — 이게 "무난함"의 핵심.
-       chrome 93% → page 98% → card 100%. 점프 5 / 2.
+       chrome 93% → page 97% → card 100%. 점프 4 / 3.
        (초안은 carbon 15% → 페리윙클 60% → white 100% 로 45/40 점프였고
         세 영역이 서로 싸워 게이밍 느낌을 만들었다.)
        canvas 는 뉴트럴로 비우고, 색 정체성은 크롬(사이드바/탑바)이 진다. */
-    --background:             0 0% 98%;       /* #fafafa 뉴트럴 섀시 */
+    --background:             0 0% 97%;       /* #f7f7f7 뉴트럴 섀시 */
     --foreground:             226 20% 18%;    /* ink 살짝 밝게 (순수 검정 회피) */
     --card:                   0 0% 100%;      /* white — 콘텐츠 카드 */
     --card-foreground:        226 20% 18%;
@@ -117,6 +119,11 @@
 
     --primary:                48 100% 50%;    /* gold #ffcc00 — 다크와 동일 (양 테마 불변) */
     --primary-foreground:     226 20% 15%;
+    /* text-primary 전용 — #ffcc00 은 상대휘도 0.64 라 흰 면 위에서조차 최대 1.51:1 로
+       어떤 튜닝으로도 AA 를 넘길 수 없다. 노랑은 채움색이지 텍스트색이 아니다.
+       채움(--primary)은 그대로 두고 텍스트만 진한 골드로 분리한다.
+       #8a6000 — 흰 카드 5.59:1 / bg-primary/10 5.35:1 / bg-muted 4.61:1 */
+    --primary-text:           42 100% 27%;
 
     --secondary:              222 28% 90%;    /* 옅은 페리윙클 inset panel */
     --secondary-foreground:   226 20% 18%;
@@ -181,7 +188,8 @@
     --sidebar-border:         233 15% 78%;    /* 크롬 면과 같은 hue — 경계선만 색이 튀는 걸 방지 */
     --sidebar-hover:          233 20% 87%;    /* 크롬 면 위에서 한 단계 진하게 */
     --sidebar-active-bg:      48 70% 88%;     /* 옅은 gold 틴트 */
-    --sidebar-active-fg:      40 75% 28%;     /* 진한 gold-브라운 (5.2:1) */
+    --sidebar-active-fg:      40 85% 22%;     /* 진한 gold-브라운 (7.1:1) — 노랑 면 위 노랑 글씨라
+                                                 색상 대비가 0 이므로 명도로만 벌린다 */
     --sidebar-active-border:  31 85% 52% / 0.35;
   }
 }

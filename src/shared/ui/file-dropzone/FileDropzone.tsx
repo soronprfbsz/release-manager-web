@@ -209,13 +209,13 @@ export function FileDropzone({
             heightClass,
             disabled && 'opacity-50 cursor-not-allowed',
             isDragOver
-              ? 'border-primary bg-primary/10'
+              ? 'border-primary bg-primary/20'
               : 'hover:border-primary/50 hover:bg-accent'
           )}
         >
           <div className={cn(
             'rounded-full p-3 mb-2 transition-colors',
-            isDragOver ? 'bg-primary/10' : 'bg-muted'
+            isDragOver ? 'bg-primary/20' : 'bg-muted'
           )}>
             {icon || (
               <DefaultIcon className={cn(

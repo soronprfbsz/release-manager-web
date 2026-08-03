@@ -270,7 +270,7 @@ export function CustomReleaseTree({
                                   className={cn(
                                     'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
                                     selectedVersionId === version.versionId
-                                      ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                      ? 'bg-primary/20 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
                                       : 'hover:bg-accent'
                                   )}
                                   onClick={() => onSelectVersion({
@@ -364,7 +364,7 @@ export function CustomReleaseTree({
                                         className={cn(
                                           'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
                                           selectedVersionId === hotfix.versionId
-                                            ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                            ? 'bg-primary/20 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
                                             : 'hover:bg-accent'
                                         )}
                                         onClick={() => onSelectVersion({
@@ -424,7 +424,7 @@ export function CustomReleaseTree({
                                         className={cn(
                                           'group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors',
                                           selectedVersionId === build.versionId
-                                            ? 'bg-primary/10 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
+                                            ? 'bg-primary/20 text-accent-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]'
                                             : 'hover:bg-accent'
                                         )}
                                         onClick={() => onSelectVersion({

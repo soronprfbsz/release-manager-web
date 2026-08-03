@@ -77,7 +77,7 @@ export function CustomPatchPreviewCard({
               </div>
             )}
           </div>
-          <div className="p-4 bg-primary/10 rounded-lg">
+          <div className="p-4 bg-primary/20 rounded-lg">
             <p className="text-sm text-primary">
               <strong>{selectedSite?.siteName}</strong>의{' '}
               <strong>{formData.fromVersion}</strong> 이상 ~ <strong>{formData.toVersion}</strong>{' '}

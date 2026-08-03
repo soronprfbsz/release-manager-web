@@ -389,7 +389,7 @@ export function HomePage() {
         <Card>
           <CardContent className="p-5">
             <div className="flex items-start gap-4">
-              <div className="p-2 rounded-full bg-primary/10">
+              <div className="p-2 rounded-full bg-primary/20">
                 <Info className="h-5 w-5 text-primary" />
               </div>
               <div className="space-y-1">

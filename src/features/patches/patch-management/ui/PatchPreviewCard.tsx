@@ -83,7 +83,7 @@ export function PatchPreviewCard({
               </div>
             )}
           </div>
-          <div className="p-4 bg-primary/10 rounded-lg">
+          <div className="p-4 bg-primary/20 rounded-lg">
             <p className="text-sm text-primary">
               <strong>{formData.fromVersion}</strong> 이상 ~ <strong>{formData.toVersion}</strong>{' '}
               이하 버전의 모든 변경사항이 포함된 패치가 생성됩니다.

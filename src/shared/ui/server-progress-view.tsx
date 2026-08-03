@@ -135,7 +135,7 @@ export function ServerProgressView({
     <div className="flex flex-col gap-6 py-2">
       {/* 헤더 — phase 아이콘 + spinner + 타이틀 */}
       <div className="flex flex-col items-center gap-3 pt-4">
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
           {completed ? (
             <Check className="h-8 w-8 text-primary" strokeWidth={2.5} />
           ) : (

@@ -67,7 +67,7 @@ function SiteListItem({
     <div
       className={cn(
         'group flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-all select-none',
-        isSelected ? 'bg-primary/10' : 'hover:bg-accent',
+        isSelected ? 'bg-primary/20' : 'hover:bg-accent',
         !site.isActive && 'opacity-60'
       )}
       onClick={() => onSelect(site)}

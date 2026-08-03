@@ -471,7 +471,7 @@ export function DepartmentPage() {
                 {/* 전체 계정 */}
                 <div
                   className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showAllAccounts
-                    ? 'bg-primary/10 text-primary'
+                    ? 'bg-primary/20 text-primary'
                     : 'hover:bg-accent'
                     }`}
                   style={{ paddingLeft: '8px' }}
@@ -487,7 +487,7 @@ export function DepartmentPage() {
                 {/* 미배치 계정 */}
                 <div
                   className={`flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-colors ${showUnassigned
-                    ? 'bg-primary/10 text-primary'
+                    ? 'bg-primary/20 text-primary'
                     : 'hover:bg-accent'
                     }`}
                   style={{ paddingLeft: '8px' }}

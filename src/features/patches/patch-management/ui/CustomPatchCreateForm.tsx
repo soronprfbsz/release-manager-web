@@ -289,7 +289,7 @@ export function CustomPatchCreateForm({
 
             {/* 생성 정보 미리보기 */}
             {formData.siteId && formData.fromVersion && formData.toVersion && (
-              <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+              <div className="p-4 bg-primary/20 rounded-lg space-y-2">
                 <div className="flex items-center justify-center gap-3 text-sm">
                   <span className="text-muted-foreground">
                     {getFullVersionName(formData.fromVersion)}

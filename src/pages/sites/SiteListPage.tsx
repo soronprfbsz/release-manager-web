@@ -245,13 +245,13 @@ export function SiteListPage() {
                 <TabsList variant="line" className="w-auto h-auto">
                   <TabsTrigger variant="line" value="standard" className="group px-3 py-4">
                     표준
-                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary">
                       {standardSites.length}
                     </span>
                   </TabsTrigger>
                   <TabsTrigger variant="line" value="custom" className="group px-3 py-4">
                     커스텀
-                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/10 group-data-[state=active]:text-primary">
+                    <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold tabular-nums bg-muted text-muted-foreground transition-colors group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary">
                       {customSites.length}
                     </span>
                   </TabsTrigger>

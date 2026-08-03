@@ -60,7 +60,7 @@ export function ProjectSelector({ className }: ProjectSelectorProps) {
               onClick={() => selectProject(project.projectId)}
               className={cn(
                 'cursor-pointer',
-                isSelected && 'bg-primary/10 text-primary'
+                isSelected && 'bg-primary/20 text-primary'
               )}
             >
               {project.projectName}

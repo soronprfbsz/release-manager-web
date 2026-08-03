@@ -389,7 +389,7 @@ export function PatchCreateForm({
 
       {/* 생성 정보 미리보기 (버전 범위 + 패치명) */}
       {formData.fromVersion && formData.toVersion && siteChosen && (
-        <div className="p-4 bg-primary/10 rounded-lg space-y-2">
+        <div className="p-4 bg-primary/20 rounded-lg space-y-2">
           <p className="text-sm text-primary">
             <strong>{formData.fromVersion}</strong> 이상 ~{' '}
             <strong>{formData.toVersion}</strong> 이하 버전의 모든 변경사항이

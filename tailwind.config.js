@@ -92,6 +92,18 @@ export default {
           5: 'hsl(var(--theme-color-5) / <alpha-value>)',
         },
       },
+      // text-primary 만 채움색과 다른 토큰을 쓴다.
+      // --primary(hue 48 / L 50%)는 상대휘도 0.64 라 밝은 면 위 텍스트로 쓰면
+      // 흰 배경에서조차 최대 1.51:1 — 값을 어떻게 잡아도 AA 를 못 넘긴다.
+      // bg-primary / border-primary 는 그대로 --primary 를 쓰고,
+      // text-primary 만 --primary-text 로 뺀다 (다크에서는 두 값이 동일).
+      // foreground 를 같이 선언해야 text-primary-foreground 가 유지된다.
+      textColor: {
+        primary: {
+          DEFAULT: 'hsl(var(--primary-text))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

@@ -48,7 +48,7 @@ export function FileCard({
             variant="ghost"
             size="icon"
             onClick={() => onEdit(resource)}
-            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 flex-shrink-0"
+            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/20 flex-shrink-0"
           >
             <Pencil className="h-4 w-4" />
           </Button>

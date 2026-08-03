@@ -41,7 +41,7 @@ const badgeVariants = cva(
           "border-rose-500/40 text-rose-700 bg-rose-50 dark:border-rose-400/40 dark:text-rose-300 dark:bg-rose-950/40",
         /** 성공/활성/승인됨 — primary 톤 */
         success:
-          "border-transparent bg-primary/10 text-primary",
+          "border-transparent bg-primary/20 text-primary",
         /** 경고/미승인 */
         warning:
           "border-transparent bg-yellow-500/10 text-yellow-700 dark:text-yellow-500",

@@ -94,7 +94,7 @@ export function LinkCard({
                   variant="ghost"
                   size="icon"
                   onClick={() => onEdit(resource)}
-                  className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  className="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/20"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>

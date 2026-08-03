@@ -251,7 +251,7 @@ function TreeNode({
         className={cn(
           'group flex items-center gap-1 py-1.5 px-2 rounded-md cursor-pointer transition-all select-none',
           isSelected
-            ? 'bg-primary/10 text-primary'
+            ? 'bg-primary/20 text-primary'
             : 'hover:bg-accent',
           isDropTarget && dropPosition === 'child' && 'ring-2 ring-primary ring-offset-1 bg-primary/5'
         )}
