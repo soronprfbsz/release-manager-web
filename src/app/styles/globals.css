@@ -84,8 +84,9 @@
 
     --header-bg:              225 27% 12%;    /* plate 레벨 — 다크에서 "위"는 더 밝음 */
 
-    /* Sidebar — 다크 command layer */
-    --sidebar-bg:             225 27% 12%;
+    /* Sidebar — 크롬(사이드바/탑바)은 캔버스와 같은 면.
+       위계는 카드(12%)만 떠오르는 2단으로 두고, 크롬/콘텐츠 구분은 테두리가 맡는다. */
+    --sidebar-bg:             228 26% 7%;     /* = --background */
     --sidebar-fg:             0 0% 100%;
     --sidebar-fg-muted:       227 31% 76%;
     --sidebar-border:         227 25% 30%;
@@ -97,13 +98,13 @@
 
   /* ---------- LIGHT ------------------------------------------------
      :root.light 로 specificity (0,2,0) > :root (0,1,0) — 우선순위 보장.
-     산문의 표면 위계 3단:
-       carbon 사이드바 (가장 어두움) > canvas 페리윙클 섀시 > white 카드 (가장 밝음)
+     표면 위계 2단:
+       canvas 페리윙클 섀시 (크롬 = 사이드바/탑바 포함) < white 카드 (가장 밝음)
      canvas 는 플레이트 *사이의 섀시*이며 텍스트 표면이 아니다.
      본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
     /* 값(lightness) 사다리를 좁게 유지한다 — 이게 "무난함"의 핵심.
-       sidebar 88% → page 94% → card 100%. 점프 6/6.
+       page(= 사이드바/탑바) 94% → card 100%. 점프 6.
        (초안은 carbon 15% → 페리윙클 60% → white 100% 로 45/40 점프였고
         세 영역이 서로 싸워 게이밍 느낌을 만들었다.)
        페리윙클 정체성은 hue 225 를 저채도로 남겨 "귓속말" 수준으로만 유지. */
@@ -135,9 +136,8 @@
 
     /* 크롬 레이어 베벨 하이라이트 */
     --plate-highlight:        0 0% 100% / 0.7;
-    /* 할프톤 dot-matrix 점 색 — 밝은 면 위에서는 어두운 점으로 반전.
-       white 하드코딩이면 라이트에서 질감이 통째로 사라진다. */
-    --halftone-dot:           226 30% 28% / 0.09;
+    /* --halftone-dot 없음 — 라이트는 dot-matrix 를 쓰지 않는다.
+       질감 자체는 아래 @layer utilities 의 :root.light 오버라이드에서 끈다. */
 
     /* 차트 — 채도를 32~45% 로 낮춰 정보 레이어가 튀지 않게 */
     --chart-1:                214 45% 48%;
@@ -170,9 +170,9 @@
 
     --header-bg:              0 0% 100%;      /* 흰 톱바 — page 위에 얹힌 표면 */
 
-    /* Sidebar — carbon 슬랩을 버리고 page 보다 한 단계 짙은 쿨그레이로.
-       라이트에서 near-black 사이드바는 흰 콘텐츠와 괴리가 너무 컸다. */
-    --sidebar-bg:             225 17% 87%;
+    /* Sidebar — 크롬(사이드바/탑바)은 캔버스와 같은 면.
+       한 단계 짙은 쿨그레이(87%)를 두면 흰 카드와 3단이 되어 면이 많아진다. */
+    --sidebar-bg:             225 24% 94%;    /* = --background */
     --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
     --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
     --sidebar-border:         225 20% 74%;
@@ -221,6 +221,13 @@
     background-color: hsl(var(--sidebar-bg));
     background-image: radial-gradient(hsl(var(--halftone-dot)) 0.5px, transparent 0.5px);
     background-size: 3px 3px;
+  }
+
+  /* 라이트는 dot-matrix 를 쓰지 않는다 — 질감만 끄고 .slab 의 배경색은 남긴다.
+     :root.light .halftone (0,3,0) > .halftone (0,1,0) 이라 같은 레이어에서 이긴다. */
+  :root.light .halftone,
+  :root.light .slab {
+    background-image: none;
   }
 
   /* 45° 컷 코너 — 산문의 machined faceplate 엣지.
