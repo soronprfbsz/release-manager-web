@@ -186,7 +186,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 px-6 py-7">
+    <div className="flex flex-col gap-6 px-6 py-7 min-h-full">
       {/* Latest Info Cards */}
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
@@ -330,12 +330,12 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Statistics — 카드 자체는 고정 높이 (320px), 차트 영역은 카드 헤더 제외분 차지 */}
-      <div>
+      {/* Statistics — 남는 세로 공간을 채워 Quick Guide 를 뷰포트 하단으로 밀어낸다 (최소 320px) */}
+      <div className="flex-1 min-h-0 flex flex-col">
         <TypographyLarge className="mb-3">Statistics</TypographyLarge>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 flex-1 min-h-[20rem]">
           {/* 버전별 사이트 현황 (Stacked Horizontal Bar) */}
-          <Card className="flex flex-col h-80">
+          <Card className="flex flex-col">
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-purple-500" />
@@ -352,7 +352,7 @@ export function HomePage() {
           </Card>
 
           {/* 월별 패치 생성 현황 (Line Chart) */}
-          <Card className="flex flex-col h-80">
+          <Card className="flex flex-col">
             <CardHeader className="pb-2 flex-none">
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
