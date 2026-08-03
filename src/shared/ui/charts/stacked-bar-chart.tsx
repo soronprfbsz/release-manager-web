@@ -28,6 +28,64 @@ const CHART_COLORS = [
   'hsl(var(--site-8))',
 ]
 
+/** Recharts 가 커스텀 툴팁 content 에 넘기는 payload 항목 (shared=false 라 항상 1개) */
+interface TooltipItem {
+  name?: string
+  value?: number
+  color?: string
+  /** hover 한 세그먼트가 속한 데이터 row 전체 */
+  payload?: Record<string, unknown>
+}
+
+interface SegmentTooltipProps {
+  active?: boolean
+  payload?: TooltipItem[]
+  xAxisKey: string
+  /** 범례로 숨기지 않은 key — 총합은 차트에 실제로 그려진 것만 더한다 */
+  visibleKeys: string[]
+  valueFormatter: (value: number) => string
+  labelFormatter?: (label: string) => string
+}
+
+/**
+ * 세그먼트 단위 툴팁 — hover 한 스택 조각의 값 + 해당 카테고리 총합을 보여준다.
+ *
+ * 기본 툴팁은 카테고리의 모든 series 를 나열해 사이트가 많아지면 읽기 어렵다.
+ * `shared={false}` 로 hover 한 조각만 받고, 총합은 payload 에 함께 실려오는
+ * row 에서 계산한다. 이때 Recharts 는 `label` 을 넘겨주지 않으므로
+ * row 의 xAxisKey 값을 직접 꺼내 쓴다.
+ */
+function SegmentTooltip({
+  active,
+  payload,
+  xAxisKey,
+  visibleKeys,
+  valueFormatter,
+  labelFormatter,
+}: SegmentTooltipProps) {
+  const item = payload?.[0]
+  if (!active || !item) return null
+
+  const row = item.payload ?? {}
+  const total = visibleKeys.reduce((sum, key) => sum + (Number(row[key]) || 0), 0)
+  const label = typeof row[xAxisKey] === 'string' ? (row[xAxisKey] as string) : undefined
+
+  return (
+    <div className="rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md">
+      <div className="font-semibold">{label && labelFormatter ? labelFormatter(label) : label}</div>
+      <div className="text-muted-foreground">총 {valueFormatter(total)}</div>
+      <div className="flex items-center gap-1.5 mt-1">
+        <span
+          className="w-2.5 h-2.5 flex-shrink-0"
+          style={{ backgroundColor: item.color }}
+        />
+        <span>{item.name}</span>
+        <span className="font-semibold">{valueFormatter(Number(item.value) || 0)}</span>
+      </div>
+    </div>
+  )
+}
+
 interface StackedBarChartProps {
   /** 차트 데이터 */
   data: Record<string, unknown>[]
@@ -90,22 +148,16 @@ export function StackedBarChart({
           tickLine={false}
         />
         <Tooltip
-          formatter={(value: number, name: string) => [tooltipValueFormatter(value), name]}
-          labelFormatter={tooltipLabelFormatter}
-          contentStyle={{
-            backgroundColor: 'hsl(var(--popover))',
-            color: 'hsl(var(--popover-foreground))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '6px',
-          }}
-          labelStyle={{
-            color: 'hsl(var(--popover-foreground))',
-            fontWeight: 600,
-          }}
-          itemStyle={{
-            color: 'hsl(var(--popover-foreground))',
-          }}
+          shared={false}
           cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
+          content={
+            <SegmentTooltip
+              xAxisKey={xAxisKey}
+              visibleKeys={stackKeys.filter((key) => !hiddenKeys.has(key))}
+              valueFormatter={tooltipValueFormatter}
+              labelFormatter={tooltipLabelFormatter}
+            />
+          }
         />
         {showLegend && (
           <Legend
