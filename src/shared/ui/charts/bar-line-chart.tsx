@@ -64,7 +64,9 @@ export function BarLineChart<T extends object>({
           fontSize={12}
           tickLine={false}
         />
+        {/* 툴팁이 좌상단에서 커서로 미끄러지는 것 방지 — StackedBarChart 주석 참조 */}
         <Tooltip
+          isAnimationActive={false}
           formatter={tooltipFormatter}
           labelFormatter={tooltipLabelFormatter}
           contentStyle={{

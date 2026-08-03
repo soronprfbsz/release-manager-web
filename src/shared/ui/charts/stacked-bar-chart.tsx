@@ -147,7 +147,14 @@ export function StackedBarChart({
           fontSize={12}
           tickLine={false}
         />
+        {/*
+          isAnimationActive 기본값 'auto' 는 truthy 라 wrapper 에
+          `transition: transform 400ms` 가 걸린다. 툴팁 wrapper 는 최초 측정 전까지
+          transform 이 없어 차트 좌상단(0,0)에 있다가 커서 좌표로 옮겨지는데,
+          transition 때문에 그 이동이 400ms 애니메이션으로 보인다. 끄면 즉시 커서 위치에 뜬다.
+        */}
         <Tooltip
+          isAnimationActive={false}
           shared={false}
           cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
           content={
