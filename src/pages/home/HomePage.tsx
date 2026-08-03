@@ -3,10 +3,8 @@ import {
   Building2,
   TrendingUp,
   Info,
-  Tag,
-  GitBranch,
   Hammer,
-  Sparkles,
+  Rocket,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -16,13 +14,13 @@ import {
   useDashboardRecentPatch,
   useDashboardVersionSites,
   useDashboardMonthlyPatches,
-  type RecentStandardVersion,
   type RecentBuildVersion,
 } from '@/entities/_shared/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
+import { formatDateShort } from '@/shared/lib/utils/date'
 import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -30,23 +28,6 @@ import { StackedBarChart, VersionSiteChart } from '@/shared/ui/charts'
 import { DiceBearAvatar, type AvatarStyleKey } from '@/shared/ui/dicebear-avatar'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/tooltip'
 import { TypographyInlineCode, TypographyMuted, TypographyLarge } from '@/shared/ui/typography'
-
-/**
- * 버전 문자열을 semver 숫자 segment 로 분해해 내림차순 비교.
- * 표준 (1.1.0) / 빌드 (1.1.0.260511-1) / 커스텀 (1.1.0-siteA.1.0.1) 모두 처리.
- */
-function compareVersionDesc(a: string, b: string): number {
-  const parts = (v: string) => v.split(/[.-]/).map((s) => parseInt(s, 10) || 0)
-  const aParts = parts(a)
-  const bParts = parts(b)
-  const len = Math.max(aParts.length, bParts.length)
-  for (let i = 0; i < len; i++) {
-    const ai = aParts[i] ?? 0
-    const bi = bParts[i] ?? 0
-    if (ai !== bi) return bi - ai
-  }
-  return 0
-}
 
 export function HomePage() {
   const projectId = useProjectStore((state) => state.projectId)
@@ -68,12 +49,10 @@ export function HomePage() {
   // 월별 패치 (우측 통계 차트용) - 최근 12개월
   const { data: monthlyPatchesData, isLoading: isLoadingMonthly } = useDashboardMonthlyPatches(projectId, 12)
 
-  // 데이터 추출 — 표준 릴리즈는 semver 내림차순 정렬 (큰 버전 위)
-  const standardVersions = [...(standardData?.versions || [])].sort((a, b) =>
-    compareVersionDesc(a.version, b.version)
-  )
   // 빌드 버전은 백엔드가 보낸 createdAt DESC 순서를 유지 (빌드 라벨이 다른 동일 base 의 최신 순)
   const buildVersions = buildData?.versions || []
+  // "최신 버전" 큰 디스플레이 — 백엔드가 보낸 첫 항목 (createdAt DESC)
+  const latestStandard = standardData?.versions?.[0]
   const recentPatches = patchData?.patches || []
 
   // 버전별 사이트 그룹
@@ -85,49 +64,6 @@ export function HomePage() {
     displayMonth: item.yearMonth.slice(2).replace('-', '.'),
     ...item.siteCounts,  // siteCounts를 최상위로 평탄화
   }))
-
-  // 버전 항목 렌더링 헬퍼 (표준본)
-  const renderStandardVersion = (version: RecentStandardVersion) => (
-    <Link
-      key={version.releaseVersionId}
-      to={ROUTES.RELEASES}
-      state={{ selectedVersionId: version.releaseVersionId }}
-      className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
-    >
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <TypographyInlineCode className="bg-transparent flex-shrink-0 font-normal">{version.version}</TypographyInlineCode>
-        {version.fileCategories && version.fileCategories.length > 0 && (
-          <div className="flex gap-1 flex-shrink-0">
-            {version.fileCategories.map((category) => (
-              <Badge
-                key={category}
-                variant={category.toLowerCase() as "database" | "web" | "engine" | "etc"}
-                className="text-[10px] px-1 py-0 h-4 leading-none"
-              >
-                {getCategoryShortName(category)}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <DiceBearAvatar
-              seed={version.createdByAvatarSeed || version.createdByEmail}
-              style={(version.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-              name={version.createdByName}
-              size={18}
-            />
-            <span className="text-xs text-muted-foreground">{version.createdByName}</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{version.createdByEmail}</p>
-        </TooltipContent>
-      </Tooltip>
-    </Link>
-  )
 
   // 버전 항목 렌더링 헬퍼 (빌드) — 표준 빌드는 표준 릴리즈와 동일한 구조,
   // 커스텀 빌드는 좌측에 사이트명만 truncate 로 표시
@@ -168,22 +104,27 @@ export function HomePage() {
             </div>
           )}
         </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <DiceBearAvatar
-                seed={version.createdByAvatarSeed || version.createdByEmail}
-                style={(version.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                name={version.createdByName}
-                size={18}
-              />
-              <span className="text-xs text-muted-foreground">{version.createdByName}</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{version.createdByEmail}</p>
-          </TooltipContent>
-        </Tooltip>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1.5">
+                <DiceBearAvatar
+                  seed={version.createdByAvatarSeed || version.createdByEmail}
+                  style={(version.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                  name={version.createdByName}
+                  size={18}
+                />
+                <span className="text-xs text-muted-foreground">{version.createdByName}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{version.createdByEmail}</p>
+            </TooltipContent>
+          </Tooltip>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {formatDateShort(version.createdAt)}
+          </span>
+        </div>
       </Link>
     )
   }
@@ -193,58 +134,56 @@ export function HomePage() {
       {/* Latest Info Cards */}
       <div>
         <TypographyLarge className="mb-3">Recent</TypographyLarge>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* 마지막 생성 버전 — 큰 디스플레이 */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-yellow-500" />
-                최신 버전
-              </CardTitle>
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Rocket className="h-4 w-4 text-yellow-500" />
+                  최신 버전
+                </CardTitle>
+                {/* 이 버전이 담고 있는 파일 카테고리 (DB / WEB / ENGINE / ETC) */}
+                {latestStandard?.fileCategories && latestStandard.fileCategories.length > 0 && (
+                  <div className="flex gap-1 flex-shrink-0">
+                    {latestStandard.fileCategories.map((category) => (
+                      <Badge
+                        key={category}
+                        variant={category.toLowerCase() as 'database' | 'web' | 'engine' | 'etc'}
+                        className="text-[10px] px-1 py-0 h-4 leading-none"
+                      >
+                        {getCategoryShortName(category)}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="h-[8rem] flex flex-col gap-2">
+              <div className="h-[8rem] flex flex-col gap-3">
                 {isLoadingStandard ? (
                   <div className="animate-pulse space-y-2">
                     <div className="h-10 w-24 bg-muted rounded" />
                     <div className="h-4 w-full bg-muted rounded" />
                   </div>
-                ) : standardData?.versions && standardData.versions.length > 0 ? (
+                ) : latestStandard ? (
                   <>
-                    <div className="font-mono text-5xl font-bold tracking-tight leading-none">
-                      {standardData.versions[0].version}
-                    </div>
-                    {standardData.versions[0].comment && (
+                    {/* 버전 관리에서 이 버전이 선택된 화면으로 이동.
+                        ReleasesPage 가 location.state.selectedVersionId 를 읽는
+                        기존 패턴을 따른다. self-start 로 클릭 영역을 숫자 폭에 맞춘다. */}
+                    <Link
+                      to={ROUTES.RELEASES}
+                      state={{ selectedVersionId: latestStandard.releaseVersionId }}
+                      className="font-mono text-4xl font-bold tracking-tight leading-none self-start hover:text-primary transition-colors"
+                    >
+                      {latestStandard.version}
+                    </Link>
+                    {latestStandard.comment && (
                       <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line">
-                        {standardData.versions[0].comment}
+                        {latestStandard.comment}
                       </p>
                     )}
                   </>
-                ) : (
-                  <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 표준본 최신 릴리즈 */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Tag className="h-4 w-4 text-blue-500" />
-                최근 생성 버전
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[8rem]">
-                {isLoadingStandard ? (
-                  <div className="animate-pulse space-y-2 h-full flex flex-col justify-between">
-                    {[1, 2, 3].map(i => <div key={i} className="h-6 bg-muted rounded" />)}
-                  </div>
-                ) : standardVersions.length > 0 ? (
-                  <div className="space-y-2">
-                    {standardVersions.slice(0, 3).map(renderStandardVersion)}
-                  </div>
                 ) : (
                   <TypographyMuted>릴리즈가 없습니다.</TypographyMuted>
                 )}
@@ -257,7 +196,7 @@ export function HomePage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Hammer className="h-4 w-4 text-purple-500" />
-                최근 생성 빌드 버전
+                최신 빌드 버전
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -302,29 +241,32 @@ export function HomePage() {
                       const row = (
                         <>
                         <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          {patch.releaseType === 'STANDARD' ? (
-                            <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          ) : (
-                            <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          )}
-                          {/* 사이트명 / 패치명을 남는 폭의 1:1 로 나눈다.
-                              basis-0 이라 내용 길이와 무관하게 두 열 폭이 같아
-                              행마다 패치명 시작 위치가 정렬된다. */}
-                          <span className="text-xs text-muted-foreground truncate flex-1 min-w-0">
+                          {/* 행이 사이트 관리로 링크되므로 메뉴의 사이트 관리 아이콘(building-2)을 쓴다.
+                              releaseType(표준/커스텀)은 이 아이콘으로 더 이상 구분되지 않는다. */}
+                          <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          {/* 사이트명은 고정폭(한글 8자 = 8 × text-xs 0.75rem)으로 두고
+                              남는 폭은 패치명이 가져간다. 고정폭이라 행마다 패치명 시작
+                              위치가 정렬된다. */}
+                          <span className="text-xs text-muted-foreground truncate w-[6rem] flex-shrink-0">
                             {patch.siteName || '-'}
                           </span>
                           <TypographyInlineCode className="bg-transparent truncate font-normal flex-1 min-w-0 block">
                             {patch.patchName}
                           </TypographyInlineCode>
                         </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <DiceBearAvatar
-                            seed={patch.createdByAvatarSeed || patch.createdByEmail}
-                            style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
-                            name={patch.createdByName}
-                            size={20}
-                          />
-                          <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-1.5">
+                            <DiceBearAvatar
+                              seed={patch.createdByAvatarSeed || patch.createdByEmail}
+                              style={(patch.createdByAvatarStyle as AvatarStyleKey) || 'initials'}
+                              name={patch.createdByName}
+                              size={20}
+                            />
+                            <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
+                          </div>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {formatDateShort(patch.createdAt)}
+                          </span>
                         </div>
                         </>
                       )
