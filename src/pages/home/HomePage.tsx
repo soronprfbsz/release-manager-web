@@ -21,6 +21,7 @@ import {
 } from '@/entities/_shared/dashboard'
 
 import { ROUTES } from '@/shared/config/constants'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { getCategoryShortName } from '@/shared/lib/utils/category'
 import { useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
@@ -49,6 +50,8 @@ function compareVersionDesc(a: string, b: string): number {
 
 export function HomePage() {
   const projectId = useProjectStore((state) => state.projectId)
+  // GUEST 는 /sites 접근이 막혀 있어(AUTHENTICATED_ROLES) 링크를 걸지 않는다.
+  const { isGuest } = usePermission()
 
   // 표준본 최신 릴리즈
   const { data: standardData, isLoading: isLoadingStandard } = useDashboardRecentStandard(projectId)
@@ -290,22 +293,27 @@ export function HomePage() {
                   </div>
                 ) : recentPatches.length > 0 ? (
                   <div className="space-y-2">
-                    {recentPatches.slice(0, 3).map((patch) => (
-                      <Link
-                        key={patch.historyId}
-                        to={`${ROUTES.PATCHES}?tab=${patch.releaseType === 'STANDARD' ? 'standard' : 'custom'}`}
-                        className="flex items-center justify-between text-sm hover:bg-accent -mx-2 px-2 py-1 rounded transition-colors"
-                      >
+                    {recentPatches.slice(0, 3).map((patch) => {
+                      // 이 카드는 "적용 완료 = 패치 관리 목록에서 사라진" 패치만 보여주므로
+                      // 패치 관리로 보내면 볼 게 없다. 사이트 관리에서 해당 사이트를 선택시켜
+                      // SitePatchHistoryCard(createdAt desc)로 방금 그 패치를 바로 보게 한다.
+                      const rowClass =
+                        'flex items-center justify-between text-sm -mx-2 px-2 py-1 rounded transition-colors'
+                      const row = (
+                        <>
                         <div className="flex items-center gap-1.5 flex-1 min-w-0">
                           {patch.releaseType === 'STANDARD' ? (
                             <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           ) : (
                             <GitBranch className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           )}
-                          <span className="text-xs text-muted-foreground truncate w-16 flex-shrink-0">
+                          {/* 사이트명 / 패치명을 남는 폭의 1:1 로 나눈다.
+                              basis-0 이라 내용 길이와 무관하게 두 열 폭이 같아
+                              행마다 패치명 시작 위치가 정렬된다. */}
+                          <span className="text-xs text-muted-foreground truncate flex-1 min-w-0">
                             {patch.siteName || '-'}
                           </span>
-                          <TypographyInlineCode className="bg-transparent truncate font-normal w-65 block">
+                          <TypographyInlineCode className="bg-transparent truncate font-normal flex-1 min-w-0 block">
                             {patch.patchName}
                           </TypographyInlineCode>
                         </div>
@@ -318,8 +326,23 @@ export function HomePage() {
                           />
                           <span className="text-xs text-muted-foreground">{patch.createdByName}</span>
                         </div>
-                      </Link>
-                    ))}
+                        </>
+                      )
+
+                      return !isGuest && patch.siteId != null ? (
+                        <Link
+                          key={patch.historyId}
+                          to={`${ROUTES.SITES}?siteId=${patch.siteId}`}
+                          className={`${rowClass} hover:bg-accent`}
+                        >
+                          {row}
+                        </Link>
+                      ) : (
+                        <div key={patch.historyId} className={rowClass}>
+                          {row}
+                        </div>
+                      )
+                    })}
                   </div>
                 ) : (
                   <TypographyMuted>완료된 패치가 없습니다.</TypographyMuted>

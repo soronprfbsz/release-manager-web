@@ -4,7 +4,7 @@
  * 표준/커스텀 필터 탭·검색은 패널 헤더에서 관리된다.
  */
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ChevronRight, ChevronDown, Pencil, Trash2, Search, Loader2 } from 'lucide-react'
 
@@ -63,8 +63,16 @@ function SiteListItem({
   const version = site.project?.lastPatchedVersion
   const hasActions = Boolean(onEdit || onDelete)
 
+  // 외부에서 선택된 사이트(예: 홈 → ?siteId=) 가 스크롤 밖이면 보이게 끌어온다.
+  // block:'nearest' 라 이미 보이는 항목(=직접 클릭한 경우)에는 아무 일도 하지 않는다.
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (isSelected) ref.current?.scrollIntoView({ block: 'nearest' })
+  }, [isSelected])
+
   return (
     <div
+      ref={ref}
       className={cn(
         'group flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-all select-none',
         isSelected ? 'bg-primary/20' : 'hover:bg-accent',

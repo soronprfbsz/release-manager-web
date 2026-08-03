@@ -3,9 +3,10 @@
  * 사이트 목록 페이지 - 리스트 뷰 + 상세 패널
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 
 import { Plus, Search, X } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 
 import {
   SiteForm,
@@ -76,6 +77,16 @@ export function SiteListPage() {
     setSelectedSiteId(null)
   }, [projectId])
 
+  // 홈의 "최근 적용 패치" 등에서 ?siteId=N 으로 진입한 경우 해당 사이트를 선택한다.
+  // 진입 시 1회만 소비한다(appliedRef) — 이후 사용자가 다른 사이트를 골라도 URL 은 건드리지 않고,
+  // 프로젝트를 바꿔 목록이 다시 로드돼도 URL 의 사이트로 되돌아가지 않는다.
+  // 탭은 링크 쪽에서 지정할 수 없다: 표준/커스텀 구분은 사이트의 hasCustomVersion 이고
+  // 패치의 releaseType 과 다르므로(커스텀 사이트도 표준 패치를 받는다) 여기서 판정한다.
+  // 목록에 없으면(다른 프로젝트 / 삭제됨) 아무것도 하지 않는다.
+  const [searchParams] = useSearchParams()
+  const urlSiteId = searchParams.get('siteId')
+  const appliedRef = useRef(false)
+
   // Query for sites
   const { data: sitesData, isLoading } = useSites({
     size: 10000,
@@ -90,6 +101,16 @@ export function SiteListPage() {
   // Derived data
   const sites = useMemo(() => sitesData?.content || [], [sitesData])
   const selectedSite = sites.find((c) => c.siteId === selectedSiteId) || null
+
+  useEffect(() => {
+    if (appliedRef.current || !urlSiteId) return
+    const target = sites.find((c) => c.siteId === Number(urlSiteId))
+    if (!target) return
+
+    appliedRef.current = true
+    setSiteFilter(target.hasCustomVersion ? 'custom' : 'standard')
+    setSelectedSiteId(target.siteId)
+  }, [urlSiteId, sites])
 
   // 이름 ASC 정렬 후 표준/커스텀 분류
   const { standardSites, customSites } = useMemo(() => {
