@@ -90,11 +90,7 @@ function SiteListItem({
           <span className="truncate text-sm font-medium">
             {site.siteName}
           </span>
-          {site.isActive ? (
-            <Badge variant="success" size="sm" dot className="flex-shrink-0">
-              운영중
-            </Badge>
-          ) : (
+          {!site.isActive && (
             <Badge variant="neutral" size="sm" dot className="flex-shrink-0">
               비활성
             </Badge>
