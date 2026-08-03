@@ -90,6 +90,9 @@ local.properties
 ### AI ###
 /claudedocs/
 CLAUDE.local.md
+# 하니스 로컬 설정 — .claude/agent-memory 와 FSD_GUIDE.md 는 계속 추적한다
+/.claude/settings.json
+/.serena/
 
 ### Design handoff bundles (not part of source) ###
 /rm-backstage-design/
