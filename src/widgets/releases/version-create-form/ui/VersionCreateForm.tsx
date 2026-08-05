@@ -137,7 +137,9 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         title: '버전 생성 완료',
         description: `버전 ${effectiveVersion}이(가) 성공적으로 생성되었습니다.`,
       })
-      handleClose()
+      // handleClose 는 isPending 가드에 걸린다 — onSuccess 콜백 시점엔 mutation 이
+      // 아직 pending 상태라 sheet 가 닫히지 않으므로 가드 없는 resetAndClose 를 쓴다
+      resetAndClose()
       onSuccess()
     },
     onError: (error) => {
@@ -151,8 +153,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     },
   })
 
-  const handleClose = () => {
-    if (createMutation.isPending) return
+  const resetAndClose = () => {
     setVersion('')
     setBumpType('patch')
     setIsManualInput(false)
@@ -162,6 +163,12 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     setUploadProgress(null)
     setActiveProgressId(null)
     onOpenChange(false)
+  }
+
+  // 사용자 조작(X/취소)용 — 업로드 중에는 닫기 방지
+  const handleClose = () => {
+    if (createMutation.isPending) return
+    resetAndClose()
   }
 
   const handleSubmit = () => {
