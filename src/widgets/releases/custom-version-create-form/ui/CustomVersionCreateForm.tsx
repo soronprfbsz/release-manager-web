@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
+import { Info, Tag, ChevronRight, type LucideIcon } from 'lucide-react'
 
 import { releaseApi, useStandardVersionList, useAllCustomReleaseTree } from '@/entities/releases/release'
 import { SiteSelect, useSites, type Site } from '@/entities/sites/site'
@@ -87,9 +87,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   const projectId = useProjectStore((state) => state.projectId)
   const [siteId, setSiteId] = useState<number | null>(null)
   const [customBaseVersionId, setCustomBaseVersionId] = useState<number | null>(null)
-  const [customVersion, setCustomVersion] = useState('')
   const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
-  const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const { toast } = useToast()
@@ -168,12 +166,12 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     return bumpVersion(currentCustomVersion, bumpType)
   }, [siteId, latestVersionForSite, currentCustomVersion, bumpType])
 
-  // 실제 사용될 버전 (수동 입력 모드면 customVersion, 아니면 calculatedVersion)
-  const effectiveVersion = isManualInput ? customVersion : calculatedVersion
+  // 실제 사용될 버전 — 항상 자동 계산값 (최초 버전은 1.0.0, 이후 MAJOR/MINOR/PATCH bump)
+  const effectiveVersion = calculatedVersion
 
   // 버전 타입 버튼 스타일
   const getButtonStyle = (type: VersionBumpType) => {
-    const isSelected = bumpType === type && !isManualInput
+    const isSelected = bumpType === type
     return cn(
       'flex-1 py-2 rounded-lg text-sm font-medium',
       'cursor-pointer',
@@ -236,9 +234,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   const resetAndClose = () => {
     setSiteId(null)
     setCustomBaseVersionId(null)
-    setCustomVersion('')
     setBumpType('patch')
-    setIsManualInput(false)
     setComment('')
     setFile(null)
     setUploadProgress(null)
@@ -411,8 +407,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
             setSiteId(site?.siteId ?? null)
             setCustomBaseVersionId(null) // 사이트 변경 시 customBaseVersionId 초기화
             setBumpType('patch') // 사이트 변경 시 버전 타입 초기화
-            setIsManualInput(false) // 사이트 변경 시 수동 입력 모드 해제
-            setCustomVersion('') // 사이트 변경 시 버전 초기화
           }}
           placeholder="사이트를 선택하세요"
         />
@@ -444,7 +438,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
       <div className="space-y-3">
         <Label required>버전</Label>
 
-        {siteId && !isManualInput ? (
+        {siteId ? (
           <div className="rounded-lg border bg-card p-4 space-y-4">
             {/* 버전 타입 선택 버튼 (최초 버전이 아닌 경우에만 표시) */}
             {currentCustomVersion && (
@@ -499,37 +493,12 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
               )}
             </div>
           </div>
-        ) : siteId ? (
-          <Input
-            id="customVersion"
-            placeholder="e.g. 1.0.0"
-            value={customVersion}
-            onChange={(e) => setCustomVersion(e.target.value)}
-            required
-          />
         ) : (
           <Input
             id="customVersion"
             placeholder="사이트를 먼저 선택하세요"
             disabled
           />
-        )}
-
-        {/* 직접 입력 토글 */}
-        {siteId && (
-          <button
-            type="button"
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => {
-              setIsManualInput(!isManualInput)
-              if (!isManualInput) {
-                setCustomVersion(calculatedVersion)
-              }
-            }}
-          >
-            <Pencil className="h-3 w-3" />
-            {isManualInput ? '자동 입력' : '직접 입력'}
-          </button>
         )}
       </div>
 

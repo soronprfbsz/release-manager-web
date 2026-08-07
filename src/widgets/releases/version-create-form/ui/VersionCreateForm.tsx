@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
-import { Info, Tag, ChevronRight, Pencil, type LucideIcon } from 'lucide-react'
+import { Info, Tag, ChevronRight, type LucideIcon } from 'lucide-react'
 
 import { releaseApi } from '@/entities/releases/release'
 
@@ -76,7 +76,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   const projectId = useProjectStore((state) => state.projectId)
   const [version, setVersion] = useState('')
   const [bumpType, setBumpType] = useState<VersionBumpType>('patch')
-  const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const { toast } = useToast()
@@ -94,12 +93,13 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     return bumpVersion(latestVersion, bumpType)
   }, [latestVersion, bumpType])
 
-  // 실제 사용될 버전 (수동 입력 모드면 version, 아니면 calculatedVersion)
-  const effectiveVersion = isManualInput ? version : calculatedVersion
+  // 실제 사용될 버전. 기존 버전이 있으면 MAJOR/MINOR/PATCH 로 자동 계산하고,
+  // 프로젝트 최초 버전일 때만 입력값(version)을 쓴다.
+  const effectiveVersion = latestVersion ? calculatedVersion : version
 
   // 버전 타입 버튼 스타일
   const getButtonStyle = (type: VersionBumpType) => {
-    const isSelected = bumpType === type && !isManualInput
+    const isSelected = bumpType === type
     return cn(
       'flex-1 py-2 rounded-lg text-sm font-medium',
       'cursor-pointer',
@@ -153,7 +153,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   const resetAndClose = () => {
     setVersion('')
     setBumpType('patch')
-    setIsManualInput(false)
     setComment('')
     setFile(null)
     setUploadProgress(null)
@@ -300,7 +299,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
       <div className="space-y-3">
         <Label required>버전</Label>
 
-        {latestVersion && !isManualInput ? (
+        {latestVersion ? (
           <div className="rounded-lg border bg-card p-4 space-y-4">
 
             {/* 버전 타입 선택 버튼 */}
@@ -352,23 +351,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
             onChange={(e) => setVersion(e.target.value)}
             required
           />
-        )}
-
-        {/* 직접 입력 토글 */}
-        {latestVersion && (
-          <button
-            type="button"
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => {
-              setIsManualInput(!isManualInput)
-              if (!isManualInput) {
-                setVersion(calculatedVersion)
-              }
-            }}
-          >
-            <Pencil className="h-3 w-3" />
-            {isManualInput ? '자동 입력' : '직접 입력'}
-          </button>
         )}
       </div>
 
