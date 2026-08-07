@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react'
 
-import { ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, ArrowRight, GitBranch, type LucideIcon } from 'lucide-react'
 
 import type {
   BuildSelection,
@@ -23,6 +23,7 @@ import { useBuildsInRange } from '@/entities/releases/release'
 import { SiteSelect } from '@/entities/sites'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { compareVersions } from '@/shared/lib/utils/version'
 import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
@@ -33,6 +34,7 @@ import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
+import { findUnapprovedInRange, formatVersionLabel } from '../lib/helpers'
 
 import type { CustomPatchCreateFormData } from '../model/types'
 
@@ -80,15 +82,26 @@ export function CustomPatchCreateForm({
   icon: PageIcon = GitBranch,
 }: CustomPatchCreateFormProps) {
 
-  // 승인된 버전만 필터링
-  const approvedVersions = versions.filter((v) => v.isApproved)
-  const fromVersionOptions = approvedVersions
-  const filteredToVersions = approvedVersions.filter(
+  const { canCreatePatchWithUnapproved } = usePermission()
+
+  // 미승인 버전은 권한이 있을 때만 고를 수 있다. 없으면 아예 목록에서 제외.
+  const selectableVersions = canCreatePatchWithUnapproved
+    ? versions
+    : versions.filter((v) => v.isApproved)
+  const fromVersionOptions = selectableVersions
+  const filteredToVersions = selectableVersions.filter(
     (v) => !v.isBaseVersion && formData.fromVersion && compareVersions(v.version, formData.fromVersion) > 0,
   )
 
+  // 구간 내 미승인 버전. 중간 버전은 어느 콤보박스에도 나타나지 않으므로 별도로 안내한다.
+  const unapprovedInRange = findUnapprovedInRange(
+    versions,
+    formData.fromVersion,
+    formData.toVersion,
+  )
+
   const findVersionId = (versionStr: string): number | null =>
-    approvedVersions.find((v) => v.version === versionStr)?.versionId ?? null
+    selectableVersions.find((v) => v.version === versionStr)?.versionId ?? null
 
   const handleFromVersionChange = (value: string) => {
     const fromVersionId = findVersionId(value)
@@ -213,7 +226,9 @@ export function CustomPatchCreateForm({
                 <Combobox
                   options={fromVersionOptions.map((v) => ({
                     value: v.version,
-                    label: v.isBaseVersion ? `${v.version} (베이스)` : v.version,
+                    label: v.isBaseVersion
+                      ? `${v.version} (베이스)`
+                      : formatVersionLabel(v.version, v.isApproved),
                   }))}
                   value={formData.fromVersion}
                   onValueChange={handleFromVersionChange}
@@ -228,7 +243,7 @@ export function CustomPatchCreateForm({
                 <Combobox
                   options={filteredToVersions.map((v) => ({
                     value: v.version,
-                    label: v.version,
+                    label: formatVersionLabel(v.version, v.isApproved),
                   }))}
                   value={formData.toVersion}
                   onValueChange={handleToVersionChange}
@@ -241,10 +256,22 @@ export function CustomPatchCreateForm({
               {formData.siteId && isVersionsLoading && (
                 <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
               )}
-              {formData.siteId && !isVersionsLoading && approvedVersions.length === 0 && (
-                <TypographyMuted>승인된 버전이 없습니다.</TypographyMuted>
+              {formData.siteId && !isVersionsLoading && selectableVersions.length === 0 && (
+                <TypographyMuted>선택 가능한 버전이 없습니다.</TypographyMuted>
               )}
             </div>
+
+            {/* 미승인 포함 경고 — 구간 중간의 미승인은 콤보박스 라벨로 드러나지 않으므로 별도 안내 */}
+            {unapprovedInRange.length > 0 && (
+              <div className="flex items-start gap-1.5 rounded-lg bg-yellow-500/10 p-3 text-xs text-yellow-700 dark:text-yellow-500">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>
+                  이 범위에는 미승인 버전(
+                  <strong>{unapprovedInRange.map((v) => v.version).join(', ')}</strong>
+                  )이 포함됩니다. 내부 검증용 패치로 생성되며 고객사 배포용이 아닙니다.
+                </span>
+              </div>
+            )}
 
             {/* 패치명 */}
             <div className="space-y-2">

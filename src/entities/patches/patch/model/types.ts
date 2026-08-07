@@ -53,6 +53,8 @@ export interface CumulativePatch {
   isBuildOnly?: boolean | null
   isBuildIncluded?: boolean | null
   includedBuildsSummary?: string | null
+  /** 미승인 버전 포함 여부 (생성 시점 스냅샷) */
+  containsUnapproved?: boolean | null
   /** 패치 완료(적용) 일시 — 패치 이력 API 에서만 포함 */
   completedAt?: string | null
   /** 패치 완료 처리자 계정 식별자 — 패치 이력 API 에서만 포함 */
@@ -86,6 +88,8 @@ export interface CumulativePatchDetail {
   isBuildIncluded?: boolean | null
   includedBuilds?: IncludedBuilds | null
   hotfixesInRange?: PatchHotfixInRangeInfo[] | null
+  /** 미승인 버전 포함 여부 (생성 시점 스냅샷) */
+  containsUnapproved?: boolean | null
 }
 
 export interface SelectedWeb {

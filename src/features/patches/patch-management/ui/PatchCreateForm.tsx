@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react'
 
-import { ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Info, Tag, type LucideIcon } from 'lucide-react'
 
 import { usePatchNamePreview, type BuildSelection } from '@/entities/patches/patch'
 import { useBuildsInRange } from '@/entities/releases/release'
@@ -16,6 +16,7 @@ import { SiteSelect, type Site } from '@/entities/sites'
 import { useNextPatchRange } from '@/entities/sites/site-version'
 
 import type { ProgressResponse } from '@/shared/api/progress/types'
+import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { compareVersions } from '@/shared/lib/utils/version'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
@@ -31,7 +32,11 @@ import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
 import { BuildPickerSection, computeAutoPreselect } from './BuildPickerSection'
-import { getVersionIdFromOption } from '../lib/helpers'
+import {
+  findUnapprovedInRange,
+  formatVersionLabel,
+  getVersionIdFromOption,
+} from '../lib/helpers'
 
 import type { PatchCreateFormData, VersionOption } from '../model/types'
 
@@ -50,10 +55,8 @@ const PATCH_STEPS = [
 interface PatchCreateFormProps {
   isOpen: boolean
   formData: PatchCreateFormData
-  /** 버전 문자열 목록 (Select 표시용) */
-  versions: string[]
-  /** 버전 ID 매핑 (builds-in-range 조회용, 선택 사항) */
-  versionOptions?: VersionOption[]
+  /** 버전 옵션 (표시 / ID 매핑 / 승인 여부) */
+  versionOptions: VersionOption[]
   sites: Site[]
   isVersionsLoading: boolean
   isSubmitting: boolean
@@ -70,8 +73,7 @@ interface PatchCreateFormProps {
 export function PatchCreateForm({
   isOpen,
   formData,
-  versions,
-  versionOptions = [],
+  versionOptions,
   sites,
   isVersionsLoading,
   isSubmitting,
@@ -81,6 +83,12 @@ export function PatchCreateForm({
   onClose,
   icon: PageIcon = Tag,
 }: PatchCreateFormProps) {
+  const { canCreatePatchWithUnapproved } = usePermission()
+
+  // 미승인 버전은 권한이 있을 때만 고를 수 있다. 없으면 아예 목록에서 제외 (커스텀 패치와 동일 정책).
+  const selectableVersions = canCreatePatchWithUnapproved
+    ? versionOptions
+    : versionOptions.filter((v) => v.isApproved)
 
   // 항상 최신 formData / onFormDataChange 를 가리키는 ref — useEffect 의 stale closure 회피
   // (dep 가 다른 비동기 응답일 때 effect 내부 spread 가 옛 formData 를 덮어쓰는 문제 방지)
@@ -139,10 +147,10 @@ export function PatchCreateForm({
       toVersionId: newToId,
       buildSelection: { enabled: true, web: null, engines: [] },
     }))
-    // versions.length 도 dep 에 포함 — tree fetch 가 nextRange 보다 늦게 도착하면
+    // versionOptions.length 도 dep 에 포함 — tree fetch 가 nextRange 보다 늦게 도착하면
     // Select 옵션이 비어있는 상태에서 value 만 set 되어 placeholder 표시되던 문제 회피.
     // 옵션 도착 시점에 set 을 한 번 더 호출해 Radix Select 가 value 와 매칭하도록.
-  }, [selectedSite?.siteId, nextRange, versions.length])
+  }, [selectedSite?.siteId, nextRange, versionOptions.length])
 
   const handleFromVersionChange = (value: string) => {
     // Radix Select 알려진 버그 우회: 비동기로 옵션이 늦게 mount 되어 controlled
@@ -182,11 +190,20 @@ export function PatchCreateForm({
 
   // 버전 옵션을 semver desc 로 정렬 — 최신 버전이 위에 노출되어 운영자가 흔히
   // 고르는 "최신" 을 빠르게 선택할 수 있게. (공유 compareVersions 로 정렬/필터 일원화)
-  const sortedVersions = [...versions].sort((a, b) => compareVersions(b, a))
+  const sortedVersions = [...selectableVersions].sort((a, b) =>
+    compareVersions(b.version, a.version)
+  )
   // 끝 버전은 시작 버전 이상만. 문자열 비교 시 "1.1.10" < "1.1.8" 이 되어 최신(.10/.11)이
   // 누락되므로 반드시 semver 비교(compareVersions)를 사용한다.
   const filteredToVersions = sortedVersions.filter(
-    (v) => formData.fromVersion && compareVersions(v, formData.fromVersion) >= 0
+    (v) => formData.fromVersion && compareVersions(v.version, formData.fromVersion) >= 0
+  )
+
+  // 구간 내 미승인 버전. 중간 버전은 어느 콤보박스에도 나타나지 않으므로 별도로 안내한다.
+  const unapprovedInRange = findUnapprovedInRange(
+    versionOptions,
+    formData.fromVersion,
+    formData.toVersion
   )
 
   // builds-in-range 쿼리
@@ -314,15 +331,15 @@ export function PatchCreateForm({
           <Select
             value={formData.fromVersion}
             onValueChange={handleFromVersionChange}
-            disabled={isVersionsLoading || versions.length === 0}
+            disabled={isVersionsLoading || selectableVersions.length === 0}
           >
             <SelectTrigger className="flex-1">
               <SelectValue placeholder="시작 버전" />
             </SelectTrigger>
             <SelectContent>
               {sortedVersions.map((v) => (
-                <SelectItem key={v} value={v}>
-                  {v}
+                <SelectItem key={v.version} value={v.version}>
+                  {formatVersionLabel(v.version, v.isApproved)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -332,7 +349,7 @@ export function PatchCreateForm({
             value={formData.toVersion}
             onValueChange={handleToVersionChange}
             disabled={
-              isVersionsLoading || versions.length === 0 || !formData.fromVersion
+              isVersionsLoading || selectableVersions.length === 0 || !formData.fromVersion
             }
           >
             <SelectTrigger className="flex-1">
@@ -340,8 +357,8 @@ export function PatchCreateForm({
             </SelectTrigger>
             <SelectContent>
               {filteredToVersions.map((v) => (
-                <SelectItem key={v} value={v}>
-                  {v}
+                <SelectItem key={v.version} value={v.version}>
+                  {formatVersionLabel(v.version, v.isApproved)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -350,8 +367,8 @@ export function PatchCreateForm({
         {isVersionsLoading && (
           <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
         )}
-        {!isVersionsLoading && versions.length === 0 && (
-          <TypographyMuted>등록된 버전이 없습니다.</TypographyMuted>
+        {!isVersionsLoading && selectableVersions.length === 0 && (
+          <TypographyMuted>선택 가능한 버전이 없습니다.</TypographyMuted>
         )}
       </div>
 
@@ -385,6 +402,18 @@ export function PatchCreateForm({
       )}
       {formData.fromVersionId && formData.toVersionId && siteChosen && buildsQuery.isLoading && (
         <TypographyMuted className="text-xs">빌드 목록을 불러오는 중...</TypographyMuted>
+      )}
+
+      {/* 미승인 포함 경고 — 구간 중간의 미승인은 콤보박스 라벨로 드러나지 않으므로 별도 안내 */}
+      {unapprovedInRange.length > 0 && (
+        <div className="flex items-start gap-1.5 rounded-lg bg-yellow-500/10 p-3 text-xs text-yellow-700 dark:text-yellow-500">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            이 범위에는 미승인 버전(
+            <strong>{unapprovedInRange.map((v) => v.version).join(', ')}</strong>
+            )이 포함됩니다. 내부 검증용 패치로 생성되며 고객사 배포용이 아닙니다.
+          </span>
+        </div>
       )}
 
       {/* 생성 정보 미리보기 (버전 범위 + 패치명) */}

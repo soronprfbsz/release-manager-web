@@ -124,7 +124,7 @@ function getVersionsFromTree(
   const options: VersionOption[] = []
   data.majorMinorGroups.forEach((group) => {
     group.versions.forEach((v) => {
-      options.push({ version: v.version, versionId: v.versionId })
+      options.push({ version: v.version, versionId: v.versionId, isApproved: v.isApproved })
     })
   })
   return options.sort((a, b) => {
@@ -213,7 +213,6 @@ export function PatchesPage() {
   })
 
   const standardVersionOptions = getVersionsFromTree(treeData)
-  const standardVersions = standardVersionOptions.map((o) => o.version)
 
   // Custom Queries
   const {
@@ -629,7 +628,6 @@ export function PatchesPage() {
       <PatchCreateForm
         isOpen={standardFormOpen}
         formData={standardFormData}
-        versions={standardVersions}
         versionOptions={standardVersionOptions}
         sites={sites?.content || []}
         isVersionsLoading={isTreeLoading}

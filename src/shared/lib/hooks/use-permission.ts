@@ -64,6 +64,8 @@ export function usePermission() {
     // 패치 관리 권한
     // ========================================================================
     canAddPatch: hasPermission('patch', 'create'),
+    /** 미승인 버전을 포함한 패치 생성 가능 여부 (백엔드에서도 동일하게 검증됨) */
+    canCreatePatchWithUnapproved: hasPermission('patch', 'createWithUnapproved'),
     canDeletePatch: hasPermission('patch', 'delete'),
     canViewPatchContent: hasPermission('patch', 'viewContent'),
     canDownloadPatch: hasPermission('patch', 'download'),

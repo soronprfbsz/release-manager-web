@@ -256,6 +256,11 @@ export function PatchTable({
                       Build-only
                     </Badge>
                   )}
+                  {patch.containsUnapproved && (
+                    <Badge variant="warning" size="sm" className="shrink-0">
+                      미승인 포함
+                    </Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>

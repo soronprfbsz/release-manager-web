@@ -9,6 +9,8 @@ import type { BuildSelection } from '@/entities/patches/patch'
 export interface VersionOption {
   version: string
   versionId: number
+  /** 승인 여부 — 미승인은 권한에 따라 숨기거나 '(미승인)' 라벨로 표시 */
+  isApproved: boolean
 }
 
 export interface PatchCreateFormData {

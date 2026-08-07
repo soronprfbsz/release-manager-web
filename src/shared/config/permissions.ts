@@ -72,6 +72,9 @@ export const ACTION_PERMISSIONS = {
   // 패치 관리
   patch: {
     create: ['ADMIN', 'DEVELOPER', 'OPERATOR', 'USER'] as readonly Role[],
+    // 미승인 버전을 포함한 패치 생성 — 내부 검증 후 승인하는 워크플로용.
+    // 버전을 만들고 승인할 수 있는 역할(version.create / version.approve)과 동일 집합으로 맞춘다.
+    createWithUnapproved: ['ADMIN', 'DEVELOPER'] as readonly Role[],
     delete: ['ADMIN', 'DEVELOPER', 'OPERATOR', 'USER'] as readonly Role[],
     viewContent: ['ADMIN', 'DEVELOPER', 'OPERATOR', 'USER'] as readonly Role[],
     download: ['ADMIN', 'DEVELOPER', 'OPERATOR', 'USER'] as readonly Role[],
