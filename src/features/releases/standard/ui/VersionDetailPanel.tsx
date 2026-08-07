@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, createContext, useContext } from 'react'
 
-import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, CheckCircle2, TableOfContents, Tag, FolderTree, Pencil, X, Check } from 'lucide-react'
+import { FileText, File, Download, Folder, FolderOpen, ChevronRight, ChevronDown, TableOfContents, Tag, FolderTree, Pencil, X, Check } from 'lucide-react'
 
 
 import {
@@ -8,7 +8,6 @@ import {
   useVersionFileStructure,
   useReleaseFileContent,
   useDeleteVersion,
-  useApproveVersion,
   useUpdateVersionComment,
   type ReleaseFileNode,
 } from '@/entities/releases/release'
@@ -113,9 +112,7 @@ interface VersionDetailContextValue {
   commentMutation: ReturnType<typeof useUpdateVersionComment>
   // Mutations
   deleteMutation: ReturnType<typeof useDeleteVersion>
-  approveMutation: ReturnType<typeof useApproveVersion>
   // Handlers
-  handleApprove: () => void
   handleDeleteConfirm: () => void
   handleDownload: (node: ReleaseFileNode) => void
   handleViewFile: (node: ReleaseFileNode) => void
@@ -123,7 +120,6 @@ interface VersionDetailContextValue {
   handleDownloadSelectedFile: () => void
   // Permissions
   canDeleteVersion: boolean
-  canApproveVersion: boolean
   canAddVersion: boolean
   canDownloadVersion: boolean
   // File content query (for VersionDetailDialogs)
@@ -295,14 +291,13 @@ function VersionDetailProvider({
   const [deleteAcknowledged, setDeleteAcknowledged] = useState(false)
   const [hotfixDialogOpen, setHotfixDialogOpen] = useState(false)
   const { toast } = useToast()
-  const { canDeleteVersion, canApproveVersion, canAddVersion, canDownloadVersion } = usePermission()
+  const { canDeleteVersion, canAddVersion, canDownloadVersion } = usePermission()
   const projectId = useProjectStore((state) => state.projectId)
 
   // 파일 트리 구조 조회
   const { data: fileStructure, isLoading, error } = useVersionFileStructure(version?.versionId ?? 0)
 
   const deleteMutation = useDeleteVersion()
-  const approveMutation = useApproveVersion()
   const commentMutation = useUpdateVersionComment()
 
   // 코멘트 수정 상태
@@ -336,26 +331,6 @@ function VersionDetailProvider({
   const handleCancelEditComment = () => {
     setEditedComment(version?.comment ?? '')
     setIsEditingComment(false)
-  }
-
-  const handleApprove = () => {
-    if (!version) return
-
-    approveMutation.mutate(version.versionId, {
-      onSuccess: () => {
-        toast({
-          title: '버전 승인 완료',
-          description: `버전 ${version.version}이(가) 승인되었습니다.`,
-        })
-      },
-      onError: (err: Error) => {
-        toast({
-          title: '버전 승인 실패',
-          description: err instanceof Error ? err.message : '버전 승인 중 오류가 발생했습니다.',
-          variant: 'destructive',
-        })
-      },
-    })
   }
 
   const handleDeleteConfirm = () => {
@@ -445,15 +420,12 @@ function VersionDetailProvider({
     handleCancelEditComment,
     commentMutation,
     deleteMutation,
-    approveMutation,
-    handleApprove,
     handleDeleteConfirm,
     handleDownload,
     handleViewFile,
     handleDownloadAll,
     handleDownloadSelectedFile,
     canDeleteVersion,
-    canApproveVersion,
     canAddVersion,
     canDownloadVersion,
     useFileContentQuery,
@@ -542,9 +514,6 @@ function VersionHeaderCard() {
     handleSaveComment,
     handleCancelEditComment,
     commentMutation,
-    handleApprove,
-    approveMutation,
-    canApproveVersion,
     canAddVersion,
   } = ctx
 
@@ -663,23 +632,7 @@ function VersionHeaderCard() {
 
         {/* 우측 액션 + status pill + tags */}
         <div className="flex flex-col items-end gap-2.5">
-          {canApproveVersion && !version.isApproved && (
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon-xs"
-                    onClick={handleApprove}
-                    disabled={approveMutation.isPending}
-                  >
-                    <CheckCircle2 />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>승인하기</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
+          {/* 승인은 버전 트리 컨텍스트 메뉴에서만 수행한다 (진입점 단일화) */}
           {!isBuild && (
             version.isApproved ? (
               <Badge variant="success" size="pill" dot>승인됨</Badge>

@@ -125,6 +125,7 @@ export function ReleasesPage() {
   const [hotfixTarget, setHotfixTarget] = useState<ActionTargetInfo | null>(null)
   const [buildTarget, setBuildTarget] = useState<ActionTargetInfo | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ActionTargetInfo | null>(null)
+  const [approveTarget, setApproveTarget] = useState<ActionTargetInfo | null>(null)
 
   const deleteMutation = useDeleteVersion()
   const approveMutation = useApproveVersion()
@@ -422,14 +423,26 @@ export function ReleasesPage() {
     setDeleteTarget({ versionId, version, isHotfix })
   }
 
-  /** 트리 컨텍스트 메뉴 승인 — 상세 패널의 승인 버튼과 동일하게 확인 없이 즉시 실행 */
+  /** 트리 컨텍스트 메뉴 승인 — 승인은 되돌릴 수 없으므로 확인 다이얼로그를 거친다 */
   const handleTreeApprove = (versionId: number, version: string) => {
-    approveMutation.mutate(versionId, {
+    // 승인은 versionId 만 사용하므로 isHotfix 는 의미 없음 (타입 형식상 채움).
+    // 핫픽스도 같은 핸들러를 타며 version 에는 fullVersion(예: 1.1.5.1)이 들어온다.
+    setApproveTarget({ versionId, version, isHotfix: false })
+  }
+
+  const handleTreeApproveConfirm = () => {
+    if (!approveTarget) return
+
+    approveMutation.mutate(approveTarget.versionId, {
       onSuccess: () => {
         toast({
           title: '버전 승인 완료',
-          description: `버전 ${version}이(가) 승인되었습니다.`,
+          description: `버전 ${approveTarget.version}이(가) 승인되었습니다.`,
         })
+        setApproveTarget(null)
+        // 트리를 다시 읽어 미승인 스타일(흐린 이탤릭)을 해제한다.
+        // 상세 패널의 version 은 트리 데이터에서 파생되므로 함께 갱신된다.
+        handleRefresh()
       },
       onError: (err) => {
         toast({
@@ -437,6 +450,7 @@ export function ReleasesPage() {
           description: err instanceof Error ? err.message : '버전 승인 중 오류가 발생했습니다.',
           variant: 'destructive',
         })
+        setApproveTarget(null)
       },
     })
   }
@@ -703,6 +717,29 @@ export function ReleasesPage() {
               className="bg-destructive hover:bg-destructive/70"
             >
               {deleteMutation.isPending ? '삭제 중...' : '삭제'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 승인 다이얼로그 — 승인 취소 기능이 없어 되돌릴 수 없다 */}
+      <AlertDialog open={!!approveTarget} onOpenChange={(open) => !open && setApproveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>버전 승인 확인</AlertDialogTitle>
+            <AlertDialogDescription>
+              버전 <strong>{approveTarget?.version}</strong>을(를) 승인하시겠습니까?
+              <br />
+              승인 후에는 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={approveMutation.isPending}>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleTreeApproveConfirm}
+              disabled={approveMutation.isPending}
+            >
+              {approveMutation.isPending ? '승인 중...' : '승인'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
