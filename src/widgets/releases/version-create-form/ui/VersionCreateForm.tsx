@@ -21,9 +21,7 @@ import {
 } from '@/shared/ui/popover'
 import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
-import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
-import { TypographyMuted } from '@/shared/ui/typography'
 
 /** 버전 생성 5단계 라벨 */
 const VERSION_CREATE_STEPS = [
@@ -81,7 +79,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
   const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
-  const [isApproved, setIsApproved] = useState(false)
   const { toast } = useToast()
   /** 업로드 phase 진행 정보 (null=비활성) */
   const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null)
@@ -128,7 +125,7 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
         setUploadProgress({ loaded, total, percent })
       }
 
-      await releaseApi.createVersion(projectId, effectiveVersion, comment, file!, isApproved, progressHandler, progressId)
+      await releaseApi.createVersion(projectId, effectiveVersion, comment, file!, progressHandler, progressId)
     },
     onSuccess: () => {
       // 완료 후 0.7초 여유를 두고 progressId 초기화 (completed=true polling 수신 보장)
@@ -159,7 +156,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
     setIsManualInput(false)
     setComment('')
     setFile(null)
-    setIsApproved(false)
     setUploadProgress(null)
     setActiveProgressId(null)
     onOpenChange(false)
@@ -401,23 +397,6 @@ export function VersionCreateForm({ open, onOpenChange, onSuccess, latestVersion
           disabled={createMutation.isPending}
           heightClass="h-32"
           hint="최대 파일 크기: 10GB"
-        />
-      </div>
-
-      {/* 승인된 상태로 생성 */}
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div className="space-y-1">
-          <Label htmlFor="isApproved" className="cursor-pointer font-medium">
-            승인된 상태로 생성
-          </Label>
-          <TypographyMuted className="text-xs">
-            활성화 시 승인된 상태로 버전이 생성됩니다.
-          </TypographyMuted>
-        </div>
-        <Switch
-          id="isApproved"
-          checked={isApproved}
-          onCheckedChange={setIsApproved}
         />
       </div>
       </>

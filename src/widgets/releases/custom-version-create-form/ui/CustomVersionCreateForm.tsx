@@ -24,7 +24,6 @@ import {
 } from '@/shared/ui/popover'
 import type { UploadProgressInfo } from '@/shared/ui/server-progress-view'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
-import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
 
@@ -93,7 +92,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
   const [isManualInput, setIsManualInput] = useState(false)
   const [comment, setComment] = useState('')
   const [file, setFile] = useState<File | null>(null)
-  const [isApproved, setIsApproved] = useState(false)
   const { toast } = useToast()
   /** 업로드 phase 진행 정보 (null=비활성) */
   const [uploadProgress, setUploadProgress] = useState<UploadProgressInfo | null>(null)
@@ -207,7 +205,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
         effectiveVersion,
         comment,
         file!,
-        isApproved,
         isFirstVersionForSite && customBaseVersionId ? customBaseVersionId : undefined,
         progressHandler,
         progressId
@@ -244,7 +241,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
     setIsManualInput(false)
     setComment('')
     setFile(null)
-    setIsApproved(false)
     setUploadProgress(null)
     setActiveProgressId(null)
     onOpenChange(false)
@@ -431,7 +427,7 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
           <Combobox
             options={standardVersions.map((sv) => ({
               value: String(sv.versionId),
-              label: `${sv.version}${!sv.isApproved ? ' (승인되지 않음)' : ''}`,
+              label: `${sv.version}${!sv.isApproved ? ' (미승인)' : ''}`,
             }))}
             value={customBaseVersionId ? String(customBaseVersionId) : ''}
             onValueChange={(value) => setCustomBaseVersionId(value ? Number(value) : null)}
@@ -562,23 +558,6 @@ export function CustomVersionCreateForm({ open, onOpenChange, onSuccess, icon: P
           disabled={createMutation.isPending}
           heightClass="h-32"
           hint="최대 파일 크기: 10GB"
-        />
-      </div>
-
-      {/* 승인된 상태로 생성 */}
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div className="space-y-1">
-          <Label htmlFor="isApproved" className="cursor-pointer font-medium">
-            승인된 상태로 생성
-          </Label>
-          <TypographyMuted className="text-xs">
-            활성화 시 승인된 상태로 버전이 생성됩니다.
-          </TypographyMuted>
-        </div>
-        <Switch
-          id="isApproved"
-          checked={isApproved}
-          onCheckedChange={setIsApproved}
         />
       </div>
       </>

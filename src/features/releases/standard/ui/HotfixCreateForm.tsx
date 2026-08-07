@@ -10,9 +10,7 @@ import { Combobox } from '@/shared/ui/combobox'
 import { FileDropzone } from '@/shared/ui/file-dropzone'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
-import { Switch } from '@/shared/ui/switch'
 import { Textarea } from '@/shared/ui/textarea'
-import { TypographyMuted } from '@/shared/ui/typography'
 
 interface HotfixCreateFormProps {
   open: boolean
@@ -39,7 +37,6 @@ export function HotfixCreateForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadCompleted, setUploadCompleted] = useState(false)
-  const [isApproved, setIsApproved] = useState(false)
 
   // 담당자 목록 조회 (엔지니어만)
   const { data: accountsResponse } = useAccounts({ size: 10000, departmentType: 'ENGINEER' })
@@ -51,7 +48,6 @@ export function HotfixCreateForm({
     setSelectedFile(null)
     setIsUploading(false)
     setUploadCompleted(false)
-    setIsApproved(false)
     resetTransfer()
   }
 
@@ -103,7 +99,6 @@ export function HotfixCreateForm({
         comment,
         selectedFile,
         assigneeId ?? undefined,
-        isApproved || undefined,
         (progressEvent) => {
           if (progressEvent.total) {
             const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -228,24 +223,6 @@ export function HotfixCreateForm({
           disabled={isUploading}
           heightClass="h-28"
           hint="ZIP 파일만 지원"
-        />
-      </div>
-
-      {/* 승인된 상태로 생성 */}
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div className="space-y-1">
-          <Label htmlFor="isApproved" className="cursor-pointer font-medium">
-            승인된 상태로 생성
-          </Label>
-          <TypographyMuted className="text-xs">
-            활성화 시 승인된 상태로 핫픽스가 생성됩니다.
-          </TypographyMuted>
-        </div>
-        <Switch
-          id="isApproved"
-          checked={isApproved}
-          onCheckedChange={setIsApproved}
-          disabled={isUploading}
         />
       </div>
     </FormSheet>

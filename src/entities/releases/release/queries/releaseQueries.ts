@@ -114,7 +114,6 @@ interface CreateVersionParams {
   version: string
   comment: string
   patchFiles: File
-  isApproved?: boolean
   onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   /** 서버 진행도 polling 용 ID (선택) */
   progressId?: string
@@ -130,7 +129,6 @@ export const useCreateVersion = () => {
         params.version,
         params.comment,
         params.patchFiles,
-        params.isApproved,
         params.onUploadProgress,
         params.progressId
       ),

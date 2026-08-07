@@ -75,7 +75,6 @@ export const releaseApi = {
     version: string,
     comment: string,
     patchFiles: File,
-    isApproved?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
     progressId?: string
   ): Promise<void> => {
@@ -84,9 +83,6 @@ export const releaseApi = {
     formData.append('version', version)
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
-    if (isApproved !== undefined) {
-      formData.append('isApproved', String(isApproved))
-    }
 
     await apiClient.upload(ENDPOINTS.createVersion, formData, {
       onUploadProgress,
@@ -102,7 +98,6 @@ export const releaseApi = {
     customVersion: string,
     comment: string,
     patchFiles: File,
-    isApproved?: boolean,
     customBaseVersionId?: number,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void,
     progressId?: string
@@ -113,9 +108,6 @@ export const releaseApi = {
     formData.append('customVersion', customVersion)
     formData.append('comment', comment)
     formData.append('patchFiles', patchFiles)
-    if (isApproved !== undefined) {
-      formData.append('isApproved', String(isApproved))
-    }
     if (customBaseVersionId !== undefined) {
       formData.append('customBaseVersionId', String(customBaseVersionId))
     }
@@ -156,7 +148,6 @@ export const releaseApi = {
     comment: string,
     patchFiles: File,
     engineerId?: number,
-    isApproved?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total?: number }) => void
   ): Promise<ReleaseVersionDetail> => {
     const formData = new FormData()
@@ -166,9 +157,6 @@ export const releaseApi = {
     formData.append('patchFiles', patchFiles)
     if (engineerId !== undefined) {
       formData.append('engineerId', String(engineerId))
-    }
-    if (isApproved !== undefined) {
-      formData.append('isApproved', String(isApproved))
     }
 
     const response = await apiClient.upload<ReleaseVersionDetail>(
