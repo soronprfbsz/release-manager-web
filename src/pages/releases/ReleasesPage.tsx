@@ -28,6 +28,7 @@ import {
   useStandardReleaseTree,
   useAllCustomReleaseTree,
   useDeleteVersion,
+  useApproveVersion,
 } from '@/entities/releases/release'
 
 import { DOMAIN_ICONS } from '@/shared/config/domain-icons'
@@ -108,7 +109,7 @@ export function ReleasesPage() {
   const currentTab = (searchParams.get('tab') as TabType) || 'standard'
 
   const projectId = useProjectStore((state) => state.projectId)
-  const { canAddVersion, canDeleteVersion } = usePermission()
+  const { canAddVersion, canDeleteVersion, canApproveVersion } = usePermission()
   const { toast } = useToast()
 
   // Standard 상태
@@ -126,6 +127,7 @@ export function ReleasesPage() {
   const [deleteTarget, setDeleteTarget] = useState<ActionTargetInfo | null>(null)
 
   const deleteMutation = useDeleteVersion()
+  const approveMutation = useApproveVersion()
 
   // 버전/빌드 생성 폼이 열려있는 동안 페이지 이탈 차단
   // (폼 내부에서도 isSubmitting 시 닫기 차단하지만, SPA 라우팅까지 잡으려면 Page 레벨도 필요)
@@ -420,6 +422,25 @@ export function ReleasesPage() {
     setDeleteTarget({ versionId, version, isHotfix })
   }
 
+  /** 트리 컨텍스트 메뉴 승인 — 상세 패널의 승인 버튼과 동일하게 확인 없이 즉시 실행 */
+  const handleTreeApprove = (versionId: number, version: string) => {
+    approveMutation.mutate(versionId, {
+      onSuccess: () => {
+        toast({
+          title: '버전 승인 완료',
+          description: `버전 ${version}이(가) 승인되었습니다.`,
+        })
+      },
+      onError: (err) => {
+        toast({
+          title: '버전 승인 실패',
+          description: err instanceof Error ? err.message : '버전 승인 중 오류가 발생했습니다.',
+          variant: 'destructive',
+        })
+      },
+    })
+  }
+
   const handleTreeDeleteConfirm = () => {
     if (!deleteTarget) return
 
@@ -560,8 +581,10 @@ export function ReleasesPage() {
                 onHotfix={(versionId, version) => handleTreeHotfix(versionId, version)}
                 onBuild={(versionId, version) => handleTreeBuild(versionId, version)}
                 onDelete={handleTreeDelete}
+                onApprove={handleTreeApprove}
                 canAddVersion={canAddVersion}
                 canDeleteVersion={canDeleteVersion}
+                canApproveVersion={canApproveVersion}
               />
             )
           ) : (
@@ -577,8 +600,10 @@ export function ReleasesPage() {
                 onHotfix={(versionId, version, siteCode) => handleTreeHotfix(versionId, version, siteCode)}
                 onBuild={(versionId, version, siteCode) => handleTreeBuild(versionId, version, siteCode)}
                 onDelete={handleTreeDelete}
+                onApprove={handleTreeApprove}
                 canAddVersion={canAddVersion}
                 canDeleteVersion={canDeleteVersion}
+                canApproveVersion={canApproveVersion}
               />
             )
           )}

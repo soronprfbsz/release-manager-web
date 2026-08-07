@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { ChevronRight, ChevronDown, Tag, Zap, Wrench, Sparkles, Trash2 } from 'lucide-react'
+import { ChevronRight, ChevronDown, Tag, Zap, Wrench, Sparkles, Trash2, CheckCircle2 } from 'lucide-react'
 
 import type { MajorMinorNode } from '@/entities/releases/release'
 
@@ -49,10 +49,14 @@ interface ReleaseTreeProps {
   onBuild?: (versionId: number, version: string) => void
   /** 삭제 콜백 */
   onDelete?: (versionId: number, version: string, isHotfix: boolean) => void
+  /** 승인 콜백 (미승인 버전/핫픽스에서만 표시) */
+  onApprove?: (versionId: number, version: string) => void
   /** 핫픽스/빌드 생성 권한 */
   canAddVersion?: boolean
   /** 삭제 권한 */
   canDeleteVersion?: boolean
+  /** 승인 권한 */
+  canApproveVersion?: boolean
 }
 
 /** 최신 버전 표시용 아이콘 */
@@ -76,10 +80,12 @@ export function ReleaseTree({
   onHotfix,
   onBuild,
   onDelete,
+  onApprove,
   canAddVersion = false,
   canDeleteVersion = false,
+  canApproveVersion = false,
 }: ReleaseTreeProps) {
-  const showActions = canAddVersion || canDeleteVersion
+  const showActions = canAddVersion || canDeleteVersion || canApproveVersion
 
   // 핫픽스/빌드가 있는 버전들의 확장 상태
   const [expandedVersions, setExpandedVersions] = useState<Set<number>>(new Set())
@@ -264,6 +270,17 @@ export function ReleaseTree({
                         {/* 액션 메뉴 (일반 버전) */}
                         {showActions && (
                           <TreeActionMenu>
+                            {canApproveVersion && !version.isApproved && (
+                              <>
+                                <TreeActionMenuItem
+                                  onClick={() => onApprove?.(version.versionId, version.version)}
+                                >
+                                  <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
+                                  승인
+                                </TreeActionMenuItem>
+                                <TreeActionMenuSeparator />
+                              </>
+                            )}
                             {canAddVersion && (
                               <TreeActionMenuItem onClick={() => onHotfix?.(version.versionId, version.version)}>
                                 <Zap className="h-4 w-4 mr-2 text-amber-500" />
@@ -337,15 +354,28 @@ export function ReleaseTree({
                               </div>
 
                               {/* 액션 메뉴 (핫픽스) */}
-                              {showActions && canDeleteVersion && (
+                              {showActions && (canDeleteVersion || canApproveVersion) && (
                                 <TreeActionMenu>
-                                  <TreeActionMenuItem
-                                    destructive
-                                    onClick={() => onDelete?.(hotfix.versionId, hotfix.fullVersion, true)}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    삭제
-                                  </TreeActionMenuItem>
+                                  {canApproveVersion && hotfix.isApproved === false && (
+                                    <>
+                                      <TreeActionMenuItem
+                                        onClick={() => onApprove?.(hotfix.versionId, hotfix.fullVersion)}
+                                      >
+                                        <CheckCircle2 className="h-4 w-4 mr-2 text-primary" />
+                                        승인
+                                      </TreeActionMenuItem>
+                                      {canDeleteVersion && <TreeActionMenuSeparator />}
+                                    </>
+                                  )}
+                                  {canDeleteVersion && (
+                                    <TreeActionMenuItem
+                                      destructive
+                                      onClick={() => onDelete?.(hotfix.versionId, hotfix.fullVersion, true)}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      삭제
+                                    </TreeActionMenuItem>
+                                  )}
                                 </TreeActionMenu>
                               )}
                             </div>
