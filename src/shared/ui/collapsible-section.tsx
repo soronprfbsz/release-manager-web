@@ -73,8 +73,8 @@ export function CollapsibleSection({
   if (variant === 'boxed-icon') {
     return (
       <div className={cn('mb-4', className)}>
-        {/* 그룹 헤더 상단 line — 컨텐츠 영역 좌우 끝까지 닿음 */}
-        <div className="-mx-8 border-t border-border" />
+        {/* 그룹 헤더 상단 line — 컨텐츠 영역 좌우 끝까지 닿음 (부모 컨테이너 px-4 기준) */}
+        <div className="-mx-4 border-t border-border" />
 
         {/* Header — 위아래 line 만 있는 띠 영역 (외곽 박스 아님) */}
         <div
@@ -126,8 +126,8 @@ export function CollapsibleSection({
           </Button>
         </div>
 
-        {/* 그룹 헤더 하단 line — 컨텐츠 영역 좌우 끝까지 닿음 */}
-        <div className="-mx-8 border-b border-border" />
+        {/* 그룹 헤더 하단 line — 컨텐츠 영역 좌우 끝까지 닿음 (부모 컨테이너 px-4 기준) */}
+        <div className="-mx-4 border-b border-border" />
 
         {/* Content */}
         {isExpanded && (
