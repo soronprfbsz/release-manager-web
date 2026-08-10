@@ -87,7 +87,11 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+            // scroll-py-1: 재오픈 시 Radix 가 선택 항목을 scrollIntoView({block:'nearest'})
+            // 하는데, 이때 항목이 뷰포트 가장자리에 딱 붙는 걸 막는다.
+            // scroll-margin(scroll-my-*) 이 아니라 scroll-padding 이어야 한다 —
+            // 전자는 스크롤 대상(항목) 속성이라 스크롤 컨테이너에 걸면 무시된다.
+            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-py-1"
         )}
       >
         {children}

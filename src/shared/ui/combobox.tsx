@@ -84,7 +84,13 @@ export function Combobox({
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
-          <CommandList onWheel={(e) => e.stopPropagation()}>
+          {/* CommandList 기본 max-h 는 고정 300px 이라 창 높이가 낮으면 팝오버가
+              화면 밖으로 넘친다. 사용 가능한 높이(검색 입력 + 테두리 몫 3.5rem 제외)와
+              300px 중 작은 값으로 묶는다. var 미측정 시점 대비로 100vh 폴백을 둔다. */}
+          <CommandList
+            className="max-h-[min(300px,calc(var(--radix-popover-content-available-height,100vh)_-_3.5rem))]"
+            onWheel={(e) => e.stopPropagation()}
+          >
             <CommandEmpty>{emptyText}</CommandEmpty>
             {resolvedGroups.map((group, groupIndex) => (
               <CommandGroup key={group.heading ?? `__group_${groupIndex}`} heading={group.heading}>
