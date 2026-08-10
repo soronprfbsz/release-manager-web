@@ -18,15 +18,9 @@ import { useNextPatchRange } from '@/entities/sites/site-version'
 import type { ProgressResponse } from '@/shared/api/progress/types'
 import { usePermission } from '@/shared/lib/hooks/use-permission'
 import { compareVersions } from '@/shared/lib/utils/version'
+import { Combobox } from '@/shared/ui/combobox'
 import { FormSheet } from '@/shared/ui/form-sheet'
 import { Label } from '@/shared/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/ui/select'
 import { ServerProgressView } from '@/shared/ui/server-progress-view'
 import { Textarea } from '@/shared/ui/textarea'
 import { TypographyMuted } from '@/shared/ui/typography'
@@ -148,15 +142,13 @@ export function PatchCreateForm({
       buildSelection: { enabled: true, web: null, engines: [] },
     }))
     // versionOptions.length 도 dep 에 포함 — tree fetch 가 nextRange 보다 늦게 도착하면
-    // Select 옵션이 비어있는 상태에서 value 만 set 되어 placeholder 표시되던 문제 회피.
-    // 옵션 도착 시점에 set 을 한 번 더 호출해 Radix Select 가 value 와 매칭하도록.
+    // 옵션이 비어있는 상태에서 value 만 set 되어 placeholder 표시되던 문제 회피.
+    // 옵션 도착 시점에 set 을 한 번 더 호출해 콤보박스가 value 와 매칭하도록.
   }, [selectedSite?.siteId, nextRange, versionOptions.length])
 
   const handleFromVersionChange = (value: string) => {
-    // Radix Select 알려진 버그 우회: 비동기로 옵션이 늦게 mount 되어 controlled
-    // value 가 옵션에 없을 때 Radix 가 onValueChange("") 를 자체 호출하여 value 를
-    // 빈 문자열로 reset 한다. 자동 채움 값이 즉시 사라지는 race 의 원인.
-    // 사용자 의도와 무관한 spurious 빈값은 무시.
+    // Combobox 는 이미 선택된 항목을 다시 고르면 해제 의미로 "" 를 넘긴다.
+    // 시작/종료 버전은 필수값이라 해제를 허용하지 않고 무시한다.
     if (!value) return
     onFormDataChange((prev) => {
       const fromVersionId = getVersionIdFromOption(versionOptions, value)
@@ -178,7 +170,7 @@ export function PatchCreateForm({
   }
 
   const handleToVersionChange = (value: string) => {
-    // Radix Select 알려진 버그 우회 — handleFromVersionChange 의 주석 참고
+    // 빈값(해제) 무시 — handleFromVersionChange 의 주석 참고
     if (!value) return
     onFormDataChange((prev) => ({
       ...prev,
@@ -328,41 +320,33 @@ export function PatchCreateForm({
       <div className="space-y-2">
         <Label required>버전 범위</Label>
         <div className="flex items-center gap-3">
-          <Select
+          <Combobox
+            options={sortedVersions.map((v) => ({
+              value: v.version,
+              label: formatVersionLabel(v.version, v.isApproved),
+            }))}
             value={formData.fromVersion}
             onValueChange={handleFromVersionChange}
+            placeholder="시작 버전"
+            searchPlaceholder="버전 검색..."
             disabled={isVersionsLoading || selectableVersions.length === 0}
-          >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="시작 버전" />
-            </SelectTrigger>
-            <SelectContent>
-              {sortedVersions.map((v) => (
-                <SelectItem key={v.version} value={v.version}>
-                  {formatVersionLabel(v.version, v.isApproved)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className="flex-1"
+          />
           <ArrowRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <Select
+          <Combobox
+            options={filteredToVersions.map((v) => ({
+              value: v.version,
+              label: formatVersionLabel(v.version, v.isApproved),
+            }))}
             value={formData.toVersion}
             onValueChange={handleToVersionChange}
+            placeholder="종료 버전"
+            searchPlaceholder="버전 검색..."
             disabled={
               isVersionsLoading || selectableVersions.length === 0 || !formData.fromVersion
             }
-          >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="종료 버전" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredToVersions.map((v) => (
-                <SelectItem key={v.version} value={v.version}>
-                  {formatVersionLabel(v.version, v.isApproved)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className="flex-1"
+          />
         </div>
         {isVersionsLoading && (
           <TypographyMuted>버전 목록을 불러오는 중...</TypographyMuted>
