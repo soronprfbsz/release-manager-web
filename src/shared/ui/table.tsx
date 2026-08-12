@@ -83,10 +83,14 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      // bg-background: TableHeader 가 sticky 라 스크롤된 행이 헤더 뒤로 지나간다.
-      // 배경을 thead 에만 주면 브라우저에 따라 셀 내용이 그 위에 그려져 행이 비쳐
-      // 보이므로(표 페인팅 순서상 셀이 행 그룹보다 위), 셀에도 같은 배경을 준다.
-      "h-9 bg-background px-3 text-left align-middle text-xs font-semibold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      // sticky/z-10/bg-background 를 셀에도 준다.
+      //
+      // TableHeader(thead) 에만 sticky 를 걸면, 환경에 따라 스크롤된 tbody 셀이
+      // 헤더 위에 그려져 행 내용이 헤더를 뚫고 비친다(표 페인팅 순서상 셀이
+      // 행 그룹보다 위에 그려지며, thead 의 스택 컨텍스트가 항상 이를 덮지는
+      // 못한다). 셀 자체를 sticky + 불투명 배경으로 만들면 셀끼리 겨루므로
+      // 브라우저 구현 차이와 무관하게 헤더가 항상 위에 놓인다.
+      "sticky top-0 z-10 h-9 bg-background px-3 text-left align-middle text-xs font-semibold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
     {...props}

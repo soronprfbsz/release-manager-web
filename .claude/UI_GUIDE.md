@@ -105,7 +105,7 @@ actions={
 ```
 
 - **`autoHeight` 를 쓴다.** 테이블이 자체 스크롤을 갖지 않고 페이지(`main`)가 스크롤을 담당한다.
-- ⚠️ **헤더가 행에 비쳐 보이는 문제**: `TableHeader` 는 `sticky top-0` 라 스크롤된 행이 헤더 뒤를 지나간다. 표 페인팅 순서상 **셀이 행 그룹(`thead`)보다 위에 그려지므로**, 배경을 `thead` 에만 주면 브라우저에 따라 행이 비친다. `shared/ui/table.tsx` 의 `TableHead`(셀)에 `bg-background` 를 함께 주어 해결했다 — 커스텀 배경이 필요하면 `TableHead className` 으로 덮되 **투명하게 두지 않는다**.
+- ⚠️ **sticky 헤더는 `thead` 가 아니라 `th`(셀) 에 건다.** `thead` 에만 `sticky` + 배경을 주면 스크롤된 tbody 셀이 헤더 위에 그려져 행 내용이 헤더를 뚫고 비치는 환경이 있다(표 페인팅 순서상 셀이 행 그룹보다 위이고, thead 의 스택 컨텍스트가 항상 이를 덮지는 못한다). `shared/ui/table.tsx` 의 `TableHead` 가 `sticky top-0 z-10 bg-background` 를 갖는 이유다 — **커스텀 배경을 넘기더라도 투명하게 두지 않는다.**
 - ⚠️ **Radix `ScrollArea` 안에 `<Table>` 을 직접 넣지 않는다.** `ScrollArea` 는 뷰포트 내부에 `display:table` 래퍼를 만들어 `sticky` 의 기준 박스를 가로챌 수 있다. 높이 제한이 필요하면 일반 `<div className="h-64 overflow-y-auto">` 를 쓴다.
 - 행 전체를 클릭 가능하게 하면 `className="cursor-pointer"` 를 주고, 행 안의 버튼 셀에는 `onClick={(e) => e.stopPropagation()}` 을 건다.
 - 빈 상태·로딩은 행으로 표현한다: `<TableCell colSpan={n} className="h-24 text-center text-muted-foreground">`.
