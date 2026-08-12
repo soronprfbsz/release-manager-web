@@ -51,9 +51,9 @@ src/
 
 | 세그먼트 | 내용 | 예시 |
 |----------|------|------|
-| `ui/` | React 컴포넌트 | `LoginForm.tsx`, `CustomerCard.tsx` |
-| `model/` | 타입, 스토어, 훅, 로직 | `types.ts`, `useCustomer.ts` |
-| `api/` | API 함수, React Query 훅 | `customerApi.ts`, `queries.ts` |
+| `ui/` | React 컴포넌트 | `LoginForm.tsx`, `SiteSelect.tsx` |
+| `model/` | 타입, 스토어, 훅, 로직 | `types.ts` |
+| `api/` | API 함수 | `siteApi.ts` |
 | `lib/` | 순수 유틸리티 함수 | `formatDate.ts`, `validation.ts` |
 | `config/` | 상수, 설정값 | `constants.ts` |
 | `index.ts` | Public API exports | 외부 노출 항목만 export |
@@ -71,8 +71,9 @@ shared/
 ├── ui/           # shadcn 등 기본 UI 컴포넌트
 ├── api/          # API 클라이언트 (axios 인스턴스만)
 ├── lib/          # 유틸리티, 커스텀 훅
-├── config/       # 전역 설정, 라우트 상수
-└── types/        # 공통 타입 (ApiResponse, Pagination 등)
+├── config/       # 전역 설정, 라우트 상수 (constants.ts=ROUTES, permissions.ts)
+├── store/        # 전역 Zustand 스토어 (auth, project, theme)
+└── api/types.ts  # 공통 API 타입 (ApiResponse, PageResponse 등)
 ```
 
 **shared/api에 포함되어야 할 것**:
@@ -80,21 +81,14 @@ shared/
 - 공통 인터셉터, 에러 핸들러
 
 **shared/api에 포함되면 안 되는 것**:
-- 도메인별 API (customerApi, releaseApi 등) → `entities/`로 이동
+- 도메인별 API (siteApi, messageApi 등) → `entities/`로 이동
 
-**shared/types에 포함되어야 할 것**:
+**공통 API 타입은 `shared/api/types.ts` 에 있다** (`shared/types/` 폴더는 없다):
 ```typescript
-// shared/types/api.ts
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message?: string
-}
-
-export interface PaginatedResponse<T> {
-  content: T[]
-  totalElements: number
-  totalPages: number
+export interface ApiResponse<T> { success: boolean; data: T; message?: string }
+export interface PageResponse<T> {
+  content: T[]; totalElements: number; totalPages: number
+  size: number; number: number; first: boolean; last: boolean; empty: boolean
 }
 ```
 
@@ -104,83 +98,79 @@ export interface PaginatedResponse<T> {
 
 **목적**: 비즈니스 도메인 모델 정의
 
+> ⚠️ 이 프로젝트는 슬라이스를 **도메인 그룹으로 한 단계 더 묶는다.**
+> `entities/{그룹}/{슬라이스}/` 형태이며, 그룹에도 배럴 `index.ts` 가 있다.
+
 ```
 entities/
-├── customer/
-│   ├── api/
-│   │   └── customerApi.ts    # Customer CRUD API
-│   ├── model/
-│   │   ├── types.ts          # Customer 타입 정의
-│   │   └── useCustomer.ts    # Customer 관련 훅
-│   ├── ui/
-│   │   ├── CustomerCard.tsx  # Customer 표시 컴포넌트
-│   │   └── CustomerBadge.tsx
-│   └── index.ts              # Public API
-├── release/
-│   ├── api/
-│   ├── model/
-│   ├── ui/
-│   └── index.ts
-├── patch/
-│   └── ...
-└── user/
-    └── ...
+├── sites/
+│   ├── site/
+│   │   ├── api/siteApi.ts
+│   │   ├── model/types.ts
+│   │   ├── queries/siteQueries.ts   # React Query 훅은 queries/ 세그먼트
+│   │   ├── ui/SiteSelect.tsx        # 공용 엔티티 UI
+│   │   └── index.ts                 # 슬라이스 Public API
+│   ├── site-note/
+│   ├── site-version/
+│   └── index.ts                     # 그룹 배럴 (export * from './site' …)
+├── messages/message/
+├── patches/patch/
+├── operations/account/
+└── index.ts                         # entities 전체 배럴
 ```
 
-**entities/customer/model/types.ts 예시**:
+**entities/sites/site/model/types.ts 예시**:
 ```typescript
-export interface Customer {
-  customerId: number
-  customerCode: string
-  customerName: string
+export interface Site {
+  siteId: number
+  siteCode: string      // 소문자/숫자/_/- 만 허용
+  siteName: string
   description: string | null
-  isActive: boolean
   createdAt: string
   updatedAt: string
 }
 
-export interface CustomerCreateRequest {
-  customerCode: string
-  customerName: string
+export interface SiteCreateRequest {
+  siteCode: string
+  siteName: string
   description?: string
-  isActive?: boolean
-}
-
-export interface CustomerUpdateRequest {
-  customerName?: string
-  description?: string
-  isActive?: boolean
 }
 ```
 
-**entities/customer/api/customerApi.ts 예시**:
+> 참고: 코드에서는 **site** 를 쓰지만 **DB 스키마는 여전히 `customer`** 다(의도적 유지).
+> 백엔드 컬럼명이 `customer_id` 라고 해서 프론트 타입을 customer 로 만들지 않는다.
+
+**entities/sites/site/api/siteApi.ts 예시**:
 ```typescript
 import { apiClient } from '@/shared/api/client'
-import type { Customer, CustomerCreateRequest } from '../model/types'
 
-export const customerApi = {
-  getList: async (params?: { isActive?: boolean; keyword?: string }) => {
-    const response = await apiClient.get<Customer[]>('/api/v1/customers', { params })
-    return response.data
+import type { PageResponse } from '@/shared/api/types'
+
+import type { Site, SiteCreateRequest } from '../model/types'
+
+export const siteApi = {
+  getList: async (params?: SiteListParams): Promise<PageResponse<Site>> => {
+    // ⚠️ apiClient 가 ApiResponse 의 data 를 이미 벗겨서 반환한다.
+    //    호출부에서 다시 `.data` 를 꺼내면 undefined 가 된다.
+    const response = await apiClient.get<PageResponse<Site>>('/api/sites')
+    return response
   },
-  // ...
 }
 ```
 
-**entities/customer/index.ts (Public API)**:
+**entities/sites/site/index.ts (Public API)**:
 ```typescript
 // Types
-export type { Customer, CustomerCreateRequest, CustomerUpdateRequest } from './model/types'
+export type { Site, SiteCreateRequest } from './model/types'
 
 // API
-export { customerApi } from './api/customerApi'
+export { siteApi } from './api/siteApi'
+
+// Queries (React Query 훅)
+export { siteKeys, useSites, useCreateSite } from './queries/siteQueries'
 
 // UI Components
-export { CustomerCard } from './ui/CustomerCard'
-export { CustomerBadge } from './ui/CustomerBadge'
-
-// Hooks
-export { useCustomer } from './model/useCustomer'
+export { SiteSelect } from './ui/SiteSelect'
 ```
 
 ---
@@ -189,30 +179,22 @@ export { useCustomer } from './model/useCustomer'
 
 **목적**: 사용자 시나리오, 비즈니스 액션 구현
 
+> ⚠️ 이 프로젝트는 액션 단위로 잘게 쪼개지 않고 **`{그룹}/{기능}-management`** 로 묶는다.
+> 한 기능 슬라이스 안에 폼·테이블·다이얼로그를 함께 둔다.
+
 ```
 features/
-├── auth/
-│   ├── login/
-│   │   ├── ui/
-│   │   │   └── LoginForm.tsx
-│   │   ├── model/
-│   │   │   └── useLogin.ts
-│   │   └── index.ts
-│   └── signup/
-│       └── ...
-├── customer-management/
-│   ├── create-customer/
-│   │   ├── ui/
-│   │   │   └── CreateCustomerForm.tsx
-│   │   └── index.ts
-│   └── delete-customer/
-│       └── ...
-├── patch-generation/
-│   ├── ui/
-│   │   └── PatchGenerateForm.tsx
-│   ├── model/
-│   │   └── usePatchGenerate.ts
+├── auth/login/ui/LoginForm.tsx
+├── sites/site-management/
+│   ├── ui/SiteForm.tsx
+│   ├── ui/SiteTable.tsx
+│   ├── ui/SiteDeleteDialog.tsx   # 삭제 확인 — UI_GUIDE 4번
 │   └── index.ts
+├── messages/message-management/
+│   ├── ui/MessageComposeDialog.tsx
+│   ├── ui/MessageDetailDialog.tsx
+│   └── index.ts
+└── index.ts                       # features 전체 배럴
 ```
 
 **features vs entities 구분**:
@@ -221,9 +203,9 @@ features/
 
 | entities | features |
 |----------|----------|
-| Customer 타입/API | 고객 생성 폼 |
-| Release 타입/API | 릴리즈 업로드 |
-| Patch 타입/API | 패치 생성 프로세스 |
+| Site 타입/API/쿼리훅 | 사이트 등록 폼, 삭제 다이얼로그 |
+| Message 타입/API/쿼리훅 | 메시지 작성·상세·수신자 선택 |
+| Patch 타입/API/쿼리훅 | 패치 생성 프로세스 |
 
 ---
 
@@ -243,9 +225,11 @@ widgets/
 │   ├── ui/
 │   │   └── ThemeToggle.tsx
 │   └── index.ts
-├── customer-table/
-│   ├── ui/
-│   │   └── CustomerTable.tsx
+├── project-selector/
+│   ├── ui/ProjectSelector.tsx
+│   └── index.ts
+├── notification-bell/
+│   ├── ui/NotificationBell.tsx
 │   └── index.ts
 ```
 
@@ -255,38 +239,35 @@ widgets/
 
 **목적**: 라우트별 페이지 조합
 
+> ⚠️ 이 프로젝트의 pages 에는 **`ui/` 세그먼트를 두지 않는다.**
+> 페이지 컴포넌트를 슬라이스 폴더에 바로 두고 `index.ts` 로 내보낸다.
+
 ```
 pages/
-├── home/
-│   ├── ui/
-│   │   └── HomePage.tsx
-│   └── index.ts
-├── customers/
-│   ├── list/
-│   │   ├── ui/
-│   │   │   └── CustomerListPage.tsx
+├── home/HomePage.tsx
+├── patches/PatchesPage.tsx
+├── sharing/
+│   ├── cowork/CoworkPage.tsx
+│   ├── messages/
+│   │   ├── MessagesPage.tsx
 │   │   └── index.ts
-│   └── index.ts
-├── patches/
-│   ├── generate/
-│   │   └── ...
-│   └── history/
-│       └── ...
+│   └── index.ts          # 그룹 배럴
+└── ...
 ```
 
-**pages/customers/list/ui/CustomerListPage.tsx 예시**:
+**pages/sites/SitesPage.tsx 예시**:
 ```typescript
-import { CustomerTable } from '@/widgets/customer-table'
-import { CreateCustomerButton } from '@/features/customer-management/create-customer'
-import { Customer } from '@/entities/customer'
+import { SiteTable, SiteForm } from '@/features/sites/site-management'
 
-export function CustomerListPage() {
-  // 페이지는 조합만 담당, 비즈니스 로직은 widgets/features에 위임
+import { PageLayout } from '@/shared/ui/page-layout'
+
+export function SitesPage() {
+  // 페이지는 조합 + 화면 상태만 담당. 비즈니스 로직은 features 에 위임한다.
   return (
-    <div>
-      <CreateCustomerButton />
-      <CustomerTable />
-    </div>
+    <PageLayout actions={/* 아이콘 버튼 + Tooltip — UI_GUIDE 2번 */}>
+      <SiteTable />
+      <SiteForm />
+    </PageLayout>
   )
 }
 ```
@@ -318,13 +299,13 @@ app/
 ## 명명 규칙
 
 ### 파일명
-- 컴포넌트: `PascalCase.tsx` (예: `CustomerCard.tsx`)
-- 훅: `useCamelCase.ts` (예: `useCustomer.ts`)
-- 유틸/API: `camelCase.ts` (예: `customerApi.ts`)
+- 컴포넌트: `PascalCase.tsx` (예: `SiteSelect.tsx`)
+- 훅: `useCamelCase.ts` (예: `useSshShell.ts`)
+- 유틸/API: `camelCase.ts` (예: `siteApi.ts`)
 - 타입: `types.ts` 또는 `{domain}.types.ts`
 
 ### 폴더명
-- 모두 `kebab-case` (예: `customer-management`, `theme-toggle`)
+- 모두 `kebab-case` (예: `site-management`, `notification-bell`)
 
 ### Export 규칙
 - 각 슬라이스는 반드시 `index.ts`로 Public API 노출
@@ -332,11 +313,11 @@ app/
 
 ```typescript
 // ✅ 올바른 import
-import { Customer, customerApi } from '@/entities/customer'
+import { Site, siteApi } from '@/entities/sites/site'
 import { LoginForm } from '@/features/auth/login'
 
 // ❌ 잘못된 import (내부 파일 직접 접근)
-import { Customer } from '@/entities/customer/model/types'
+import { Site } from '@/entities/sites/site/model/types'
 import { LoginForm } from '@/features/auth/login/ui/LoginForm'
 ```
 
@@ -353,30 +334,35 @@ import { LoginForm } from '@/features/auth/login/ui/LoginForm'
 }
 ```
 
-**표준 import 순서**:
+**표준 import 순서** — eslint `import/order` 가 강제한다(위반 시 lint 에러).
+
+그룹 사이에는 **빈 줄이 반드시 하나** 있어야 하고, 그룹 안은 알파벳순이다.
+FSD 레이어 순서(app → pages → widgets → features → entities)가 그대로 적용되며,
+**`@/shared/**` 는 internal 그룹의 마지막**, **타입 전용 import(`import type`) 는 맨 끝**이다.
+
 ```typescript
-// 1. 외부 라이브러리
+// 1. react 먼저, 이어서 외부 패키지
 import { useState } from 'react'
+
 import { useQuery } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
 
-// 2. app 레이어
-import { useAuth } from '@/app/providers/AuthProvider'
+// 2. FSD 레이어 순 (app → pages → widgets → features → entities)
+import { NotificationBell } from '@/widgets/_shared/notification-bell'
 
-// 3. pages (보통 import 안 함)
+import { SiteForm } from '@/features/sites/site-management'
 
-// 4. widgets
-import { CustomerTable } from '@/widgets/customer-table'
+import { useSites } from '@/entities/sites/site'
 
-// 5. features
-import { CreateCustomerForm } from '@/features/customer-management/create-customer'
-
-// 6. entities
-import { Customer, customerApi } from '@/entities/customer'
-
-// 7. shared
+// 3. shared 는 internal 그룹의 맨 뒤
+import { ROUTES } from '@/shared/config/constants'
 import { Button } from '@/shared/ui/button'
-import { formatDate } from '@/shared/lib/utils'
+
+// 4. 타입 전용 import 는 가장 마지막 그룹
+import type { Site } from '@/entities/sites/site'
 ```
+
+> 순서를 손으로 맞추려 하지 말고 `npx eslint --fix <파일>` 로 정리한다.
 
 ---
 
@@ -407,29 +393,29 @@ import { formatDate } from '@/shared/lib/utils'
 
 ### ❌ 같은 레이어 내 슬라이스 간 import
 ```typescript
-// ❌ entities/customer에서 entities/release import
-import { Release } from '@/entities/release'
+// ❌ entities/sites/site 에서 entities/patches/patch 를 import
+import { Patch } from '@/entities/patches/patch'
 ```
 
 ### ❌ 하위 레이어에서 상위 레이어 import
 ```typescript
 // ❌ entities에서 features import
-import { CreateCustomerForm } from '@/features/customer-management'
+import { SiteForm } from '@/features/sites/site-management'
 ```
 
 ### ❌ shared에 비즈니스 로직 포함
 ```typescript
-// ❌ shared/api/customerApi.ts - 잘못된 위치
-// ✅ entities/customer/api/customerApi.ts - 올바른 위치
+// ❌ shared/api/siteApi.ts - 잘못된 위치
+// ✅ entities/sites/site/api/siteApi.ts - 올바른 위치
 ```
 
 ### ❌ 내부 파일 직접 import
 ```typescript
 // ❌ index.ts 우회
-import { useCustomer } from '@/entities/customer/model/useCustomer'
+import { useSites } from '@/entities/sites/site/queries/siteQueries'
 
 // ✅ Public API 사용
-import { useCustomer } from '@/entities/customer'
+import { useSites } from '@/entities/sites/site'
 ```
 
 ### ❌ 페이지에 비즈니스 로직 직접 작성
@@ -438,7 +424,7 @@ import { useCustomer } from '@/entities/customer'
 const createMutation = useMutation({ ... })
 
 // ✅ features에서 정의하고 import
-import { useCreateCustomer } from '@/features/customer-management/create-customer'
+import { useCreateSite } from '@/entities/sites/site'
 ```
 
 ---
@@ -449,23 +435,22 @@ import { useCreateCustomer } from '@/features/customer-management/create-custome
 
 ```
 entities/
-├── customer/     # 고객사
-├── release/      # 릴리즈 버전
-├── patch/        # 누적 패치
-└── user/         # 사용자/계정
+├── sites/        # 사이트(구 고객사), 특이사항, 사이트 버전
+├── releases/     # 릴리즈 버전
+├── patches/      # 누적 패치
+├── messages/     # 사용자 메시지 / 시스템 알림
+├── operations/   # 계정, 프로젝트, API 로그
+├── infrastructure/, remote-jobs/, board/, auth/
+└── _shared/      # 코드·메뉴·부서 등 도메인 공통
 
 features/
-├── auth/
-│   ├── login/
-│   └── signup/
-├── customer-management/
-│   ├── create-customer/
-│   ├── update-customer/
-│   └── delete-customer/
-├── release-management/
-│   └── upload-release/
-└── patch-generation/
-    └── generate-patch/
+├── auth/login, auth/signup
+├── sites/site-management
+├── patches/patch-management
+├── messages/message-management
+├── releases/standard, releases/custom
+├── operations/{account,department,project,file-sync,...}-management
+└── sharing/{file,link,publishing,service}-management
 ```
 
 ---
@@ -475,10 +460,14 @@ features/
 | 질문 | 레이어 |
 |------|--------|
 | API 클라이언트 (axios)는? | `shared/api/client.ts` |
-| Customer 타입은? | `entities/customer/model/types.ts` |
-| Customer API는? | `entities/customer/api/customerApi.ts` |
-| 고객 생성 폼은? | `features/customer-management/create-customer/ui/` |
-| 고객 목록 테이블 위젯은? | `widgets/customer-table/ui/` |
-| 고객 관리 페이지는? | `pages/customers/list/ui/` |
+| 공통 API 타입(ApiResponse/PageResponse)은? | `shared/api/types.ts` |
+| Site 타입은? | `entities/sites/site/model/types.ts` |
+| Site API는? | `entities/sites/site/api/siteApi.ts` |
+| React Query 훅은? | `entities/{그룹}/{슬라이스}/queries/` |
+| 사이트 등록 폼은? | `features/sites/site-management/ui/` |
+| 탑바 위젯(벨·프로젝트 선택)은? | `widgets/_shared/` |
+| 사이트 관리 페이지는? | `pages/sites/SitesPage.tsx` |
+| 라우트 상수 / 권한은? | `shared/config/constants.ts` / `permissions.ts` |
+| 전역 스토어(auth·project·theme)는? | `shared/store/` |
 | Button 컴포넌트는? | `shared/ui/button.tsx` |
-| formatDate 유틸은? | `shared/lib/utils.ts` |
+| 날짜 포맷(KST 변환)은? | `shared/lib/utils/date.ts` |
