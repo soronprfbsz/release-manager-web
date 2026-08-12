@@ -107,7 +107,6 @@ actions={
 - **`autoHeight` 를 쓴다.** 테이블이 자체 스크롤을 갖지 않고 페이지(`main`)가 스크롤을 담당한다.
 - ⚠️ **자체 스크롤 목록에서 sticky 헤더를 신뢰하지 않는다.** 스크롤된 행이 헤더 위로 비쳐 보이는 문제가 실제로 있었고, `thead` sticky → `th` sticky → 셀 배경까지 시도했지만 특정 환경에서 재현이 계속됐다(로컬 Chrome 에서는 재현되지 않아 원인 특정 실패). **헤더 테이블과 본문 테이블을 분리해 헤더를 스크롤 영역 밖에 두는 방식**을 쓴다 — 겹칠 수 있는 경로 자체가 사라진다. 두 테이블에 같은 `table-fixed` + `colgroup` 을 주면 컬럼이 정확히 맞는다(마지막 컬럼만 스크롤바 폭만큼 좁아지지만 좌측 정렬이라 보이는 위치는 동일). 구현 예: `features/messages/message-management/ui/RecipientPicker.tsx`
 - 애초에 목록에 자체 스크롤을 두지 말고 `DataTable autoHeight` + 페이지네이션을 쓰면 이 문제를 만나지 않는다.
-- ⚠️ **Radix `ScrollArea` 안에 `<Table>` 을 직접 넣지 않는다.** `ScrollArea` 는 뷰포트 내부에 `display:table` 래퍼를 만들어 `sticky` 의 기준 박스를 가로챌 수 있다. 높이 제한이 필요하면 일반 `<div className="h-64 overflow-y-auto">` 를 쓴다.
 - 행 전체를 클릭 가능하게 하면 `className="cursor-pointer"` 를 주고, 행 안의 버튼 셀에는 `onClick={(e) => e.stopPropagation()}` 을 건다.
 - 빈 상태·로딩은 행으로 표현한다: `<TableCell colSpan={n} className="h-24 text-center text-muted-foreground">`.
 
