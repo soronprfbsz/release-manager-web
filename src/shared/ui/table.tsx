@@ -83,7 +83,10 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-9 px-3 text-left align-middle text-xs font-semibold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+      // bg-background: TableHeader 가 sticky 라 스크롤된 행이 헤더 뒤로 지나간다.
+      // 배경을 thead 에만 주면 브라우저에 따라 셀 내용이 그 위에 그려져 행이 비쳐
+      // 보이므로(표 페인팅 순서상 셀이 행 그룹보다 위), 셀에도 같은 배경을 준다.
+      "h-9 bg-background px-3 text-left align-middle text-xs font-semibold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
     {...props}

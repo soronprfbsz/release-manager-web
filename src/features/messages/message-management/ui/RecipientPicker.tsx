@@ -127,9 +127,10 @@ export function RecipientPicker({
       )}
 
       {/*
-        Radix ScrollArea 대신 일반 스크롤 컨테이너를 쓴다 — ScrollArea 는 뷰포트
-        안에 display:table 래퍼를 만들어 sticky 헤더의 기준 박스를 가로채고,
-        그 결과 헤더가 행과 겹쳐 보인다.
+        sticky 헤더를 쓰는 목록이므로 Radix ScrollArea 가 아니라 일반 스크롤
+        컨테이너를 쓴다 — ScrollArea 는 뷰포트 안에 display:table 래퍼를 만들어
+        sticky 의 기준 박스를 가로챌 수 있다.
+        (헤더가 행에 비쳐 보이지 않도록 배경을 셀에 주는 처리는 shared/ui/table.tsx)
       */}
       <div className="h-64 overflow-y-auto rounded-md border">
         <Table>
