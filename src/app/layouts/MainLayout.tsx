@@ -1,5 +1,8 @@
 import { ReactNode } from 'react'
 
+import { NotificationProvider } from '@/app/providers/NotificationProvider'
+
+import { NotificationBell } from '@/widgets/_shared/notification-bell'
 import { ProjectSelector } from '@/widgets/_shared/project-selector'
 import { Sidebar, SidebarTrigger } from '@/widgets/_shared/sidebar'
 import { useSidebarShortcut } from '@/widgets/_shared/sidebar/ui/useSidebarShortcut'
@@ -41,12 +44,15 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
           <ProjectSelector />
           <div className="h-5 w-px bg-border mx-1" />
+          <NotificationBell />
           <ThemeToggle />
         </header>
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
+      {/* 실시간 알림 수신 — 화면 요소는 토스트/모달뿐이라 레이아웃에 영향 없음 */}
+      <NotificationProvider />
     </div>
   )
 }

@@ -57,3 +57,6 @@ export {
 
 // Board Features
 export * from './board'
+
+// Messages Features
+export * from './messages'

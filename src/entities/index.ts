@@ -29,3 +29,6 @@ export * from './remote-jobs'
 
 // Board (게시판)
 export * from './board'
+
+// Messages (사용자간 메시지)
+export * from './messages'

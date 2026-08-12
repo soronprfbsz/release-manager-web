@@ -5,3 +5,4 @@
 
 export { ResourcePage } from './resource'
 export { CoworkPage } from './cowork'
+export { MessagesPage } from './messages'

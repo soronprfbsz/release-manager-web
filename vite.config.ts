@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_SERVER_URL || 'http://localhost:8081',
           changeOrigin: true,
         },
-        '/ws/terminal': {
+        '/ws': {
           target: env.VITE_API_SERVER_URL || 'http://localhost:8081',
           changeOrigin: true,
           ws: true,

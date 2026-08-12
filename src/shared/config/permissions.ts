@@ -50,6 +50,8 @@ export const ROUTE_PERMISSIONS: Record<string, readonly Role[]> = {
   // 지원 - 공유
   [ROUTES.SUPPORT.SHARING.RESOURCES]: AUTHENTICATED_ROLES,
   [ROUTES.SUPPORT.SHARING.COWORK]: AUTHENTICATED_ROLES,
+  // 메시지는 개인용 기능이라 로그인한 모든 역할에 개방한다
+  [ROUTES.SUPPORT.SHARING.MESSAGES]: AUTHENTICATED_ROLES,
 } as const
 
 // ============================================================================

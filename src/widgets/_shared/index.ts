@@ -11,3 +11,6 @@ export { ProjectSelector } from './project-selector'
 
 // Theme Toggle
 export { ThemeToggle } from './theme-toggle'
+
+// Notification Bell
+export { NotificationBell } from './notification-bell'

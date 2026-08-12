@@ -33,6 +33,7 @@ export const ROUTES = {
     SHARING: {
       RESOURCES: '/support/sharing/resources',
       COWORK: '/support/sharing/cowork',
+      MESSAGES: '/support/sharing/messages',
     },
   },
 } as const

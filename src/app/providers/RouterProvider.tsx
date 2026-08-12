@@ -12,7 +12,7 @@ import { ProjectListPage } from '@/pages/operations/projects/ProjectListPage'
 import { PatchesPage } from '@/pages/patches'
 import { ReleasesPage } from '@/pages/releases'
 import { MariaDBPage, TerminalPage, SchedulerPage } from '@/pages/remote-jobs'
-import { ResourcePage, CoworkPage } from '@/pages/sharing'
+import { ResourcePage, CoworkPage, MessagesPage } from '@/pages/sharing'
 import { SiteListPage } from '@/pages/sites'
 
 import { ROUTES } from '@/shared/config/constants'
@@ -197,6 +197,18 @@ const router = createBrowserRouter([
         <MainLayout>
           <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.SHARING.COWORK]}>
             <CoworkPage />
+          </RoleGuard>
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.SUPPORT.SHARING.MESSAGES,
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <RoleGuard allowedRoles={ROUTE_PERMISSIONS[ROUTES.SUPPORT.SHARING.MESSAGES]}>
+            <MessagesPage />
           </RoleGuard>
         </MainLayout>
       </ProtectedRoute>
