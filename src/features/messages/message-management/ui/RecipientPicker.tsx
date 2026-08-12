@@ -16,17 +16,22 @@ import type { Account } from '@/entities/operations/account'
 import { Badge } from '@/shared/ui/badge'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Input } from '@/shared/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/ui/table'
 
 /** 계정 목록을 한 번에 받기 위한 크기 — 전체 계정 수를 크게 웃도는 값 */
 const ALL_ACCOUNTS_SIZE = 1000
+
+/** 헤더/본문 두 테이블의 컬럼 폭을 동일하게 맞추기 위한 colgroup */
+const RecipientColgroup = () => (
+  <colgroup>
+    <col className="w-10" />
+    <col className="w-28" />
+    <col className="w-20" />
+    <col className="w-32" />
+    <col />
+  </colgroup>
+)
+
+const COLUMNS = ['이름', '직급', '부서', '이메일'] as const
 
 interface RecipientPickerProps {
   /** 선택된 수신자 계정 ID 목록 */
@@ -127,69 +132,87 @@ export function RecipientPicker({
       )}
 
       {/*
-        sticky 헤더를 쓰는 목록이므로 Radix ScrollArea 가 아니라 일반 스크롤
-        컨테이너를 쓴다 — ScrollArea 는 뷰포트 안에 display:table 래퍼를 만들어
-        sticky 의 기준 박스를 가로챌 수 있다.
-        (헤더가 행에 비쳐 보이지 않도록 배경을 셀에 주는 처리는 shared/ui/table.tsx)
+        헤더를 스크롤 영역 **밖**에 둔다.
+
+        sticky 헤더(thead / th 어느 쪽이든)는 환경에 따라 스크롤된 행이 헤더 위로
+        비쳐 보이는 문제가 있었다. 헤더를 아예 스크롤되지 않는 영역으로 분리하면
+        겹칠 수 있는 경로 자체가 사라진다.
+
+        두 테이블의 컬럼을 맞추기 위해 양쪽 모두 table-fixed + 같은 colgroup 을
+        쓴다. 마지막(이메일) 컬럼만 스크롤바 폭만큼 좁아지는데, 왼쪽 정렬이라
+        보이는 위치는 동일하다.
       */}
-      <div className="h-64 overflow-y-auto rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-10">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full table-fixed caption-bottom text-sm">
+          <RecipientColgroup />
+          <thead>
+            <tr className="border-b border-border">
+              <th className="h-9 px-3 text-left align-middle">
                 <Checkbox
                   checked={allFilteredSelected}
                   onCheckedChange={toggleAllFiltered}
                   aria-label="검색 결과 전체 선택"
                   disabled={filtered.length === 0}
                 />
-              </TableHead>
-              <TableHead>이름</TableHead>
-              <TableHead>직급</TableHead>
-              <TableHead>부서</TableHead>
-              <TableHead>이메일</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading && (
-              <TableRow>
-                <TableCell colSpan={5} className="h-20 text-center text-muted-foreground">
-                  불러오는 중…
-                </TableCell>
-              </TableRow>
-            )}
-            {!isLoading && filtered.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="h-20 text-center text-muted-foreground">
-                  조건에 맞는 계정이 없습니다.
-                </TableCell>
-              </TableRow>
-            )}
-            {filtered.map((account) => (
-              <TableRow
-                key={account.accountId}
-                className="cursor-pointer"
-                onClick={() => toggle(account)}
-              >
-                <TableCell onClick={(event) => event.stopPropagation()}>
-                  <Checkbox
-                    checked={value.includes(account.accountId)}
-                    onCheckedChange={() => toggle(account)}
-                    aria-label={`${account.accountName} 선택`}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{account.accountName}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {account.positionName ?? '-'}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {account.departmentName ?? '-'}
-                </TableCell>
-                <TableCell className="text-muted-foreground">{account.email}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </th>
+              {COLUMNS.map((label) => (
+                <th
+                  key={label}
+                  className="h-9 px-3 text-left align-middle text-xs font-semibold text-muted-foreground"
+                >
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        </table>
+
+        <div className="h-56 overflow-y-auto">
+          <table className="w-full table-fixed caption-bottom text-sm">
+            <RecipientColgroup />
+            <tbody className="[&_tr:hover]:bg-foreground/[0.045]">
+              {isLoading && (
+                <tr>
+                  <td colSpan={5} className="h-20 text-center text-muted-foreground">
+                    불러오는 중…
+                  </td>
+                </tr>
+              )}
+              {!isLoading && filtered.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="h-20 text-center text-muted-foreground">
+                    조건에 맞는 계정이 없습니다.
+                  </td>
+                </tr>
+              )}
+              {filtered.map((account) => (
+                <tr
+                  key={account.accountId}
+                  className="cursor-pointer border-b border-border transition-colors"
+                  onClick={() => toggle(account)}
+                >
+                  <td className="p-3 align-middle" onClick={(event) => event.stopPropagation()}>
+                    <Checkbox
+                      checked={value.includes(account.accountId)}
+                      onCheckedChange={() => toggle(account)}
+                      aria-label={`${account.accountName} 선택`}
+                    />
+                  </td>
+                  <td className="truncate p-3 align-middle font-medium">{account.accountName}</td>
+                  <td className="truncate p-3 align-middle text-muted-foreground">
+                    {account.positionName ?? '-'}
+                  </td>
+                  <td className="truncate p-3 align-middle text-muted-foreground">
+                    {account.departmentName ?? '-'}
+                  </td>
+                  <td className="truncate p-3 align-middle text-muted-foreground">
+                    {account.email}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
