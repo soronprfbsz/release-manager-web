@@ -16,7 +16,6 @@ import type { Account } from '@/entities/operations/account'
 import { Badge } from '@/shared/ui/badge'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Input } from '@/shared/ui/input'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import {
   Table,
   TableBody,
@@ -127,7 +126,12 @@ export function RecipientPicker({
         </div>
       )}
 
-      <ScrollArea className="h-64 rounded-md border">
+      {/*
+        Radix ScrollArea 대신 일반 스크롤 컨테이너를 쓴다 — ScrollArea 는 뷰포트
+        안에 display:table 래퍼를 만들어 sticky 헤더의 기준 박스를 가로채고,
+        그 결과 헤더가 행과 겹쳐 보인다.
+      */}
+      <div className="h-64 overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -185,7 +189,7 @@ export function RecipientPicker({
             ))}
           </TableBody>
         </Table>
-      </ScrollArea>
+      </div>
 
       <p className="text-xs text-muted-foreground">
         {value.length > 0 ? `${value.length}명 선택됨` : '수신자를 선택하세요.'}

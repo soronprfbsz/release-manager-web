@@ -4,5 +4,7 @@
  */
 
 export { MessageComposeDialog } from './ui/MessageComposeDialog'
+export { MessageDeleteDialog } from './ui/MessageDeleteDialog'
+export type { MessageDeleteTarget } from './ui/MessageDeleteDialog'
 export { MessageDetailDialog } from './ui/MessageDetailDialog'
 export { RecipientPicker } from './ui/RecipientPicker'

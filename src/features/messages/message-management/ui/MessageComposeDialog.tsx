@@ -161,10 +161,10 @@ export function MessageComposeDialog({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" size="sm" onClick={onClose}>
                 취소
               </Button>
-              <Button type="submit" disabled={sendMessage.isPending}>
+              <Button type="submit" size="sm" disabled={sendMessage.isPending}>
                 {sendMessage.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

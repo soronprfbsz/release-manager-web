@@ -124,12 +124,12 @@ export function MessageDetailDialog({
 
             <DialogFooter>
               {isPatchReminder && message.refProjectId && (
-                <Button variant="outline" onClick={handleOpenPatch}>
+                <Button variant="outline" size="sm" onClick={handleOpenPatch}>
                   <ExternalLink className="mr-2 h-4 w-4" />
                   패치 관리 열기
                 </Button>
               )}
-              <Button onClick={onClose}>닫기</Button>
+              <Button size="sm" onClick={onClose}>닫기</Button>
             </DialogFooter>
           </>
         )}

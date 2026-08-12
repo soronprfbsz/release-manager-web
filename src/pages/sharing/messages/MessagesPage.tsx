@@ -8,7 +8,12 @@ import { useState } from 'react'
 import { Inbox, Mail, MailOpen, Search, Send, Trash2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
-import { MessageComposeDialog, MessageDetailDialog } from '@/features/messages'
+import {
+  MessageComposeDialog,
+  MessageDeleteDialog,
+  MessageDetailDialog,
+} from '@/features/messages'
+import type { MessageDeleteTarget } from '@/features/messages'
 
 import {
   useDeleteFromInbox,
@@ -35,6 +40,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/shared/ui/tooltip'
 
 type TabType = 'inbox' | 'outbox'
 
@@ -51,6 +61,11 @@ export function MessagesPage() {
   const [outboxPage, setOutboxPage] = useState(0)
   const [composeOpen, setComposeOpen] = useState(false)
   const [detail, setDetail] = useState<{ messageId: number; markRead: boolean } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{
+    messageId: number
+    title: string
+    target: MessageDeleteTarget
+  } | null>(null)
 
   const inboxQuery = useInbox({ page: inboxPage, size: PAGE_SIZE, keyword: keyword || undefined })
   const outboxQuery = useOutbox({ page: outboxPage, size: PAGE_SIZE, keyword: keyword || undefined })
@@ -65,6 +80,16 @@ export function MessagesPage() {
     setOutboxPage(0)
   }
 
+  /** 확인 다이얼로그에서 승인했을 때만 실제 삭제(숨김)를 호출한다 */
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+
+    const mutation = deleteTarget.target === 'inbox' ? deleteFromInbox : deleteFromOutbox
+    mutation.mutate(deleteTarget.messageId, {
+      onSettled: () => setDeleteTarget(null),
+    })
+  }
+
   const inbox = inboxQuery.data
   const outbox = outboxQuery.data
 
@@ -75,7 +100,7 @@ export function MessagesPage() {
       icon: Inbox,
       content: (
         <>
-          <DataTable visibleRows={PAGE_SIZE}>
+          <DataTable autoHeight>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -135,9 +160,15 @@ export function MessagesPage() {
                     <TableCell onClick={(event) => event.stopPropagation()}>
                       <Button
                         variant="ghost-icon"
-                        size="icon-sm"
+                        size="icon-xs"
                         title="수신함에서 삭제"
-                        onClick={() => deleteFromInbox.mutate(message.messageId)}
+                        onClick={() =>
+                          setDeleteTarget({
+                            messageId: message.messageId,
+                            title: message.title,
+                            target: 'inbox',
+                          })
+                        }
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -162,7 +193,7 @@ export function MessagesPage() {
       icon: Send,
       content: (
         <>
-          <DataTable visibleRows={PAGE_SIZE}>
+          <DataTable autoHeight>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -216,9 +247,15 @@ export function MessagesPage() {
                       <TableCell onClick={(event) => event.stopPropagation()}>
                         <Button
                           variant="ghost-icon"
-                          size="icon-sm"
+                          size="icon-xs"
                           title="발신함에서 삭제"
-                          onClick={() => deleteFromOutbox.mutate(message.messageId)}
+                          onClick={() =>
+                            setDeleteTarget({
+                              messageId: message.messageId,
+                              title: message.title,
+                              target: 'outbox',
+                            })
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -241,30 +278,40 @@ export function MessagesPage() {
   ]
 
   return (
-    <PageLayout>
+    <PageLayout
+      actions={
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setComposeOpen(true)} size="icon">
+                <Send className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>메시지 작성</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      }
+    >
       <TabbedContentCard
         tabs={tabs}
         value={currentTab}
         onValueChange={handleTabChange}
         headerRight={
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={keyword}
-                onChange={(event) => {
-                  setKeyword(event.target.value)
-                  setInboxPage(0)
-                  setOutboxPage(0)
-                }}
-                placeholder="제목 / 내용 검색"
-                className="w-56 pl-9"
-              />
-            </div>
-            <Button onClick={() => setComposeOpen(true)}>
-              <Send className="mr-2 h-4 w-4" />
-              메시지 작성
-            </Button>
+          /* 검색 — TabsBar 우측 슬롯 */
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={keyword}
+              onChange={(event) => {
+                setKeyword(event.target.value)
+                setInboxPage(0)
+                setOutboxPage(0)
+              }}
+              placeholder="검색..."
+              className="h-8 w-[200px] pl-8 text-sm"
+            />
           </div>
         }
       />
@@ -279,6 +326,15 @@ export function MessagesPage() {
         messageId={detail?.messageId ?? null}
         markReadOnOpen={detail?.markRead ?? true}
         onClose={() => setDetail(null)}
+      />
+
+      <MessageDeleteDialog
+        open={deleteTarget !== null}
+        target={deleteTarget?.target ?? 'inbox'}
+        messageTitle={deleteTarget?.title ?? null}
+        isDeleting={deleteFromInbox.isPending || deleteFromOutbox.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </PageLayout>
   )
