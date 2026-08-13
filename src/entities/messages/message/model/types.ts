@@ -6,7 +6,11 @@
  */
 
 /** 메시지 유형 */
-export type MessageType = 'USER' | 'PATCH_REMINDER'
+export type MessageType =
+  | 'USER'
+  | 'PATCH_REMINDER'
+  | 'PASSWORD_RESET_REQUEST'
+  | 'SIGNUP_APPROVAL_REQUEST'
 
 /** 메시지 발송 요청 */
 export interface MessageSendRequest {

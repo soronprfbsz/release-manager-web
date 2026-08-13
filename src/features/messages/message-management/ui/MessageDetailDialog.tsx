@@ -70,6 +70,15 @@ export function MessageDetailDialog({
   }
 
   const isPatchReminder = message?.messageType === 'PATCH_REMINDER'
+  const isAccountRequest =
+    message?.messageType === 'PASSWORD_RESET_REQUEST' ||
+    message?.messageType === 'SIGNUP_APPROVAL_REQUEST'
+  const isSystemMessage = isPatchReminder || isAccountRequest
+
+  const handleOpenAccounts = () => {
+    navigate(ROUTES.OPERATIONS.ACCOUNTS)
+    onClose()
+  }
 
   return (
     <Dialog open={!!messageId} onOpenChange={(open) => !open && onClose()}>
@@ -80,7 +89,7 @@ export function MessageDetailDialog({
           <>
             <DialogHeader>
               <div className="flex items-start gap-2">
-                {isPatchReminder ? (
+                {isSystemMessage ? (
                   <Badge variant="secondary" className="mt-0.5 shrink-0">
                     시스템
                   </Badge>
@@ -127,6 +136,12 @@ export function MessageDetailDialog({
                 <Button variant="outline" size="sm" onClick={handleOpenPatch}>
                   <ExternalLink className="mr-2 h-4 w-4" />
                   패치 관리 열기
+                </Button>
+              )}
+              {isAccountRequest && (
+                <Button variant="outline" size="sm" onClick={handleOpenAccounts}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  계정 관리 열기
                 </Button>
               )}
               <Button size="sm" onClick={onClose}>닫기</Button>
