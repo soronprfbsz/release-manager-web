@@ -14,13 +14,13 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 
-import { PasswordResetGuideDialog } from './PasswordResetGuideDialog'
+import { PasswordResetRequestDialog } from './PasswordResetRequestDialog'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isResetGuideOpen, setIsResetGuideOpen] = useState(false)
+  const [isResetRequestOpen, setIsResetRequestOpen] = useState(false)
   const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -104,16 +104,16 @@ export function LoginForm() {
         </p>
         <button
           type="button"
-          onClick={() => setIsResetGuideOpen(true)}
+          onClick={() => setIsResetRequestOpen(true)}
           className="text-sm text-muted-foreground hover:text-foreground hover:underline"
         >
           비밀번호를 잊으셨나요?
         </button>
       </CardFooter>
 
-      <PasswordResetGuideDialog
-        open={isResetGuideOpen}
-        onOpenChange={setIsResetGuideOpen}
+      <PasswordResetRequestDialog
+        open={isResetRequestOpen}
+        onOpenChange={setIsResetRequestOpen}
       />
     </Card>
   )
