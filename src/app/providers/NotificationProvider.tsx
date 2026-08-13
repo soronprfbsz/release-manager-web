@@ -39,7 +39,7 @@ export function NotificationProvider() {
 
       toast({
         title:
-          event.messageType === 'PATCH_REMINDER'
+          event.messageType !== 'USER'
             ? '새 시스템 알림'
             : `${event.senderName}님의 새 메시지`,
         description: event.title,

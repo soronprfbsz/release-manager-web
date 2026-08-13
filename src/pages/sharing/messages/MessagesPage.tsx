@@ -143,7 +143,7 @@ export function MessagesPage() {
                       className={message.readAt === null ? 'font-semibold' : undefined}
                     >
                       <div className="flex items-center gap-2">
-                        {message.messageType === 'PATCH_REMINDER' && (
+                        {message.messageType !== 'USER' && (
                           <Badge variant="secondary" className="shrink-0">
                             시스템
                           </Badge>
