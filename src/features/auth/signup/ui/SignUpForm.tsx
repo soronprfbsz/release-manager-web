@@ -4,6 +4,7 @@ import { AxiosError } from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useCodesByType } from '@/entities/_shared/code'
+import { AdminContactPicker } from '@/entities/auth/session'
 
 import type { ApiError } from '@/shared/api'
 import { useToast } from '@/shared/lib/hooks/use-toast'
@@ -12,6 +13,7 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/shared/ui/card'
 import { Combobox } from '@/shared/ui/combobox'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 
 export function SignUpForm() {
   const [email, setEmail] = useState('')
@@ -20,6 +22,7 @@ export function SignUpForm() {
   const [accountName, setAccountName] = useState('')
   const [position, setPosition] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [recipientAccountIds, setRecipientAccountIds] = useState<number[]>([])
   const signup = useAuthStore((state) => state.signup)
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -56,13 +59,29 @@ export function SignUpForm() {
       return
     }
 
+    if (recipientAccountIds.length === 0) {
+      toast({
+        title: '담당자를 선택해주세요',
+        description: '가입 처리를 요청할 담당자를 1명 이상 선택해야 합니다.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      await signup({ email, password, accountName, position: position || undefined })
+      await signup({
+        email,
+        password,
+        accountName,
+        position: position || undefined,
+        recipientAccountIds,
+      })
       toast({
         title: '회원가입 완료',
-        description: '회원가입이 완료되었습니다. 로그인해주세요.',
+        description:
+          '선택하신 담당자에게 처리 요청을 보냈습니다. 담당자가 권한을 부여하면 모든 기능을 사용할 수 있습니다.',
       })
       navigate('/login')
     } catch (error) {
@@ -169,6 +188,16 @@ export function SignUpForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               disabled={isLoading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>가입 처리를 요청할 담당자</Label>
+            <p className="text-xs text-muted-foreground">
+              선택한 담당자에게 권한·부서 배치 요청이 전송됩니다.
+            </p>
+            <AdminContactPicker
+              value={recipientAccountIds}
+              onChange={setRecipientAccountIds}
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
