@@ -72,7 +72,7 @@ export function SignUpForm() {
 
     try {
       await signup({
-        email,
+        email: email.trim(),
         password,
         accountName,
         position: position || undefined,
