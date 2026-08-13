@@ -67,7 +67,7 @@ export function PasswordResetRequestDialog({
 
     try {
       await requestPasswordReset.mutateAsync({
-        email,
+        email: email.trim(),
         memo: memo.trim() || undefined,
         recipientAccountIds,
       })
@@ -137,6 +137,7 @@ export function PasswordResetRequestDialog({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
+              disabled={requestPasswordReset.isPending}
             >
               취소
             </Button>
