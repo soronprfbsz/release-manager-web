@@ -111,11 +111,12 @@ export function PasswordResetRequestDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>요청할 담당자</Label>
+            <Label id="reset-recipients-label">요청할 담당자</Label>
             <AdminContactPicker
               value={recipientAccountIds}
               onChange={setRecipientAccountIds}
               enabled={open}
+              labelledBy="reset-recipients-label"
             />
           </div>
 

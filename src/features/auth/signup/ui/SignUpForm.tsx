@@ -191,13 +191,15 @@ export function SignUpForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label>가입 처리를 요청할 담당자</Label>
+            <Label id="signup-recipients-label">가입 처리를 요청할 담당자</Label>
             <p className="text-xs text-muted-foreground">
               선택한 담당자에게 권한·부서 배치 요청이 전송됩니다.
             </p>
             <AdminContactPicker
               value={recipientAccountIds}
               onChange={setRecipientAccountIds}
+              disabled={isLoading}
+              labelledBy="signup-recipients-label"
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>

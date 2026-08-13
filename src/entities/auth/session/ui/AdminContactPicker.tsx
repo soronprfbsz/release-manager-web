@@ -30,12 +30,18 @@ interface AdminContactPickerProps {
   onChange: (accountIds: number[]) => void
   /** 목록 조회를 미룰 때 false (예: 닫힌 다이얼로그) */
   enabled?: boolean
+  /** 제출 중 등 전체 비활성화 */
+  disabled?: boolean
+  /** 목록을 설명하는 라벨 요소의 id — `<ul role="group">` 의 aria-labelledby 로 연결된다 */
+  labelledBy?: string
 }
 
 export function AdminContactPicker({
   value,
   onChange,
   enabled = true,
+  disabled = false,
+  labelledBy,
 }: AdminContactPickerProps) {
   const { data: contacts, isLoading, isError } = useAdminContacts({ enabled })
 
@@ -73,13 +79,19 @@ export function AdminContactPicker({
   }
 
   return (
-    <ul className="divide-y divide-border rounded-md border">
+    <ul
+      role="group"
+      aria-labelledby={labelledBy}
+      className="divide-y divide-border rounded-md border"
+    >
       {contacts.map((contact) => (
         <li key={contact.accountId}>
           <label className="flex cursor-pointer items-center gap-3 px-3 py-2.5 hover:bg-muted/50">
             <Checkbox
               checked={value.includes(contact.accountId)}
               onCheckedChange={() => toggle(contact.accountId)}
+              disabled={disabled}
+              aria-label={`${contact.accountName} 선택`}
             />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
