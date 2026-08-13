@@ -119,7 +119,7 @@ export function NotificationBell() {
                 </span>
               </div>
               <span className="pl-3 text-xs text-muted-foreground">
-                {message.messageType === 'PATCH_REMINDER' ? '시스템' : message.senderName}
+                {message.messageType !== 'USER' ? '시스템' : message.senderName}
               </span>
             </DropdownMenuItem>
           ))}
