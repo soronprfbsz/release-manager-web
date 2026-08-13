@@ -10,6 +10,7 @@ export type {
   SignInRequest,
   AccessTokenResponse,
   AdminContact,
+  PasswordResetRequest,
 } from './model/types'
 
 // API
@@ -20,6 +21,7 @@ export {
   useSignUp,
   useSignIn,
   useLogout,
+  useRequestPasswordReset,
 } from './mutations/sessionMutations'
 
 // Queries
@@ -27,3 +29,6 @@ export {
   sessionKeys,
   useAdminContacts,
 } from './queries/sessionQueries'
+
+// UI
+export { AdminContactPicker } from './ui/AdminContactPicker'

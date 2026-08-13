@@ -23,6 +23,8 @@ export interface SignUpRequest {
   password: string
   accountName: string
   position?: string
+  /** 가입 처리를 요청할 담당자 계정 ID (최소 1명) */
+  recipientAccountIds: number[]
 }
 
 export interface SignUpResponse {
@@ -47,8 +49,16 @@ export interface AccessTokenResponse {
 
 /** 비밀번호 재설정 안내용 관리자 연락처 */
 export interface AdminContact {
+  accountId: number
   departmentName: string
   accountName: string
   email: string
   role: 'ADMIN' | 'OPERATOR'
+}
+
+/** 비밀번호 재설정 요청 */
+export interface PasswordResetRequest {
+  email: string
+  memo?: string
+  recipientAccountIds: number[]
 }

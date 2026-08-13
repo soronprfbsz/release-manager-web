@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { sessionApi } from '../api/sessionApi'
 
-import type { SignUpRequest, SignInRequest } from '../model/types'
+import type { SignUpRequest, SignInRequest, PasswordResetRequest } from '../model/types'
 
 // Mutation Hooks
 export const useSignUp = () =>
@@ -18,4 +18,9 @@ export const useSignIn = () =>
 export const useLogout = () =>
   useMutation({
     mutationFn: () => sessionApi.logout(),
+  })
+
+export const useRequestPasswordReset = () =>
+  useMutation({
+    mutationFn: (data: PasswordResetRequest) => sessionApi.requestPasswordReset(data),
   })

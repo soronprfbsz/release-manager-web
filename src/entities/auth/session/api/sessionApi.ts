@@ -9,6 +9,7 @@ import type {
   SignInRequest,
   AccessTokenResponse,
   AdminContact,
+  PasswordResetRequest,
 } from '../model/types'
 
 const ENDPOINTS = {
@@ -17,6 +18,7 @@ const ENDPOINTS = {
   refresh: '/api/auth/refresh',
   logout: '/api/auth/logout',
   admins: '/api/auth/admins',
+  passwordResetRequests: '/api/auth/password-reset-requests',
 } as const
 
 const authAxios = axios.create({
@@ -56,6 +58,17 @@ export const sessionApi = {
   /** 활성 관리자 연락처 목록 조회 (비밀번호 재설정 안내용, 인증 불필요) */
   getAdminContacts: async (): Promise<ApiResponse<AdminContact[]>> => {
     const response = await authAxios.get<ApiResponse<AdminContact[]>>(ENDPOINTS.admins)
+    return response.data
+  },
+
+  /** 비밀번호 재설정 요청 (인증 불필요) */
+  requestPasswordReset: async (
+    data: PasswordResetRequest
+  ): Promise<ApiResponse<{ message: string }>> => {
+    const response = await authAxios.post<ApiResponse<{ message: string }>>(
+      ENDPOINTS.passwordResetRequests,
+      data
+    )
     return response.data
   },
 }
