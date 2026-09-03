@@ -120,7 +120,8 @@
     --popover-foreground:     240 3% 12%;
 
     --primary:                48 100% 50%;    /* gold #ffcc00 — 다크와 동일 (양 테마 불변) */
-    --primary-foreground:     226 20% 15%;
+    --primary-foreground:     240 3% 12%;     /* = --foreground (apple ink). 이 값만 쿨 슬레이트로
+                                                 남아 있어 gold 버튼 글자만 푸르게 떴다 */
     /* text-primary 전용 — #ffcc00 은 상대휘도 0.64 라 흰 면 위에서조차 최대 1.51:1 로
        어떤 튜닝으로도 AA 를 넘길 수 없다. 노랑은 채움색이지 텍스트색이 아니다.
        채움(--primary)은 그대로 두고 텍스트만 진한 골드로 분리한다.
@@ -131,10 +132,13 @@
     --secondary-foreground:   240 3% 12%;
 
     --muted:                  240 11% 94%;    /* #eeeef1 list-row / inset surface */
-    --muted-foreground:       240 3% 42%;     /* #68686e — apple #6e6e73 계열 (흰 면 5.5:1) */
+    --muted-foreground:       240 2% 42%;     /* #69696d — apple #6e6e73 계열, 채도 2%
+                                                 (흰 면 5.5:1 / 캔버스 5.0:1 / muted 행 4.7:1)
+                                                 apple 원값(44%)은 우리 muted 행에서 4.4:1 로
+                                                 AA 미달이라 명도만 2 낮춘다 */
 
     --accent:                 240 10% 92%;    /* #e9e9ed */
-    --accent-foreground:      240 4% 28%;     /* #45454a (accent 면 7.9:1) */
+    --accent-foreground:      240 3% 28%;     /* #45454a (accent 면 7.9:1) */
 
     --destructive:            355 72% 48%;    /* 채도 하향 */
     --destructive-foreground: 0 0% 100%;
@@ -185,8 +189,9 @@
        캔버스보다 한 단계 낮춰 L자 섀시가 콘텐츠 면과 분리되게 한다.
        캔버스·경계선과 같은 hue 240 계열 — 크롬만 색이 튀지 않는다. */
     --sidebar-bg:             240 12% 92%;    /* #e8e8ed — apple */
-    --sidebar-fg:             240 3% 12%;     /* 14.8:1 */
-    --sidebar-fg-muted:       240 4% 40%;     /* #62626a (5.3:1) */
+    --sidebar-fg:             240 3% 12%;     /* 크롬 면 13.6:1 */
+    --sidebar-fg-muted:       240 2% 40%;     /* #646468 — 채도 2%, 크롬 면 4.8:1.
+                                                 크롬이 캔버스보다 어두워 muted-foreground 보다 2 낮춘다 */
     --sidebar-border:         240 6% 83%;     /* #d1d1d6 — = --border, apple 디바이더 단일색 */
     --sidebar-hover:          240 9% 88%;     /* #dedee3 — 크롬 면 위에서 한 단계 진하게 */
     --sidebar-active-bg:      48 70% 88%;     /* 옅은 gold 틴트 */
