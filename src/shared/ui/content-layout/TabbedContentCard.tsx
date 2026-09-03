@@ -29,6 +29,8 @@ import { cn } from '@/shared/lib/utils'
 import { Card } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
+import { DEFAULT_CONTENT_SURFACE, type ContentSurface } from './constants'
+
 import type { LucideIcon } from 'lucide-react'
 
 export interface TabbedTab {
@@ -52,7 +54,10 @@ interface TabbedContentCardProps {
   headerRight?: ReactNode
   /** Tabs 루트 className 확장 */
   className?: string
-  /** 모든 탭 컨텐츠 영역의 기본 className (개별 tab 의 contentClassName 이 우선) */
+  /**
+   * 모든 탭 컨텐츠 영역의 기본 className (개별 tab 의 contentClassName 이 우선).
+   * 미지정 시 표면에 맞는 기본값이 적용된다.
+   */
   defaultContentClassName?: string
   /**
    * 부모(PageLayout content area) 의 잔여 높이를 채우는 fill 모드.
@@ -61,9 +66,16 @@ interface TabbedContentCardProps {
    *  - 안의 Card → flex-1 + 내부 콘텐츠 영역이 단일 스크롤 컨테이너
    */
   fullHeight?: boolean
+  /** 표면 (기본: DEFAULT_CONTENT_SURFACE) */
+  surface?: ContentSurface
 }
 
 const DEFAULT_CONTENT_CLASS = 'px-4 py-4'
+/** plain 표면의 탭 컨텐츠 여백 — 밴드가 좌우를 책임지므로 위쪽만 준다 */
+const PLAIN_CONTENT_CLASS = 'px-4 pt-3'
+
+/** plain 표면의 데이터 밴드 — 사유는 ContentCard 쪽 주석 참고 */
+const PLAIN_BAND = '-mx-4 bg-card'
 
 export function TabbedContentCard({
   value,
@@ -71,9 +83,14 @@ export function TabbedContentCard({
   tabs,
   headerRight,
   className,
-  defaultContentClassName = DEFAULT_CONTENT_CLASS,
+  defaultContentClassName,
   fullHeight = false,
+  surface = DEFAULT_CONTENT_SURFACE,
 }: TabbedContentCardProps) {
+  const isPlain = surface === 'plain'
+  const contentClass =
+    defaultContentClassName ?? (isPlain ? PLAIN_CONTENT_CLASS : DEFAULT_CONTENT_CLASS)
+
   return (
     <Tabs
       value={value}
@@ -95,7 +112,7 @@ export function TabbedContentCard({
           )
         })}
         {headerRight && (
-          <div className="ml-auto flex items-center gap-2 pr-2">
+          <div className={cn('ml-auto flex items-center gap-2', !isPlain && 'pr-2')}>
             {headerRight}
           </div>
         )}
@@ -109,20 +126,33 @@ export function TabbedContentCard({
             fullHeight && 'flex-1 min-h-0 flex flex-col data-[state=inactive]:hidden',
           )}
         >
-          <Card
-            className={cn(
-              fullHeight && 'flex-1 min-h-0 flex flex-col overflow-hidden',
-            )}
-          >
+          {isPlain ? (
             <div
               className={cn(
-                tab.contentClassName ?? defaultContentClassName,
+                PLAIN_BAND,
                 fullHeight && 'flex-1 min-h-0 overflow-auto',
               )}
             >
-              {tab.content}
+              <div className={cn(tab.contentClassName ?? contentClass)}>
+                {tab.content}
+              </div>
             </div>
-          </Card>
+          ) : (
+            <Card
+              className={cn(
+                fullHeight && 'flex-1 min-h-0 flex flex-col overflow-hidden',
+              )}
+            >
+              <div
+                className={cn(
+                  tab.contentClassName ?? contentClass,
+                  fullHeight && 'flex-1 min-h-0 overflow-auto',
+                )}
+              >
+                {tab.content}
+              </div>
+            </Card>
+          )}
         </TabsContent>
       ))}
     </Tabs>

@@ -770,7 +770,6 @@ export function ProjectListPage() {
             value: 'management',
             label: TAB_CONFIG.management.label,
             icon: TAB_CONFIG.management.icon,
-            contentClassName: 'mt-0 pt-0',
             content: (
               <div className="px-8 pb-6 pt-4">
                 {isLoading ? (
@@ -793,7 +792,6 @@ export function ProjectListPage() {
             value: 'onboarding',
             label: TAB_CONFIG.onboarding.label,
             icon: TAB_CONFIG.onboarding.icon,
-            contentClassName: 'mt-0 pt-0',
             content: (
               <div className="px-8 pb-6 pt-4">
                 {!projectId ? (
@@ -879,7 +877,6 @@ export function ProjectListPage() {
             value: 'install',
             label: TAB_CONFIG.install.label,
             icon: TAB_CONFIG.install.icon,
-            contentClassName: 'mt-0 pt-0',
             content: (
               <div className="px-8 pb-6 pt-4">
                 {!projectId ? (

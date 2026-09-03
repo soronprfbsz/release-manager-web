@@ -144,7 +144,11 @@
     --destructive-foreground: 0 0% 100%;
 
     --border:                 240 6% 83%;     /* #d1d1d6 — apple #d2d2d7 디바이더 */
-    --input:                  240 6% 78%;     /* #c4c4ca — 입력 경계는 한 단계 진하게 */
+    --input:                  240 2% 54%;     /* #87878c — apple 램프의 #86868b.
+                                                 input/select/combobox/outline 버튼 경계는
+                                                 인터랙티브 컨트롤이라 WCAG 1.4.11(3:1)이 적용된다.
+                                                 흰 카드 3.6:1 / 캔버스 3.3:1 — 이 기준을 넘는
+                                                 가장 밝은 중성값이다 */
     --ring:                   31 85% 52%;     /* signal */
 
     /* 크롬 레이어 베벨 하이라이트 */

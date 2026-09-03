@@ -223,17 +223,15 @@ export function SchedulerPage() {
       }
     >
       <ContentCard noPadding>
-        <div className="px-8 py-6">
-          <SchedulerTable
-            jobs={jobs}
-            isLoading={isLoading}
-            onEdit={openEditForm}
-            onDelete={handleDelete}
-            onToggle={handleToggle}
-            onExecute={handleExecute}
-            onViewHistory={handleViewHistory}
-          />
-        </div>
+        <SchedulerTable
+          jobs={jobs}
+          isLoading={isLoading}
+          onEdit={openEditForm}
+          onDelete={handleDelete}
+          onToggle={handleToggle}
+          onExecute={handleExecute}
+          onViewHistory={handleViewHistory}
+        />
       </ContentCard>
 
       {/* Form Sheet */}
