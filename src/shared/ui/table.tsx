@@ -13,7 +13,9 @@ const Table = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <table
     ref={ref}
-    className={cn("w-full caption-bottom text-sm", className)}
+    // 테이블은 자기 면을 갖는다 — bg-card(= 크롬과 같은 값). 헤더 띠(bg-muted)가
+    // 이 면 위에서 한 단계 진하게 읽힌다. 카드 안에 놓이면 같은 색이라 겹쳐 보이지 않는다.
+    className={cn("w-full caption-bottom text-sm bg-card", className)}
     {...props}
   />
 ))
