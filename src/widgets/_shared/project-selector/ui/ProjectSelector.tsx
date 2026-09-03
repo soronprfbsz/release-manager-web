@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
+import { GlyphBadge } from '@/shared/ui/glyph-badge'
 
 interface ProjectSelectorProps {
   className?: string
@@ -42,7 +43,17 @@ export function ProjectSelector({ className }: ProjectSelectorProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className={cn('min-w-[140px]', className)}>
-          <FolderKanban className="h-4 w-4 mr-2" />
+          {currentProject ? (
+            <GlyphBadge
+              size="sm"
+              className="mr-2"
+              name={currentProject.projectName}
+              glyphText={currentProject.glyphText}
+              glyphBackgroundColor={currentProject.glyphBackgroundColor}
+            />
+          ) : (
+            <FolderKanban className="h-4 w-4 mr-2" />
+          )}
           <span className="truncate max-w-[100px]">
             {currentProject?.projectName || projectId}
           </span>
@@ -63,7 +74,14 @@ export function ProjectSelector({ className }: ProjectSelectorProps) {
                 isSelected && 'bg-primary/20 text-primary'
               )}
             >
-              {project.projectName}
+              <GlyphBadge
+                size="sm"
+                className="mr-2"
+                name={project.projectName}
+                glyphText={project.glyphText}
+                glyphBackgroundColor={project.glyphBackgroundColor}
+              />
+              <span className="min-w-0 truncate">{project.projectName}</span>
             </DropdownMenuItem>
           )
         })}

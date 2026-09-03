@@ -20,6 +20,12 @@ import {
 export interface ComboboxOption {
   value: string
   label: string
+  /**
+   * 라벨 앞에 붙는 시각 표지 (글리프 배지 등).
+   * 검색은 `label` 로만 하므로 배지는 검색에 영향을 주지 않는다.
+   * 행 높이가 커지지 않는 크기로 넘길 것 (GlyphBadge 는 size="sm").
+   */
+  badge?: React.ReactNode
 }
 
 export interface ComboboxGroup {
@@ -75,8 +81,11 @@ export function Combobox({
           )}
           disabled={disabled}
         >
-          <span className="truncate text-left overflow-hidden">
-            {selectedOption ? selectedOption.label : placeholder}
+          <span className="flex min-w-0 items-center gap-2">
+            {selectedOption?.badge}
+            <span className="truncate text-left overflow-hidden">
+              {selectedOption ? selectedOption.label : placeholder}
+            </span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </button>
@@ -106,11 +115,14 @@ export function Combobox({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-2 h-4 w-4 flex-shrink-0",
                         value === option.value ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {option.label}
+                    {option.badge && (
+                      <span className="mr-2 flex-shrink-0">{option.badge}</span>
+                    )}
+                    <span className="min-w-0 truncate">{option.label}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>

@@ -13,17 +13,27 @@
  */
 
 import { Combobox, type ComboboxGroup } from '@/shared/ui/combobox'
+import { GlyphBadge } from '@/shared/ui/glyph-badge'
 
 import { SITE_CATEGORIES } from '../model/categories'
 
 import type { SiteCategory } from '../model/types'
 
-/** SiteSelect 가 요구하는 최소 사이트 형태 */
+/**
+ * SiteSelect 가 요구하는 최소 사이트 형태.
+ *
+ * 글리프 필드는 선택이다 — 경량 타입(예: CustomPatchSite)에는 없다. 없으면
+ * GlyphBadge 가 이름 해시로 폴백하므로 목록에서 배지가 사라지지는 않는다.
+ * 단, DB 에 글리프를 지정한 사이트는 폴백 색과 달라지므로, 값을 내려주는
+ * 목록과 그렇지 않은 목록 사이에 색이 어긋날 수 있다.
+ */
 export interface SiteSelectOption {
   siteId: number
   siteCode: string
   siteName: string
   siteCategory: SiteCategory
+  glyphText?: string | null
+  glyphBackgroundColor?: string | null
 }
 
 export interface SiteSelectProps<T extends SiteSelectOption> {
@@ -66,6 +76,14 @@ export function SiteSelect<T extends SiteSelectOption>({
   const toOption = (s: T) => ({
     value: s.siteCode,
     label: `${s.siteName} (${s.siteCode})`,
+    badge: (
+      <GlyphBadge
+        size="sm"
+        name={s.siteName}
+        glyphText={s.glyphText}
+        glyphBackgroundColor={s.glyphBackgroundColor}
+      />
+    ),
   })
   const byName = (a: T, b: T) => a.siteName.localeCompare(b.siteName, 'ko')
 
