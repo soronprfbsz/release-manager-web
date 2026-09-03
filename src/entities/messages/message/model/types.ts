@@ -11,6 +11,8 @@ export type MessageType =
   | 'PATCH_REMINDER'
   | 'PASSWORD_RESET_REQUEST'
   | 'SIGNUP_APPROVAL_REQUEST'
+  | 'ACCOUNT_UPDATED'
+  | 'PASSWORD_RESET_DONE'
 
 /** 메시지 발송 요청 */
 export interface MessageSendRequest {

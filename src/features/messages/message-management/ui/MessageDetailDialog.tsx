@@ -73,7 +73,8 @@ export function MessageDetailDialog({
   const isAccountRequest =
     message?.messageType === 'PASSWORD_RESET_REQUEST' ||
     message?.messageType === 'SIGNUP_APPROVAL_REQUEST'
-  const isSystemMessage = isPatchReminder || isAccountRequest
+  // 계정 변경 / 비밀번호 초기화 통지도 시스템 계정이 보낸다 (작업자는 본문에 담긴다)
+  const isSystemMessage = !!message && message.messageType !== 'USER'
 
   const handleOpenAccounts = () => {
     navigate(ROUTES.OPERATIONS.ACCOUNTS)
