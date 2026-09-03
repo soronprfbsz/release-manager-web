@@ -4,11 +4,15 @@
  * - 버전관리, 사이트, 부서 관리 등 트리+상세 구조용
  * - treeWidth prop 으로 좌측 패널 너비 조정 (기본 40%)
  *
- *  ⟡ 표면 정책 — 두 패널은 카드 박스가 아니라 콘텐츠 면 위에 그대로 놓이고,
- *    사이 경계는 세로 헤어라인 하나가 진다. 분할은 장식이 아니라 구조라서 경계는
- *    남기되(각 패널이 독립 스크롤이라 어디서 끝나는지 알 수 없으면 곤란하다) 상자로
- *    감싸지는 않는다. 트리 패널에 별도 바탕색을 주지 않는 것이 중요하다 — 바로 왼쪽에
- *    회색 사이드바 크롬이 붙어 있어 두 회색 기둥이 뭉개진다.
+ *  ⟡ 표면 정책 — 두 패널은 각각 카드다. 목록 화면은 카드 박스를 걷어냈지만
+ *    분할 화면은 예외로 둔다: 두 패널이 독립 스크롤을 갖는 별개의 영역이라
+ *    상자로 묶여야 어디까지가 트리이고 어디부터가 상세인지 읽힌다.
+ *    (세로 구분선 하나로 가르는 안을 먼저 시도했으나, 선이 스크롤 구간에서 끊겨
+ *     경계가 흐려졌다 — 카드로 감싸면 이 문제가 구조적으로 사라진다.)
+ *
+ *  ⟡ 타이틀 밴드 — 각 패널 머리의 제목 줄에는 --primary 를 옅게 깐다(bg-primary/10).
+ *    gold 는 양 테마 불변이라 라이트/다크 어느 쪽에서도 같은 포인트로 읽히고,
+ *    채움이 아니라 10% 틴트라 제목 텍스트 대비를 해치지 않는다.
  *
  *  ⟡ Viewport-bound 정책 — 트리+상세 페이지는 두 패널이 항상 동일 높이.
  *    각 패널은 자체 내부 ScrollArea 로 콘텐츠 오버플로우 처리.
@@ -19,7 +23,10 @@
 import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
+import { Card } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
+
+import { CONTENT_SPACING } from './constants'
 
 
 // ============================================================================
@@ -38,8 +45,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
     <div
       className={cn(
         'grid grid-cols-1 lg:grid-cols-[var(--tree-width)_1fr]',
-        // 패널 사이는 여백이 아니라 세로 헤어라인 하나로 가른다
-        'lg:divide-x lg:divide-border',
+        CONTENT_SPACING.SPLIT_GAP,
         'h-full min-h-0',
         className
       )}
@@ -49,6 +55,14 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
     </div>
   )
 }
+
+/**
+ * 패널 머리의 제목 밴드. 두 패널이 같은 높이로 맞아야 나란히 놓였을 때 어깨가 맞는다.
+ * 배경은 --primary 10% 틴트 — 양 테마 불변인 gold 를 포인트로만 쓴다.
+ */
+const PANEL_HEADER =
+  'flex-none flex items-center justify-between gap-2 px-4 min-h-[44px] py-2 ' +
+  'border-b border-border bg-primary/10'
 
 // ============================================================================
 // ContentSplit.Tree (Left Panel)
@@ -78,14 +92,14 @@ function ContentSplitTree({
   className,
 }: ContentSplitTreeProps) {
   return (
-    <div className={cn('flex flex-col overflow-hidden lg:pr-4', className)}>
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
       {rawHeader ? (
         <div className="flex-none">{header}</div>
       ) : (
-        <div className="px-4 py-2.5 flex-none flex items-center justify-between border-b border-border">
+        <div className={PANEL_HEADER}>
           {header || (
             <>
-              <h3 className="text-base font-semibold">{title}</h3>
+              <h3 className="text-sm font-semibold">{title}</h3>
               {actions && <div className="flex items-center gap-2">{actions}</div>}
             </>
           )}
@@ -98,7 +112,7 @@ function ContentSplitTree({
           </div>
         </ScrollArea>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -107,7 +121,11 @@ function ContentSplitTree({
 // ============================================================================
 
 interface ContentSplitDetailProps {
-  /** 헤더 영역 커스텀 컨텐츠 */
+  /** 패널 제목 (Tree 와 같은 밴드로 렌더된다) */
+  title?: string
+  /** 헤더 우측 액션 */
+  actions?: React.ReactNode
+  /** 헤더 영역 커스텀 컨텐츠 (title/actions 대신 사용) */
   header?: React.ReactNode
   /** 자식 요소 */
   children?: React.ReactNode
@@ -120,17 +138,26 @@ interface ContentSplitDetailProps {
 }
 
 function ContentSplitDetail({
+  title,
+  actions,
   header,
   children,
   className,
   isEmpty = false,
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
+  const hasHeader = title || actions || header
+
   return (
-    <div className={cn('flex flex-col overflow-hidden lg:pl-5', className)}>
-      {header && (
-        <div className="px-5 py-3 flex-none flex items-center justify-between min-h-[56px] border-b border-border">
-          {header}
+    <Card className={cn('flex flex-col overflow-hidden', className)}>
+      {hasHeader && (
+        <div className={PANEL_HEADER}>
+          {header || (
+            <>
+              <h3 className="text-sm font-semibold">{title}</h3>
+              {actions && <div className="flex items-center gap-2">{actions}</div>}
+            </>
+          )}
         </div>
       )}
       <div className="flex-1 min-h-0 overflow-hidden">
@@ -146,7 +173,7 @@ function ContentSplitDetail({
           </ScrollArea>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
 

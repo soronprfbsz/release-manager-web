@@ -29,6 +29,9 @@ export const CONTENT_SPACING = {
   // 헤더가 있을 때 컨텐츠 패딩 (수직 패딩 없음 - 내부 컨텐츠가 제어)
   CARD_PADDING_WITH_HEADER: 'px-4',
 
+  // Split 레이아웃 — 좌/우 카드 사이 수평 간격
+  SPLIT_GAP: 'gap-5',
+
   // 헤더 패딩 (상단 패딩 + 컨텐츠와 작은 간격)
   HEADER_PADDING: 'px-4 pt-4 pb-2',
   // plain 표면의 헤더 패딩 — 좌우 패딩이 없어 컨텐츠와 왼쪽 정렬이 맞는다

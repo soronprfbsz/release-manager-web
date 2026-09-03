@@ -632,13 +632,16 @@ export function ReleasesPage() {
               isBuild={standardSelected?.isBuild}
               onDelete={handleDeleteSuccess}
             >
-              <ContentSplit.Detail>
+              <ContentSplit.Detail
+                title="버전 상세"
+                actions={<span className="text-xs text-muted-foreground tabular-nums">{standardVersion.version}</span>}
+              >
                 <VersionDetail.Content />
               </ContentSplit.Detail>
               <VersionDetail.Dialogs />
             </VersionDetail.Provider>
           ) : (
-            <ContentSplit.Detail isEmpty={true} emptyMessage="버전을 선택해주세요." />
+            <ContentSplit.Detail title="버전 상세" isEmpty={true} emptyMessage="버전을 선택해주세요." />
           )
         ) : (
           customVersion ? (
@@ -649,13 +652,16 @@ export function ReleasesPage() {
               onDelete={handleDeleteSuccess}
               baseVersion={customSelected?.customBaseVersion}
             >
-              <ContentSplit.Detail>
+              <ContentSplit.Detail
+                title="버전 상세"
+                actions={<span className="text-xs text-muted-foreground tabular-nums">{customVersion.version}</span>}
+              >
                 <VersionDetail.Content />
               </ContentSplit.Detail>
               <VersionDetail.Dialogs />
             </VersionDetail.Provider>
           ) : (
-            <ContentSplit.Detail isEmpty={true} emptyMessage="버전을 선택해주세요." />
+            <ContentSplit.Detail title="버전 상세" isEmpty={true} emptyMessage="버전을 선택해주세요." />
           )
         )}
       </ContentSplit>
