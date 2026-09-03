@@ -42,7 +42,10 @@
     --secondary:              224 24% 15%;    /* #1e2330 */
     --secondary-foreground:   0 0% 100%;
 
-    --muted:                  221 20% 23%;    /* #2f3646 헤더 띠 / list-row / inset surface */
+    --muted:                  221 20% 23%;    /* #2f3646 테이블 헤더 띠 / list-row / inset surface */
+    /* 라이트와 같은 규칙 — 카드 면의 청색 틴트 대비 중성 띠. 다만 근-검정에서는
+       색조 차가 근-흰색만큼 보이지 않아 명도를 3 올려 지각되게 한다. */
+    --panel-header:           228 6% 10%;     /* #181819 */
     --muted-foreground:       227 31% 76%;    /* #aeb6d4 */
 
     --accent:                 31 60% 18%;     /* signal 딥 틴트 */
@@ -156,7 +159,14 @@
     --secondary:              240 10% 91%;    /* #e6e6ea inset panel */
     --secondary-foreground:   240 3% 12%;
 
-    --muted:                  240 13% 93%;    /* #ebebef 헤더 띠 / list-row / inset surface */
+    --muted:                  59 20% 91%;     /* #edece3 테이블 헤더 띠 / list-row / inset surface.
+                                                 카드·테이블 면 위에 놓이므로 같은 크림 계열이다.
+                                                 띠 vs 면 1.14:1 / 라벨 4.97:1 */
+    /* 카드·패널의 제목 띠 전용. 카드 면과 명도가 같고 채도만 낮다 —
+       명도 대비가 아니라 색조 대비로 구분한다(크림 면 위 중성 띠).
+       테이블 헤더(--muted)와 다른 토큰인 이유: 같은 카드 안에서 제목 띠는 물러나고
+       테이블 헤더는 컬럼 라벨을 받쳐야 해서 요구가 다르다. */
+    --panel-header:           59 6% 97%;      /* #f8f8f7 */
     --muted-foreground:       240 2% 40%;     /* #646468 — apple #6e6e73 계열, 채도 2%.
                                                  명도는 apple 원값(44%)보다 낮다 — 우리 muted 띠가
                                                  apple 의 #f5f5f7 보다 어두워 원값이면 AA 미달이다.
@@ -220,14 +230,16 @@
     --header-bg:              240 11% 96%;    /* #f4f4f6 — 콘텐츠 면 위 옅은 칩 배경 */
 
     /* Sidebar — 크롬(사이드바/탑바 = .slab) 배경. 여기만 바꾸면 둘 다 바뀐다.
-       primary(민트)의 아주 옅은 틴트 — 채움이 아니라 흰 면에 primary 10% 를 얹은 정도다.
-       면 자체는 거의 흰색이라 L자 섀시는 --sidebar-border 헤어라인이 진다. */
-    --sidebar-bg:             167 60% 98%;    /* #f7fdfc — primary/10 수준 */
+       --card 가 이 값에 묶여 있으므로(var) 여기 한 줄이 탑바·사이드패널·카드·테이블 면을
+       함께 바꾼다. 면 자체는 거의 흰색이라 L자 섀시는 --sidebar-border 헤어라인이 진다.
+       면은 크림 계열로 통일하고, 잉크와 기능 경계(--border/--input)는 중성으로 둔다 —
+       그 명도대에서는 hue 가 거의 지각되지 않고, 대비 판정만 흔들린다. */
+    --sidebar-bg:             59 46% 97%;     /* #fbfbf4 옅은 크림 */
     --sidebar-fg:             240 3% 12%;     /* 크롬 면 13.6:1 */
     --sidebar-fg-muted:       240 2% 40%;     /* #646468 — 채도 2%, 크롬 면 4.8:1.
                                                  크롬이 캔버스보다 어두워 muted-foreground 보다 2 낮춘다 */
-    --sidebar-border:         240 6% 83%;     /* #d1d1d6 — = --border, apple 디바이더 단일색 */
-    --sidebar-hover:          167 45% 94%;    /* #e9f8f4 — 크롬 면 위에서 한 단계 진하게 */
+    --sidebar-border:         59 12% 84%;     /* #dbdbd1 — 크롬 면과 같은 계열 */
+    --sidebar-hover:          59 40% 93%;     /* #f4f4e6 — 크롬 면 위에서 한 단계 진하게 */
     --sidebar-active-bg:      167 60% 90%;    /* #d6f5ee 옅은 민트 틴트 */
     --sidebar-active-fg:      170 80% 22%;    /* #0b6556 진한 청록 (6.0:1) — 민트 면 위
                                                  민트 글씨라 명도로만 벌린다 */

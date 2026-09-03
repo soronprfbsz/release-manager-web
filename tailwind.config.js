@@ -74,6 +74,8 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        // 카드·패널 제목 띠 전용 — 테이블 헤더(--muted)와 요구가 달라 분리
+        'panel-header': 'hsl(var(--panel-header))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

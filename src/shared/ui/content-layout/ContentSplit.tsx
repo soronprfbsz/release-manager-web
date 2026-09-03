@@ -10,9 +10,11 @@
  *    (세로 구분선 하나로 가르는 안을 먼저 시도했으나, 선이 스크롤 구간에서 끊겨
  *     경계가 흐려졌다 — 카드로 감싸면 이 문제가 구조적으로 사라진다.)
  *
- *  ⟡ 타이틀 밴드 — 무채색(--muted)이다. TableHeader 와 같은 토큰이라 "헤더 스트립"의
- *    규칙이 앱 전체에서 하나로 통일된다. primary 틴트를 얹어 봤으나 브랜드 색이
- *    구조 요소에까지 번져 화면이 산만해졌다.
+ *  ⟡ 타이틀 밴드 — --panel-header 전용 토큰이다. 카드 면과 명도가 같고 채도만 낮아
+ *    명도가 아니라 색조로 구분된다(제목 띠는 물러나야 한다).
+ *    테이블 헤더(--muted)와 토큰을 나눈 이유는 요구가 달라서다 — 테이블 헤더는
+ *    컬럼 라벨을 받쳐야 하므로 더 또렷한 띠가 필요하다.
+ *    primary 틴트를 얹어 봤으나 브랜드 색이 구조 요소에 번져 산만해졌다.
  *
  *  ⟡ Viewport-bound 정책 — 트리+상세 페이지는 두 패널이 항상 동일 높이.
  *    각 패널은 자체 내부 ScrollArea 로 콘텐츠 오버플로우 처리.
@@ -62,7 +64,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
  */
 const PANEL_HEADER =
   'flex-none flex items-center justify-between gap-2 px-4 min-h-[44px] py-2 ' +
-  'border-b border-border bg-muted'
+  'border-b border-border bg-panel-header'
 
 // ============================================================================
 // ContentSplit.Tree (Left Panel)
