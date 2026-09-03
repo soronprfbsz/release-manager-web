@@ -105,17 +105,19 @@
      canvas 는 플레이트 *사이의 섀시*이며 텍스트 표면이 아니다.
      본문은 white / platinum 위에 앉는다 (대비 규칙은 설계 문서 §7.1). */
   :root.light {
-    /* 값(lightness) 사다리를 좁게 유지한다 — 이게 "무난함"의 핵심.
-       chrome 93% → page 97% → card 100%. 점프 4 / 3.
+    /* 팔레트 출처: apple.com 의 뉴트럴 그레이 — 전부 hue 240, 채도 3~12%.
+       색이 아니라 값(lightness)으로만 위계를 만든다:
+         chrome #e8e8ed 92% → canvas #f5f5f7 96% → card #ffffff 100%.
+       콘텐츠가 대부분 흰 카드이므로 캔버스는 카드가 떠 보일 만큼만 낮추고,
+       크롬을 한 단계 더 낮춰 L자 섀시를 만든다.
        (초안은 carbon 15% → 페리윙클 60% → white 100% 로 45/40 점프였고
-        세 영역이 서로 싸워 게이밍 느낌을 만들었다.)
-       canvas 는 뉴트럴로 비우고, 색 정체성은 크롬(사이드바/탑바)이 진다. */
-    --background:             0 0% 97%;       /* #f7f7f7 뉴트럴 섀시 */
-    --foreground:             226 20% 18%;    /* ink 살짝 밝게 (순수 검정 회피) */
+        세 영역이 서로 싸워 게이밍 느낌을 만들었다.) */
+    --background:             240 11% 96%;    /* #f4f4f6 — apple #f5f5f7 */
+    --foreground:             240 3% 12%;     /* #1e1e20 — apple #1d1d1f, 순수 검정 회피 */
     --card:                   0 0% 100%;      /* white — 콘텐츠 카드 */
-    --card-foreground:        226 20% 18%;
+    --card-foreground:        240 3% 12%;
     --popover:                0 0% 100%;
-    --popover-foreground:     226 20% 18%;
+    --popover-foreground:     240 3% 12%;
 
     --primary:                48 100% 50%;    /* gold #ffcc00 — 다크와 동일 (양 테마 불변) */
     --primary-foreground:     226 20% 15%;
@@ -125,28 +127,28 @@
        #8a6000 — 흰 카드 5.59:1 / bg-primary/10 5.35:1 / bg-muted 4.61:1 */
     --primary-text:           42 100% 27%;
 
-    --secondary:              222 28% 90%;    /* 옅은 페리윙클 inset panel */
-    --secondary-foreground:   226 20% 18%;
+    --secondary:              240 10% 91%;    /* #e6e6ea inset panel */
+    --secondary-foreground:   240 3% 12%;
 
-    --muted:                  225 20% 92%;    /* list-row / inset surface */
-    --muted-foreground:       226 16% 42%;    /* 쿨 슬레이트 — ink-soft 채도 대폭 하향 */
+    --muted:                  240 11% 94%;    /* #eeeef1 list-row / inset surface */
+    --muted-foreground:       240 3% 42%;     /* #68686e — apple #6e6e73 계열 (흰 면 5.5:1) */
 
-    --accent:                 222 30% 91%;
-    --accent-foreground:      228 35% 32%;
+    --accent:                 240 10% 92%;    /* #e9e9ed */
+    --accent-foreground:      240 4% 28%;     /* #45454a (accent 면 7.9:1) */
 
     --destructive:            355 72% 48%;    /* 채도 하향 */
     --destructive-foreground: 0 0% 100%;
 
-    --border:                 225 22% 85%;    /* 진한 남색선 → 옅은 쿨그레이 */
-    --input:                  225 22% 83%;
+    --border:                 240 6% 83%;     /* #d1d1d6 — apple #d2d2d7 디바이더 */
+    --input:                  240 6% 78%;     /* #c4c4ca — 입력 경계는 한 단계 진하게 */
     --ring:                   31 85% 52%;     /* signal */
 
     /* 크롬 레이어 베벨 하이라이트 */
     --plate-highlight:        0 0% 100% / 0.7;
     /* 할프톤 dot-matrix 점 색 — 극성 반전: 밝은 면 위 잉크 점.
-       hue 233 으로 크롬(.slab)과 같은 계열에 맞춘다. lightness 는 그대로 둬서
+       hue 240 으로 크롬(.slab)과 같은 계열에 맞춘다. lightness 는 그대로 둬서
        지각 강도(다크의 0.05 white 와 맞춘 값)는 건드리지 않는다. */
-    --halftone-dot:           233 20% 35% / 0.06;
+    --halftone-dot:           240 20% 35% / 0.06;
 
     /* 차트 — 채도를 32~45% 로 낮춰 정보 레이어가 튀지 않게 */
     --chart-1:                214 45% 48%;
@@ -180,13 +182,13 @@
     --header-bg:              0 0% 100%;      /* 흰 톱바 — page 위에 얹힌 표면 */
 
     /* Sidebar — 크롬(사이드바/탑바 = .slab) 배경. 여기만 바꾸면 둘 다 바뀐다.
-       캔버스(98%)가 흰 카드와 거의 붙어버리므로, 다크와 같은 극성으로
-       크롬을 한 단계 낮춰 L자 섀시가 콘텐츠 면과 분리되게 한다. */
-    --sidebar-bg:             233 15% 93%;    /* #eaebf0 연한 페리윙클 */
-    --sidebar-fg:             226 20% 18%;    /* 10.3:1 */
-    --sidebar-fg-muted:       226 18% 38%;    /* 5.2:1 */
-    --sidebar-border:         233 15% 78%;    /* 크롬 면과 같은 hue — 경계선만 색이 튀는 걸 방지 */
-    --sidebar-hover:          233 20% 87%;    /* 크롬 면 위에서 한 단계 진하게 */
+       캔버스보다 한 단계 낮춰 L자 섀시가 콘텐츠 면과 분리되게 한다.
+       캔버스·경계선과 같은 hue 240 계열 — 크롬만 색이 튀지 않는다. */
+    --sidebar-bg:             240 12% 92%;    /* #e8e8ed — apple */
+    --sidebar-fg:             240 3% 12%;     /* 14.8:1 */
+    --sidebar-fg-muted:       240 4% 40%;     /* #62626a (5.3:1) */
+    --sidebar-border:         240 6% 83%;     /* #d1d1d6 — = --border, apple 디바이더 단일색 */
+    --sidebar-hover:          240 9% 88%;     /* #dedee3 — 크롬 면 위에서 한 단계 진하게 */
     --sidebar-active-bg:      48 70% 88%;     /* 옅은 gold 틴트 */
     --sidebar-active-fg:      40 85% 22%;     /* 진한 gold-브라운 (7.1:1) — 노랑 면 위 노랑 글씨라
                                                  색상 대비가 0 이므로 명도로만 벌린다 */
