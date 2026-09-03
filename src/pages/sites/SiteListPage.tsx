@@ -261,7 +261,8 @@ export function SiteListPage() {
               value={siteFilter}
               onValueChange={(value) => setSiteFilter(value as SiteFilter)}
             >
-              <TabsBar className="pl-3 pr-3">
+              {/* 우측 상세 패널의 타이틀 밴드와 같은 무채색 띠 */}
+              <TabsBar className="pl-3 pr-3 bg-muted">
                 {/* 표준 / 커스텀 필터 탭 */}
                 <TabsList variant="line" className="w-auto h-auto">
                   <TabsTrigger variant="line" value="standard" className="group px-3 py-4">

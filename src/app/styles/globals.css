@@ -25,8 +25,9 @@
        콘텐츠 안의 구분은 면이 아니라 --border 베벨선과 --muted 채움이 진다. */
     --background:             225 27% 12%;    /* #161a26 — 콘텐츠 면 */
     --foreground:             0 0% 100%;
-    --card:                   225 27% 12%;    /* = --background. 아이템 카드는 면이 아니라
-                                                 테두리로만 구분된다 */
+    /* 라이트와 같은 사다리, 극성만 반전 — 다크에서 카드는 콘텐츠 면보다 밝다(떠오른다).
+       콘텐츠 #161a26 → card #212636 → muted 띠 #2f3646 → border #39415e */
+    --card:                   224 24% 17%;    /* #212636 */
     --card-foreground:        0 0% 100%;
     --popover:                225 27% 12%;
     --popover-foreground:     0 0% 100%;
@@ -39,7 +40,7 @@
     --secondary:              224 24% 15%;    /* #1e2330 */
     --secondary-foreground:   0 0% 100%;
 
-    --muted:                  221 20% 18%;    /* #252b38 */
+    --muted:                  221 20% 23%;    /* #2f3646 헤더 띠 / list-row / inset surface */
     --muted-foreground:       227 31% 76%;    /* #aeb6d4 */
 
     --accent:                 31 60% 18%;     /* signal 딥 틴트 */
@@ -54,10 +55,12 @@
     --destructive-text:       355 93% 68%;
 
     --border:                 227 25% 30%;    /* #39415e — 표면보다 밝은 베벨선 */
-    --input:                  227 20% 48%;    /* #626d93 — input/select/combobox/outline 버튼은
+    --input:                  227 20% 52%;    /* #6c779d — input/select/combobox/outline 버튼은
                                                  인터랙티브 컨트롤이라 WCAG 1.4.11(3:1)이 적용된다.
                                                  --border 와 같은 값이면 콘텐츠 면 위 1.75:1 로 미달.
-                                                 콘텐츠 면 대비 3.4:1 (라이트의 #87878c 와 같은 역할) */
+                                                 판정 기준은 컨트롤 안쪽 면과 바깥 면 양쪽이다 —
+                                                 입력면 3.9:1 / 카드면 3.4:1
+                                                 (라이트의 #87878c 와 같은 역할) */
     /* 포커스 링은 primary 계열로 둔다 — 포커스 = "액션이 여기 떨어진다".
        버튼은 ring-offset-background, 입력은 ring-inset 이라 링은 채움 위가 아니라
        콘텐츠 면 위에 그려진다. 그래서 면 대비만 맞추면 된다 (gold 11.5:1). */
@@ -131,8 +134,10 @@
         세 영역이 서로 싸워 게이밍 느낌을 만들었다.) */
     --background:             0 0% 100%;      /* white — 콘텐츠 면. 회색은 크롬에만 */
     --foreground:             240 3% 12%;     /* #1e1e20 — apple #1d1d1f, 순수 검정 회피 */
-    --card:                   0 0% 100%;      /* = --background. 아이템 카드는 면이 아니라
-                                                 테두리로만 구분된다 */
+    /* 카드는 콘텐츠 면에서 한 단계 내린 옅은 회색이다. 콘텐츠가 흰색이라 카드를 더
+       밝게 할 수는 없으므로, 카드가 면을 갖는 방향은 아래쪽뿐이다.
+       사다리: 콘텐츠 #ffffff → card #f6f6f9 → muted 띠 #ebebef → border #d1d1d6 */
+    --card:                   240 20% 97%;    /* #f6f6f9 */
     --card-foreground:        240 3% 12%;
     --popover:                0 0% 100%;
     --popover-foreground:     240 3% 12%;
@@ -149,11 +154,11 @@
     --secondary:              240 10% 91%;    /* #e6e6ea inset panel */
     --secondary-foreground:   240 3% 12%;
 
-    --muted:                  240 11% 94%;    /* #eeeef1 list-row / inset surface */
-    --muted-foreground:       240 2% 42%;     /* #69696d — apple #6e6e73 계열, 채도 2%
-                                                 (흰 면 5.5:1 / 캔버스 5.0:1 / muted 행 4.7:1)
-                                                 apple 원값(44%)은 우리 muted 행에서 4.4:1 로
-                                                 AA 미달이라 명도만 2 낮춘다 */
+    --muted:                  240 13% 93%;    /* #ebebef 헤더 띠 / list-row / inset surface */
+    --muted-foreground:       240 2% 40%;     /* #646468 — apple #6e6e73 계열, 채도 2%.
+                                                 명도는 apple 원값(44%)보다 낮다 — 우리 muted 띠가
+                                                 apple 의 #f5f5f7 보다 어두워 원값이면 AA 미달이다.
+                                                 흰 면 5.9:1 / card 5.5:1 / muted 띠 4.95:1 */
 
     --accent:                 240 10% 92%;    /* #e9e9ed */
     --accent-foreground:      240 3% 28%;     /* #45454a (accent 면 7.9:1) */
