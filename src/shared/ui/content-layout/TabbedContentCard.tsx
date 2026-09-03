@@ -74,8 +74,8 @@ const DEFAULT_CONTENT_CLASS = 'px-4 py-4'
 /** plain 표면의 탭 컨텐츠 여백 — 밴드가 좌우를 책임지므로 위쪽만 준다 */
 const PLAIN_CONTENT_CLASS = 'px-4 pt-3'
 
-/** plain 표면의 데이터 밴드 — 사유는 ContentCard 쪽 주석 참고 */
-const PLAIN_BAND = '-mx-4 bg-card'
+/** plain 표면의 전폭 처리 — 바탕색을 주지 않는다. 사유는 ContentCard 쪽 주석 참고 */
+const PLAIN_BLEED = '-mx-4'
 
 export function TabbedContentCard({
   value,
@@ -129,7 +129,7 @@ export function TabbedContentCard({
           {isPlain ? (
             <div
               className={cn(
-                PLAIN_BAND,
+                PLAIN_BLEED,
                 fullHeight && 'flex-1 min-h-0 overflow-auto',
               )}
             >

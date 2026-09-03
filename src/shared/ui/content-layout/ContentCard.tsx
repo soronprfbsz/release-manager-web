@@ -18,21 +18,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { CONTENT_SPACING, DEFAULT_CONTENT_SURFACE, type ContentSurface } from './constants'
 
 /**
- * plain 표면의 데이터 밴드.
+ * plain 표면의 전폭 처리.
  *
- * apple.com 은 테이블에 줄무늬를 쓰지 않는다 — 흰 면 위에 헤어라인 구분선만 두고,
- * 색 교대는 행이 아니라 페이지를 가로지르는 전폭 밴드(#ffffff ↔ #f5f5f7)로 처리한다.
- * 그래서 카드 박스(테두리·라운드·베벨)만 걷어내고 흰 면 자체는 남긴다.
+ * <b>바탕색을 주지 않는다.</b> 페이지 제목·탭과 테이블이 한 면 위에 놓여야 한다 —
+ * 테이블에만 흰 면을 덧대면 탭 아래에서 회색이 흰색으로 끊기며 이음매가 생긴다.
  *
- * `-mx-4` 는 PageLayout 콘텐츠 여백(px-4)을 상쇄해 밴드를 좌우 끝까지 뻗게 한다.
- * 안쪽 `px-4` 가 그 여백을 되돌려 주므로 텍스트는 가장자리에 붙지 않는다.
- * 밴드에 테두리를 두지 않는 것이 핵심이다 — 갇힌 느낌은 테두리에서 온다.
+ * apple.com 은 테이블에 줄무늬를 쓰지 않고 헤어라인 구분선 하나만 쓴다. 줄무늬가
+ * 없으면 행은 페이지 면 위에서도 충분히 읽히므로 별도 바탕이 필요 없다.
+ * `TableHeader` 도 `bg-background`(= 페이지 면) 그대로 둔다. 채움 없이 라벨과
+ * 아래 헤어라인만 남는 것이 애플의 테이블 헤더 처리와 같다.
+ * (sticky 헤더는 유지된다 — 불투명색이라 스크롤된 행을 그대로 가린다.)
  *
- * `TableHeader` 의 `bg-background` 는 그대로 둔다. 캔버스와 같은 색이라 헤더가
- * 페이지에 얹힌 라벨 줄로 읽히고, 그 아래 border-b 부터 흰 밴드가 시작된다.
+ * `-mx-4` 는 PageLayout 콘텐츠 여백(px-4)을 상쇄해 테이블을 좌우 끝까지 뻗게 하고,
+ * 안쪽 `px-4` 가 그 여백을 되돌려 텍스트가 가장자리에 붙지 않게 한다.
  */
-const PLAIN_BAND = '-mx-4 bg-card'
-const PLAIN_BAND_INNER = 'px-4'
+const PLAIN_BLEED = '-mx-4'
+const PLAIN_BLEED_INNER = 'px-4'
 
 interface ContentCardProps {
   /** 카드 제목 (선택) */
@@ -112,11 +113,11 @@ export function ContentCard({
         )}
         <div
           className={cn(
-            PLAIN_BAND,
+            PLAIN_BLEED,
             fullHeight && 'flex-1 min-h-0 overflow-auto',
           )}
         >
-          <div className={cn(PLAIN_BAND_INNER, contentClassName)}>{children}</div>
+          <div className={cn(PLAIN_BLEED_INNER, contentClassName)}>{children}</div>
         </div>
       </div>
     )

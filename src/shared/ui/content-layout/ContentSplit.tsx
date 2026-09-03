@@ -4,6 +4,12 @@
  * - 버전관리, 사이트, 부서 관리 등 트리+상세 구조용
  * - treeWidth prop 으로 좌측 패널 너비 조정 (기본 40%)
  *
+ *  ⟡ 표면 정책 — 두 패널은 카드 박스가 아니라 콘텐츠 면 위에 그대로 놓이고,
+ *    사이 경계는 세로 헤어라인 하나가 진다. 분할은 장식이 아니라 구조라서 경계는
+ *    남기되(각 패널이 독립 스크롤이라 어디서 끝나는지 알 수 없으면 곤란하다) 상자로
+ *    감싸지는 않는다. 트리 패널에 별도 바탕색을 주지 않는 것이 중요하다 — 바로 왼쪽에
+ *    회색 사이드바 크롬이 붙어 있어 두 회색 기둥이 뭉개진다.
+ *
  *  ⟡ Viewport-bound 정책 — 트리+상세 페이지는 두 패널이 항상 동일 높이.
  *    각 패널은 자체 내부 ScrollArea 로 콘텐츠 오버플로우 처리.
  *    부모(PageLayout fullHeight) 가 잔여 viewport 높이 공급 → 양쪽 패널이 그 안에서
@@ -13,10 +19,8 @@
 import * as React from 'react'
 
 import { cn } from '@/shared/lib/utils'
-import { Card } from '@/shared/ui/card'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 
-import { CONTENT_SPACING } from './constants'
 
 // ============================================================================
 // ContentSplit (Root Container)
@@ -34,7 +38,8 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
     <div
       className={cn(
         'grid grid-cols-1 lg:grid-cols-[var(--tree-width)_1fr]',
-        CONTENT_SPACING.SPLIT_GAP,
+        // 패널 사이는 여백이 아니라 세로 헤어라인 하나로 가른다
+        'lg:divide-x lg:divide-border',
         'h-full min-h-0',
         className
       )}
@@ -73,7 +78,7 @@ function ContentSplitTree({
   className,
 }: ContentSplitTreeProps) {
   return (
-    <Card className={cn('flex flex-col overflow-hidden', className)}>
+    <div className={cn('flex flex-col overflow-hidden lg:pr-4', className)}>
       {rawHeader ? (
         <div className="flex-none">{header}</div>
       ) : (
@@ -93,7 +98,7 @@ function ContentSplitTree({
           </div>
         </ScrollArea>
       </div>
-    </Card>
+    </div>
   )
 }
 
@@ -122,7 +127,7 @@ function ContentSplitDetail({
   emptyMessage = '항목을 선택해주세요.',
 }: ContentSplitDetailProps) {
   return (
-    <Card className={cn('flex flex-col overflow-hidden', className)}>
+    <div className={cn('flex flex-col overflow-hidden lg:pl-5', className)}>
       {header && (
         <div className="px-5 py-3 flex-none flex items-center justify-between min-h-[56px] border-b border-border">
           {header}
@@ -141,7 +146,7 @@ function ContentSplitDetail({
           </ScrollArea>
         )}
       </div>
-    </Card>
+    </div>
   )
 }
 

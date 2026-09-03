@@ -34,9 +34,6 @@ export const CONTENT_SPACING = {
   // plain 표면의 헤더 패딩 — 좌우 패딩이 없어 컨텐츠와 왼쪽 정렬이 맞는다
   HEADER_PADDING_PLAIN: 'pt-1 pb-3',
 
-  // Split 레이아웃 — 좌/우 pane 사이 수평 간격
-  SPLIT_GAP: 'gap-6',
-
   /* ---- 상세 패널 (사이트 상세 / 버전 상세 등) ----
      같은 구조를 화면마다 복붙하던 값들. 여기로 모아 한 번에 제어한다. */
   // 패널 루트 상단 여백
