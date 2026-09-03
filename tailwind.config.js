@@ -103,6 +103,13 @@ export default {
           DEFAULT: 'hsl(var(--primary-text))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        // text-destructive 도 같은 이유로 분리한다 — 채움으로 쓰기 좋은 진한 red 는
+        // 텍스트로 쓰면 어두운 면 위에서 AA 를 못 넘긴다. bg-destructive /
+        // border-destructive 는 --destructive 를 그대로 쓴다.
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive-text))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
       },
     },
   },

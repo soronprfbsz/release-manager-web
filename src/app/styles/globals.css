@@ -45,8 +45,13 @@
     --accent:                 31 60% 18%;     /* signal 딥 틴트 */
     --accent-foreground:      31 92% 54%;     /* signal #f68d1f — 불변 */
 
-    --destructive:            355 100% 45%;   /* error #e60012 — 불변 */
+    --destructive:            355 100% 45%;   /* error #e60012 — 채움 전용, 불변 */
     --destructive-foreground: 0 0% 100%;      /* red 위에는 white (4.77:1) */
+    /* text-destructive 전용 — --primary / --primary-text 와 같은 이유의 분리다.
+       #e60012 는 다크 콘텐츠 면(#161a26) 위 3.61:1 로 AA 미달이고, 콘텐츠 면을
+       밝히면서 더 나빠졌다. 채움(bg-destructive)은 브랜드 값 그대로 두고 텍스트만 뺀다.
+       #f9626e — 콘텐츠 면 5.78:1 / muted 행(#252b38) 4.73:1 */
+    --destructive-text:       355 93% 68%;
 
     --border:                 227 25% 30%;    /* #39415e — 표면보다 밝은 베벨선 */
     --input:                  227 20% 48%;    /* #626d93 — input/select/combobox/outline 버튼은
@@ -150,8 +155,11 @@
     --accent:                 240 10% 92%;    /* #e9e9ed */
     --accent-foreground:      240 3% 28%;     /* #45454a (accent 면 7.9:1) */
 
-    --destructive:            355 72% 48%;    /* 채도 하향 */
+    --destructive:            355 72% 48%;    /* 채도 하향 — 채움 전용 */
     --destructive-foreground: 0 0% 100%;
+    /* 라이트도 채움값(#d32231)은 muted 행 위 4.49:1 로 아슬아슬해 함께 분리한다.
+       #c5202e — 흰 면 5.80:1 / muted 행(#eeeef1) 5.01:1 */
+    --destructive-text:       355 72% 45%;
 
     --border:                 240 6% 83%;     /* #d1d1d6 — apple #d2d2d7 디바이더 */
     --input:                  240 2% 54%;     /* #87878c — apple 램프의 #86868b.
