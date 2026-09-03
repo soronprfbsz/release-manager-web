@@ -10,9 +10,9 @@
  *    (세로 구분선 하나로 가르는 안을 먼저 시도했으나, 선이 스크롤 구간에서 끊겨
  *     경계가 흐려졌다 — 카드로 감싸면 이 문제가 구조적으로 사라진다.)
  *
- *  ⟡ 타이틀 밴드 — 각 패널 머리의 제목 줄에는 --primary 를 옅게 깐다(bg-primary/10).
- *    gold 는 양 테마 불변이라 라이트/다크 어느 쪽에서도 같은 포인트로 읽히고,
- *    채움이 아니라 10% 틴트라 제목 텍스트 대비를 해치지 않는다.
+ *  ⟡ 타이틀 밴드 — 무채색(--muted)이다. TableHeader 와 같은 토큰이라 "헤더 스트립"의
+ *    규칙이 앱 전체에서 하나로 통일된다. primary 틴트를 얹어 봤으나 브랜드 색이
+ *    구조 요소에까지 번져 화면이 산만해졌다.
  *
  *  ⟡ Viewport-bound 정책 — 트리+상세 페이지는 두 패널이 항상 동일 높이.
  *    각 패널은 자체 내부 ScrollArea 로 콘텐츠 오버플로우 처리.
@@ -62,7 +62,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
  */
 const PANEL_HEADER =
   'flex-none flex items-center justify-between gap-2 px-4 min-h-[44px] py-2 ' +
-  'border-b border-border bg-primary/20'
+  'border-b border-border bg-muted'
 
 // ============================================================================
 // ContentSplit.Tree (Left Panel)
