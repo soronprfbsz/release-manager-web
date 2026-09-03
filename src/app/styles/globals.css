@@ -58,7 +58,10 @@
                                                  인터랙티브 컨트롤이라 WCAG 1.4.11(3:1)이 적용된다.
                                                  --border 와 같은 값이면 콘텐츠 면 위 1.75:1 로 미달.
                                                  콘텐츠 면 대비 3.4:1 (라이트의 #87878c 와 같은 역할) */
-    --ring:                   31 92% 54%;     /* signal — 포커스 = "액션이 여기 떨어진다" */
+    /* 포커스 링은 primary 계열로 둔다 — 포커스 = "액션이 여기 떨어진다".
+       버튼은 ring-offset-background, 입력은 ring-inset 이라 링은 채움 위가 아니라
+       콘텐츠 면 위에 그려진다. 그래서 면 대비만 맞추면 된다 (gold 11.5:1). */
+    --ring:                   var(--primary);
 
     --radius:                 0.5rem;         /* 8px → lg 8 / md 6 / sm 4 */
 
@@ -134,14 +137,14 @@
     --popover:                0 0% 100%;
     --popover-foreground:     240 3% 12%;
 
-    --primary:                48 100% 50%;    /* gold #ffcc00 — 다크와 동일 (양 테마 불변) */
-    --primary-foreground:     240 3% 12%;     /* = --foreground (apple ink). 이 값만 쿨 슬레이트로
-                                                 남아 있어 gold 버튼 글자만 푸르게 떴다 */
-    /* text-primary 전용 — #ffcc00 은 상대휘도 0.64 라 흰 면 위에서조차 최대 1.51:1 로
-       어떤 튜닝으로도 AA 를 넘길 수 없다. 노랑은 채움색이지 텍스트색이 아니다.
-       채움(--primary)은 그대로 두고 텍스트만 진한 골드로 분리한다.
-       #8a6000 — 흰 카드 5.59:1 / bg-primary/10 5.35:1 / bg-muted 4.61:1 */
-    --primary-text:           42 100% 27%;
+    /* 라이트 primary 는 민트 — 로고의 청록 그라디언트(hsl 170/173)와 같은 계열이다.
+       다크는 gold 를 그대로 쓰므로 두 테마의 primary 는 더 이상 같지 않다. */
+    --primary:                167 69% 79%;    /* #a4eede 민트 */
+    --primary-foreground:     240 3% 12%;     /* ink — 민트 채움 위 12.7:1 */
+    /* text-primary 전용 — 채움으로 쓰기 좋은 밝은 민트는 텍스트로 쓰면 흰 면 위에서
+       AA 를 못 넘긴다. 채움(--primary)은 그대로 두고 텍스트만 진한 청록으로 분리한다.
+       #0d7362 — 흰 면 5.76:1 */
+    --primary-text:           170 80% 25%;
 
     --secondary:              240 10% 91%;    /* #e6e6ea inset panel */
     --secondary-foreground:   240 3% 12%;
@@ -167,7 +170,9 @@
                                                  인터랙티브 컨트롤이라 WCAG 1.4.11(3:1)이 적용된다.
                                                  흰 카드 3.6:1 / 캔버스 3.3:1 — 이 기준을 넘는
                                                  가장 밝은 중성값이다 */
-    --ring:                   31 85% 52%;     /* signal */
+    /* 민트 primary 의 진한 쪽 — 밝은 민트 자체는 흰 면 위 링으로 쓰면 안 보인다.
+       #169c86 — 흰 면 3.42:1 (WCAG 1.4.11 포커스 표시 3:1 충족) */
+    --ring:                   170 75% 35%;
 
     /* 크롬 레이어 베벨 하이라이트 */
     --plate-highlight:        0 0% 100% / 0.7;
@@ -208,18 +213,18 @@
     --header-bg:              240 11% 96%;    /* #f4f4f6 — 콘텐츠 면 위 옅은 칩 배경 */
 
     /* Sidebar — 크롬(사이드바/탑바 = .slab) 배경. 여기만 바꾸면 둘 다 바뀐다.
-       캔버스보다 한 단계 낮춰 L자 섀시가 콘텐츠 면과 분리되게 한다.
-       캔버스·경계선과 같은 hue 240 계열 — 크롬만 색이 튀지 않는다. */
-    --sidebar-bg:             240 12% 92%;    /* #e8e8ed — apple */
+       primary(민트)의 아주 옅은 틴트 — 채움이 아니라 흰 면에 primary 10% 를 얹은 정도다.
+       면 자체는 거의 흰색이라 L자 섀시는 --sidebar-border 헤어라인이 진다. */
+    --sidebar-bg:             167 60% 98%;    /* #f7fdfc — primary/10 수준 */
     --sidebar-fg:             240 3% 12%;     /* 크롬 면 13.6:1 */
     --sidebar-fg-muted:       240 2% 40%;     /* #646468 — 채도 2%, 크롬 면 4.8:1.
                                                  크롬이 캔버스보다 어두워 muted-foreground 보다 2 낮춘다 */
     --sidebar-border:         240 6% 83%;     /* #d1d1d6 — = --border, apple 디바이더 단일색 */
-    --sidebar-hover:          240 9% 88%;     /* #dedee3 — 크롬 면 위에서 한 단계 진하게 */
-    --sidebar-active-bg:      48 70% 88%;     /* 옅은 gold 틴트 */
-    --sidebar-active-fg:      40 85% 22%;     /* 진한 gold-브라운 (7.1:1) — 노랑 면 위 노랑 글씨라
-                                                 색상 대비가 0 이므로 명도로만 벌린다 */
-    --sidebar-active-border:  31 85% 52% / 0.35;
+    --sidebar-hover:          167 45% 94%;    /* #e9f8f4 — 크롬 면 위에서 한 단계 진하게 */
+    --sidebar-active-bg:      167 60% 90%;    /* #d6f5ee 옅은 민트 틴트 */
+    --sidebar-active-fg:      170 80% 22%;    /* #0b6556 진한 청록 (6.0:1) — 민트 면 위
+                                                 민트 글씨라 명도로만 벌린다 */
+    --sidebar-active-border:  170 70% 40% / 0.45;
   }
 }
 

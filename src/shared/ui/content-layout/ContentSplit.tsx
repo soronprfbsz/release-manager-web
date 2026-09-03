@@ -62,7 +62,7 @@ function ContentSplitRoot({ children, className, treeWidth = 40 }: ContentSplitP
  */
 const PANEL_HEADER =
   'flex-none flex items-center justify-between gap-2 px-4 min-h-[44px] py-2 ' +
-  'border-b border-border bg-primary/10'
+  'border-b border-border bg-primary/20'
 
 // ============================================================================
 // ContentSplit.Tree (Left Panel)
@@ -77,6 +77,8 @@ interface ContentSplitTreeProps {
   header?: React.ReactNode
   /** header 를 밴드 스타일(패딩·하단 보더) 없이 그대로 렌더 — 헤더가 자체 보더를 가질 때 사용 */
   rawHeader?: boolean
+  /** 헤더 밴드 className 추가 — 짝 패널이 커스텀 헤더라 높이를 맞춰야 할 때 사용 */
+  headerClassName?: string
   /** 자식 요소 */
   children: React.ReactNode
   /** 추가 className */
@@ -88,6 +90,7 @@ function ContentSplitTree({
   actions,
   header,
   rawHeader = false,
+  headerClassName,
   children,
   className,
 }: ContentSplitTreeProps) {
@@ -96,7 +99,7 @@ function ContentSplitTree({
       {rawHeader ? (
         <div className="flex-none">{header}</div>
       ) : (
-        <div className={PANEL_HEADER}>
+        <div className={cn(PANEL_HEADER, headerClassName)}>
           {header || (
             <>
               <h3 className="text-sm font-semibold">{title}</h3>
@@ -127,6 +130,8 @@ interface ContentSplitDetailProps {
   actions?: React.ReactNode
   /** 헤더 영역 커스텀 컨텐츠 (title/actions 대신 사용) */
   header?: React.ReactNode
+  /** 헤더 밴드 className 추가 — 짝 패널이 커스텀 헤더라 높이를 맞춰야 할 때 사용 */
+  headerClassName?: string
   /** 자식 요소 */
   children?: React.ReactNode
   /** 추가 className */
@@ -141,6 +146,7 @@ function ContentSplitDetail({
   title,
   actions,
   header,
+  headerClassName,
   children,
   className,
   isEmpty = false,
@@ -151,7 +157,7 @@ function ContentSplitDetail({
   return (
     <Card className={cn('flex flex-col overflow-hidden', className)}>
       {hasHeader && (
-        <div className={PANEL_HEADER}>
+        <div className={cn(PANEL_HEADER, headerClassName)}>
           {header || (
             <>
               <h3 className="text-sm font-semibold">{title}</h3>

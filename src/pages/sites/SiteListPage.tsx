@@ -317,6 +317,15 @@ export function SiteListPage() {
 
         {/* Right Panel - Site Detail (헤더는 패널 내부에서 Hero+Meta Rail 형태로) */}
         <ContentSplit.Detail
+          title="사이트 상세"
+          actions={
+            selectedSite ? (
+              <span className="text-xs text-muted-foreground">{selectedSite.siteCode}</span>
+            ) : undefined
+          }
+          /* 좌측 트리는 rawHeader 로 탭바(py-4 + h-5 배지 = 52px + border)를 직접 그린다.
+             밴드 기본 높이(44px)로는 두 패널의 어깨가 어긋나므로 그 높이에 맞춘다. */
+          headerClassName="min-h-[53px]"
           isEmpty={!selectedSite}
           emptyMessage="사이트를 선택해주세요."
         >
