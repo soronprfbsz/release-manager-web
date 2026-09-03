@@ -28,9 +28,9 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cn(
-      // 헤더 띠는 --muted. 예전엔 bg-background 였는데 콘텐츠 면이 단색이 되면서
-      // 같은 색이 되어 띠가 사라졌다. sticky 라 반드시 불투명색이어야 한다.
-      "[&_tr]:border-0 sticky top-0 z-10 bg-muted [&_tr]:border-b [&_tr]:border-border",
+      // 헤더 띠는 --table-header (primary 계열). sticky 라 반드시 불투명색이어야
+      // 한다 — bg-primary/xx 같은 알파 틴트를 쓰면 스크롤된 행이 헤더 뒤로 비친다.
+      "[&_tr]:border-0 sticky top-0 z-10 bg-table-header [&_tr]:border-b [&_tr]:border-border",
       className
     )}
     {...props}

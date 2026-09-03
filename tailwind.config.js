@@ -74,8 +74,10 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        // 카드·패널 제목 띠 전용 — 테이블 헤더(--muted)와 요구가 달라 분리
+        // 카드·패널 제목 띠 / 테이블 헤더 띠 — 요구가 달라 각자 토큰을 쓴다.
+        // 둘 다 불투명색이어야 한다 (테이블 헤더는 sticky).
         'panel-header': 'hsl(var(--panel-header))',
+        'table-header': 'hsl(var(--table-header))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
