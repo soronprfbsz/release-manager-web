@@ -13,9 +13,9 @@ const Table = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <table
     ref={ref}
-    // 테이블은 자기 면을 갖는다 — bg-card(= 크롬과 같은 값). 헤더 띠(bg-muted)가
-    // 이 면 위에서 한 단계 진하게 읽힌다. 카드 안에 놓이면 같은 색이라 겹쳐 보이지 않는다.
-    className={cn("w-full caption-bottom text-sm bg-card", className)}
+    // 테이블은 자기 면을 갖지 않는다 — 콘텐츠 면(--background) 위에 바로 놓인다.
+    // 면을 나누는 건 헤더 띠(bg-table-header)와 --border 헤어라인이 진다.
+    className={cn("w-full caption-bottom text-sm", className)}
     {...props}
   />
 ))
@@ -28,8 +28,8 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cn(
-      // 헤더 띠는 --table-header (primary 계열). sticky 라 반드시 불투명색이어야
-      // 한다 — bg-primary/xx 같은 알파 틴트를 쓰면 스크롤된 행이 헤더 뒤로 비친다.
+      // 헤더 띠는 --table-header (= 크롬 --sidebar-bg 와 같은 값). sticky 라 반드시
+      // 불투명색이어야 한다 — 알파 틴트를 쓰면 스크롤된 행이 헤더 뒤로 비친다.
       "[&_tr]:border-0 sticky top-0 z-10 bg-table-header [&_tr]:border-b [&_tr]:border-border",
       className
     )}
