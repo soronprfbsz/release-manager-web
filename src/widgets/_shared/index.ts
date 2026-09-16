@@ -14,3 +14,6 @@ export { ThemeToggle } from './theme-toggle'
 
 // Notification Bell
 export { NotificationBell } from './notification-bell'
+
+// Notification Ticker
+export { NotificationTicker } from './notification-ticker'

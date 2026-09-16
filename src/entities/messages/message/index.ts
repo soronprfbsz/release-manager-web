@@ -28,6 +28,7 @@ export {
   useOutbox,
   useMessageDetail,
   useUnreadCount,
+  useUnreadMessages,
   useSendMessage,
   useMarkMessageAsRead,
   useDeleteFromInbox,

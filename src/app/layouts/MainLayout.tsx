@@ -3,6 +3,7 @@ import { ReactNode } from 'react'
 import { NotificationProvider } from '@/app/providers/NotificationProvider'
 
 import { NotificationBell } from '@/widgets/_shared/notification-bell'
+import { NotificationTicker } from '@/widgets/_shared/notification-ticker'
 import { ProjectSelector } from '@/widgets/_shared/project-selector'
 import { Sidebar, SidebarTrigger } from '@/widgets/_shared/sidebar'
 import { useSidebarShortcut } from '@/widgets/_shared/sidebar/ui/useSidebarShortcut'
@@ -19,7 +20,9 @@ interface MainLayoutProps {
  *  ┌────────────┬──────────────────────────────────────┐
  *  │  Sidebar   │  Topbar  [trigger][breadcrumb] […]   │
  *  │ (or Sheet) ├──────────────────────────────────────┤
- *  │  on mobile │  <main> flex-1 min-h-0 overflow-auto │
+ *  │  on mobile │  Ticker  안읽은 메시지 (0건이면 h-0)  │
+ *  │            ├──────────────────────────────────────┤
+ *  │            │  <main> flex-1 min-h-0 overflow-auto │
  *  └────────────┴──────────────────────────────────────┘
  *
  *  ⟡ Flex chain: html/body/#root → h-full / AppShell → h-screen flex /
@@ -47,6 +50,8 @@ export function MainLayout({ children }: MainLayoutProps) {
           <NotificationBell />
           <ThemeToggle />
         </header>
+        {/* 안읽은 메시지 티커 — 안읽음이 0 이면 높이 0 으로 접혀 자리를 차지하지 않는다 */}
+        <NotificationTicker />
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {children}
         </main>

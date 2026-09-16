@@ -22,6 +22,9 @@ import type {
  */
 const UNREAD_COUNT_POLL_INTERVAL = 5 * 60 * 1000
 
+/** 알림 티커가 물고 있을 안읽은 메시지 수 — 회전 대상 */
+const TICKER_SIZE = 5
+
 // Query Keys Factory
 export const messageKeys = {
   all: ['messages'] as const,
@@ -47,6 +50,24 @@ export const useInbox = (params?: InboxParams, options?: { enabled?: boolean }) 
     queryFn: () => messageApi.getInbox(params),
     enabled: options?.enabled ?? true,
   })
+
+/**
+ * 티커가 회전시킬 안읽은 메시지 (최근 TICKER_SIZE 건)
+ *
+ * 벨 드롭다운(useInbox)과 달리 화면에 상시 떠 있으므로 항상 활성이다.
+ * 실시간 갱신은 WebSocket 수신 시의 invalidate 가 담당하고, 이 폴링은
+ * 배지(useUnreadCount)와 같은 주기로 두어 둘이 따로 노는 구간을 없앤다.
+ */
+export const useUnreadMessages = () => {
+  const params: InboxParams = { page: 0, size: TICKER_SIZE, unreadOnly: true }
+
+  return useQuery({
+    queryKey: messageKeys.inbox(params),
+    queryFn: () => messageApi.getInbox(params),
+    refetchInterval: UNREAD_COUNT_POLL_INTERVAL,
+    refetchOnWindowFocus: true,
+  })
+}
 
 /** 발신함 조회 */
 export const useOutbox = (params?: OutboxParams) =>
