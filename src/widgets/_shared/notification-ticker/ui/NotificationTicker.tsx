@@ -84,8 +84,14 @@ export function NotificationTicker() {
             aria-label="안읽은 메시지 알림"
             className={cn(
               BAND_HEIGHT,
-              'flex items-center gap-2 border-b border-primary/30 border-l-[3px] border-l-primary',
-              'bg-primary/10 pl-3 pr-2 text-sm'
+              'flex items-center gap-2 border-b px-4 text-sm',
+              // 라이트 — 골드로 면을 채우고 글자는 ink. 라이트의 --primary 는 연한 웜
+              // 골드(#f0dc89)라 틴트로 깔면 흰 캔버스와 구분되지 않는다. 채움 위 ink 는
+              // 12.1:1 (globals.css --primary-foreground 주석의 검증값).
+              'border-primary/60 bg-primary text-primary-foreground',
+              // 다크 — #ffcc00 을 채우면 형광 띠가 되어 과하다. 어두운 면이라
+              // 틴트만으로도 충분히 떠오른다.
+              'dark:border-primary/30 dark:bg-primary/10 dark:text-foreground'
             )}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -114,15 +120,21 @@ export function NotificationTicker() {
                   ? '시스템'
                   : `${current.senderName}님의 새 메시지`}
               </span>
-              <span className="mx-1.5 text-muted-foreground">·</span>
-              <span className="text-muted-foreground">{current.title}</span>
+              {/* 제목은 한 단계 흐리게 — 라이트는 골드 면 위라 muted-foreground(회색)를
+                  쓰면 대비가 무너지므로 ink 의 투명도로 낮춘다 */}
+              <span className="mx-1.5 opacity-60">·</span>
+              <span className="text-primary-foreground/75 dark:text-muted-foreground">
+                {current.title}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => navigate(ROUTES.SUPPORT.SHARING.MESSAGES)}
+              // 색은 밴드에서 상속받는다 — 라이트/다크 글자색이 이미 갈려 있다.
+              // hover 도 마찬가지로, 골드 면 위에서는 골드 틴트가 보이지 않는다.
               className="flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-xs
-                         font-medium text-foreground hover:bg-primary/20"
+                         font-medium hover:bg-black/10 dark:hover:bg-primary/20"
             >
               안읽음 {unreadCount}건
               <ChevronRight className="h-3 w-3" />
