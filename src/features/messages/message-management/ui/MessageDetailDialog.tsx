@@ -78,8 +78,13 @@ export function MessageDetailDialog({
    * 사람이 읽었는지까지 보이는 것은 프라이버시 노출이고, 그렇게 동작하는
    * 메일/메신저도 없다. 서버도 같은 기준으로 readAt 을 내리지 않으므로
    * (MessageDtoMapper.toRecipientInfoList) 여기서는 화면만 맞춘다.
+   *
+   * USER 조건이 붙는 이유 — 시스템 알림은 시스템 계정(admin) 명의로 나간다.
+   * 그 계정으로 로그인하면 발신자 비교만으로는 '내가 보낸 메시지'가 되어
+   * 다른 수신자의 열람 여부까지 보였다. 그 사람도 알림을 받은 수신자일 뿐이다.
    */
-  const isMyMessage = !!message && message.senderAccountId === myAccountId
+  const isMyMessage =
+    !!message && message.messageType === 'USER' && message.senderAccountId === myAccountId
 
   // 안읽은 사람이 발신자가 확인하려는 대상이라 먼저 보여준다
   const unreadRecipients = message?.recipients.filter((r) => r.readAt === null) ?? []
