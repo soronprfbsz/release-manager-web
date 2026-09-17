@@ -500,17 +500,20 @@ export function PatchesPage() {
       }
     >
       {/* 운영 관리 안내 배너 — 생성된 패치 파일 처리 가이드 */}
-      {/* 안내 — 콘텐츠 면(--background)과 같은 표면 토큰을 쓰던 자리다. 콘텐츠 면이
-          흰색이 되면서 bg-card 로는 구분이 사라지므로, 테두리 대신 옅은 채움으로 바꿨다. */}
-      <div className="mb-2 p-3 rounded-md bg-muted">
+      {/* 안내 — 크롬(사이드바/탑바)과 같은 면으로 맞춘다. bg-card 가 곧 --sidebar-bg 라
+          색은 .slab 과 동일하고, 여기서는 halftone dot 재질만 빼는 셈이다.
+          라이트에서는 크롬(#fbfbf4)과 캔버스(순백)의 차이가 미미해 면만으로는 배너가
+          사라지므로 헤어라인을 함께 둔다 — 크롬의 L자 섀시가 지는 방식과 같다. */}
+      <div className="mb-2 p-3 rounded-md border border-[hsl(var(--sidebar-border))] bg-card">
         <div className="flex gap-2">
           <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
           <div className="text-xs leading-relaxed">
             <p className="font-semibold text-foreground">패치 관리 안내</p>
             <ul className="mt-1.5 ml-4 list-disc space-y-0.5 text-muted-foreground">
               <li>
-                생성된 패치 파일을{' '}
-                <strong className="text-foreground">실제 사이트에 적용 후 반드시 “패치 완료” 처리</strong>해 주세요.
+                생성된 패치 파일을 사이트에 적용했다면 반드시{' '}
+                <strong className="text-foreground">“패치 완료” 처리</strong>해주세요. 패치 완료를
+                하지 않으면 사이트의 버전이 갱신되지 않습니다.
               </li>
               <li>
                 <strong className="text-foreground">사용 계획이 없는 패치는 “삭제”</strong> 해주세요.

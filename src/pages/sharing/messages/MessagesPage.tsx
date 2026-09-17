@@ -23,6 +23,7 @@ import {
 } from '@/entities/messages/message'
 
 
+import { cn } from '@/shared/lib/utils'
 import { formatDateTime } from '@/shared/lib/utils/date'
 import { useAuthStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
@@ -126,21 +127,31 @@ export function MessagesPage() {
                     </TableCell>
                   </TableRow>
                 )}
-                {inbox?.content.map((message) => (
+                {inbox?.content.map((message) => {
+                  const isUnread = message.readAt === null
+
+                  return (
                   <TableRow
                     key={message.messageId}
-                    className="cursor-pointer"
+                    className={cn(
+                      'cursor-pointer',
+                      // 안읽은 행은 은은한 채움으로 띄운다 — 메일 클라이언트의 관례대로
+                      // '읽지 않은 것'이 기본 면이고 읽은 것이 가라앉는 구조다.
+                      isUnread && 'bg-muted/40'
+                    )}
                     onClick={() => setDetail({ messageId: message.messageId, markRead: true })}
                   >
                     <TableCell>
-                      {message.readAt === null ? (
+                      {isUnread ? (
                         <Mail className="h-4 w-4 text-destructive" aria-label="안읽음" />
                       ) : (
                         <MailOpen className="h-4 w-4 text-muted-foreground" aria-label="읽음" />
                       )}
                     </TableCell>
                     <TableCell
-                      className={message.readAt === null ? 'font-semibold' : undefined}
+                      className={
+                        isUnread ? 'font-semibold text-foreground' : 'text-muted-foreground'
+                      }
                     >
                       <div className="flex items-center gap-2">
                         {message.messageType !== 'USER' && (
@@ -151,10 +162,16 @@ export function MessagesPage() {
                         <span className="truncate">{message.title}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    {/* 보낸 사람·일시도 함께 대비를 준다 — 제목만 굵게 하면
+                        행 전체의 무게가 살지 않아 훑을 때 눈에 걸리지 않는다 */}
+                    <TableCell
+                      className={isUnread ? 'font-medium text-foreground' : 'text-muted-foreground'}
+                    >
                       {message.senderName}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell
+                      className={isUnread ? 'font-medium text-foreground' : 'text-muted-foreground'}
+                    >
                       {formatDateTime(message.createdAt)}
                     </TableCell>
                     <TableCell onClick={(event) => event.stopPropagation()}>
@@ -174,7 +191,8 @@ export function MessagesPage() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                  )
+                })}
               </TableBody>
             </Table>
           </DataTable>
@@ -233,9 +251,13 @@ export function MessagesPage() {
                         {rest.length > 0 ? ` 외 ${rest.length}명` : ''}
                       </TableCell>
                       <TableCell>
+                        {/* secondary/outline 은 다크에서 구분되지 않았다 —
+                            --secondary(#1e2330)가 카드 면과 거의 같은 값이고
+                            outline 은 투명이라 둘 다 '테두리만 있는 칩'으로 보인다.
+                            양 테마에 dark: 분기가 있는 variant 로 바꾼다. */}
                         <Badge
                           variant={
-                            message.readCount === message.recipientCount ? 'secondary' : 'outline'
+                            message.readCount === message.recipientCount ? 'info' : 'warning'
                           }
                         >
                           {message.recipientCount}명 중 {message.readCount}명
@@ -279,6 +301,11 @@ export function MessagesPage() {
 
   return (
     <PageLayout
+      // 제목/설명은 보통 DB 메뉴에서 자동으로 채워지지만, 이 화면은 진입점을
+      // 프로필 드롭다운으로 옮기면서 메뉴 트리에서 빠졌다(V26). 그래서 직접 넘긴다.
+      icon={<Mail className="h-5 w-5" />}
+      title="메시지"
+      description="사용자간 메시지를 주고받습니다."
       actions={
         <div className="flex items-center gap-2">
           <Tooltip>

@@ -69,6 +69,10 @@ export function MessageDetailDialog({
     onClose()
   }
 
+  // 수신자 읽음 현황 — 안읽은 사람이 발신자가 확인하려는 대상이라 먼저 보여준다
+  const unreadRecipients = message?.recipients.filter((r) => r.readAt === null) ?? []
+  const readRecipients = message?.recipients.filter((r) => r.readAt !== null) ?? []
+
   const isPatchReminder = message?.messageType === 'PATCH_REMINDER'
   const isAccountRequest =
     message?.messageType === 'PASSWORD_RESET_REQUEST' ||
@@ -108,27 +112,52 @@ export function MessageDetailDialog({
             </ScrollArea>
 
             {message.recipients.length > 0 && (
-              <div className="space-y-1.5 border-t pt-3">
-                <p className="text-xs font-medium text-muted-foreground">
-                  수신자 {message.recipients.length}명
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {message.recipients.map((recipient) => (
-                    <Badge
+              <div className="space-y-2 border-t pt-3">
+                {/* 배지 나열로는 '누가 아직 안 읽었는지'를 알 수 없었다. 발신자가
+                    실제로 확인하려는 것은 그것이므로, 한 줄에 한 명씩 두고
+                    읽지 않은 사람을 위로 올린다. */}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    수신자 {message.recipients.length}명
+                  </p>
+                  <Badge variant={unreadRecipients.length === 0 ? 'info' : 'warning'}>
+                    {message.recipients.length}명 중 {readRecipients.length}명 읽음
+                  </Badge>
+                </div>
+
+                <ul className="divide-y rounded border">
+                  {[...unreadRecipients, ...readRecipients].map((recipient) => (
+                    <li
                       key={`${recipient.accountId ?? recipient.email}`}
-                      variant="outline"
-                      className="gap-1 font-normal"
+                      className="flex items-center gap-2 px-2.5 py-1.5 text-sm"
                     >
                       {recipient.readAt ? (
-                        <MailOpen className="h-3 w-3 text-muted-foreground" />
+                        <MailOpen className="h-3 w-3 shrink-0 text-muted-foreground" />
                       ) : (
-                        <Mail className="h-3 w-3" />
+                        <Mail className="h-3 w-3 shrink-0 text-destructive" />
                       )}
-                      {recipient.accountName}
-                      {recipient.departmentName ? ` · ${recipient.departmentName}` : ''}
-                    </Badge>
+                      <span
+                        className={
+                          recipient.readAt ? 'text-muted-foreground' : 'font-medium text-foreground'
+                        }
+                      >
+                        {recipient.accountName}
+                      </span>
+                      {recipient.departmentName && (
+                        <span className="truncate text-xs text-muted-foreground">
+                          {recipient.departmentName}
+                        </span>
+                      )}
+                      <span
+                        className={`ml-auto shrink-0 text-xs ${
+                          recipient.readAt ? 'text-muted-foreground' : 'font-medium text-destructive'
+                        }`}
+                      >
+                        {recipient.readAt ? formatDateTime(recipient.readAt) : '읽지 않음'}
+                      </span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
 

@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { LogOut, User } from 'lucide-react'
+import { LogOut, Mail, User } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ProfileEditForm } from '@/widgets/_shared/profile-edit'
@@ -187,6 +187,11 @@ export function DesktopSidebar() {
                 <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <User className="mr-2 h-4 w-4" />
                   내 정보 수정
+                </DropdownMenuItem>
+                {/* 메시지 진입점 — 개인용 기능이라 업무 메뉴 트리가 아니라 여기에 둔다 */}
+                <DropdownMenuItem onClick={() => navigate(ROUTES.SUPPORT.SHARING.MESSAGES)}>
+                  <Mail className="mr-2 h-4 w-4" />
+                  메시지
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
