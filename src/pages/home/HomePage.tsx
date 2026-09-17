@@ -298,7 +298,10 @@ export function HomePage() {
       {/* Statistics — 남는 세로 공간을 채워 Quick Guide 를 뷰포트 하단으로 밀어낸다 (최소 320px) */}
       <div className="flex-1 min-h-0 flex flex-col">
         <TypographyLarge className="mb-3">Statistics</TypographyLarge>
-        <div className="grid grid-cols-2 gap-4 flex-1 min-h-[20rem]">
+        {/* 높이 상한 — 화면이 커져도 카드가 따라 늘어나지 않게 지금 데이터가 만드는
+            높이에서 멈춘다. 항목이 늘면 카드가 커지는 대신 각 카드 안에서 스크롤된다.
+            (좌: 막대 목록이 스크롤, 우: 차트 최소 높이를 확보하고 넘치면 스크롤) */}
+        <div className="grid grid-cols-2 gap-4 flex-1 min-h-[20rem] max-h-[26rem]">
           {/* 버전별 사이트 현황 (Stacked Horizontal Bar) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-2 flex-none">
@@ -324,11 +327,14 @@ export function HomePage() {
                 월별 패치 수
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 pb-4">
+            <CardContent className="flex-1 min-h-0 overflow-y-auto pb-4">
               {isLoadingMonthly ? (
                 <div className="animate-pulse h-full bg-muted rounded" />
               ) : formattedMonthlyData.length > 0 ? (
-                <div className="h-full">
+                // 범례는 ResponsiveContainer 안에 그려지므로 사이트가 늘면 막대 영역을
+                // 잠식한다. 최소 높이를 확보해 차트가 뭉개지지 않게 하고, 그 때문에
+                // 넘치는 만큼은 CardContent 가 스크롤한다.
+                <div className="h-full min-h-[16rem]">
                   <StackedBarChart
                     data={formattedMonthlyData}
                     xAxisKey="displayMonth"
