@@ -17,7 +17,7 @@ import { useMarkMessageAsRead, useMessageDetail } from '@/entities/messages/mess
 
 import { ROUTES } from '@/shared/config/constants'
 import { formatDateTime } from '@/shared/lib/utils/date'
-import { useProjectStore } from '@/shared/store'
+import { useAuthStore, useProjectStore } from '@/shared/store'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import {
@@ -44,6 +44,7 @@ export function MessageDetailDialog({
 }: MessageDetailDialogProps) {
   const navigate = useNavigate()
   const selectProject = useProjectStore((state) => state.selectProject)
+  const myAccountId = useAuthStore((state) => state.user?.accountId)
 
   const { data: message, isLoading } = useMessageDetail(messageId)
   const markAsRead = useMarkMessageAsRead()
@@ -69,7 +70,18 @@ export function MessageDetailDialog({
     onClose()
   }
 
-  // 수신자 읽음 현황 — 안읽은 사람이 발신자가 확인하려는 대상이라 먼저 보여준다
+  /**
+   * 읽음 확인은 내가 보낸 메시지에서만 본다.
+   *
+   * 수신자 명단 자체는 메일의 To 처럼 계속 공개한다 — 누구에게 함께 갔는지는
+   * '이건 저 사람이 처리할 일이겠구나' 같은 업무 맥락이 된다. 하지만 같이 받은
+   * 사람이 읽었는지까지 보이는 것은 프라이버시 노출이고, 그렇게 동작하는
+   * 메일/메신저도 없다. 서버도 같은 기준으로 readAt 을 내리지 않으므로
+   * (MessageDtoMapper.toRecipientInfoList) 여기서는 화면만 맞춘다.
+   */
+  const isMyMessage = !!message && message.senderAccountId === myAccountId
+
+  // 안읽은 사람이 발신자가 확인하려는 대상이라 먼저 보여준다
   const unreadRecipients = message?.recipients.filter((r) => r.readAt === null) ?? []
   const readRecipients = message?.recipients.filter((r) => r.readAt !== null) ?? []
 
@@ -120,25 +132,33 @@ export function MessageDetailDialog({
                   <p className="text-xs font-medium text-muted-foreground">
                     수신자 {message.recipients.length}명
                   </p>
-                  <Badge variant={unreadRecipients.length === 0 ? 'info' : 'warning'}>
-                    {message.recipients.length}명 중 {readRecipients.length}명 읽음
-                  </Badge>
+                  {isMyMessage && (
+                    <Badge variant={unreadRecipients.length === 0 ? 'info' : 'warning'}>
+                      {message.recipients.length}명 중 {readRecipients.length}명 읽음
+                    </Badge>
+                  )}
                 </div>
 
                 <ul className="divide-y rounded border">
-                  {[...unreadRecipients, ...readRecipients].map((recipient) => (
+                  {(isMyMessage
+                    ? [...unreadRecipients, ...readRecipients]
+                    : message.recipients
+                  ).map((recipient) => (
                     <li
                       key={`${recipient.accountId ?? recipient.email}`}
                       className="flex items-center gap-2 px-2.5 py-1.5 text-sm"
                     >
-                      {recipient.readAt ? (
-                        <MailOpen className="h-3 w-3 shrink-0 text-muted-foreground" />
-                      ) : (
-                        <Mail className="h-3 w-3 shrink-0 text-destructive" />
-                      )}
+                      {isMyMessage &&
+                        (recipient.readAt ? (
+                          <MailOpen className="h-3 w-3 shrink-0 text-muted-foreground" />
+                        ) : (
+                          <Mail className="h-3 w-3 shrink-0 text-destructive" />
+                        ))}
                       <span
                         className={
-                          recipient.readAt ? 'text-muted-foreground' : 'font-medium text-foreground'
+                          isMyMessage && !recipient.readAt
+                            ? 'font-medium text-foreground'
+                            : 'text-muted-foreground'
                         }
                       >
                         {recipient.accountName}
@@ -148,13 +168,17 @@ export function MessageDetailDialog({
                           {recipient.departmentName}
                         </span>
                       )}
-                      <span
-                        className={`ml-auto shrink-0 text-xs ${
-                          recipient.readAt ? 'text-muted-foreground' : 'font-medium text-destructive'
-                        }`}
-                      >
-                        {recipient.readAt ? formatDateTime(recipient.readAt) : '읽지 않음'}
-                      </span>
+                      {isMyMessage && (
+                        <span
+                          className={`ml-auto shrink-0 text-xs ${
+                            recipient.readAt
+                              ? 'text-muted-foreground'
+                              : 'font-medium text-destructive'
+                          }`}
+                        >
+                          {recipient.readAt ? formatDateTime(recipient.readAt) : '읽지 않음'}
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>
