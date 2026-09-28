@@ -1,0 +1,90 @@
+# ========================================
+# GitHub Actions — 빌드 + 106 서버 배포 (구 .gitlab-ci.yml 이관)
+# self-hosted runner(10.110.1.106, label rm-106) 에서 호스트 docker 로 직접 배포한다.
+# ========================================
+
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+# 배포가 겹치면 컨테이너 교체가 경쟁하므로 직렬화 (진행 중인 배포는 취소하지 않음)
+concurrency:
+  group: deploy-release-manager-web
+  cancel-in-progress: false
+
+env:
+  # App
+  SERVER_NAME: release-manager-web
+  SERVER_HOST: 10.110.1.106
+  SERVER_PORT: "80"
+  API_SERVER_URL: http://10.110.1.106:18080
+  # Docker Image
+  DOCKER_IMAGE: ts/release-manager-web:latest
+  COMPOSE: docker compose -p release_manager_web --env-file .env -f docker/docker-compose.yml
+
+jobs:
+  deploy:
+    # 이 워크플로는 PUBLIC 미러(soronprfbsz/*)에도 push 된다 — 거기서는 절대 실행하지 않는다.
+    if: github.repository_owner == 'tscorp-dev2'
+    runs-on: [self-hosted, rm-106]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Build dist
+        run: |
+          corepack enable
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Build image
+        run: |
+          # Dockerfile.ci 는 이미 빌드된 dist/ 를 복사만 한다 (node 빌드 없음)
+          docker build \
+            -f docker/Dockerfile.ci \
+            -t ${DOCKER_IMAGE} \
+            --label git-sha=${GITHUB_SHA} \
+            --progress=plain \
+            .
+
+      - name: Deploy web
+        run: |
+          cat > .env <<EOF
+          SERVER_NAME=${SERVER_NAME}
+          SERVER_HOST=${SERVER_HOST}
+          SERVER_PORT=${SERVER_PORT}
+          API_SERVER_URL=${API_SERVER_URL}
+          DOCKER_IMAGE=${DOCKER_IMAGE}
+          EOF
+          docker network ls | grep -q network-ts || docker network create network-ts
+
+          ${COMPOSE} rm -f web || true
+          docker stop ${SERVER_NAME} || true
+          docker rm -f ${SERVER_NAME} || true
+          ${COMPOSE} up -d web
+          sleep 5
+
+      - name: Health check
+        run: |
+          max_attempts=30; attempt=0
+          until curl -sf http://${SERVER_HOST}:${SERVER_PORT}/health > /dev/null || [ $attempt -eq $max_attempts ]; do
+            attempt=$((attempt+1))
+            echo "  대기 중... ($attempt/$max_attempts)"
+            sleep 2
+          done
+          if [ $attempt -eq $max_attempts ]; then
+            echo "✗ 애플리케이션 헬스체크 실패"
+            docker logs ${SERVER_NAME}
+            exit 1
+          fi
+          echo "✅ 배포 성공"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker image prune -f --filter "label=project=${SERVER_NAME}" 2>/dev/null || true
+          docker ps --filter "name=${SERVER_NAME}" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
