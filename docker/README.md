@@ -4,7 +4,7 @@
 
 ```
 release-manager-web/
-├── .gitlab-ci.yml         # GitLab CI/CD 파이프라인
+├── .github/workflows/deploy.yml  # GitHub Actions 빌드·배포 워크플로
 ├── .dockerignore          # Docker 빌드 컨텍스트 제외 파일
 └── docker/
     ├── Dockerfile         # 프로덕션 빌드용 Dockerfile
@@ -21,10 +21,9 @@ release-manager-web/
 - **특징**: 표준 멀티스테이지 빌드
 
 ### docker/Dockerfile.ci
-- **용도**: GitLab CI/CD 파이프라인
+- **용도**: GitHub Actions 배포 워크플로 (`.github/workflows/deploy.yml`)
 - **특징**: 
-  - 레이어 캐싱 최적화
-  - `--prefer-offline --no-audit` 플래그로 빌드 속도 향상
+  - 워크플로에서 먼저 빌드한 `dist/` 를 복사만 함 (이미지 안에서 node 빌드 없음)
   - 헬스체크 포함
 
 ## 주요 기능
@@ -65,43 +64,28 @@ docker build -f docker/Dockerfile -t release-manager-web:latest .
 docker run -p 80:80 release-manager-web:latest
 ```
 
-### CI 빌드 (GitLab CI에서 자동 실행)
+### CI 빌드 (GitHub Actions에서 자동 실행)
 ```bash
 # CI용 Dockerfile 사용
 docker build -f docker/Dockerfile.ci -t release-manager-web:ci .
 ```
 
-### GitLab CI/CD 환경 변수 설정
+### CI/CD 설정값
 
-GitLab 프로젝트 Settings > CI/CD > Variables에 다음 변수를 추가하세요:
-
-#### Docker Registry
-- `CI_REGISTRY`: GitLab Container Registry URL
-- `CI_REGISTRY_USER`: Registry 사용자명
-- `CI_REGISTRY_PASSWORD`: Registry 비밀번호
-
-#### Staging 환경
-- `STAGING_SERVER`: Staging 서버 호스트
-- `STAGING_USER`: SSH 사용자명
-- `SSH_PRIVATE_KEY`: SSH 개인키
-
-#### Production 환경
-- `PRODUCTION_SERVER`: Production 서버 호스트
-- `PRODUCTION_USER`: SSH 사용자명
+- 웹은 **GitHub Secrets 가 필요 없다.** 설정값(`SERVER_PORT`, `API_SERVER_URL`, 이미지 이름)은 모두
+  `.github/workflows/deploy.yml` 상단 `env:` 에서 관리한다.
 
 ## 배포 프로세스
 
-1. **개발 브랜치 (`develop`)**: 
-   - 빌드 및 테스트 자동 실행
-   - Staging 배포는 수동 트리거
+`main` 브랜치에 push 하면 배포 서버의 self-hosted runner(label `rm-106`)에서 자동 실행된다
+(Actions 탭 → Deploy → Run workflow 로 수동 실행도 가능). `tscorp-dev2` 조직 저장소에서만 실행된다.
 
-2. **메인 브랜치 (`main`)**: 
-   - 빌드, 테스트, Docker 이미지 빌드 자동 실행
-   - Production 배포는 수동 트리거
+1. **Build dist**: `yarn install --frozen-lockfile && yarn build`
+2. **Build image**: `docker/Dockerfile.ci` 로 `ts/release-manager-web:latest` 빌드 (label `git-sha`=커밋)
+3. **Deploy web**: web 컨테이너 교체
+4. **Health check**: `/health` 확인
 
-3. **태그**: 
-   - 버전 태그 생성 시 자동 빌드
-   - Production 배포 가능
+API 와 함께 배포할 때는 **web → api 순서**로 push 한다.
 
 ## 커스터마이징
 

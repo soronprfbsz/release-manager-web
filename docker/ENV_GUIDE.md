@@ -46,12 +46,12 @@ WEB_PORT=3000
 docker-compose up -d
 ```
 
-### 3. GitLab CI/CD
-GitLab 프로젝트 Settings > CI/CD > Variables에 다음 변수 추가:
+### 3. GitHub Actions (운영 배포)
+`.github/workflows/deploy.yml` 상단 `env:` 에서 관리한다 (GitHub Secrets 불필요):
 
-- `VITE_API_SERVER_URL`: 백엔드 API URL
-- `VITE_APP_TITLE`: 애플리케이션 제목 (선택)
-- `WEB_PORT`: 웹 서버 포트 (기본: 3000)
+- `SERVER_PORT`: 웹 서버 외부 포트
+- `API_SERVER_URL`: nginx 가 `/api` 를 프록시할 백엔드 주소 (런타임, 컨테이너 환경변수)
+- `VITE_*`: 운영 빌드에서는 별도 지정 없이 기본값 사용
 
 ## 빌드 시점 vs 런타임
 
